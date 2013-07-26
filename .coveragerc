@@ -1,0 +1,6 @@
+[report]
+omit = 
+       okonomiyaki/utils/encoding.py
+       okonomiyaki/utils/importstring.py
+       okonomiyaki/utils/py3compat.py
+       okonomiyaki/utils/traitlets.py
