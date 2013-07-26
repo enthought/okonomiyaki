@@ -57,7 +57,7 @@ class EnpkgS3IndexEntry(HasTraits):
         Note: the passed in dictionary may be modified.
         """
         data = _decode_none_values(data)
-        data["packages"] = [Dependency.from_string(s) for s in data["packages"]]
+        data["packages"] = [Dependency.from_spec_string(s) for s in data["packages"]]
         return cls(**data)
 
     @classmethod
