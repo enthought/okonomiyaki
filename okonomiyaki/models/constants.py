@@ -1,5 +1,7 @@
 import collections
 
+_EGG_INFO_PREFIX = "EGG-INFO"
+
 # This data representation is a bit stupid, but we keep it as is from
 # buildware/epd_repo to make it easier to sync.
 _SUBDIR = [

@@ -93,3 +93,114 @@ class Dependency(HasTraits):
                 return "{0} {1}".format(self.name, self.version_string)
         else:
             return self.name
+
+class LegacySpec(HasTraits):
+    """
+    This models the EGG-INFO/spec content.
+    """
+    # Name is taken from egg path, so may be upper case
+    name = Unicode()
+    version = Unicode()
+    build = Long()
+
+    platform = Unicode()
+    osdist = Unicode()
+
+    python = Unicode()
+    packages = List(Instance(Dependency))
+
+    short = Enum(_PLATFORMS_SHORT_NAMES)
+
+    lib_depend = List()
+    lib_provide = List()
+
+    summary = Unicode()
+
+    @property
+    def arch(self):
+        return _PLATFORMS_DESCRIPTIONS[self.short].arch
+
+    @property
+    def metadata_version(self):
+        return "1.1"
+
+    @property
+    def subdir(self):
+        return _PLATFORMS_DESCRIPTIONS[self.short].subdir
+
+    @classmethod
+    def from_data(cls, data, epd_platform, python=None):
+        args = data.copy()
+
+        platform = _PLATFORMS_DESCRIPTIONS[epd_platform]
+        args["osdist"] = platform.osdist
+        args["platform"] = platform.platform
+
+        args["short"] = epd_platform
+
+        if python is None:
+            args["python"] = ""
+        else:
+            args["python"] = python
+        return cls(**args)
+
+    @classmethod
+    def from_egg(cls, egg, epd_platform, python=None):
+        name, version, build = _parse_egg_name(egg)
+        data = dict(name=name, version=version, build=build)
+        return cls.from_data(data, epd_platform, python)
+
+    def to_dict(self):
+        data = {"name": self.name,
+                "version": self.version,
+                "build": self.build,
+                "arch": self.arch,
+                "platform": self.platform,
+                "osdist": self.osdist,
+                "packages": [str(p) for p in self.packages],
+                "short": self.short,
+                "subdir": self.subdir,
+                "metadata_version": self.metadata_version}
+        if self.python == "":
+            data["python"] = None
+        else:
+            data["python"] = self.python
+
+        if len(self.lib_depend) > 0:
+            data["lib-depend"] = "\n".join(str(p) for p in self.lib_depend)
+        else:
+            data["lib-depend"] = "\n"
+        if len(self.lib_provide):
+            data["lib-provide"] = "\n".join(str(p) for p in self.lib_provide)
+        else:
+            data["lib-provide"] = "\n"
+
+        return data
+
+    def depend_content(self):
+        """
+        Returns a string that is suitable for the depend file inside our legacy egg.
+        """
+        template = """\
+metadata_version = '{metadata_version}'
+name = '{name}'
+version = '{version}'
+build = {build}
+
+arch = '{arch}'
+platform = '{platform}'
+osdist = '{osdist}'
+python = '{python}'
+packages = [
+  {packages}
+]
+"""
+        data = self.to_dict()
+
+        # This is just to ensure the exact same string as the produced by the
+        # legacy buildsystem
+        if len(self.packages) == 1:
+            data["packages"] = "'{0}',".format(self.packages[0])
+        else:
+            data["packages"] = "  \n,".join("'{0}'".format(p) for p in self.packages)
+        return template.format(**data)

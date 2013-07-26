@@ -3,7 +3,7 @@ import unittest
 import os.path as op
 
 from okonomiyaki.errors import InvalidEggName
-from okonomiyaki.models.egg import Dependency
+from okonomiyaki.models.egg import Dependency, LegacySpec
 
 DATA_DIR = op.join(op.dirname(__file__), "data")
 
@@ -61,3 +61,33 @@ class TestDependency(unittest.TestCase):
 
         self.assertRaises(InvalidEggName, lambda : Dependency.from_string("numpy"))
         self.assertRaises(InvalidEggName, lambda : Dependency.from_string("numpy 1.7.1"))
+
+class TestLegacySpec(unittest.TestCase):
+    def test_depend_content(self):
+        r_depend = """\
+metadata_version = '1.1'
+name = 'Qt_debug'
+version = '4.8.5'
+build = 2
+
+arch = 'x86'
+platform = 'linux2'
+osdist = 'RedHat_5'
+python = '2.7'
+packages = [
+  'Qt 4.8.5',
+]
+"""
+
+        dependencies = [Dependency.from_string("Qt-4.8.5-2")]
+        data = dict(
+            name="Qt_debug",
+            version="4.8.5",
+            build=2,
+            python="2.7",
+            packages=dependencies,
+            summary="Debug symbol files for Qt.",
+        )
+        spec = LegacySpec.from_data(data, "rh5-32", "2.7")
+
+        self.assertEqual(spec.depend_content(), r_depend)
