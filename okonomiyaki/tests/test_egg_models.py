@@ -29,22 +29,35 @@ class TestDependency(unittest.TestCase):
         self.assertEqual(dependency.name, "numpy")
         self.assertEqual(dependency.version_string, "")
         self.assertEqual(dependency.build_number, -1)
+        self.assertEqual(dependency.strictness, 1)
 
         dependency = Dependency.from_spec_string("numpy 1.7.1")
         self.assertEqual(dependency.name, "numpy")
         self.assertEqual(dependency.version_string, "1.7.1")
         self.assertEqual(dependency.build_number, -1)
+        self.assertEqual(dependency.strictness, 2)
 
         dependency = Dependency.from_spec_string("numpy 1.7.1-2")
         self.assertEqual(dependency.name, "numpy")
         self.assertEqual(dependency.version_string, "1.7.1")
         self.assertEqual(dependency.build_number, 2)
+        self.assertEqual(dependency.strictness, 3)
 
     def test_from_string(self):
-        dependency = Dependency.from_string("numpy-1.7.1-2")
+        dependency = Dependency.from_string("numpy-1.7.1-2", 3)
         self.assertEqual(dependency.name, "numpy")
         self.assertEqual(dependency.version_string, "1.7.1")
         self.assertEqual(dependency.build_number, 2)
+
+        dependency = Dependency.from_string("numpy-1.7.1-2", 2)
+        self.assertEqual(dependency.name, "numpy")
+        self.assertEqual(dependency.version_string, "1.7.1")
+        self.assertEqual(dependency.build_number, -1)
+
+        dependency = Dependency.from_string("numpy-1.7.1-2", 1)
+        self.assertEqual(dependency.name, "numpy")
+        self.assertEqual(dependency.version_string, "")
+        self.assertEqual(dependency.build_number, -1)
 
         self.assertRaises(InvalidEggName, lambda : Dependency.from_string("numpy"))
         self.assertRaises(InvalidEggName, lambda : Dependency.from_string("numpy 1.7.1"))

@@ -23,17 +23,43 @@ class Dependency(HasTraits):
     version_string = Unicode()
     build_number = Long(-1)
 
+    @property
+    def strictness(self):
+        if len(self.version_string) == 0:
+            return 1
+        elif self.build_number < 0:
+            return 2
+        else:
+            return 3
+
     @classmethod
-    def from_string(cls, s):
+    def from_string(cls, s, strictness=2):
         """
-        Create a Dependency from string following a name-version-build format,
-        e.g. 'Qt-4.8.5-2'.
+        Create a Dependency from string following a name-version-build format.
+
+        Parameters
+        ----------
+        s: str
+            Egg name, e.g. 'Qt-4.8.5-2'.
+        strictness: int
+            Control strictness of string representation
         """
         m = _EGG_NAME_RE.match(s)
         if m is None:
             raise InvalidEggName(s)
-        return cls(name=m.group('name'), version_string=m.group('version'),
-                   build_number=int(m.group('build')))
+
+        if strictness >= 3:
+            build_number = int(m.group('build'))
+        else:
+            build_number = -1
+
+        if strictness >= 2:
+            version_string = m.group('version')
+        else:
+            version_string = ""
+
+        return cls(name=m.group('name'), version_string=version_string,
+                   build_number=build_number)
 
 
     @classmethod
