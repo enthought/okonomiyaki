@@ -1,5 +1,7 @@
 from distutils.core import setup
 
+from okonomiyaki import __version__
+
 if __name__ == "__main__":
     setup(name="okonomiyaki",
           author="David Cournapeau",
@@ -7,5 +9,6 @@ if __name__ == "__main__":
           packages=["okonomiyaki",
                     "okonomiyaki.models",
                     "okonomiyaki.utils",
-                    "okonomiyaki.tests"]
+                    "okonomiyaki.tests"],
+          version=__version__
     )
