@@ -1,5 +1,6 @@
 from ..utils.traitlets import HasTraits, Enum, Float, Instance, List, Long, Unicode
 
+from .common import egg_name
 from .constants import _PLATFORMS_SHORT_NAMES
 from .enpkg import EnpkgS3IndexEntry
 
@@ -39,7 +40,7 @@ class GritsEggEntry(HasTraits):
     @property
     def egg_name(self):
         """The egg filename."""
-        return "{0}-{1}-{2}.egg".format(self.enpkg_metadata.egg_basename, self.version, self.build)
+        return egg_name(self.enpkg_metadata.egg_basename, self.version, self.build)
 
     @property
     def grits_key(self):

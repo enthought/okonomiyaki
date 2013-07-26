@@ -4,6 +4,7 @@ import re
 from okonomiyaki.errors import InvalidEggName, InvalidDependencyString
 
 from ..utils.traitlets import HasTraits, Enum, Instance, List, Long, Unicode
+from .common import egg_name
 from .constants import _PLATFORMS_DESCRIPTIONS, _PLATFORMS_SHORT_NAMES
 
 _EGG_NAME_RE = re.compile("(?P<name>[\w]+)-(?P<version>[^-]+)-(?P<build>\d+)")
@@ -121,6 +122,10 @@ class LegacySpec(HasTraits):
         return _PLATFORMS_DESCRIPTIONS[self.short].arch
 
     @property
+    def egg_name(self):
+        return egg_name(self.name, self.version, self.build)
+
+    @property
     def metadata_version(self):
         return "1.1"
 
@@ -191,16 +196,15 @@ arch = '{arch}'
 platform = '{platform}'
 osdist = '{osdist}'
 python = '{python}'
-packages = [
-  {packages}
-]
+packages = {packages}
 """
         data = self.to_dict()
 
         # This is just to ensure the exact same string as the produced by the
         # legacy buildsystem
-        if len(self.packages) == 1:
-            data["packages"] = "'{0}',".format(self.packages[0])
+        if len(self.packages) == 0:
+            data["packages"] = "[]"
         else:
-            data["packages"] = "  \n,".join("'{0}'".format(p) for p in self.packages)
+            data["packages"] = "[\n  {0},\n]".format(
+                    "  \n".join("'{0}'".format(p) for p in self.packages))
         return template.format(**data)
