@@ -1,4 +1,5 @@
 import json
+import os
 import unittest
 
 import os.path as op
@@ -6,6 +7,9 @@ import os.path as op
 from okonomiyaki.models.grits import GritsEggEntry
 
 DATA_DIR = op.join(op.dirname(__file__), "data")
+
+__st = os.stat(op.join(DATA_DIR, "Cython-0.19.1-1.egg"))
+CYTHON_MTIME = __st.st_mtime
 
 class TestGritsEggEntry(unittest.TestCase):
     def test_cased_egg_basename(self):
@@ -43,18 +47,18 @@ class TestGritsEggEntry(unittest.TestCase):
         self.assertEqual(entry.grits_tags, r_tags)
 
     def test_metadata(self):
-        r_metadata = {'build': 1,
-                'egg_basename': 'Cython',
-                'md5': 'fa334276ff97c721370516530a36c475',
-                'mtime': 1374831351.0,
-                'name': 'cython',
+        r_metadata = {'build': 1L,
+                'egg_basename': u'Cython',
+                'md5': u'fa334276ff97c721370516530a36c475',
+                'mtime': CYTHON_MTIME,
+                'name': u'cython',
                 'packages': [],
                 'platform': 'rh5-32',
                 'product': 'commercial',
-                'python': '2.7',
-                'size': 4766,
+                'python': u'2.7',
+                'size': 4766L,
                 'type': 'egg',
-                'version': '0.19.1'}
+                'version': u'0.19.1'}
 
         path = op.join(DATA_DIR, "Cython-0.19.1-1.egg")
 
