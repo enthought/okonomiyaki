@@ -10,23 +10,10 @@ from enstaller.egg_meta import split_eggname
 from ..utils import compute_md5
 from ..utils.traitlets import HasTraits, Enum, Float, Instance, List, Long, Unicode
 
+from .common import _decode_none_values, _encode_none_values
 from .egg import Dependency
 
 _CAN_BE_NONE_KEYS = ["osdist", "platform", "python"]
-
-def _decode_none_values(data):
-    for k in _CAN_BE_NONE_KEYS:
-        if k in data and data[k] is None:
-            data[k] = ""
-    return data
-
-def _encode_none_values(data):
-    # XXX: hack to deal with the lack of Either in traitlets -> ''
-    # translated to null in json for those keys
-    for k in _CAN_BE_NONE_KEYS:
-        if k in data and data[k] == "":
-            data[k] = None
-    return data
 
 class EnpkgS3IndexEntry(HasTraits):
     """
@@ -56,7 +43,7 @@ class EnpkgS3IndexEntry(HasTraits):
 
         Note: the passed in dictionary may be modified.
         """
-        data = _decode_none_values(data)
+        data = _decode_none_values(data, _CAN_BE_NONE_KEYS)
         data["packages"] = [Dependency.from_spec_string(s) for s in data["packages"]]
         return cls(**data)
 
@@ -95,7 +82,7 @@ class EnpkgS3IndexEntry(HasTraits):
                 "size": self.size,
                 "type": self.type,
                 "version": self.version}
-        data = _encode_none_values(data)
+        data = _encode_none_values(data, _CAN_BE_NONE_KEYS)
         return data
 
     def to_json(self):
