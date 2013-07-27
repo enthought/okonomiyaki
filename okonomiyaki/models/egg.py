@@ -4,8 +4,10 @@ import re
 from okonomiyaki.errors import InvalidEggName, InvalidDependencyString
 
 from ..utils.traitlets import HasTraits, Enum, Instance, List, Long, Unicode
-from .common import egg_name
+from .common import egg_name, _decode_none_values, _encode_none_values
 from .constants import _PLATFORMS_DESCRIPTIONS, _PLATFORMS_SHORT_NAMES
+
+_CAN_BE_NONE_KEYS = ("osdist", "platform", "python")
 
 _EGG_NAME_RE = re.compile("(?P<name>[\w]+)-(?P<version>[^-]+)-(?P<build>\d+)")
 
@@ -143,10 +145,9 @@ class LegacySpec(HasTraits):
 
         args["short"] = epd_platform
 
-        if python is None:
-            args["python"] = ""
-        else:
-            args["python"] = python
+        args["python"] = python
+
+        args = _decode_none_values(args, _CAN_BE_NONE_KEYS)
         return cls(**args)
 
     @classmethod
@@ -163,13 +164,11 @@ class LegacySpec(HasTraits):
                 "platform": self.platform,
                 "osdist": self.osdist,
                 "packages": [str(p) for p in self.packages],
+                "python": self.python,
                 "short": self.short,
                 "subdir": self.subdir,
                 "metadata_version": self.metadata_version}
-        if self.python == "":
-            data["python"] = None
-        else:
-            data["python"] = self.python
+        data = _encode_none_values(data, _CAN_BE_NONE_KEYS)
 
         if len(self.lib_depend) > 0:
             data["lib-depend"] = "\n".join(str(p) for p in self.lib_depend)

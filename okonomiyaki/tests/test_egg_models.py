@@ -91,3 +91,14 @@ packages = [
         spec = LegacySpec.from_data(data, "rh5-32", "2.7")
 
         self.assertEqual(spec.depend_content(), r_depend)
+
+    def test_windows_platform(self):
+        """Test we handle None correctly in windows-specific metadata."""
+        data = dict(
+            name="Qt_debug",
+            version="4.8.5",
+            build=2,
+            python="2.7",
+            summary="Debug symbol files for Qt.",
+        )
+        spec = LegacySpec.from_data(data, "win-32", "2.7")
