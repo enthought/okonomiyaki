@@ -5,12 +5,11 @@ import zipfile
 import os.path as op
 
 from egginst.eggmeta import info_from_z
-from enstaller.egg_meta import split_eggname
 
 from ..utils import compute_md5
 from ..utils.traitlets import HasTraits, Enum, Float, Instance, List, Long, Unicode
 
-from .common import _decode_none_values, _encode_none_values
+from .common import _decode_none_values, _encode_none_values, split_egg_name
 from .egg import Dependency
 
 _CAN_BE_NONE_KEYS = ["osdist", "platform", "python"]
@@ -56,7 +55,7 @@ class EnpkgS3IndexEntry(HasTraits):
                 kw[k] = data[k]
             kw["packages"] = data.get("packages", [])
             kw["product"] = product
-            kw["egg_basename"] = split_eggname(op.basename(path))[0]
+            kw["egg_basename"] = split_egg_name(op.basename(path))[0]
 
             st = os.stat(path)
             kw["mtime"] = st.st_mtime

@@ -1,22 +1,11 @@
 """Traitlets-based models for egg-related metadata."""
-import re
-
 from okonomiyaki.errors import InvalidEggName, InvalidDependencyString
 
 from ..utils.traitlets import HasTraits, Enum, Instance, List, Long, Unicode
-from .common import egg_name, _decode_none_values, _encode_none_values
+from .common import egg_name, _decode_none_values, _encode_none_values, split_egg_name
 from .constants import _PLATFORMS_DESCRIPTIONS, _PLATFORMS_SHORT_NAMES
 
 _CAN_BE_NONE_KEYS = ("osdist", "platform", "python")
-
-_EGG_NAME_RE = re.compile("(?P<name>[\w]+)-(?P<version>[^-]+)-(?P<build>\d+)")
-
-def is_egg_name_valid(s):
-    """
-    Return True if the given string is a valid egg name (not including the
-    .egg, e.g. 'Qt-4.8.5-2')
-    """
-    return _EGG_NAME_RE.match(s)
 
 class Dependency(HasTraits):
     """
@@ -47,21 +36,18 @@ class Dependency(HasTraits):
         strictness: int
             Control strictness of string representation
         """
-        m = _EGG_NAME_RE.match(s)
-        if m is None:
-            raise InvalidEggName(s)
-
+        name, version, build = split_egg_name("{0}.egg".format(s))
         if strictness >= 3:
-            build_number = int(m.group('build'))
+            build_number = build
         else:
             build_number = -1
 
         if strictness >= 2:
-            version_string = m.group('version')
+            version_string = version
         else:
             version_string = ""
 
-        return cls(name=m.group('name'), version_string=version_string,
+        return cls(name=name, version_string=version_string,
                    build_number=build_number)
 
 
