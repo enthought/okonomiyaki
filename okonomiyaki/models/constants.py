@@ -1,3 +1,5 @@
+import os.path as op
+
 import collections
 
 _EGG_INFO_PREFIX = "EGG-INFO"
@@ -22,3 +24,6 @@ _PlatformDescription = collections.namedtuple("_PlatformDescription", ["short", 
 
 _PLATFORMS_DESCRIPTIONS = dict((line[0], _PlatformDescription(*line)) for line in _SUBDIR)
 _PLATFORMS_SHORT_NAMES = tuple(line[0] for line in _SUBDIR)
+
+_SPEC_DEPEND_LOCATION = op.join(_EGG_INFO_PREFIX, "spec", "depend")
+_INFO_JSON_LOCATION = op.join(_EGG_INFO_PREFIX, "info.json")

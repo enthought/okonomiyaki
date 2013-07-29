@@ -9,7 +9,7 @@ from egginst.eggmeta import info_from_z
 from ..utils import compute_md5
 from ..utils.traitlets import HasTraits, Enum, Float, Instance, List, Long, Unicode
 
-from .common import _decode_none_values, _encode_none_values, split_egg_name
+from .common import _decode_none_values, _encode_none_values, info_from_z, split_egg_name
 from .egg import Dependency
 
 _CAN_BE_NONE_KEYS = ["osdist", "platform", "python"]
