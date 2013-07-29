@@ -105,5 +105,10 @@ def _translator(v):
         return _TRANSLATOR[v.__class__](v)
     elif isinstance(v, _ast.List):
         return [_translator(i) for i in _TRANSLATOR[_ast.List](v)]
+    elif isinstance(v, _ast.Name):
+        if v.id != 'None':
+            raise NotImplementedError("value of type _ast.Name which value != 'None' not supported (was {0})".format(v.id))
+        else:
+            return None
     else:
-        raise NotImplemented("Type {0} not handled yet".format(v))
+        raise NotImplementedError("Type {0} not handled yet".format(v))

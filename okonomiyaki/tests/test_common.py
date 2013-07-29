@@ -71,3 +71,31 @@ packages = [
 """
 
         self.assertEqual(r_spec, parse_rawspec(spec_s))
+
+    def test_with_none(self):
+        r_spec = {'arch': 'x86',
+                  'build': 1,
+                  'name': 'pandas',
+                  'osdist': None,
+                  'packages': ['numpy 1.7.1', 'python_dateutil'],
+                  'platform': None,
+                  'python': None,
+                  'version': '0.12.0'}
+
+        spec_s = """\
+metadata_version = '1.1'
+name = 'pandas'
+version = '0.12.0'
+build = 1
+
+arch = 'x86'
+platform = None
+osdist = None
+python = None
+packages = [
+  'numpy 1.7.1',
+  'python_dateutil',
+]
+"""
+
+        self.assertEqual(r_spec, parse_rawspec(spec_s))
