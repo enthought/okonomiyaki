@@ -1,10 +1,12 @@
 import json
 import os
+import six
 import unittest
 
 import os.path as op
 
 from okonomiyaki.models.enpkg import EnpkgS3IndexEntry
+from okonomiyaki.utils.py3compat import long
 
 DATA_DIR = op.join(op.dirname(__file__), "data")
 
@@ -23,10 +25,10 @@ class TestEnpkgS3IndexEntry(unittest.TestCase):
 
     def test_to_json(self):
         r_data = dict(
-            build=3L,
-            md5=u"78ce2b9ebc88e3ed81cb9c0aa4eb8c87",
+            build=long(3),
+            md5=six.u("78ce2b9ebc88e3ed81cb9c0aa4eb8c87"),
             mtime=ETS_MTIME,
-            egg_basename=u'ets',
+            egg_basename=six.u('ets'),
             name=u'ets',
             packages=[
               'apptools 4.2.0-2',
@@ -48,7 +50,7 @@ class TestEnpkgS3IndexEntry(unittest.TestCase):
               'traitsui 4.3.0-2'],
             product='commercial',
             python=u'2.7',
-            size=10027L,
+            size=long(10027),
             type='egg',
             version=u'4.3.0')
 
@@ -80,11 +82,11 @@ class TestEnpkgS3IndexEntry(unittest.TestCase):
         # Test the value that may be null in the json
         self.assertEqual(index_entry.osdist, "")
 
-        self.assertEqual(index_entry.name, u"numpy")
+        self.assertEqual(index_entry.name, six.u("numpy"))
 
     def test_cased_egg_basename(self):
         path = op.join(DATA_DIR, "Cython-0.19.1-1.egg")
 
         index_entry = EnpkgS3IndexEntry.from_egg(path)
-        self.assertEqual(index_entry.name, u"cython")
-        self.assertEqual(index_entry.egg_basename, u"Cython")
+        self.assertEqual(index_entry.name, six.u("cython"))
+        self.assertEqual(index_entry.egg_basename, six.u("Cython"))
