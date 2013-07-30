@@ -4,8 +4,6 @@ import zipfile
 
 import os.path as op
 
-from egginst.eggmeta import info_from_z
-
 from ..utils import compute_md5
 from ..utils.traitlets import HasTraits, Enum, Float, Instance, List, Long, Unicode
 
