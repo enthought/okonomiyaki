@@ -7,6 +7,8 @@ if __name__ == "__main__":
           author="David Cournapeau",
           author_email="David Cournapeau",
           packages=["okonomiyaki",
+                    "okonomiyaki.bundled",
+                    "okonomiyaki.bundled.ipython_utils",
                     "okonomiyaki.file_formats",
                     "okonomiyaki.models",
                     "okonomiyaki.utils",
