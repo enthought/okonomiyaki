@@ -27,6 +27,7 @@ from unittest import TestCase
 
 import nose.tools as nt
 from nose import SkipTest
+import six
 
 from ..traitlets import (
     HasTraits, MetaHasTraits, TraitType, Any, CBytes, Dict,
@@ -36,6 +37,9 @@ from ..traitlets import (
 )
 from .. import py3compat
 from ..misc import skipif
+
+if six.PY3:
+    long = int
 
 #-----------------------------------------------------------------------------
 # Helper classes for testing
@@ -148,16 +152,16 @@ class TestTraitType(TestCase):
 
         a = A()
         self.assertEqual(a._trait_values, {})
-        self.assertEqual(a._trait_dyn_inits.keys(), ['x'])
+        self.assertEqual(list(a._trait_dyn_inits.keys()), ['x'])
         self.assertEqual(a.x, 11)
         self.assertEqual(a._trait_values, {'x': 11})
         b = B()
         self.assertEqual(b._trait_values, {'x': 20})
-        self.assertEqual(a._trait_dyn_inits.keys(), ['x'])
+        self.assertEqual(list(a._trait_dyn_inits.keys()), ['x'])
         self.assertEqual(b.x, 20)
         c = C()
         self.assertEqual(c._trait_values, {})
-        self.assertEqual(a._trait_dyn_inits.keys(), ['x'])
+        self.assertEqual(list(a._trait_dyn_inits.keys()), ['x'])
         self.assertEqual(c.x, 21)
         self.assertEqual(c._trait_values, {'x': 21})
         # Ensure that the base class remains unmolested when the _default
@@ -165,7 +169,7 @@ class TestTraitType(TestCase):
         a = A()
         c = C()
         self.assertEqual(a._trait_values, {})
-        self.assertEqual(a._trait_dyn_inits.keys(), ['x'])
+        self.assertEqual(list(a._trait_dyn_inits.keys()), ['x'])
         self.assertEqual(a.x, 11)
         self.assertEqual(a._trait_values, {'x': 11})
 
@@ -663,7 +667,7 @@ class AnyTraitTest(TraitTestBase):
     obj = AnyTrait()
 
     _default_value = None
-    _good_values   = [10.0, 'ten', u'ten', [10], {'ten': 10},(10,), None, 1j]
+    _good_values   = [10.0, 'ten', six.u('ten'), [10], {'ten': 10},(10,), None, 1j]
     _bad_values    = []
 
 
@@ -676,27 +680,27 @@ class TestInt(TraitTestBase):
     obj = IntTrait()
     _default_value = 99
     _good_values   = [10, -10]
-    _bad_values    = ['ten', u'ten', [10], {'ten': 10},(10,), None, 1j,
-                      10.1, -10.1, '10L', '-10L', '10.1', '-10.1', u'10L',
-                      u'-10L', u'10.1', u'-10.1',  '10', '-10', u'10', u'-10']
+    _bad_values    = ['ten', six.u('ten'), [10], {'ten': 10},(10,), None, 1j,
+                      10.1, -10.1, 'long(10)', '-long(10)', '10.1', '-10.1', six.u('long(10)'),
+                      six.u('-long(10)'), six.u('10.1'), six.u('-10.1'),  '10', '-10', six.u('10'), six.u('-10')]
     if not py3compat.PY3:
-        _bad_values.extend([10L, -10L, 10*sys.maxint, -10*sys.maxint])
+        _bad_values.extend([long(10), -long(10), 10*sys.maxint, -10*sys.maxint])
 
 
 class LongTrait(HasTraits):
 
-    value = Long(99L)
+    value = Long(long(99))
 
 class TestLong(TraitTestBase):
 
     obj = LongTrait()
 
-    _default_value = 99L
-    _good_values   = [10, -10, 10L, -10L]
-    _bad_values    = ['ten', u'ten', [10], [10l], {'ten': 10},(10,),(10L,),
-                      None, 1j, 10.1, -10.1, '10', '-10', '10L', '-10L', '10.1',
-                      '-10.1', u'10', u'-10', u'10L', u'-10L', u'10.1',
-                      u'-10.1']
+    _default_value = long(99)
+    _good_values   = [10, -10, long(10), -long(10)]
+    _bad_values    = ['ten', six.u('ten'), [10], [long(10)], {'ten': 10},(10,),(long(10),),
+                      None, 1j, 10.1, -10.1, '10', '-10', 'long(10)', '-long(10)', '10.1',
+                      '-10.1', six.u('10'), six.u('-10'), six.u('long(10)'), six.u('-long(10)'), six.u('10.1'),
+                      six.u('-10.1')]
     if not py3compat.PY3:
         # maxint undefined on py3, because int == long
         _good_values.extend([10*sys.maxint, -10*sys.maxint])
@@ -724,7 +728,7 @@ class TestInteger(TestLong):
         if py3compat.PY3:
             raise SkipTest("not relevant on py3")
 
-        self.obj.value = 100L
+        self.obj.value = long(100)
         self.assertEqual(type(self.obj.value), int)
 
 
@@ -738,11 +742,11 @@ class TestFloat(TraitTestBase):
 
     _default_value = 99.0
     _good_values   = [10, -10, 10.1, -10.1]
-    _bad_values    = ['ten', u'ten', [10], {'ten': 10},(10,), None,
-                      1j, '10', '-10', '10L', '-10L', '10.1', '-10.1', u'10',
-                      u'-10', u'10L', u'-10L', u'10.1', u'-10.1']
+    _bad_values    = ['ten', six.u('ten'), [10], {'ten': 10},(10,), None,
+                      1j, '10', '-10', 'long(10)', '-long(10)', '10.1', '-10.1', six.u('10'),
+                      six.u('-10'), six.u('long(10)'), six.u('-long(10)'), six.u('10.1'), six.u('-10.1')]
     if not py3compat.PY3:
-        _bad_values.extend([10L, -10L])
+        _bad_values.extend([long(10), -long(10)])
 
 
 class ComplexTrait(HasTraits):
@@ -756,9 +760,9 @@ class TestComplex(TraitTestBase):
     _default_value = 99.0-99.0j
     _good_values   = [10, -10, 10.1, -10.1, 10j, 10+10j, 10-10j,
                       10.1j, 10.1+10.1j, 10.1-10.1j]
-    _bad_values    = [u'10L', u'-10L', 'ten', [10], {'ten': 10},(10,), None]
+    _bad_values    = [six.u('long(10)'), six.u('-long(10)'), 'ten', [10], {'ten': 10},(10,), None]
     if not py3compat.PY3:
-        _bad_values.extend([10L, -10L])
+        _bad_values.extend([long(10), -long(10)])
 
 
 class BytesTrait(HasTraits):
@@ -770,25 +774,25 @@ class TestBytes(TraitTestBase):
     obj = BytesTrait()
 
     _default_value = b'string'
-    _good_values   = [b'10', b'-10', b'10L',
-                      b'-10L', b'10.1', b'-10.1', b'string']
-    _bad_values    = [10, -10, 10L, -10L, 10.1, -10.1, 1j, [10],
-                      ['ten'],{'ten': 10},(10,), None,  u'string']
+    _good_values   = [b'10', b'-10', b'long(10)',
+                      b'-long(10)', b'10.1', b'-10.1', b'string']
+    _bad_values    = [10, -10, long(10), -long(10), 10.1, -10.1, 1j, [10],
+                      ['ten'],{'ten': 10},(10,), None,  six.u('string')]
 
 
 class UnicodeTrait(HasTraits):
 
-    value = Unicode(u'unicode')
+    value = Unicode(six.u('unicode'))
 
 class TestUnicode(TraitTestBase):
 
     obj = UnicodeTrait()
 
-    _default_value = u'unicode'
-    _good_values   = ['10', '-10', '10L', '-10L', '10.1',
-                      '-10.1', '', u'', 'string', u'string', u"€"]
-    _bad_values    = [10, -10, 10L, -10L, 10.1, -10.1, 1j,
-                      [10], ['ten'], [u'ten'], {'ten': 10},(10,), None]
+    _default_value = six.u('unicode')
+    _good_values   = ['10', '-10', 'long(10)', '-long(10)', '10.1',
+                      '-9.1', '', six.u(''), 'string', six.u('string'), six.u("€")]
+    _bad_values    = [10, -10, long(10), -long(10), 10.1, -10.1, 1j,
+                      [10], ['ten'], [six.u('ten')], {'ten': 10},(10,), None]
 
 
 class ObjectNameTrait(HasTraits):
@@ -798,13 +802,13 @@ class TestObjectName(TraitTestBase):
     obj = ObjectNameTrait()
 
     _default_value = "abc"
-    _good_values = ["a", "gh", "g9", "g_", "_G", u"a345_"]
-    _bad_values = [1, "", u"€", "9g", "!", "#abc", "aj@", "a.b", "a()", "a[0]",
+    _good_values = ["a", "gh", "g9", "g_", "_G", six.u("a345_")]
+    _bad_values = [1, "", six.u("€"), "9g", "!", "#abc", "aj@", "a.b", "a()", "a[0]",
                                                             object(), object]
     if sys.version_info[0] < 3:
-        _bad_values.append(u"þ")
+        _bad_values.append(six.u("þ"))
     else:
-        _good_values.append(u"þ")  # þ=1 is valid in Python 3 (PEP 3131).
+        _good_values.append(six.u("þ"))  # þ=1 is valid in Python 3 (PEP 3131).
 
 
 class DottedObjectNameTrait(HasTraits):
@@ -814,12 +818,12 @@ class TestDottedObjectName(TraitTestBase):
     obj = DottedObjectNameTrait()
 
     _default_value = "a.b"
-    _good_values = ["A", "y.t", "y765.__repr__", "os.path.join", u"os.path.join"]
-    _bad_values = [1, u"abc.€", "_.@", ".", ".abc", "abc.", ".abc."]
+    _good_values = ["A", "y.t", "y765.__repr__", "os.path.join", six.u("os.path.join")]
+    _bad_values = [1, six.u("abc.€"), "_.@", ".", ".abc", "abc.", ".abc."]
     if sys.version_info[0] < 3:
-        _bad_values.append(u"t.þ")
+        _bad_values.append(six.u("t.þ"))
     else:
-        _good_values.append(u"t.þ")
+        _good_values.append(six.u("t.þ"))
 
 
 class TCPAddressTrait(HasTraits):
@@ -843,7 +847,7 @@ class TestList(TraitTestBase):
     obj = ListTrait()
 
     _default_value = []
-    _good_values = [[], [1], range(10)]
+    _good_values = [[], [1], list(range(10))]
     _bad_values = [10, [1,'a'], 'a', (1,2)]
 
 class LenListTrait(HasTraits):
@@ -855,7 +859,7 @@ class TestLenList(TraitTestBase):
     obj = LenListTrait()
 
     _default_value = [0]
-    _good_values = [[1], range(2)]
+    _good_values = [[1], list(range(2))]
     _bad_values = [10, [1,'a'], 'a', (1,2), [], range(3)]
 
 class TupleTrait(HasTraits):
@@ -903,7 +907,7 @@ class TestMultiTuple(TraitTestBase):
 
     _default_value = (99,b'bottles')
     _good_values = [(1,b'a'), (2,b'b')]
-    _bad_values = ((),10, b'a', (1,b'a',3), (b'a',1), (1, u'a'))
+    _bad_values = ((),10, b'a', (1,b'a',3), (b'a',1), (1, six.u('a')))
 
 class CRegExpTrait(HasTraits):
 

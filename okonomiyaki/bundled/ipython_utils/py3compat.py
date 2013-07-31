@@ -1,6 +1,8 @@
 # coding: utf-8
 """Compatibility tricks for Python 3. Mainly to do with unicode."""
-import __builtin__
+import six
+
+from six.moves import  builtins
 import functools
 import sys
 import re
@@ -69,7 +71,7 @@ def safe_unicode(e):
     except UnicodeError:
         pass
 
-    return u'Unrecoverably corrupt evalue'
+    return six.u('Unrecoverably corrupt evalue')
 
 if sys.version_info[0] >= 3:
     PY3 = True
@@ -97,7 +99,7 @@ if sys.version_info[0] >= 3:
     def execfile(fname, glob, loc=None):
         loc = loc if (loc is not None) else glob
         with open(fname, 'rb') as f:
-            exec compile(f.read(), fname, 'exec') in glob, loc
+            six.exec_(compile(f.read(), fname, 'exec'), glob, loc)
     
     # Refactor print statements in doctests.
     _print_statement_re = re.compile(r"\bprint (?P<expr>.*)$", re.MULTILINE)
@@ -125,7 +127,7 @@ else:
     PY3 = False
     
     input = raw_input
-    builtin_mod_name = "__builtin__"
+    builtin_mod_name = "builtins"
     
     str_to_unicode = decode
     unicode_to_str = encode
@@ -187,18 +189,18 @@ else:
             # The rstrip() is necessary b/c trailing whitespace in files will
             # cause an IndentationError in Python 2.6 (this was fixed in 2.7,
             # but we still support 2.6).  See issue 1027.
-            scripttext = __builtin__.open(fname).read().rstrip() + '\n'
+            scripttext = builtins.open(fname).read().rstrip() + '\n'
             # compile converts unicode filename to str assuming
             # ascii. Let's do the conversion before calling compile
             if isinstance(fname, unicode):
                 filename = unicode_to_str(fname)
             else:
                 filename = fname
-            exec compile(scripttext, filename, 'exec') in glob, loc
+            six.exec_(compile(scripttext, filename, 'exec'), glob, loc)
     else:
         def execfile(fname, *where):
             if isinstance(fname, unicode):
                 filename = fname.encode(sys.getfilesystemencoding())
             else:
                 filename = fname
-            __builtin__.execfile(filename, *where)
+            builtins.execfile(filename, *where)
