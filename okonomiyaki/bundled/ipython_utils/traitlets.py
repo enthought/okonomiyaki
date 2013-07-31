@@ -64,6 +64,8 @@ try:
 except:
     ClassTypes = (type,)
 
+import six
+
 from .importstring import import_item
 from . import py3compat
 
@@ -94,7 +96,7 @@ def class_of ( object ):
     correct indefinite article ('a' or 'an') preceding it (e.g., 'an Image',
     'a PlotValue').
     """
-    if isinstance( object, basestring ):
+    if isinstance( object, six.string_types ):
         return add_article( object )
 
     return add_article( object.__class__.__name__ )
@@ -373,7 +375,7 @@ class MetaHasTraits(type):
         # print "MetaHasTraitlets (mcls, name): ", mcls, name
         # print "MetaHasTraitlets (bases): ", bases
         # print "MetaHasTraitlets (classdict): ", classdict
-        for k,v in classdict.iteritems():
+        for k,v in six.iteritems(classdict):
             if isinstance(v, TraitType):
                 v.name = k
             elif inspect.isclass(v):
@@ -389,14 +391,14 @@ class MetaHasTraits(type):
         This sets the :attr:`this_class` attribute of each TraitType in the
         class dict to the newly created class ``cls``.
         """
-        for k, v in classdict.iteritems():
+        for k, v in six.iteritems(classdict):
             if isinstance(v, TraitType):
                 v.this_class = cls
         super(MetaHasTraits, cls).__init__(name, bases, classdict)
 
-class HasTraits(object):
+class HasTraits(six.with_metaclass(MetaHasTraits, object)):
 
-    __metaclass__ = MetaHasTraits
+    #__metaclass__ = MetaHasTraits
 
     def __new__(cls, *args, **kw):
         # This is needed because in Python 2.6 object.__new__ only accepts
@@ -429,7 +431,7 @@ class HasTraits(object):
         # Allow trait values to be set using keyword arguments.
         # We need to use setattr for this to trigger validation and
         # notifications.
-        for key, value in kw.iteritems():
+        for key, value in six.iteritems(kw):
             setattr(self, key, value)
 
     def _notify_trait(self, name, old_value, new_value):
@@ -680,7 +682,7 @@ class Type(ClassBasedTraitType):
         elif klass is None:
             klass = default_value
 
-        if not (inspect.isclass(klass) or isinstance(klass, basestring)):
+        if not (inspect.isclass(klass) or isinstance(klass, six.string_types)):
             raise TraitError("A Type trait must specify a class.")
 
         self.klass       = klass
@@ -701,7 +703,7 @@ class Type(ClassBasedTraitType):
 
     def info(self):
         """ Returns a description of the trait."""
-        if isinstance(self.klass, basestring):
+        if isinstance(self.klass, six.string_types):
             klass = self.klass
         else:
             klass = self.klass.__name__
@@ -715,9 +717,9 @@ class Type(ClassBasedTraitType):
         super(Type, self).instance_init(obj)
 
     def _resolve_classes(self):
-        if isinstance(self.klass, basestring):
+        if isinstance(self.klass, six.string_types):
             self.klass = import_item(self.klass)
-        if isinstance(self.default_value, basestring):
+        if isinstance(self.default_value, six.string_types):
             self.default_value = import_item(self.default_value)
 
     def get_default_value(self):
@@ -772,7 +774,7 @@ class Instance(ClassBasedTraitType):
 
         self._allow_none = allow_none
 
-        if (klass is None) or (not (inspect.isclass(klass) or isinstance(klass, basestring))):
+        if (klass is None) or (not (inspect.isclass(klass) or isinstance(klass, six.string_types))):
             raise TraitError('The klass argument must be a class'
                                 ' you gave: %r' % klass)
         self.klass = klass
@@ -809,7 +811,7 @@ class Instance(ClassBasedTraitType):
             self.error(obj, value)
 
     def info(self):
-        if isinstance(self.klass, basestring):
+        if isinstance(self.klass, six.string_types):
             klass = self.klass
         else:
             klass = self.klass.__name__
@@ -824,7 +826,7 @@ class Instance(ClassBasedTraitType):
         super(Instance, self).instance_init(obj)
 
     def _resolve_classes(self):
-        if isinstance(self.klass, basestring):
+        if isinstance(self.klass, six.string_types):
             self.klass = import_item(self.klass)
 
     def get_default_value(self):
@@ -901,7 +903,7 @@ else:
     class Long(TraitType):
         """A long integer trait."""
 
-        default_value = 0L
+        default_value = long(0)
         info_text = 'a long'
 
         def validate(self, obj, value):
@@ -1018,13 +1020,13 @@ class CBytes(Bytes):
 class Unicode(TraitType):
     """A trait for unicode strings."""
 
-    default_value = u''
+    default_value = six.u('')
     info_text = 'a unicode string'
 
     def validate(self, obj, value):
-        if isinstance(value, unicode):
+        if isinstance(value, six.text_type):
             return value
-        if isinstance(value, bytes):
+        if isinstance(value, six.binary_type):
             return unicode(value)
         self.error(obj, value)
 
@@ -1418,7 +1420,7 @@ class TCPAddress(TraitType):
     def validate(self, obj, value):
         if isinstance(value, tuple):
             if len(value) == 2:
-                if isinstance(value[0], basestring) and isinstance(value[1], int):
+                if isinstance(value[0], six.string_types) and isinstance(value[1], int):
                     port = value[1]
                     if port >= 0 and port <= 65535:
                         return value

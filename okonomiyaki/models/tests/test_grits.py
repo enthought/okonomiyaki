@@ -4,7 +4,10 @@ import unittest
 
 import os.path as op
 
+import six
+
 from okonomiyaki.models.grits import GritsEggEntry
+from okonomiyaki.utils.py3compat import long
 
 DATA_DIR = op.join(op.dirname(__file__), "data")
 
@@ -47,18 +50,18 @@ class TestGritsEggEntry(unittest.TestCase):
         self.assertEqual(entry.grits_tags, r_tags)
 
     def test_metadata(self):
-        r_metadata = {'build': 1L,
-                'egg_basename': u'Cython',
-                'md5': u'fa334276ff97c721370516530a36c475',
+        r_metadata = {'build': long(1),
+                'egg_basename': six.u('Cython'),
+                'md5': six.u('fa334276ff97c721370516530a36c475'),
                 'mtime': CYTHON_MTIME,
-                'name': u'cython',
+                'name': six.u('cython'),
                 'packages': [],
                 'platform': 'rh5-32',
                 'product': 'commercial',
-                'python': u'2.7',
-                'size': 4766L,
+                'python': six.u('2.7'),
+                'size': long(4766),
                 'type': 'egg',
-                'version': u'0.19.1'}
+                'version': six.u('0.19.1')}
 
         path = op.join(DATA_DIR, "Cython-0.19.1-1.egg")
 

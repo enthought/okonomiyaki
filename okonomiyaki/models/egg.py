@@ -1,7 +1,7 @@
 """Traitlets-based models for egg-related metadata."""
 from okonomiyaki.errors import InvalidEggName, InvalidDependencyString
 
-from ..utils.traitlets import HasTraits, Enum, Instance, List, Long, Unicode
+from okonomiyaki.bundled.ipython_utils.traitlets import HasTraits, Enum, Instance, List, Long, Unicode
 from .common import egg_name, _decode_none_values, _encode_none_values, split_egg_name
 from .constants import _PLATFORMS_DESCRIPTIONS, _PLATFORMS_SHORT_NAMES
 

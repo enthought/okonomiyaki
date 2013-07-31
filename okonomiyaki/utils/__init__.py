@@ -1,5 +1,7 @@
 import hashlib
 
+import six
+
 def compute_md5(path):
     """Compute the md5 checksum of the given path.
 
@@ -22,7 +24,7 @@ def compute_md5(path):
                 break
         return m.hexdigest()
 
-    if isinstance(path, basestring):
+    if isinstance(path, six.string_types):
         with open(path, "rb") as fp:
             return _compute_checksum(fp)
     else:

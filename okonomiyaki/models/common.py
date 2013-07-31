@@ -50,7 +50,7 @@ def info_from_z(z):
 
     arcname = _SPEC_DEPEND_LOCATION
     if arcname in z.namelist():
-        res.update(parse_rawspec(z.read(arcname)))
+        res.update(parse_rawspec(z.read(arcname).decode()))
 
     arcname = _INFO_JSON_LOCATION
     if arcname in z.namelist():
