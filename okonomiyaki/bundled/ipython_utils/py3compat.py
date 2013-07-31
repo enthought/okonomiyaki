@@ -121,7 +121,6 @@ if sys.version_info[0] >= 3:
         Accepts a string or a function, so it can be used as a decorator."""
         return s.format(u='')
 
-    long = int
 else:
     PY3 = False
     
@@ -203,4 +202,3 @@ else:
             else:
                 filename = fname
             __builtin__.execfile(filename, *where)
-    long = long

@@ -9,6 +9,7 @@ if __name__ == "__main__":
           packages=["okonomiyaki",
                     "okonomiyaki.bundled",
                     "okonomiyaki.bundled.ipython_utils",
+                    "okonomiyaki.bundled.ipython_utils.tests",
                     "okonomiyaki.file_formats",
                     "okonomiyaki.file_formats.tests",
                     "okonomiyaki.models",
