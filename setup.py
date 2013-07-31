@@ -10,8 +10,10 @@ if __name__ == "__main__":
                     "okonomiyaki.bundled",
                     "okonomiyaki.bundled.ipython_utils",
                     "okonomiyaki.file_formats",
+                    "okonomiyaki.file_formats.tests",
                     "okonomiyaki.models",
+                    "okonomiyaki.models.tests",
                     "okonomiyaki.utils",
-                    "okonomiyaki.tests"],
+                    ],
           version=__version__
     )
