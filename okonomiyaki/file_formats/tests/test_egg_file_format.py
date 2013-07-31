@@ -46,4 +46,4 @@ packages = []
 
         with zipfile.ZipFile(egg_path, "r") as fp:
             self.assertEqual(fp.namelist(), r_files)
-            self.assertMultiLineEqual(fp.read("EGG-INFO/spec/depend"), r_spec_depend)
+            self.assertMultiLineEqual(fp.read("EGG-INFO/spec/depend").decode(), r_spec_depend)

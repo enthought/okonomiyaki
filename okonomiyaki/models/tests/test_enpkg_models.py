@@ -5,6 +5,8 @@ import unittest
 
 import os.path as op
 
+import six
+
 from okonomiyaki.models.enpkg import EnpkgS3IndexEntry
 from okonomiyaki.utils.py3compat import long
 
@@ -29,7 +31,7 @@ class TestEnpkgS3IndexEntry(unittest.TestCase):
             md5=six.u("78ce2b9ebc88e3ed81cb9c0aa4eb8c87"),
             mtime=ETS_MTIME,
             egg_basename=six.u('ets'),
-            name=u'ets',
+            name=six.u('ets'),
             packages=[
               'apptools 4.2.0-2',
               'blockcanvas 4.0.3-1',
@@ -49,10 +51,10 @@ class TestEnpkgS3IndexEntry(unittest.TestCase):
               'traits 4.3.0-2',
               'traitsui 4.3.0-2'],
             product='commercial',
-            python=u'2.7',
+            python=six.u('2.7'),
             size=long(10027),
             type='egg',
-            version=u'4.3.0')
+            version=six.u('4.3.0'))
 
         path = op.join(DATA_DIR, "ets-4.3.0-3.egg")
 
