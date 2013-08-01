@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 
 from okonomiyaki import __version__
 
@@ -15,5 +15,6 @@ if __name__ == "__main__":
                     "okonomiyaki.models.tests",
                     "okonomiyaki.utils",
                     ],
+          install_requires=["six"],
           version=__version__
     )
