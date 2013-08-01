@@ -1,4 +1,4 @@
-from okonomiyaki.bundled.ipython_utils.traitlets import HasTraits, Enum, Float, Instance, List, Long, Unicode
+from okonomiyaki.bundled.traitlets import HasTraits, Enum, Float, Instance, List, Long, Unicode
 
 from .common import egg_name
 from .constants import _PLATFORMS_SHORT_NAMES

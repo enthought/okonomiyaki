@@ -5,7 +5,7 @@ import zipfile
 import os.path as op
 
 from ..utils import compute_md5
-from okonomiyaki.bundled.ipython_utils.traitlets import HasTraits, Enum, Float, Instance, List, Long, Unicode
+from okonomiyaki.bundled.traitlets import HasTraits, Enum, Float, Instance, List, Long, Unicode
 
 from .common import _decode_none_values, _encode_none_values, info_from_z, split_egg_name
 from .egg import Dependency

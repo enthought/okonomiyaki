@@ -66,9 +66,50 @@ except:
 
 import six
 
-from .importstring import import_item
-from . import py3compat
+def import_item(name):
+    """Import and return ``bar`` given the string ``foo.bar``.
 
+    Calling ``bar = import_item("foo.bar")`` is the functional equivalent of
+    executing the code ``from foo import bar``.
+
+    Parameters
+    ----------
+    name : string
+      The fully qualified name of the module/package being imported.
+
+    Returns
+    -------
+    mod : module object
+       The module that was imported.
+    """
+    
+    parts = name.rsplit('.', 1)
+    if len(parts) == 2:
+        # called with 'foo.bar....'
+        package, obj = parts
+        module = __import__(package, fromlist=[obj])
+        try:
+            pak = module.__dict__[obj]
+        except KeyError:
+            raise ImportError('No module named %s' % obj)
+        return pak
+    else:
+        # called with un-dotted string
+        return __import__(parts[0])
+
+if six.PY3:
+    def isidentifier(s, dotted=False):
+        if dotted:
+            return all(isidentifier(a) for a in s.split("."))
+        return s.isidentifier()
+else:
+    _name_re = re.compile(r"[a-zA-Z_][a-zA-Z0-9_]*$")
+    def isidentifier(s, dotted=False):
+        if dotted:
+            return all(isidentifier(a) for a in s.split("."))
+        return bool(_name_re.match(s))
+    
+    
 SequenceTypes = (list, tuple, set, frozenset)
 
 #-----------------------------------------------------------------------------
@@ -117,7 +158,7 @@ def repr_type(obj):
     error messages.
     """
     the_type = type(obj)
-    if (not py3compat.PY3) and the_type is InstanceType:
+    if (not six.PY3) and the_type is InstanceType:
         # Old-style class.
         the_type = obj.__class__
     msg = '%r %r' % (obj, the_type)
@@ -632,7 +673,7 @@ class ClassBasedTraitType(TraitType):
 
     def error(self, obj, value):
         kind = type(value)
-        if (not py3compat.PY3) and kind is InstanceType:
+        if (not six.PY3) and kind is InstanceType:
             msg = 'class %s' % value.__class__.__name__
         else:
             msg = '%s (i.e. %s)' % ( str( kind )[1:-1], repr( value ) )
@@ -896,7 +937,7 @@ class CInt(Int):
         except:
             self.error(obj, value)
 
-if py3compat.PY3:
+if six.PY3:
     Long, CLong = Int, CInt
     Integer = Int
 else:
@@ -1047,7 +1088,7 @@ class ObjectName(TraitType):
     This does not check that the name exists in any scope."""
     info_text = "a valid object identifier in Python"
 
-    if py3compat.PY3:
+    if six.PY3:
         # Python 3:
         coerce_str = staticmethod(lambda _,s: s)
 
@@ -1065,7 +1106,7 @@ class ObjectName(TraitType):
     def validate(self, obj, value):
         value = self.coerce_str(obj, value)
 
-        if isinstance(value, str) and py3compat.isidentifier(value):
+        if isinstance(value, str) and isidentifier(value):
             return value
         self.error(obj, value)
 
@@ -1074,7 +1115,7 @@ class DottedObjectName(ObjectName):
     def validate(self, obj, value):
         value = self.coerce_str(obj, value)
 
-        if isinstance(value, str) and py3compat.isidentifier(value, dotted=True):
+        if isinstance(value, str) and isidentifier(value, dotted=True):
             return value
         self.error(obj, value)
 
