@@ -5,7 +5,7 @@ import re
 from okonomiyaki.errors import InvalidEggName
 from .constants import _SPEC_DEPEND_LOCATION, _INFO_JSON_LOCATION
 
-_EGG_NAME_RE = re.compile("(?P<name>[\w]+)-(?P<version>[^-]+)-(?P<build>\d+)\.egg$")
+_EGG_NAME_RE = re.compile("(?P<name>[\.\w]+)-(?P<version>[^-]+)-(?P<build>\d+)\.egg$")
 
 def egg_name(name, version, build):
     """
@@ -19,7 +19,7 @@ def is_egg_name_valid(s):
     Return True if the given string is a valid egg name (not including the
     .egg, e.g. 'Qt-4.8.5-2')
     """
-    return _EGG_NAME_RE.match(s)
+    return _EGG_NAME_RE.match(s) is not None
 
 def split_egg_name(s):
     m = _EGG_NAME_RE.match(s)
