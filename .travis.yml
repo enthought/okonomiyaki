@@ -5,6 +5,7 @@ python:
    - pypy
 install:
    - pip install nose coverage
+   - pip install .
 script:
   - nosetests --with-coverage --cover-package=okonomiyaki okonomiyaki
 notifications:
