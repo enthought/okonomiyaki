@@ -1,3 +1,6 @@
+import platform
+import sys
+
 from okonomiyaki.errors import OkonomiyakiError
 from okonomiyaki.bundled.traitlets import HasTraits, Enum
 
@@ -46,6 +49,20 @@ class EPDPlatform(HasTraits):
     arch = Enum(["x86", "amd64"])
 
     @classmethod
+    def from_running_system(cls, arch=None):
+        """
+        Attempt to create an EPDPlatform instance by guessing the running
+        platform. May raise an OkonomiyakiError exception
+
+        Parameters
+        ----------
+        arch: str, None
+            If given, must be a valid architecture string (e.g. 'i386'). If
+            None, will be guessed from the running python.
+        """
+        return _guess_epd_platform(arch)
+
+    @classmethod
     def from_epd_string(cls, s):
         """
         Create a new instance from an epd platform string (e.g. 'win-32')
@@ -54,13 +71,13 @@ class EPDPlatform(HasTraits):
         if len(parts) != 2:
             raise OkonomiyakiError("Invalid epd string: {0}".format(s))
 
-        platform, arch_bits = parts
+        platform_name, arch_bits = parts
         if not arch_bits in _ARCHBITS_TO_ARCH:
             raise OkonomiyakiError("Invalid epd string (invalid arch): {0}".format(s))
         else:
             arch = _ARCHBITS_TO_ARCH[arch_bits]
 
-        return cls(platform, arch)
+        return cls(platform_name, arch)
 
     def __init__(self, platform, arch, **kw):
         super(EPDPlatform, self).__init__(platform=platform, arch=arch, **kw)
@@ -78,3 +95,41 @@ class EPDPlatform(HasTraits):
     @property
     def short(self):
         return "{0}-{1}".format(self.platform, self.arch_bits)
+
+def _guess_architecture():
+    """
+    Returns the architecture of the running python.
+    """
+    processor = platform.processor()
+    if processor in ("i386",):
+        return "x86"
+    elif processor in ("x86_64"):
+        return "amd64"
+    else:
+        raise OkonomiyakiError("Unknown processor {}".format(processor))
+
+def _guess_epd_platform(arch=None):
+    if arch is None:
+        arch = _guess_architecture()
+
+    if sys.platform == "win32":
+        return EPDPlatform("win", arch)
+    elif sys.platform == "darwin":
+        return EPDPlatform("osx", arch)
+    elif sys.platform.startswith("linux"):
+        name, version, _ = platform.dist()
+        if name in ("centos", "redhat"):
+            parts = version.split(".")
+            if not len(parts) == 2:
+                raise OkonomiyakiError("Could not parse rh version {0}".format(version))
+            major, _ = parts
+            if major == "5":
+                return EPDPlatform("rh5", arch)
+            elif major == "6":
+                return EPDPlatform("rh6", arch)
+            else:
+                raise OkonomiyakiError("Unknown major version {0}".format(major))
+        else:
+            raise OkonomiyakiError("Could not guess platform for distribution {0}".format(name))
+    else:
+        raise OkonomiyakiError("Could not guess epd platform")
