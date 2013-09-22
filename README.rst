@@ -1,5 +1,5 @@
-Okonomiyaki is an experimental, private library aimed at consolidating a lot of
-our low-level code used for Enthought's eggs.
+Okonomiyaki is an experimental library aimed at consolidating a lot of our
+low-level code used for Enthought's eggs.
 
 The library contains code for the following:
 

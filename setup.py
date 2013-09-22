@@ -16,5 +16,6 @@ if __name__ == "__main__":
                     "okonomiyaki.utils",
                     ],
           install_requires=["six"],
+          license="BSD",
           version=__version__
     )
