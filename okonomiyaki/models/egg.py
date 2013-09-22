@@ -1,9 +1,9 @@
 """Traitlets-based models for egg-related metadata."""
 from okonomiyaki.errors import InvalidEggName, InvalidDependencyString
 
-from okonomiyaki.bundled.traitlets import HasTraits, Enum, Instance, List, Long, Unicode
+from okonomiyaki.bundled.traitlets import HasTraits, Instance, List, Long, Unicode
+from okonomiyaki.platform.legacy import LegacyEPDPlatform
 from .common import egg_name, _decode_none_values, _encode_none_values, split_egg_name
-from .constants import _PLATFORMS_DESCRIPTIONS, _PLATFORMS_SHORT_NAMES
 
 _CAN_BE_NONE_KEYS = ("osdist", "platform", "python")
 
@@ -92,22 +92,19 @@ class LegacySpec(HasTraits):
     version = Unicode()
     build = Long()
 
-    platform = Unicode()
-    osdist = Unicode()
-
     python = Unicode()
     packages = List(Instance(Dependency))
-
-    short = Enum(_PLATFORMS_SHORT_NAMES)
 
     lib_depend = List()
     lib_provide = List()
 
     summary = Unicode()
 
+    _epd_legacy_platform = Instance(LegacyEPDPlatform)
+
     @property
     def arch(self):
-        return _PLATFORMS_DESCRIPTIONS[self.short].arch
+        return self._epd_legacy_platform.arch
 
     @property
     def egg_name(self):
@@ -118,18 +115,27 @@ class LegacySpec(HasTraits):
         return "1.1"
 
     @property
+    def osdist(self):
+        return self._epd_legacy_platform.osdist
+
+    @property
+    def platform(self):
+        return self._epd_legacy_platform.platform
+
+    @property
+    def short(self):
+        return self._epd_legacy_platform.short
+
+    @property
     def subdir(self):
-        return _PLATFORMS_DESCRIPTIONS[self.short].subdir
+        return self._epd_legacy_platform.subdir
 
     @classmethod
-    def from_data(cls, data, epd_platform, python=None):
+    def from_data(cls, data, epd_platform_string, python=None):
         args = data.copy()
 
-        platform = _PLATFORMS_DESCRIPTIONS[epd_platform]
-        args["osdist"] = platform.osdist
-        args["platform"] = platform.platform
-
-        args["short"] = epd_platform
+        epd_legacy_platform = LegacyEPDPlatform.from_epd_platform_string(epd_platform_string)
+        args["_epd_legacy_platform"] = epd_legacy_platform
 
         args["python"] = python
 

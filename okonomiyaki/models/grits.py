@@ -1,7 +1,7 @@
 from okonomiyaki.bundled.traitlets import HasTraits, Enum, Float, Instance, List, Long, Unicode
 
+from ..platform import EPD_PLATFORM_SHORT_NAMES
 from .common import egg_name
-from .constants import _PLATFORMS_SHORT_NAMES
 from .enpkg import EnpkgS3IndexEntry
 
 class GritsEggEntry(HasTraits):
@@ -16,7 +16,7 @@ class GritsEggEntry(HasTraits):
     >>> entry.grits_metadata
     >>> entry.grits_tags
     """
-    platform = Enum(_PLATFORMS_SHORT_NAMES)
+    platform = Enum(EPD_PLATFORM_SHORT_NAMES)
 
     enpkg_metadata = Instance(EnpkgS3IndexEntry)
 
