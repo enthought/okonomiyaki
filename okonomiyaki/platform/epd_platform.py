@@ -106,7 +106,7 @@ def _guess_architecture():
     elif processor in ("x86_64"):
         return "amd64"
     else:
-        raise OkonomiyakiError("Unknown processor {}".format(processor))
+        raise OkonomiyakiError("Unknown processor {0}".format(processor))
 
 def _guess_epd_platform(arch=None):
     if arch is None:
