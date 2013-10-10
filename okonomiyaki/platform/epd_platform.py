@@ -6,9 +6,9 @@ from okonomiyaki.bundled.traitlets import HasTraits, Enum
 
 # Those lists are redundant with legacy spec. We check the consistency in our
 # unit-tests
-_ARCHBITS_TO_ARCH= {
-        "32": "x86",
-        "64": "amd64",
+_ARCHBITS_TO_ARCH = {
+    "32": "x86",
+    "64": "amd64",
 }
 
 PLATFORM_NAMES = [
@@ -33,6 +33,7 @@ EPD_PLATFORM_SHORT_NAMES = [
     "win-32",
     "win-64",
 ]
+
 
 class EPDPlatform(HasTraits):
     """
@@ -73,7 +74,8 @@ class EPDPlatform(HasTraits):
 
         platform_name, arch_bits = parts
         if not arch_bits in _ARCHBITS_TO_ARCH:
-            raise OkonomiyakiError("Invalid epd string (invalid arch): {0}".format(s))
+            raise OkonomiyakiError("Invalid epd string (invalid arch): {0}".
+                                   format(s))
         else:
             arch = _ARCHBITS_TO_ARCH[arch_bits]
 
@@ -96,17 +98,19 @@ class EPDPlatform(HasTraits):
     def short(self):
         return "{0}-{1}".format(self.platform, self.arch_bits)
 
+
 def _guess_architecture():
     """
     Returns the architecture of the running python.
     """
     processor = platform.processor()
-    if processor in ("i386",):
+    if processor in ("i386", ):
         return "x86"
     elif processor in ("x86_64"):
         return "amd64"
     else:
         raise OkonomiyakiError("Unknown processor {}".format(processor))
+
 
 def _guess_epd_platform(arch=None):
     if arch is None:
@@ -121,15 +125,18 @@ def _guess_epd_platform(arch=None):
         if name in ("centos", "redhat"):
             parts = version.split(".")
             if not len(parts) == 2:
-                raise OkonomiyakiError("Could not parse rh version {0}".format(version))
+                raise OkonomiyakiError("Could not parse rh version {0}".
+                                       format(version))
             major, _ = parts
             if major == "5":
                 return EPDPlatform("rh5", arch)
             elif major == "6":
                 return EPDPlatform("rh6", arch)
             else:
-                raise OkonomiyakiError("Unknown major version {0}".format(major))
+                raise OkonomiyakiError("Unknown major version {0}".
+                                       format(major))
         else:
-            raise OkonomiyakiError("Could not guess platform for distribution {0}".format(name))
+            raise OkonomiyakiError("Could not guess platform for distribution "
+                                   "{0}".format(name))
     else:
         raise OkonomiyakiError("Could not guess epd platform")

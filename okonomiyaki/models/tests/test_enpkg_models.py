@@ -5,8 +5,6 @@ import unittest
 
 import os.path as op
 
-import six
-
 from okonomiyaki.models.enpkg import EnpkgS3IndexEntry
 from okonomiyaki.utils.py3compat import long
 
@@ -15,6 +13,7 @@ DATA_DIR = op.join(op.dirname(__file__), "data")
 __st = os.stat(op.join(DATA_DIR, "ets-4.3.0-3.egg"))
 ETS_MTIME = __st.st_mtime
 ETS_SIZE = __st.st_size
+
 
 class TestEnpkgS3IndexEntry(unittest.TestCase):
     def test_from_egg(self):
@@ -33,23 +32,23 @@ class TestEnpkgS3IndexEntry(unittest.TestCase):
             egg_basename=six.u('ets'),
             name=six.u('ets'),
             packages=[
-              'apptools 4.2.0-2',
-              'blockcanvas 4.0.3-1',
-              'casuarius 1.1-1',
-              'chaco 4.3.0-2',
-              'codetools 4.1.0-2',
-              'enable 4.3.0-5',
-              'enaml 0.6.8-2',
-              'encore 0.3-1',
-              'envisage 4.3.0-2',
-              'etsdevtools 4.0.2-1',
-              'etsproxy 0.1.2-1',
-              'graphcanvas 4.0.2-1',
-              'mayavi 4.3.0-3',
-              'pyface 4.3.0-2',
-              'scimath 4.1.2-2',
-              'traits 4.3.0-2',
-              'traitsui 4.3.0-2'],
+                'apptools 4.2.0-2',
+                'blockcanvas 4.0.3-1',
+                'casuarius 1.1-1',
+                'chaco 4.3.0-2',
+                'codetools 4.1.0-2',
+                'enable 4.3.0-5',
+                'enaml 0.6.8-2',
+                'encore 0.3-1',
+                'envisage 4.3.0-2',
+                'etsdevtools 4.0.2-1',
+                'etsproxy 0.1.2-1',
+                'graphcanvas 4.0.2-1',
+                'mayavi 4.3.0-3',
+                'pyface 4.3.0-2',
+                'scimath 4.1.2-2',
+                'traits 4.3.0-2',
+                'traitsui 4.3.0-2'],
             product='commercial',
             python=six.u('2.7'),
             size=long(10027),

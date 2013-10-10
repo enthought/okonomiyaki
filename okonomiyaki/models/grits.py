@@ -1,8 +1,9 @@
-from okonomiyaki.bundled.traitlets import HasTraits, Enum, Float, Instance, List, Long, Unicode
+from okonomiyaki.bundled.traitlets import HasTraits, Enum, Instance
 
 from ..platform import EPD_PLATFORM_SHORT_NAMES
 from .common import egg_name
 from .enpkg import EnpkgS3IndexEntry
+
 
 class GritsEggEntry(HasTraits):
     """
@@ -40,7 +41,8 @@ class GritsEggEntry(HasTraits):
     @property
     def egg_name(self):
         """The egg filename."""
-        return egg_name(self.enpkg_metadata.egg_basename, self.version, self.build)
+        return egg_name(self.enpkg_metadata.egg_basename, self.version,
+                        self.build)
 
     @property
     def grits_key(self):
@@ -52,13 +54,14 @@ class GritsEggEntry(HasTraits):
         if self.repository_type == "free":
             return dict((k, ["enthought-free"]) for k in tag_keys)
         elif self.repository_type == "commercial":
-            tags = dict((k, ["enthought-commercial", "enthought-academic"]) for k in tag_keys)
+            tags = dict((k, ["enthought-commercial", "enthought-academic"])
+                        for k in tag_keys)
             tags["visible"] = ["enthought-free"]
             return tags
         else:
             raise NotImplementedError(
-		       "Tags for repository type '{}' not implemented yet". \
-                       format(self.repository))
+                "Tags for repository type '{}' not implemented yet".
+                format(self.repository))
 
     @property
     def grits_metadata(self):

@@ -1,16 +1,19 @@
 """Traitlets-based models for enpkg-related metadata."""
+import json
 import os
 import zipfile
 
 import os.path as op
 
 from ..utils import compute_md5
-from okonomiyaki.bundled.traitlets import HasTraits, Enum, Float, Instance, List, Long, Unicode
-
-from .common import _decode_none_values, _encode_none_values, info_from_z, split_egg_name
+from okonomiyaki.bundled.traitlets import HasTraits, Enum, Float, \
+    Instance, List, Long, Unicode
+from .common import _decode_none_values, _encode_none_values, info_from_z, \
+    split_egg_name
 from .egg import Dependency
 
 _CAN_BE_NONE_KEYS = ["osdist", "platform", "python"]
+
 
 class EnpkgS3IndexEntry(HasTraits):
     """
@@ -41,7 +44,9 @@ class EnpkgS3IndexEntry(HasTraits):
         Note: the passed in dictionary may be modified.
         """
         data = _decode_none_values(data, _CAN_BE_NONE_KEYS)
-        data["packages"] = [Dependency.from_spec_string(s) for s in data["packages"]]
+        data["packages"] = [
+            Dependency.from_spec_string(s) for s in data["packages"]
+        ]
         return cls(**data)
 
     @classmethod
@@ -84,4 +89,3 @@ class EnpkgS3IndexEntry(HasTraits):
 
     def to_json(self):
         return json.dumps(self.to_dict())
-

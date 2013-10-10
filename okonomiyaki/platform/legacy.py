@@ -7,18 +7,19 @@ from .epd_platform import EPDPlatform
 # buildware/epd_repo to make it easier to sync.
 _SUBDIR = [
     # short     subdir                 arch     platform  osdist
-    ('win-64', 'Windows/amd64',       'amd64', 'win32',   None),
-    ('win-32', 'Windows/x86',         'x86',   'win32',   None),
-    ('osx-64', 'MacOSX/amd64',        'amd64', 'darwin',  None),
-    ('osx-32', 'MacOSX/x86',          'x86',   'darwin',  None),
-    ('rh3-64', 'RedHat/RH3_amd64',    'amd64', 'linux2', 'RedHat_3'),
-    ('rh3-32', 'RedHat/RH3_x86',      'x86',   'linux2', 'RedHat_3'),
-    ('rh5-64', 'RedHat/RH5_amd64',    'amd64', 'linux2', 'RedHat_5'),
-    ('rh5-32', 'RedHat/RH5_x86',      'x86',   'linux2', 'RedHat_5'),
-    ('rh6-64', 'RedHat/RH6_amd64',    'amd64', 'linux2', 'RedHat_6'),
+    ('win-64', 'Windows/amd64', 'amd64', 'win32', None),
+    ('win-32', 'Windows/x86', 'x86', 'win32', None),
+    ('osx-64', 'MacOSX/amd64', 'amd64', 'darwin', None),
+    ('osx-32', 'MacOSX/x86', 'x86', 'darwin', None),
+    ('rh3-64', 'RedHat/RH3_amd64', 'amd64', 'linux2', 'RedHat_3'),
+    ('rh3-32', 'RedHat/RH3_x86', 'x86', 'linux2', 'RedHat_3'),
+    ('rh5-64', 'RedHat/RH5_amd64', 'amd64', 'linux2', 'RedHat_5'),
+    ('rh5-32', 'RedHat/RH5_x86', 'x86', 'linux2', 'RedHat_5'),
+    ('rh6-64', 'RedHat/RH6_amd64', 'amd64', 'linux2', 'RedHat_6'),
     ('sol-64', 'Solaris/Sol10_amd64', 'amd64', 'sunos5', 'Solaris_10'),
-    ('sol-32', 'Solaris/Sol10_x86',   'x86',   'sunos5', 'Solaris_10'),
+    ('sol-32', 'Solaris/Sol10_x86', 'x86', 'sunos5', 'Solaris_10'),
 ]
+
 
 class LegacyEPDPlatform(HasTraits):
     _epd_platform = Instance(EPDPlatform)
@@ -29,7 +30,8 @@ class LegacyEPDPlatform(HasTraits):
         return cls(_epd_platform)
 
     def __init__(self, _epd_platform, **kw):
-        super(LegacyEPDPlatform, self).__init__(_epd_platform=_epd_platform, **kw)
+        super(LegacyEPDPlatform, self).__init__(_epd_platform=_epd_platform,
+                                                **kw)
 
     @property
     def arch(self):

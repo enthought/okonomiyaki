@@ -8,6 +8,7 @@ import os.path as op
 from okonomiyaki.file_formats.egg import EggBuilder
 from okonomiyaki.models.egg import LegacySpec
 
+
 class TestEggBuilder(unittest.TestCase):
     def setUp(self):
         self.d = tempfile.mkdtemp()
@@ -31,10 +32,10 @@ packages = []
 """
 
         data = dict(
-            name = "Qt_debug",
-            version = "4.8.5",
-            build = 2,
-            summary = "Debug symbol files for Qt.",
+            name="Qt_debug",
+            version="4.8.5",
+            build=2,
+            summary="Debug symbol files for Qt.",
         )
         spec = LegacySpec.from_data(data, "rh5-32", "2.7")
 
@@ -46,4 +47,5 @@ packages = []
 
         with zipfile.ZipFile(egg_path, "r") as fp:
             self.assertEqual(fp.namelist(), r_files)
-            self.assertMultiLineEqual(fp.read("EGG-INFO/spec/depend").decode(), r_spec_depend)
+            self.assertMultiLineEqual(fp.read("EGG-INFO/spec/depend").decode(),
+                                      r_spec_depend)

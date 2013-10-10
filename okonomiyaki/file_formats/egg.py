@@ -1,9 +1,10 @@
+import os
 import zipfile
 
 import os.path as op
 
 from okonomiyaki.models.constants import _EGG_INFO_PREFIX
-from okonomiyaki.models.egg import Dependency, LegacySpec
+
 
 class EggBuilder(object):
     def __init__(self, spec, cwd=None, compress=True):
@@ -16,7 +17,8 @@ class EggBuilder(object):
         self.egg_path = op.join(cwd, spec.egg_name)
 
         if compress is True:
-            self._fp = zipfile.ZipFile(self.egg_path, "w", zipfile.ZIP_DEFLATED)
+            self._fp = zipfile.ZipFile(self.egg_path, "w",
+                                       zipfile.ZIP_DEFLATED)
         else:
             self._fp = zipfile.ZipFile(self.egg_path, "w")
 

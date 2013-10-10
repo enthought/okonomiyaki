@@ -7,6 +7,7 @@ from okonomiyaki.models.egg import Dependency, LegacySpec
 
 DATA_DIR = op.join(op.dirname(__file__), "data")
 
+
 class TestDependency(unittest.TestCase):
     def test_str(self):
         dependency = Dependency(name="numpy")
@@ -19,7 +20,8 @@ class TestDependency(unittest.TestCase):
 
         self.assertEqual(r_str, str(dependency))
 
-        dependency = Dependency(name="numpy", version_string="1.7.1", build_number=1)
+        dependency = Dependency(name="numpy", version_string="1.7.1",
+                                build_number=1)
         r_str = "numpy 1.7.1-1"
 
         self.assertEqual(r_str, str(dependency))
@@ -59,8 +61,11 @@ class TestDependency(unittest.TestCase):
         self.assertEqual(dependency.version_string, "")
         self.assertEqual(dependency.build_number, -1)
 
-        self.assertRaises(InvalidEggName, lambda : Dependency.from_string("numpy"))
-        self.assertRaises(InvalidEggName, lambda : Dependency.from_string("numpy 1.7.1"))
+        self.assertRaises(InvalidEggName, lambda:
+                          Dependency.from_string("numpy"))
+        self.assertRaises(InvalidEggName, lambda:
+                          Dependency.from_string("numpy 1.7.1"))
+
 
 class TestLegacySpec(unittest.TestCase):
     def test_depend_content(self):
@@ -101,4 +106,4 @@ packages = [
             python="2.7",
             summary="Debug symbol files for Qt.",
         )
-        spec = LegacySpec.from_data(data, "win-32", "2.7")
+        LegacySpec.from_data(data, "win-32", "2.7")
