@@ -3,7 +3,7 @@ import _ast
 import json
 import re
 
-from okonomiyaki.errors import InvalidEggName, OkonomiyakiError
+from ..errors import InvalidEggName, OkonomiyakiError
 from .constants import _SPEC_DEPEND_LOCATION, _INFO_JSON_LOCATION
 
 _EGG_NAME_RE = re.compile("""

@@ -3,7 +3,7 @@ import zipfile
 
 import os.path as op
 
-from okonomiyaki.models.constants import _EGG_INFO_PREFIX
+from ..models.constants import _EGG_INFO_PREFIX
 
 
 class EggBuilder(object):

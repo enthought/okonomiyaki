@@ -1,8 +1,8 @@
 import platform
 import sys
 
-from okonomiyaki.errors import OkonomiyakiError
-from okonomiyaki.bundled.traitlets import HasTraits, Enum
+from ..bundled.traitlets import HasTraits, Enum
+from ..errors import OkonomiyakiError
 
 # Those lists are redundant with legacy spec. We check the consistency in our
 # unit-tests

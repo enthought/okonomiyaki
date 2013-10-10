@@ -1,6 +1,6 @@
-from okonomiyaki.bundled.traitlets import HasTraits, Enum, Instance
-
+from ..bundled.traitlets import HasTraits, Enum, Instance
 from ..platform import EPD_PLATFORM_SHORT_NAMES
+
 from .common import egg_name
 from .enpkg import EnpkgS3IndexEntry
 

@@ -1,5 +1,5 @@
-from okonomiyaki.errors import OkonomiyakiError
-from okonomiyaki.bundled.traitlets import HasTraits, Instance
+from ..bundled.traitlets import HasTraits, Instance
+from ..errors import OkonomiyakiError
 
 from .epd_platform import EPDPlatform
 
