@@ -5,8 +5,8 @@ import os.path as op
 
 import six
 
-from okonomiyaki.models.grits import GritsEggEntry
-from okonomiyaki.utils.py3compat import long
+from ...utils.py3compat import long
+from ..grits import GritsEggEntry
 
 DATA_DIR = op.join(op.dirname(__file__), "data")
 

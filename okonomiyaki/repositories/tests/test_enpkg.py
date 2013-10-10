@@ -5,8 +5,8 @@ import unittest
 
 import os.path as op
 
-from okonomiyaki.models.enpkg import EnpkgS3IndexEntry
-from okonomiyaki.utils.py3compat import long
+from ..enpkg import EnpkgS3IndexEntry
+from ...utils.py3compat import long
 
 DATA_DIR = op.join(op.dirname(__file__), "data")
 

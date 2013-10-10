@@ -15,6 +15,8 @@ if __name__ == "__main__":
                     "okonomiyaki.models.tests",
                     "okonomiyaki.platform",
                     "okonomiyaki.platform.tests",
+                    "okonomiyaki.repositories",
+                    "okonomiyaki.repositories.tests",
                     "okonomiyaki.utils",
                     ],
           install_requires=["six"],
