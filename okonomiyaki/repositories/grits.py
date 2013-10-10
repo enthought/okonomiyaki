@@ -1,7 +1,7 @@
 from ..bundled.traitlets import HasTraits, Enum, Instance
-from ..platform import EPD_PLATFORM_SHORT_NAMES
-
 from ..models.egg import egg_name
+from ..platforms import EPD_PLATFORM_SHORT_NAMES
+
 from .enpkg import EnpkgS3IndexEntry
 
 

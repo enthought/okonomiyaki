@@ -5,10 +5,9 @@ import json
 import posixpath
 import re
 
-from ..errors import InvalidDependencyString, InvalidEggName, OkonomiyakiError
-
 from ..bundled.traitlets import HasTraits, Instance, List, Long, Unicode
-from ..platform.legacy import LegacyEPDPlatform
+from ..errors import InvalidDependencyString, InvalidEggName, OkonomiyakiError
+from ..platforms.legacy import LegacyEPDPlatform
 
 _CAN_BE_NONE_KEYS = ("osdist", "platform", "python")
 

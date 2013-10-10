@@ -3,10 +3,10 @@ import unittest
 
 from okonomiyaki.errors import OkonomiyakiError
 
-from okonomiyaki.platform import EPD_PLATFORM_SHORT_NAMES, EPDPlatform
-from okonomiyaki.platform.epd_platform import _guess_architecture, \
+from okonomiyaki.platforms import EPD_PLATFORM_SHORT_NAMES, EPDPlatform
+from okonomiyaki.platforms.epd_platform import _guess_architecture, \
     _guess_epd_platform
-from okonomiyaki.platform.legacy import _SUBDIR
+from okonomiyaki.platforms.legacy import _SUBDIR
 
 
 class TestEPDPlatform(unittest.TestCase):
