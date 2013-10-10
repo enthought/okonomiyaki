@@ -4,7 +4,7 @@ python:
    - 3.3
    - pypy
 install:
-   - pip install nose coverage
+   - pip install -rdev_requirements.txt
    - pip install .
 script:
   - nosetests --with-coverage --cover-package=okonomiyaki okonomiyaki
