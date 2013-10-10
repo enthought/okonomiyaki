@@ -1,9 +1,10 @@
 import os
+import posixpath
 import zipfile
 
 import os.path as op
 
-from ..models.constants import _EGG_INFO_PREFIX
+from ..models.egg import _SPEC_DEPEND_LOCATION, _USR_PREFIX_LOCATION
 
 
 class EggBuilder(object):
@@ -46,8 +47,7 @@ class EggBuilder(object):
             will write foo.h as EGG-INFO/usr/include/foo.h).
         """
         for path, arcname in it:
-            self._fp.write(path, op.join(_EGG_INFO_PREFIX, "usr", arcname))
+            self._fp.write(path, posixpath.join(_USR_PREFIX_LOCATION, arcname))
 
     def _write_spec_depend(self):
-        self._fp.writestr(op.join(_EGG_INFO_PREFIX, "spec", "depend"),
-                          self.spec.depend_content())
+        self._fp.writestr(_SPEC_DEPEND_LOCATION, self.spec.depend_content())
