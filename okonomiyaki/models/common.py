@@ -3,7 +3,7 @@ import _ast
 import json
 import re
 
-from okonomiyaki.errors import InvalidEggName
+from okonomiyaki.errors import InvalidEggName, OkonomiyakiError
 from .constants import _SPEC_DEPEND_LOCATION, _INFO_JSON_LOCATION
 
 _EGG_NAME_RE = re.compile("""
@@ -102,10 +102,10 @@ def _parse_assignments(s):
 
     for element in ast_result.body:
         if not isinstance(element, _ast.Assign):
-            raise ValueError()
+            raise OkonomiyakiError("Invalid expression in string.")
         assignment = element
         if not len(assignment.targets) == 1:
-            raise ValueError()
+            raise OkonomiyakiError("Invalid expression in string.")
         name = assignment.targets[0].id
         res[name] = _translator(assignment.value)
     return res
