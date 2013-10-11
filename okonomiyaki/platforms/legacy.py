@@ -25,6 +25,11 @@ class LegacyEPDPlatform(HasTraits):
     _epd_platform = Instance(EPDPlatform)
 
     @classmethod
+    def from_arch_and_osdist(cls, arch, osdist):
+        epd_platform_string = _get_entry_from_arch_osdist(arch, osdist)[0]
+        return cls.from_epd_platform_string(epd_platform_string)
+
+    @classmethod
     def from_epd_platform_string(cls, epd_platform_string):
         _epd_platform = EPDPlatform.from_epd_string(epd_platform_string)
         return cls(_epd_platform)
@@ -39,12 +44,12 @@ class LegacyEPDPlatform(HasTraits):
 
     @property
     def osdist(self):
-        entry = self._get_entry(self.short)
+        entry = _get_entry(self.short)
         return entry[4]
 
     @property
     def platform(self):
-        entry = self._get_entry(self.short)
+        entry = _get_entry(self.short)
         return entry[3]
 
     @property
@@ -53,11 +58,18 @@ class LegacyEPDPlatform(HasTraits):
 
     @property
     def subdir(self):
-        entry = self._get_entry(self.short)
+        entry = _get_entry(self.short)
         return entry[1]
 
-    def _get_entry(self, short):
-        for entry in _SUBDIR:
-            if entry[0] == short:
-                return entry
-        raise OkonomiyakiError("Invalid short epd string: {0}".format(short))
+def _get_entry(short):
+    for entry in _SUBDIR:
+        if entry[0] == short:
+            return entry
+    raise OkonomiyakiError("Invalid short epd string: {0}".format(short))
+
+def _get_entry_from_arch_osdist(arch, osdist):
+    for entry in _SUBDIR:
+        if entry[2] == arch and entry[-1] == osdist:
+            return entry
+    raise OkonomiyakiError("Invalid arch/osdist combination: {0}/{1}". \
+                           format(arch, osdist))

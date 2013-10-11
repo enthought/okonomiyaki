@@ -32,6 +32,22 @@ Enthought egg features
 
 .. currentmodule:: okonomiyaki.file_formats.egg
 
+LegacySpecDepend class
+----------------------
+
+Represents the content of the spec/depend file in Enthought egg's metadata.
+You can create one from an existing egg::
+
+    spec = LegacySpecDepend.from_egg("numpy-1.7.1-1.egg")
+    print spec.packages
+    print spec.osdist
+
+    # generate the spec/depend content
+    print spec.to_string()
+
+.. autoclass:: LegacySpec
+   :members:
+
 LegacySpec class
 ----------------
 

@@ -120,9 +120,9 @@ class Dependency(HasTraits):
             return self.name
 
 
-class LegacySpec(HasTraits):
+class LegacySpecDepend(HasTraits):
     """
-    This models the EGG-INFO/spec content.
+    This models the EGG-INFO/spec/depend content.
     """
     # Name is taken from egg path, so may be upper case
     name = Unicode()
@@ -147,61 +147,7 @@ class LegacySpec(HasTraits):
     List of dependencies for this egg
     """
 
-    lib_depend = List()
-    """
-    List of freeform content
-    """
-    lib_provide = List()
-    """
-    List of freeform content
-    """
-
-    summary = Unicode()
-    """
-    Summary metadata of the egg.
-    """
-
     _epd_legacy_platform = Instance(LegacyEPDPlatform)
-
-    @property
-    def arch(self):
-        """
-        Egg architecture.
-        """
-        return self._epd_legacy_platform.arch
-
-    @property
-    def egg_name(self):
-        """
-        Full egg name (including .egg extension).
-        """
-        return egg_name(self.name, self.version, self.build)
-
-    @property
-    def metadata_version(self):
-        return "1.1"
-
-    @property
-    def osdist(self):
-        return self._epd_legacy_platform.osdist
-
-    @property
-    def platform(self):
-        """
-        The legacy platform name (sys.platform).
-        """
-        return self._epd_legacy_platform.platform
-
-    @property
-    def short(self):
-        """
-        EPD platform string (e.g. 'win-32')
-        """
-        return self._epd_legacy_platform.short
-
-    @property
-    def subdir(self):
-        return self._epd_legacy_platform.subdir
 
     @classmethod
     def from_data(cls, data, epd_platform_string, python=None):
@@ -211,6 +157,10 @@ class LegacySpec(HasTraits):
             LegacyEPDPlatform.from_epd_platform_string(epd_platform_string)
 
         args["python"] = python
+
+        args["packages"] = [
+            Dependency.from_spec_string(s) for s in args.get("packages", [])
+        ]
 
         args = _decode_none_values(args, _CAN_BE_NONE_KEYS)
         return cls(**args)
@@ -227,18 +177,58 @@ class LegacySpec(HasTraits):
             else:
                 python = None
 
-            try:
-                lib_depend_data = fp.read(_SPEC_LIB_DEPEND_LOCATION).decode()
-                data["lib_depend"] = lib_depend_data.splitlines()
-            except KeyError:
-                pass
-
-            data["packages"] = [
-                Dependency.from_spec_string(s) for s in info_data["packages"]
-            ]
+            data["packages"] = info_data["packages"]
         return cls.from_data(data, epd_platform, python)
 
-    def to_dict(self):
+    @classmethod
+    def from_string(cls, spec_depend_string):
+        raw_data = parse_rawspec(spec_depend_string)
+
+        data = {
+            "name": raw_data["name"],
+            "version": raw_data["version"],
+            "build": raw_data["build"],
+            "packages": raw_data["packages"],
+        }
+
+
+        python = raw_data["python"]
+
+        arch, osdist = raw_data["arch"], raw_data["osdist"]
+        epd_platform = LegacyEPDPlatform.from_arch_and_osdist(arch,
+                                                              osdist)
+        return cls.from_data(data, epd_platform.short, python)
+
+    @property
+    def arch(self):
+        """
+        Egg architecture.
+        """
+        return self._epd_legacy_platform.arch
+
+    @property
+    def egg_name(self):
+        """
+        Full egg name (including .egg extension).
+        """
+        return egg_name(self.name, self.version, self.build)
+
+    @property
+    def osdist(self):
+        return self._epd_legacy_platform.osdist
+
+    @property
+    def platform(self):
+        """
+        The legacy platform name (sys.platform).
+        """
+        return self._epd_legacy_platform.platform
+
+    @property
+    def metadata_version(self):
+        return "1.1"
+
+    def _to_dict(self):
         data = {"name": self.name,
                 "version": self.version,
                 "build": self.build,
@@ -247,23 +237,10 @@ class LegacySpec(HasTraits):
                 "osdist": self.osdist,
                 "packages": [str(p) for p in self.packages],
                 "python": self.python,
-                "short": self.short,
-                "subdir": self.subdir,
                 "metadata_version": self.metadata_version}
-        data = _encode_none_values(data, _CAN_BE_NONE_KEYS)
+        return _encode_none_values(data, _CAN_BE_NONE_KEYS)
 
-        if len(self.lib_depend) > 0:
-            data["lib-depend"] = "\n".join(str(p) for p in self.lib_depend)
-        else:
-            data["lib-depend"] = "\n"
-        if len(self.lib_provide):
-            data["lib-provide"] = "\n".join(str(p) for p in self.lib_provide)
-        else:
-            data["lib-provide"] = "\n"
-
-        return data
-
-    def depend_content(self):
+    def to_string(self):
         """
         Returns a string that is suitable for the depend file inside our
         legacy egg.
@@ -280,7 +257,7 @@ osdist = '{osdist}'
 python = '{python}'
 packages = {packages}
 """
-        data = self.to_dict()
+        data = self._to_dict()
 
         # This is just to ensure the exact same string as the produced by the
         # legacy buildsystem
@@ -291,6 +268,53 @@ packages = {packages}
                 format("\n".join("  '{0}',".format(p)
                        for p in self.packages))
         return template.format(**data)
+
+class LegacySpec(HasTraits):
+    """
+    This models the EGG-INFO/spec content.
+    """
+    depend = Instance(LegacySpecDepend)
+    """
+    Models the spec/depend content
+    """
+
+    lib_depend = List()
+    """
+    List of freeform content
+    """
+    lib_provide = List()
+    """
+    List of freeform content
+    """
+
+    summary = Unicode()
+    """
+    Summary metadata of the egg.
+    """
+
+    @classmethod
+    def from_egg(cls, egg, epd_platform):
+        spec_depend = LegacySpecDepend.from_egg(egg, epd_platform)
+
+        data = {"depend": spec_depend}
+
+        with zipfile.ZipFile(egg) as fp:
+            try:
+                lib_depend_data = fp.read(_SPEC_LIB_DEPEND_LOCATION).decode()
+                data["lib_depend"] = lib_depend_data.splitlines()
+            except KeyError:
+                pass
+
+        return cls(**data)
+
+    @property
+    def egg_name(self):
+        return "{0}-{1}-{2}.egg".format(self.depend.name,
+                                        self.depend.version,
+                                        self.depend.build)
+
+    def depend_content(self):
+        return self.depend.to_string()
 
     def lib_depend_content(self):
         """

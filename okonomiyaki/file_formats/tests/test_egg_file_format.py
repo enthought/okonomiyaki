@@ -7,7 +7,7 @@ import os.path as op
 
 from okonomiyaki.errors import InvalidEggName
 from okonomiyaki.file_formats.egg import Dependency, EggBuilder, LegacySpec, \
-    parse_rawspec, split_egg_name
+    LegacySpecDepend, parse_rawspec, split_egg_name
 
 import okonomiyaki.repositories
 
@@ -42,7 +42,8 @@ packages = []
             build=2,
             summary="Debug symbol files for Qt.",
         )
-        spec = LegacySpec.from_data(data, "rh5-32", "2.7")
+        depend = LegacySpecDepend.from_data(data, "rh5-32", "2.7")
+        spec = LegacySpec(depend=depend)
 
         with EggBuilder(spec, cwd=self.d) as fp:
             pass
@@ -114,6 +115,43 @@ class TestDependency(unittest.TestCase):
                           Dependency.from_string("numpy 1.7.1"))
 
 
+class TestLegacySpecDepend(unittest.TestCase):
+    def test_create_from_egg1(self):
+        egg = op.join(DATA_DIR, "Cython-0.19.1-1.egg")
+        self._test_create_from_egg(egg)
+
+    def test_create_from_egg2(self):
+        egg = op.join(DATA_DIR, "ets-4.3.0-3.egg")
+        self._test_create_from_egg(egg)
+
+    def _test_create_from_egg(self, egg_path):
+        with zipfile.ZipFile(egg_path, "r") as zp:
+            r_spec_depend = zp.read("EGG-INFO/spec/depend").decode()
+
+        spec_depend = LegacySpecDepend.from_egg(egg_path, "rh5-32")
+
+        self.maxDiff = 4096
+        self.assertMultiLineEqual(spec_depend.to_string(), r_spec_depend)
+
+    def test_from_string(self):
+        r_depend = """\
+metadata_version = '1.1'
+name = 'Qt_debug'
+version = '4.8.5'
+build = 2
+
+arch = 'x86'
+platform = 'linux2'
+osdist = 'RedHat_5'
+python = '2.7'
+packages = [
+  'Qt 4.8.5',
+]
+"""
+        depend = LegacySpecDepend.from_string(r_depend)
+
+        self.assertMultiLineEqual(depend.to_string(), r_depend)
+
 class TestLegacySpec(unittest.TestCase):
     def test_depend_content(self):
         r_depend = """\
@@ -131,16 +169,16 @@ packages = [
 ]
 """
 
-        dependencies = [Dependency.from_string("Qt-4.8.5-2")]
         data = dict(
             name="Qt_debug",
             version="4.8.5",
             build=2,
             python="2.7",
-            packages=dependencies,
+            packages=["Qt 4.8.5"],
             summary="Debug symbol files for Qt.",
         )
-        spec = LegacySpec.from_data(data, "rh5-32", "2.7")
+        depend = LegacySpecDepend.from_data(data, "rh5-32", "2.7")
+        spec = LegacySpec(depend=depend)
 
         self.assertEqual(spec.depend_content(), r_depend)
 
@@ -153,7 +191,8 @@ packages = [
             python="2.7",
             summary="Debug symbol files for Qt.",
         )
-        LegacySpec.from_data(data, "win-32", "2.7")
+        depend = LegacySpecDepend.from_data(data, "win-32", "2.7")
+        LegacySpec(depend=depend)
 
     def test_create_from_egg1(self):
         egg = op.join(DATA_DIR, "Cython-0.19.1-1.egg")
