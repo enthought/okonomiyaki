@@ -61,15 +61,17 @@ class LegacyEPDPlatform(HasTraits):
         entry = _get_entry(self.short)
         return entry[1]
 
+
 def _get_entry(short):
     for entry in _SUBDIR:
         if entry[0] == short:
             return entry
     raise OkonomiyakiError("Invalid short epd string: {0}".format(short))
 
+
 def _get_entry_from_arch_osdist(arch, osdist):
     for entry in _SUBDIR:
         if entry[2] == arch and entry[-1] == osdist:
             return entry
-    raise OkonomiyakiError("Invalid arch/osdist combination: {0}/{1}". \
+    raise OkonomiyakiError("Invalid arch/osdist combination: {0}/{1}".
                            format(arch, osdist))

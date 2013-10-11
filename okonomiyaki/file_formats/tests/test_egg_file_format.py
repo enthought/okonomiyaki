@@ -11,7 +11,8 @@ from okonomiyaki.file_formats.egg import Dependency, EggBuilder, LegacySpec, \
 
 import okonomiyaki.repositories
 
-DATA_DIR = op.join(op.dirname(okonomiyaki.repositories.__file__), "tests", "data")
+DATA_DIR = op.join(op.dirname(okonomiyaki.repositories.__file__), "tests",
+                   "data")
 
 
 class TestEggBuilder(unittest.TestCase):
@@ -55,6 +56,7 @@ packages = []
             self.assertEqual(fp.namelist(), r_files)
             self.assertMultiLineEqual(fp.read("EGG-INFO/spec/depend").decode(),
                                       r_spec_depend)
+
 
 class TestDependency(unittest.TestCase):
     def test_str(self):
@@ -151,6 +153,7 @@ packages = [
         depend = LegacySpecDepend.from_string(r_depend)
 
         self.assertMultiLineEqual(depend.to_string(), r_depend)
+
 
 class TestLegacySpec(unittest.TestCase):
     def test_depend_content(self):

@@ -34,7 +34,8 @@ EGG_INFO_PREFIX = "EGG-INFO"
 # locations or not.
 _INFO_JSON_LOCATION = posixpath.join(EGG_INFO_PREFIX, "info.json")
 _SPEC_DEPEND_LOCATION = posixpath.join(EGG_INFO_PREFIX, "spec", "depend")
-_SPEC_LIB_DEPEND_LOCATION = posixpath.join(EGG_INFO_PREFIX, "spec", "lib-depend")
+_SPEC_LIB_DEPEND_LOCATION = posixpath.join(EGG_INFO_PREFIX, "spec",
+                                           "lib-depend")
 _USR_PREFIX_LOCATION = posixpath.join(EGG_INFO_PREFIX, "usr")
 
 
@@ -191,7 +192,6 @@ class LegacySpecDepend(HasTraits):
             "packages": raw_data["packages"],
         }
 
-
         python = raw_data["python"]
 
         arch, osdist = raw_data["arch"], raw_data["osdist"]
@@ -269,6 +269,7 @@ packages = {packages}
                        for p in self.packages))
         return template.format(**data)
 
+
 class LegacySpec(HasTraits):
     """
     This models the EGG-INFO/spec content.
@@ -323,6 +324,7 @@ class LegacySpec(HasTraits):
         """
         # The added "" is for round-tripping with the current egg format
         return "\n".join(str(entry) for entry in self.lib_depend + [""])
+
 
 class EggBuilder(HasTraits):
     """
@@ -387,6 +389,7 @@ class EggBuilder(HasTraits):
 
     def _write_spec_depend(self):
         self._fp.writestr(_SPEC_DEPEND_LOCATION, self.spec.depend_content())
+
 
 def egg_name(name, version, build):
     """
