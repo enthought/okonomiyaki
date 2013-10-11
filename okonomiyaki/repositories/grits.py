@@ -1,5 +1,5 @@
 from ..bundled.traitlets import HasTraits, Enum, Instance
-from ..models.egg import egg_name
+from ..file_formats.egg import egg_name
 from ..platforms import EPD_PLATFORM_SHORT_NAMES
 
 from .enpkg import EnpkgS3IndexEntry

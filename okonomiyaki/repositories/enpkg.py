@@ -7,9 +7,9 @@ import os.path as op
 
 from ..bundled.traitlets import HasTraits, Enum, Float, \
     Instance, List, Long, Unicode
-from ..utils import compute_md5
-from ..models.egg import Dependency, _decode_none_values, \
+from ..file_formats.egg import Dependency, _decode_none_values, \
     _encode_none_values, info_from_z, split_egg_name
+from ..utils import compute_md5
 
 _CAN_BE_NONE_KEYS = ["osdist", "platform", "python"]
 

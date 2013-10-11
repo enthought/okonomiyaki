@@ -11,8 +11,6 @@ if __name__ == "__main__":
                     "okonomiyaki.bundled.traitlets",
                     "okonomiyaki.file_formats",
                     "okonomiyaki.file_formats.tests",
-                    "okonomiyaki.models",
-                    "okonomiyaki.models.tests",
                     "okonomiyaki.platforms",
                     "okonomiyaki.platforms.tests",
                     "okonomiyaki.repositories",
