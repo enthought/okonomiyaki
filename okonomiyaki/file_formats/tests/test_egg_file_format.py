@@ -9,6 +9,10 @@ from okonomiyaki.errors import InvalidEggName
 from okonomiyaki.file_formats.egg import Dependency, EggBuilder, LegacySpec, \
     parse_rawspec, split_egg_name
 
+import okonomiyaki.repositories
+
+DATA_DIR = op.join(op.dirname(okonomiyaki.repositories.__file__), "tests", "data")
+
 
 class TestEggBuilder(unittest.TestCase):
     def setUp(self):
@@ -150,6 +154,29 @@ packages = [
             summary="Debug symbol files for Qt.",
         )
         LegacySpec.from_data(data, "win-32", "2.7")
+
+    def test_create_from_egg1(self):
+        egg = op.join(DATA_DIR, "Cython-0.19.1-1.egg")
+        self._test_create_from_egg(egg)
+
+    def test_create_from_egg2(self):
+        egg = op.join(DATA_DIR, "ets-4.3.0-3.egg")
+        self._test_create_from_egg(egg)
+
+    def _test_create_from_egg(self, egg_path):
+        with zipfile.ZipFile(egg_path, "r") as zp:
+            r_depend = zp.read("EGG-INFO/spec/depend").decode()
+            try:
+                r_lib_depend = zp.read("EGG-INFO/spec/lib-depend").decode()
+            except KeyError:
+                r_lib_depend = ""
+
+        legacy = LegacySpec.from_egg(egg_path, "rh5-32")
+
+        self.maxDiff = 4096
+        self.assertMultiLineEqual(legacy.depend_content(), r_depend)
+        self.assertMultiLineEqual(legacy.lib_depend_content(), r_lib_depend)
+
 
 class TestEggName(unittest.TestCase):
     def test_split_egg_name(self):

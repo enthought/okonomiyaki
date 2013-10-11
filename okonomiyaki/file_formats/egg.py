@@ -34,6 +34,7 @@ EGG_INFO_PREFIX = "EGG-INFO"
 # locations or not.
 _INFO_JSON_LOCATION = posixpath.join(EGG_INFO_PREFIX, "info.json")
 _SPEC_DEPEND_LOCATION = posixpath.join(EGG_INFO_PREFIX, "spec", "depend")
+_SPEC_LIB_DEPEND_LOCATION = posixpath.join(EGG_INFO_PREFIX, "spec", "lib-depend")
 _USR_PREFIX_LOCATION = posixpath.join(EGG_INFO_PREFIX, "usr")
 
 
@@ -215,9 +216,26 @@ class LegacySpec(HasTraits):
         return cls(**args)
 
     @classmethod
-    def from_egg(cls, egg, epd_platform, python=None):
-        name, version, build = split_egg_name(egg)
+    def from_egg(cls, egg, epd_platform):
+        name, version, build = split_egg_name(op.basename(egg))
         data = dict(name=name, version=version, build=build)
+
+        with zipfile.ZipFile(egg) as fp:
+            info_data = info_from_z(fp)
+            if "python" in info_data:
+                python = info_data["python"]
+            else:
+                python = None
+
+            try:
+                lib_depend_data = fp.read(_SPEC_LIB_DEPEND_LOCATION).decode()
+                data["lib_depend"] = lib_depend_data.splitlines()
+            except KeyError:
+                pass
+
+            data["packages"] = [
+                Dependency.from_spec_string(s) for s in info_data["packages"]
+            ]
         return cls.from_data(data, epd_platform, python)
 
     def to_dict(self):
@@ -269,10 +287,18 @@ packages = {packages}
         if len(self.packages) == 0:
             data["packages"] = "[]"
         else:
-            data["packages"] = "[\n  {0},\n]". \
-                format("  \n".join("'{0}'".format(p)
+            data["packages"] = "[\n{0}\n]". \
+                format("\n".join("  '{0}',".format(p)
                        for p in self.packages))
         return template.format(**data)
+
+    def lib_depend_content(self):
+        """
+        Returns a string that is suitable for the lib-depend file inside our
+        legacy egg.
+        """
+        # The added "" is for round-tripping with the current egg format
+        return "\n".join(str(entry) for entry in self.lib_depend + [""])
 
 class EggBuilder(HasTraits):
     """
