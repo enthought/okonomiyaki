@@ -4,24 +4,35 @@ import zipfile
 
 import os.path as op
 
-from ..models.egg import _SPEC_DEPEND_LOCATION, _USR_PREFIX_LOCATION
+from ..bundled.traitlets import HasTraits, Bool, Instance, Unicode
+from ..models.egg import _SPEC_DEPEND_LOCATION, _USR_PREFIX_LOCATION, LegacySpec
 
 
-class EggBuilder(object):
+class EggBuilder(HasTraits):
+    """
+    Class to build eggs from an install tree.
+    """
+    compress = Bool()
+    cwd = Unicode()
+    spec = Instance(LegacySpec)
+
+    _fp = Instance(zipfile.ZipFile)
+
     def __init__(self, spec, cwd=None, compress=True):
-        """Class to build our legacy egg."""
         if cwd is None:
             cwd = os.getcwd()
 
-        self.spec = spec
-
-        self.egg_path = op.join(cwd, spec.egg_name)
+        super(EggBuilder, self).__init__(spec=spec, cwd=cwd, compres=compress)
 
         if compress is True:
             self._fp = zipfile.ZipFile(self.egg_path, "w",
                                        zipfile.ZIP_DEFLATED)
         else:
             self._fp = zipfile.ZipFile(self.egg_path, "w")
+
+    @property
+    def egg_path(self):
+        return op.join(self.cwd, self.spec.egg_name)
 
     def close(self):
         self._write_spec_depend()
