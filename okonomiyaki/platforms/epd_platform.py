@@ -47,7 +47,13 @@ class EPDPlatform(HasTraits):
         assert epd.arch == "x86"
     """
     platform = Enum(PLATFORM_NAMES)
+    """
+    Main name of the platform (e.g. 'rh5')
+    """
     arch = Enum(["x86", "amd64"])
+    """
+    Actual architecture (e.g. 'x86')
+    """
 
     @classmethod
     def from_running_system(cls, arch=None):

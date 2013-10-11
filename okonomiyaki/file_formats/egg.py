@@ -125,25 +125,55 @@ class LegacySpec(HasTraits):
     """
     # Name is taken from egg path, so may be upper case
     name = Unicode()
+    """
+    Egg name
+    """
     version = Unicode()
+    """
+    Upstream version (as a string).
+    """
     build = Long()
+    """
+    Build number
+    """
 
     python = Unicode()
+    """
+    Python version
+    """
     packages = List(Instance(Dependency))
+    """
+    List of dependencies for this egg
+    """
 
     lib_depend = List()
+    """
+    List of freeform content
+    """
     lib_provide = List()
+    """
+    List of freeform content
+    """
 
     summary = Unicode()
+    """
+    Summary metadata of the egg.
+    """
 
     _epd_legacy_platform = Instance(LegacyEPDPlatform)
 
     @property
     def arch(self):
+        """
+        Egg architecture.
+        """
         return self._epd_legacy_platform.arch
 
     @property
     def egg_name(self):
+        """
+        Full egg name (including .egg extension).
+        """
         return egg_name(self.name, self.version, self.build)
 
     @property
@@ -156,10 +186,16 @@ class LegacySpec(HasTraits):
 
     @property
     def platform(self):
+        """
+        The legacy platform name (sys.platform).
+        """
         return self._epd_legacy_platform.platform
 
     @property
     def short(self):
+        """
+        EPD platform string (e.g. 'win-32')
+        """
         return self._epd_legacy_platform.short
 
     @property
@@ -243,8 +279,17 @@ class EggBuilder(HasTraits):
     Class to build eggs from an install tree.
     """
     compress = Bool()
+    """
+    True if the egg must be compressed.
+    """
     cwd = Unicode()
+    """
+    Root directory from which paths will be resolved.
+    """
     spec = Instance(LegacySpec)
+    """
+    Spec instance
+    """
 
     _fp = Instance(zipfile.ZipFile)
 
