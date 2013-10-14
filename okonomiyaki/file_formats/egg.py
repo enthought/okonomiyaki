@@ -171,7 +171,8 @@ class LegacySpecDepend(HasTraits):
         name, version, build = split_egg_name(op.basename(egg))
         data = dict(name=name, version=version, build=build)
 
-        with zipfile.ZipFile(egg) as fp:
+        fp = zipfile.ZipFile(egg)
+        try:
             info_data = info_from_z(fp)
             if "python" in info_data:
                 python = info_data["python"]
@@ -179,6 +180,8 @@ class LegacySpecDepend(HasTraits):
                 python = None
 
             data["packages"] = info_data["packages"]
+        finally:
+            fp.close()
         return cls.from_data(data, epd_platform, python)
 
     @classmethod
@@ -299,12 +302,15 @@ class LegacySpec(HasTraits):
 
         data = {"depend": spec_depend}
 
-        with zipfile.ZipFile(egg) as fp:
+        fp = zipfile.ZipFile(egg)
+        try:
             try:
                 lib_depend_data = fp.read(_SPEC_LIB_DEPEND_LOCATION).decode()
                 data["lib_depend"] = lib_depend_data.splitlines()
             except KeyError:
                 pass
+        finally:
+            fp.close()
 
         return cls(**data)
 
