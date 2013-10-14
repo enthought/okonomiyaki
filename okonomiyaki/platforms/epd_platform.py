@@ -64,7 +64,7 @@ class EPDPlatform(HasTraits):
         Parameters
         ----------
         arch: str, None
-            If given, must be a valid architecture string (e.g. 'i386'). If
+            If given, must be a valid architecture string (e.g. 'x86'). If
             None, will be guessed from the running python.
         """
         return _guess_epd_platform(arch)
