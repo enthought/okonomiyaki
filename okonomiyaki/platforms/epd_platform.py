@@ -109,13 +109,20 @@ def _guess_architecture():
     """
     Returns the architecture of the running python.
     """
-    processor = platform.processor()
-    if processor in ("i386", ):
-        return "x86"
-    elif processor in ("x86_64"):
-        return "amd64"
+    x86 = "x86"
+    amd64 = "amd64"
+    bits = platform.architecture()[0]
+    machine = platform.machine()
+    if machine in ("AMD64", "x86_64"):
+        if bits == "32bit":
+            return x86
+        elif bits == "64bit":
+            return amd64
+    elif machine in ("x86",) and bits == "32bit":
+        return x86
     else:
-        raise OkonomiyakiError("Unknown processor {}".format(processor))
+        raise OkonomiyakiError("Unknown bits/machine combination {0}/{1}".
+                               format(bits, machine))
 
 
 def _guess_epd_platform(arch=None):
