@@ -60,6 +60,10 @@ class TestGuessEPDPlatform(unittest.TestCase):
                 epd_platform = _guess_epd_platform()
                 self.assertEqual(epd_platform.short, "rh5-32")
 
+            with mock.patch("platform.processor", lambda: "i686"):
+                epd_platform = _guess_epd_platform()
+                self.assertEqual(epd_platform.short, "rh5-32")
+
             with mock.patch("platform.processor", lambda: "x86_64"):
                 epd_platform = _guess_epd_platform()
                 self.assertEqual(epd_platform.short, "rh5-64")
