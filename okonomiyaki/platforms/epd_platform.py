@@ -118,7 +118,7 @@ def _guess_architecture():
             return x86
         elif bits == "64bit":
             return amd64
-    elif machine in ("x86",) and bits == "32bit":
+    elif machine in ("x86", "i386", "i686") and bits == "32bit":
         return x86
     else:
         raise OkonomiyakiError("Unknown bits/machine combination {0}/{1}".
