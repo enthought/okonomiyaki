@@ -7,11 +7,11 @@ python:
    - pypy
 install:
    - if [[ "${TRAVIS_PYTHON_VERSION}" -eq "2.6" ]]; then
-       pip install -rdev_requirements_py26.txt
-     else
-       pip install -rdev_requirements.txt
-       env
-     fi
+       pip install -rdev_requirements_py26.txt;
+       else
+       env;
+       pip install -rdev_requirements.txt;
+       fi
    - pip install .
 script:
   - nosetests --with-coverage --cover-package=okonomiyaki okonomiyaki
