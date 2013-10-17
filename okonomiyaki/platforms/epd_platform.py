@@ -110,7 +110,7 @@ def _guess_architecture():
     Returns the architecture of the running python.
     """
     processor = platform.processor()
-    if processor in ("i386", ):
+    if processor in ("i386", "i686"):
         return "x86"
     elif processor in ("x86_64"):
         return "amd64"
