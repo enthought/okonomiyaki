@@ -1,5 +1,5 @@
- .. image:: https://travis-ci.org/enthought/okonomiyaki.png?branch=master
- :target: https://travis-ci.org/enthought/okonomiyaki
+.. image:: https://travis-ci.org/enthought/okonomiyaki.png?branch=master
+    :target: https://travis-ci.org/enthought/okonomiyaki
 
 Okonomiyaki is an experimental library aimed at consolidating a lot of our
 low-level code used for Enthought's eggs.
