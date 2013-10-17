@@ -56,13 +56,20 @@ class TestGuessEPDPlatform(unittest.TestCase):
             epd_platform = _guess_epd_platform("amd64")
             self.assertEqual(epd_platform.short, "rh5-64")
 
-            with mock.patch("platform.processor", lambda: "i386"):
-                epd_platform = _guess_epd_platform()
-                self.assertEqual(epd_platform.short, "rh5-32")
+            with mock.patch("platform.machine", lambda: "x86"):
+                with mock.patch("platform.architecture", lambda: ("32bit",)):
+                    epd_platform = _guess_epd_platform()
+                    self.assertEqual(epd_platform.short, "rh5-32")
 
-            with mock.patch("platform.processor", lambda: "x86_64"):
-                epd_platform = _guess_epd_platform()
-                self.assertEqual(epd_platform.short, "rh5-64")
+            with mock.patch("platform.machine", lambda: "x86_64"):
+                with mock.patch("platform.architecture", lambda: ("32bit",)):
+                    epd_platform = _guess_epd_platform()
+                    self.assertEqual(epd_platform.short, "rh5-32")
+
+            with mock.patch("platform.machine", lambda: "x86_64"):
+                with mock.patch("platform.architecture", lambda: ("64bit",)):
+                    epd_platform = _guess_epd_platform()
+                    self.assertEqual(epd_platform.short, "rh5-64")
 
         with mock.patch("platform.dist", lambda: ("centos", "6.4", "Final")):
             epd_platform = _guess_epd_platform("x86")
@@ -84,6 +91,6 @@ class TestGuessEPDPlatform(unittest.TestCase):
     def test_guess_solaris_unsupported(self):
         self.assertRaises(OkonomiyakiError, _guess_epd_platform)
 
-    @mock.patch("platform.processor", lambda: "arm")
+    @mock.patch("platform.machine", lambda: "armv71")
     def test_guess_unsupported_processor(self):
         self.assertRaises(OkonomiyakiError, _guess_architecture)
