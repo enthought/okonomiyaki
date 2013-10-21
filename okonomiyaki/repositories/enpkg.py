@@ -51,7 +51,8 @@ class EnpkgS3IndexEntry(HasTraits):
     @classmethod
     def from_egg(cls, path, product="commercial"):
         kw = {}
-        with zipfile.ZipFile(path) as fp:
+        fp = zipfile.ZipFile(path)
+        try:
             data = info_from_z(fp)
             for k in ["build", "python", "type", "version"]:
                 kw[k] = data[k]
@@ -64,6 +65,8 @@ class EnpkgS3IndexEntry(HasTraits):
             kw["size"] = st.st_size
 
             kw["md5"] = compute_md5(path)
+        finally:
+            fp.close()
 
         return cls.from_data(kw)
 
