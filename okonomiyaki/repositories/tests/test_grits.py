@@ -60,6 +60,7 @@ class TestGritsEggEntry(unittest.TestCase):
                       'platform': 'rh5-32',
                       'product': 'commercial',
                       'python': six.u('2.7'),
+                      'qa_level': six.u('stable'),
                       'size': long(4766),
                       'type': 'egg',
                       'version': six.u('0.19.1')}

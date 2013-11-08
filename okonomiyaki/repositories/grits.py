@@ -20,6 +20,7 @@ class GritsEggEntry(HasTraits):
     platform = Enum(EPD_PLATFORM_SHORT_NAMES)
 
     enpkg_metadata = Instance(EnpkgS3IndexEntry)
+    qa_level = Enum(["stable", "staging", "ci"], "stable")
 
     @property
     def repository_type(self):
@@ -67,6 +68,7 @@ class GritsEggEntry(HasTraits):
     def grits_metadata(self):
         ret = self.enpkg_metadata.to_dict()
         ret["platform"] = self.platform
+        ret["qa_level"] = self.qa_level
         return ret
 
     @classmethod
