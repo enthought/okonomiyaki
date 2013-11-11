@@ -26,6 +26,7 @@ class TestEnpkgS3IndexEntry(unittest.TestCase):
 
     def test_to_json(self):
         r_data = dict(
+            available=False,
             build=long(3),
             md5=six.u("78ce2b9ebc88e3ed81cb9c0aa4eb8c87"),
             mtime=ETS_MTIME,
@@ -64,6 +65,7 @@ class TestEnpkgS3IndexEntry(unittest.TestCase):
     def test_from_data(self):
         json_data = """\
 {
+    "available": false,
     "build": 1,
     "md5": "efaf1e95fe51ffc7b07219668d4d5a29",
     "mtime": 1.0,

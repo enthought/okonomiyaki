@@ -19,30 +19,31 @@ class GritsEggEntry(HasTraits):
     """
     platform = Enum(EPD_PLATFORM_SHORT_NAMES)
 
-    enpkg_metadata = Instance(EnpkgS3IndexEntry)
     qa_level = Enum(["stable", "staging", "ci"], "stable")
+
+    _enpkg_metadata = Instance(EnpkgS3IndexEntry)
 
     @property
     def repository_type(self):
-        return self.enpkg_metadata.product
+        return self._enpkg_metadata.product
 
     @property
     def name(self):
-        return self.enpkg_metadata.name
+        return self._enpkg_metadata.name
 
     @property
     def version(self):
         """The upstream version (not including the build number)."""
-        return self.enpkg_metadata.version
+        return self._enpkg_metadata.version
 
     @property
     def build(self):
-        return self.enpkg_metadata.build
+        return self._enpkg_metadata.build
 
     @property
     def egg_name(self):
         """The egg filename."""
-        return egg_name(self.enpkg_metadata.egg_basename, self.version,
+        return egg_name(self._enpkg_metadata.egg_basename, self.version,
                         self.build)
 
     @property
@@ -66,9 +67,10 @@ class GritsEggEntry(HasTraits):
 
     @property
     def grits_metadata(self):
-        ret = self.enpkg_metadata.to_dict()
+        ret = self._enpkg_metadata.to_dict()
         ret["platform"] = self.platform
         ret["qa_level"] = self.qa_level
+        ret.pop("available")
         return ret
 
     @classmethod
@@ -86,4 +88,4 @@ class GritsEggEntry(HasTraits):
         """
         enpkg_metadata = EnpkgS3IndexEntry.from_egg(path, repository_type)
 
-        return cls(platform=platform, enpkg_metadata=enpkg_metadata)
+        return cls(platform=platform, _enpkg_metadata=enpkg_metadata)
