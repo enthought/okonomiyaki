@@ -93,3 +93,28 @@ class TestEnpkgS3IndexEntry(unittest.TestCase):
         index_entry = EnpkgS3IndexEntry.from_egg(path)
         self.assertEqual(index_entry.name, six.u("cython"))
         self.assertEqual(index_entry.egg_basename, six.u("Cython"))
+
+    def test_enpkg_s3index_key(self):
+        path = op.join(DATA_DIR, "Cython-0.19.1-1.egg")
+
+        entry = EnpkgS3IndexEntry.from_egg(path)
+        self.assertEqual(entry.s3index_key, "Cython-0.19.1-1.egg")
+
+    def test_enpkg_s3index_data(self):
+        r_data = {
+            "available": True,
+            "build": 1,
+            "md5": u"fa334276ff97c721370516530a36c475",
+            "mtime":  1375279259.576349,
+            "name": u"cython",
+            "packages": [],
+            "product": "commercial",
+            "python": u"2.7",
+            "size": 4766,
+            "type": "egg",
+            "version": "0.19.1",
+        }
+        path = op.join(DATA_DIR, "Cython-0.19.1-1.egg")
+
+        entry = EnpkgS3IndexEntry.from_egg(path, available=True)
+        self.assertEqual(entry.s3index_data, r_data)

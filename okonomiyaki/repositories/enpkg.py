@@ -8,7 +8,7 @@ import os.path as op
 from ..bundled.traitlets import HasTraits, Bool, Enum, Float, \
     Instance, List, Long, Unicode
 from ..file_formats.egg import Dependency, _decode_none_values, \
-    _encode_none_values, info_from_z, split_egg_name
+    _encode_none_values, egg_name, info_from_z, split_egg_name
 from ..utils import compute_md5
 
 _CAN_BE_NONE_KEYS = ["osdist", "platform", "python"]
@@ -34,7 +34,7 @@ class EnpkgS3IndexEntry(HasTraits):
     product = Enum(["pypi", "commercial", "free"], _PRODUCT_DEFAULT)
     python = Unicode()
     size = Long()
-    type = Enum(["egg"])
+    type = Enum(["egg"], "egg")
     version = Unicode()
 
     @classmethod
@@ -68,6 +68,7 @@ class EnpkgS3IndexEntry(HasTraits):
             kw["size"] = st.st_size
 
             kw["md5"] = compute_md5(path)
+            kw["available"] = available
         finally:
             fp.close()
 
@@ -76,6 +77,33 @@ class EnpkgS3IndexEntry(HasTraits):
     @property
     def name(self):
         return self.egg_basename.lower()
+
+    @property
+    def s3index_key(self):
+        """
+        Returns the key in the index.json on S3.
+        """
+        return egg_name(self.egg_basename, self.version, self.build)
+
+    @property
+    def s3index_data(self):
+        """
+        Returns the data in the index.json on S3.
+        """
+        data = {"available": self.available,
+                "build": self.build,
+                "md5": self.md5,
+                "mtime": self.mtime,
+                "name": self.name,
+                "packages": [str(p) for p in self.packages],
+                "product": self.product,
+                "python": self.python,
+                "size": self.size,
+                "type": self.type,
+                "version": self.version,
+        }
+        data = _encode_none_values(data, _CAN_BE_NONE_KEYS)
+        return data
 
     def to_dict(self):
         data = {"available": self.available,
