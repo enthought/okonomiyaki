@@ -51,6 +51,10 @@ class GritsEggEntry(HasTraits):
         return "enthought/eggs/{0}/{1}".format(self.platform, self.egg_name)
 
     @property
+    def python_version(self):
+        return self._enpkg_metadata.python
+
+    @property
     def grits_tags(self):
         tag_keys = ("accessible", "owned", "modifiable", "visible", "writable")
         if self.repository_type == "free":
