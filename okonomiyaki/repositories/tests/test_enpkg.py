@@ -14,6 +14,10 @@ __st = os.stat(op.join(DATA_DIR, "ets-4.3.0-3.egg"))
 ETS_MTIME = __st.st_mtime
 ETS_SIZE = __st.st_size
 
+__st = os.stat(op.join(DATA_DIR, "Cython-0.19.1-1.egg"))
+CYTHON_MTIME = __st.st_mtime
+CYTHON_SIZE = __st.st_size
+
 
 class TestEnpkgS3IndexEntry(unittest.TestCase):
     def test_from_egg(self):
@@ -105,12 +109,12 @@ class TestEnpkgS3IndexEntry(unittest.TestCase):
             "available": True,
             "build": 1,
             "md5": u"fa334276ff97c721370516530a36c475",
-            "mtime":  1375279259.576349,
+            "mtime": CYTHON_MTIME,
             "name": u"cython",
             "packages": [],
             "product": "commercial",
             "python": u"2.7",
-            "size": 4766,
+            "size": CYTHON_SIZE,
             "type": "egg",
             "version": "0.19.1",
         }
