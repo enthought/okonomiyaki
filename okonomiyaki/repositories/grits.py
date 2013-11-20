@@ -78,7 +78,7 @@ class GritsEggEntry(HasTraits):
         return ret
 
     @classmethod
-    def from_egg(cls, path, platform, repository_type="commercial"):
+    def from_egg(cls, path, platform, repository_type="commercial", qa_level="stable"):
         """Create a GritsEggEntry from an egg package.
 
         Parameters
