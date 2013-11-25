@@ -63,9 +63,22 @@ class TestGritsEggEntry(unittest.TestCase):
                       'qa_level': six.u('stable'),
                       'size': long(4766),
                       'type': 'egg',
-                      'version': six.u('0.19.1')}
+                      'version': six.u('0.19.1'),
+                      'qa_level': 'stable'}
 
         path = op.join(DATA_DIR, "Cython-0.19.1-1.egg")
 
         entry = GritsEggEntry.from_egg(path, "rh5-32", "commercial")
         self.assertEqual(entry.grits_metadata, r_metadata)
+
+    def test_qa_level(self):
+
+        path = op.join(DATA_DIR, "Cython-0.19.1-1.egg")
+
+        entry = GritsEggEntry.from_egg(
+            path, "rh5-32", "commercial", qa_level='staging'
+        )
+        self.assertEqual(entry.grits_metadata['qa_level'], 'staging')
+
+
+

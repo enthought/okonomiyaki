@@ -78,7 +78,7 @@ class GritsEggEntry(HasTraits):
         return ret
 
     @classmethod
-    def from_egg(cls, path, platform, repository_type="commercial"):
+    def from_egg(cls, path, platform, repository_type="commercial", qa_level="stable"):
         """Create a GritsEggEntry from an egg package.
 
         Parameters
@@ -92,4 +92,6 @@ class GritsEggEntry(HasTraits):
         """
         enpkg_metadata = EnpkgS3IndexEntry.from_egg(path, repository_type)
 
-        return cls(platform=platform, _enpkg_metadata=enpkg_metadata)
+        return cls(
+            platform=platform, qa_level=qa_level, _enpkg_metadata=enpkg_metadata
+        )
