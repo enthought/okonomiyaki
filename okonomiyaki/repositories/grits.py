@@ -4,6 +4,7 @@ from ..platforms import EPD_PLATFORM_SHORT_NAMES
 
 from .enpkg import EnpkgS3IndexEntry
 
+_DEFAULT_QA_LEVEL = "stable"
 
 class GritsEggEntry(HasTraits):
     """
@@ -19,7 +20,7 @@ class GritsEggEntry(HasTraits):
     """
     platform = Enum(EPD_PLATFORM_SHORT_NAMES)
 
-    qa_level = Enum(["stable", "staging", "ci"], "stable")
+    qa_level = Enum(["stable", "staging", "ci"], _DEFAULT_QA_LEVEL)
 
     _enpkg_metadata = Instance(EnpkgS3IndexEntry)
 
@@ -78,7 +79,8 @@ class GritsEggEntry(HasTraits):
         return ret
 
     @classmethod
-    def from_egg(cls, path, platform, repository_type="commercial", qa_level="stable"):
+    def from_egg(cls, path, platform, repository_type="commercial",
+                 qa_level=_DEFAULT_QA_LEVEL):
         """Create a GritsEggEntry from an egg package.
 
         Parameters
