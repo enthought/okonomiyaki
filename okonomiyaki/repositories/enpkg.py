@@ -9,6 +9,7 @@ from ..bundled.traitlets import HasTraits, Bool, Enum, Float, \
     Instance, List, Long, Unicode
 from ..file_formats.egg import Dependency, _decode_none_values, \
     _encode_none_values, egg_name, info_from_z, split_egg_name
+from ..file_formats.setuptools_egg import parse_filename
 from ..utils import compute_md5
 
 _CAN_BE_NONE_KEYS = ["osdist", "platform", "python"]
@@ -71,6 +72,21 @@ class EnpkgS3IndexEntry(HasTraits):
             kw["available"] = available
         finally:
             fp.close()
+
+        return cls.from_data(kw)
+
+    @classmethod
+    def from_setuptools_egg(cls, path, build=1, product=_PRODUCT_DEFAULT, available=_AVAILABLE_DEFAULT):
+        name, version, pyver, platform = parse_filename(path)
+        kw = {"available": True, "build": build, "python": pyver,
+                "type": "egg", "version": version}
+        st = os.stat(path)
+        kw["mtime"] = st.st_mtime
+        kw["size"] = st.st_size
+        kw["product"] = "free"
+        kw["md5"] = compute_md5(path)
+        kw["packages"] = []
+        kw["egg_basename"] = name
 
         return cls.from_data(kw)
 

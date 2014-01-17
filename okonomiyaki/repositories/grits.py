@@ -1,6 +1,7 @@
 from ..bundled.traitlets import HasTraits, Enum, Instance
 from ..file_formats.egg import egg_name
 from ..platforms import EPD_PLATFORM_SHORT_NAMES
+from ..platforms.epd_platform import EPDPlatform
 
 from .enpkg import EnpkgS3IndexEntry
 
@@ -97,3 +98,11 @@ class GritsEggEntry(HasTraits):
         return cls(
             platform=platform, qa_level=qa_level, _enpkg_metadata=enpkg_metadata
         )
+
+    @classmethod
+    def from_setuptools_egg(cls, path, platform=None):
+        if platform is None:
+            platform = EPDPlatform.from_running_system().short
+
+        enpkg_metadata = EnpkgS3IndexEntry.from_setuptools_egg(path)
+        return cls(platform=platform, _enpkg_metadata=enpkg_metadata)
