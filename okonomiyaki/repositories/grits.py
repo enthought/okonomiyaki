@@ -69,7 +69,7 @@ class GritsEggEntry(HasTraits):
         else:
             raise NotImplementedError(
                 "Tags for repository type '{}' not implemented yet".
-                format(self.repository))
+                format(self.repository_type))
 
     @property
     def grits_metadata(self):
