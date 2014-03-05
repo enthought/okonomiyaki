@@ -1,5 +1,6 @@
 from ..bundled.traitlets import HasTraits, Enum, Instance
-from ..file_formats.egg import egg_name
+from ..errors import OkonomiyakiError
+from ..file_formats.egg import egg_name, split_egg_name
 from ..platforms import EPD_PLATFORM_SHORT_NAMES
 
 from .enpkg import EnpkgS3IndexEntry
@@ -27,6 +28,10 @@ class GritsEggEntry(HasTraits):
     @property
     def repository_type(self):
         return self._enpkg_metadata.product
+
+    @repository_type.setter
+    def repository_type(self, value):
+        self._enpkg_metadata.product = value
 
     @property
     def name(self):
@@ -97,3 +102,32 @@ class GritsEggEntry(HasTraits):
         return cls(
             platform=platform, qa_level=qa_level, _enpkg_metadata=enpkg_metadata
         )
+
+    @classmethod
+    def _from_grits_metadata(cls, data, platform):
+        qa_level = data.pop("qa_level", _DEFAULT_QA_LEVEL)
+        data.pop("name")
+        enpkg_metadata = EnpkgS3IndexEntry.from_data(data)
+        return cls(
+            platform=platform, qa_level=qa_level,
+            _enpkg_metadata=enpkg_metadata
+        )
+
+    @classmethod
+    def from_key_and_metadata(cls, key, data):
+        platform = _grits_egg_key_to_platform(key)
+        data = data.copy()
+        data.setdefault("egg_basename", _grits_egg_key_to_egg_basename(key))
+        return cls._from_grits_metadata(data, platform)
+
+def _grits_egg_key_to_platform(key):
+    parts = key.split("/")
+    return parts[2]
+
+def _grits_egg_key_to_egg_basename(key):
+    parts = key.split("/")
+    egg_name = parts[-1]
+    if not egg_name.endswith(".egg"):
+        raise OkonomiyakiError("Invalid grits key for eggs: {}".format(key))
+    else:
+        return split_egg_name(egg_name)[0]
