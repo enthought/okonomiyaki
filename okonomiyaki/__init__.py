@@ -1,3 +1,3 @@
 #  Copyright (c) 2013 by Enthought, Inc.
 #  All rights reserved.
-__version__ = "0.0.3.dev1"
+__version__ = "0.0.3"
