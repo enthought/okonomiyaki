@@ -48,7 +48,7 @@ class EnpkgS3IndexEntry(HasTraits):
         """
         data = _decode_none_values(data, _CAN_BE_NONE_KEYS)
         data["packages"] = [
-            Dependency.from_spec_string(s) for s in data["packages"]
+            Dependency.from_spec_string(s) for s in data.get("packages", [])
         ]
         return cls(**data)
 
