@@ -68,11 +68,14 @@ class EnpkgS3IndexEntry(HasTraits):
             kw["mtime"] = st.st_mtime
             kw["size"] = st.st_size
 
-            kw["md5"] = compute_md5(path)
             kw["available"] = available
         finally:
             fp.close()
 
+        # XXX: keep the hash computing *outside* any other file operation.
+        # Opening the same file can cause some IO errors, even on Linux (seen
+        # when eggs were on a Samba share).
+        kw["md5"] = compute_md5(path)
         return cls.from_data(kw)
 
     @classmethod
