@@ -1,6 +1,10 @@
+from __future__ import absolute_import
+
 import hashlib
 
 import six
+
+from .misc import parse_assignments # pragma: noqa
 
 
 def compute_md5(path):

@@ -1,5 +1,3 @@
-import _ast
-import ast
 import json
 import os
 import re
@@ -9,8 +7,9 @@ import zipfile
 import os.path as op
 
 from ..bundled.traitlets import HasTraits, Bool, Instance, List, Long, Unicode
-from ..errors import InvalidDependencyString, InvalidEggName, OkonomiyakiError
+from ..errors import InvalidDependencyString, InvalidEggName
 from ..platforms.legacy import LegacyEPDPlatform
+from ..utils import parse_assignments
 
 _CAN_BE_NONE_KEYS = ("osdist", "platform", "python")
 
@@ -21,12 +20,6 @@ _EGG_NAME_RE = re.compile("""
     -
     (?P<build>\d+)
     \.egg$""", re.VERBOSE)
-
-_TRANSLATOR = {
-    _ast.List: lambda v: v.elts,
-    _ast.Num: lambda v: v.n,
-    _ast.Str: lambda v: v.s
-}
 
 EGG_INFO_PREFIX = "EGG-INFO"
 
@@ -460,54 +453,9 @@ def info_from_z(z):
 
 
 def parse_rawspec(spec_string):
-    spec = _parse_assignments(spec_string.replace('\r', ''))
+    spec = parse_assignments(spec_string.replace('\r', ''))
     res = {}
     for k in ('name', 'version', 'build',
               'arch', 'platform', 'osdist', 'python', 'packages'):
         res[k] = spec[k]
     return res
-
-
-def _parse_assignments(s):
-    """
-    Parse a string of valid python code that consists only in a set of
-    simple assignments.
-
-    Parameters
-    ----------
-    s: str
-        A string containing assignments only
-
-    Example
-    -------
-    >>> _parse_assignments("foo = '1'\nbar = 2")
-    {'foo': '1', 'bar': 2}
-    """
-    res = {}
-    ast_result = ast.parse(s)
-
-    for element in ast_result.body:
-        if not isinstance(element, _ast.Assign):
-            raise OkonomiyakiError("Invalid expression in string.")
-        assignment = element
-        if not len(assignment.targets) == 1:
-            raise OkonomiyakiError("Invalid expression in string.")
-        name = assignment.targets[0].id
-        res[name] = _translator(assignment.value)
-    return res
-
-
-def _translator(v):
-    if isinstance(v, _ast.Num) or isinstance(v, _ast.Str):
-        return _TRANSLATOR[v.__class__](v)
-    elif isinstance(v, _ast.List):
-        return [_translator(i) for i in _TRANSLATOR[_ast.List](v)]
-    elif isinstance(v, _ast.Name):
-        if v.id != 'None':
-            raise NotImplementedError("value of type _ast.Name which value "
-                                      "!= 'None' not supported (was {0})".
-                                      format(v.id))
-        else:
-            return None
-    else:
-        raise NotImplementedError("Type {0} not handled yet".format(v))
