@@ -1,55 +1,50 @@
-import _ast
 import ast
+
+import six
 
 from ..errors import OkonomiyakiError
 
-_TRANSLATOR = {
-    _ast.List: lambda v: v.elts,
-    _ast.Num: lambda v: v.n,
-    _ast.Str: lambda v: v.s
-}
+
+class _AssignmentParser(ast.NodeVisitor):
+    def __init__(self):
+        self._data = {}
+
+    def parse(self, s):
+        self._data.clear()
+
+        root = ast.parse(s)
+        self.visit(root)
+        return self._data
+
+    def generic_visit(self, node):
+        if type(node) != ast.Module:
+            raise OkonomiyakiError("Unexpected expression @ line {0}".
+                                   format(node.lineno))
+        super(_AssignmentParser, self).generic_visit(node)
+
+    def visit_Assign(self, node):
+        try:
+            value = ast.literal_eval(node.value)
+        except ValueError:
+            msg = "Invalid configuration syntax at line {0}".format(node.lineno)
+            raise OkonomiyakiError(msg)
+        else:
+            for target in node.targets:
+                self._data[target.id] = value
 
 
-def parse_assignments(s):
+def parse_assignments(file_or_filename):
     """
-    Parse a string of valid python code that consists only in a set of
-    simple assignments.
+    Parse files which contain only python assignements, and returns the
+    corresponding dictionary name: value
 
     Parameters
     ----------
-    s: str
-        A string containing assignments only
-
-    Example
-    -------
-    >>> _parse_assignments("foo = '1'\nbar = 2")
-    {'foo': '1', 'bar': 2}
+    file_or_filename: str, file object
+        If a string, interpreted as a filename. File object otherwise.
     """
-    res = {}
-    ast_result = ast.parse(s)
-
-    for element in ast_result.body:
-        if not isinstance(element, _ast.Assign):
-            raise OkonomiyakiError("Invalid expression in string.")
-        assignment = element
-        if not len(assignment.targets) == 1:
-            raise OkonomiyakiError("Invalid expression in string.")
-        name = assignment.targets[0].id
-        res[name] = _translator(assignment.value)
-    return res
-
-
-def _translator(v):
-    if isinstance(v, _ast.Num) or isinstance(v, _ast.Str):
-        return _TRANSLATOR[v.__class__](v)
-    elif isinstance(v, _ast.List):
-        return [_translator(i) for i in _TRANSLATOR[_ast.List](v)]
-    elif isinstance(v, _ast.Name):
-        if v.id != 'None':
-            raise NotImplementedError("value of type _ast.Name which value "
-                                      "!= 'None' not supported (was {0})".
-                                      format(v.id))
-        else:
-            return None
+    if isinstance(file_or_filename, six.string_types):
+        with open(file_or_filename) as fp:
+            return _AssignmentParser().parse(fp.read())
     else:
-        raise NotImplementedError("Type {0} not handled yet".format(v))
+        return _AssignmentParser().parse(file_or_filename.read())

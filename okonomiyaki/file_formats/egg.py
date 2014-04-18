@@ -6,6 +6,8 @@ import zipfile
 
 import os.path as op
 
+import six
+
 from ..bundled.traitlets import HasTraits, Bool, Instance, List, Long, Unicode
 from ..errors import InvalidDependencyString, InvalidEggName
 from ..platforms.legacy import LegacyEPDPlatform
@@ -453,7 +455,7 @@ def info_from_z(z):
 
 
 def parse_rawspec(spec_string):
-    spec = parse_assignments(spec_string.replace('\r', ''))
+    spec = parse_assignments(six.StringIO(spec_string.replace('\r', '')))
     res = {}
     for k in ('name', 'version', 'build',
               'arch', 'platform', 'osdist', 'python', 'packages'):
