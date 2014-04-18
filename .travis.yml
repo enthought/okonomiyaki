@@ -1,20 +1,21 @@
 language: python
+
 python:
-   - 2.6
-   - 2.7
-   - 3.2
-   - 3.3
-   - pypy
+    - 2.6
+    - 2.7
+    - 3.3
+    - pypy
+
+before_install:
+    - sudo apt-get update
+    - sudo apt-get install python3.4
+
 install:
-   - if [[ "${TRAVIS_PYTHON_VERSION}" = "2.6" ]]; then
-       pip install -rdev_requirements_py26.txt;
-       else
-       env;
-       pip install -rdev_requirements.txt;
-       fi
-   - pip install .
+    - bash scripts/travis_install.sh
+
 script:
-  - nosetests --with-coverage --cover-package=okonomiyaki okonomiyaki
+    - nosetests --with-coverage --cover-package=okonomiyaki okonomiyaki
+
 notifications:
-  email:
-    - davidc@enthought.com
+    email:
+        - davidc@enthought.com
