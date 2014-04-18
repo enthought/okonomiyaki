@@ -12,12 +12,15 @@ import os.path as op
 
 from okonomiyaki.errors import InvalidEggName
 from okonomiyaki.file_formats.egg import Dependency, EggBuilder, LegacySpec, \
-    LegacySpecDepend, parse_rawspec, split_egg_name
+    LegacySpecDepend, info_from_z, parse_rawspec, split_egg_name
+from okonomiyaki.utils import ZipFile
 
 import okonomiyaki.repositories
 
 DATA_DIR = op.join(op.dirname(okonomiyaki.repositories.__file__), "tests",
                    "data")
+
+ENSTALLER_EGG = op.join(DATA_DIR, "enstaller-4.5.0-1.egg")
 
 
 class TestEggBuilder(unittest.TestCase):
@@ -333,3 +336,11 @@ packages = [
 """
 
         self.assertEqual(r_spec, parse_rawspec(spec_s))
+
+
+class TestInfoFromZ(unittest.TestCase):
+    def test_with_info_json(self):
+        egg = ENSTALLER_EGG
+
+        with ZipFile(egg) as zp:
+            info_from_z(zp)

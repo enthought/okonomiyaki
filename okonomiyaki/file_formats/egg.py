@@ -448,7 +448,7 @@ def info_from_z(z):
 
     arcname = _INFO_JSON_LOCATION
     if arcname in z.namelist():
-        res.update(json.loads(z.read(arcname)))
+        res.update(json.loads(z.read(arcname).decode()))
 
     res['name'] = res['name'].lower().replace('-', '_')
     return res
