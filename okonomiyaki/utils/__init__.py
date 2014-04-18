@@ -1,10 +1,12 @@
 from __future__ import absolute_import
 
+__all__ = ["compute_md5", "parse_assignments"]
+
 import hashlib
 
 import six
 
-from .misc import parse_assignments # pragma: noqa
+from .misc import parse_assignments
 
 
 def compute_md5(path):
