@@ -87,6 +87,11 @@ class TestDependency(unittest.TestCase):
 
         self.assertEqual(r_str, str(dependency))
 
+        dependency = Dependency("numpy", "1.7.1", 1)
+        r_str = "numpy 1.7.1-1"
+
+        self.assertEqual(r_str, str(dependency))
+
     def test_from_spec_string(self):
         dependency = Dependency.from_spec_string("numpy")
         self.assertEqual(dependency.name, "numpy")

@@ -43,6 +43,13 @@ class Dependency(HasTraits):
     version_string = Unicode()
     build_number = Long(-1)
 
+    def __init__(self, name="", version_string="", build_number=-1):
+        self.name = name
+        self.version_string = version_string
+        self.build_number = build_number
+        super(Dependency, self).__init__(self, name, version_string,
+                                         build_number)
+
     @property
     def strictness(self):
         if len(self.version_string) == 0:
