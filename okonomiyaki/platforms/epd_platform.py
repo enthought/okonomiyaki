@@ -121,7 +121,8 @@ def applies(platform_string, to='current'):
 
     def _are_compatible(short_left, short_right):
         return short_left == short_right or \
-            short_left == "rh" and short_right.startswith("rh")
+            short_left == "rh" and short_right.startswith("rh") \
+            or short_left == "all"
 
     if isinstance(to, str):
         if to == 'current':
