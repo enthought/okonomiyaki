@@ -5,7 +5,7 @@ from okonomiyaki.errors import OkonomiyakiError
 
 from okonomiyaki.platforms import EPD_PLATFORM_SHORT_NAMES, EPDPlatform
 from okonomiyaki.platforms.epd_platform import _guess_architecture, \
-    _guess_epd_platform
+    _guess_epd_platform, applies
 from okonomiyaki.platforms.legacy import _SUBDIR
 
 
@@ -28,6 +28,44 @@ class TestEPDPlatform(unittest.TestCase):
 
             epd_platform = EPDPlatform.from_running_system("amd64")
             self.assertEqual(epd_platform.short, "rh5-64")
+
+
+class TestEPDPlatformApplies(unittest.TestCase):
+    @mock.patch("sys.platform", "linux2")
+    @mock.patch("platform.dist", lambda: ("redhat", "5.8", "Final"))
+    def test_current_linux(self):
+        for expected_supported in ("rh5", "rh"):
+            self.assertTrue(applies(expected_supported, "current"))
+            self.assertFalse(applies("!" + expected_supported, "current"))
+
+        for expected_unsupported in ("win", "win-32", "osx", "rh6", "rh3"):
+            self.assertFalse(applies(expected_unsupported, "current"))
+            self.assertTrue(applies("!" + expected_unsupported, "current"))
+
+        self.assertTrue(applies("win,rh", "current"))
+        self.assertFalse(applies("win,osx", "current"))
+        self.assertTrue(applies("!win,osx", "current"))
+        self.assertFalse(applies("!rh,osx", "current"))
+
+        with mock.patch("platform.machine", lambda: "x86"):
+            with mock.patch("platform.architecture", lambda: ("32bit",)):
+                self.assertTrue(applies("rh5-32", "current"))
+                self.assertFalse(applies("!rh5-32", "current"))
+
+        with mock.patch("platform.machine", lambda: "x86_64"):
+            with mock.patch("platform.architecture", lambda: ("64bit",)):
+                self.assertTrue(applies("rh5-64", "current"))
+                self.assertFalse(applies("!rh5-64", "current"))
+
+    @mock.patch("sys.platform", "win32")
+    def test_current_windows(self):
+        for platform in ("rh5", "rh", "osx-32"):
+            self.assertFalse(applies(platform, "current"))
+
+        with mock.patch("platform.machine", lambda: "x86"):
+            with mock.patch("platform.architecture", lambda: ("32bit",)):
+                for platform in ("win", "win-32"):
+                    self.assertTrue(applies(platform, "current"))
 
 
 class TestGuessEPDPlatform(unittest.TestCase):
