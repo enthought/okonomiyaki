@@ -105,6 +105,56 @@ class EPDPlatform(HasTraits):
         return "{0}-{1}".format(self.platform, self.arch_bits)
 
 
+def applies(platform_string, to='current'):
+    """ Returns True if the given platform string applies to the platform
+    specified by 'to'."""
+    def _parse_component(component):
+        component = component.strip()
+
+        parts = component.split("-")
+        if len(parts) == 1:
+            return parts[0], None
+        elif len(parts) == 2:
+            return parts[0], parts[1]
+        else:
+            raise ValueError()
+
+    def _are_compatible(short_left, short_right):
+        return short_left == short_right or \
+            short_left == "rh" and short_right.startswith("rh")
+
+    if isinstance(to, str):
+        if to == 'current':
+            to = EPDPlatform.from_running_system()
+        else:
+            to = EPDPlatform.from_epd_string(to)
+
+    conditions = []
+
+    platform_string = platform_string.strip()
+    if platform_string.startswith("!"):
+        invert = True
+        platform_string = platform_string[1:]
+    else:
+        invert = False
+
+    platform_strings = [s for s in platform_string.split(",")]
+    for platform_string in platform_strings:
+        short, bits = _parse_component(platform_string)
+        if _are_compatible(short, to.platform):
+            if bits is None:
+                conditions.append(True)
+            else:
+                conditions.append(bits == to.arch_bits)
+        else:
+            conditions.append(False)
+
+    if invert:
+        return not any(conditions)
+    else:
+        return any(conditions)
+
+
 def _guess_architecture():
     """
     Returns the architecture of the running python.
