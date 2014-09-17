@@ -143,7 +143,7 @@ def applies(platform_string, to='current'):
         short, bits = _parse_component(platform_string)
         if _are_compatible(short, to.platform):
             if bits is None:
-		conditions.append(True)
+                conditions.append(True)
             else:
                 conditions.append(bits == to.arch_bits)
         else:
