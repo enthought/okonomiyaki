@@ -1,0 +1,6 @@
+.coverage
+.env
+.tox
+dist/*
+okonomiyaki/_version.py
+*.egg-info
