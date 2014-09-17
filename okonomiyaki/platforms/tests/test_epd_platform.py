@@ -31,6 +31,8 @@ class TestEPDPlatform(unittest.TestCase):
 
 
 class TestEPDPlatformApplies(unittest.TestCase):
+    @mock.patch("sys.platform", "linux2")
+    @mock.patch("platform.dist", lambda: ("redhat", "5.8", "Final"))
     def test_all(self):
         self.assertTrue(applies("all", "current"))
         self.assertFalse(applies("!all", "current"))
