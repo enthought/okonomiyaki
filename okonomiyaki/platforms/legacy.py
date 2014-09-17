@@ -25,6 +25,10 @@ class LegacyEPDPlatform(HasTraits):
     _epd_platform = Instance(EPDPlatform)
 
     @classmethod
+    def from_running_system(cls, arch=None):
+        return cls(_epd_platform=EPDPlatform.from_running_system(arch))
+
+    @classmethod
     def from_arch_and_osdist(cls, arch, osdist):
         epd_platform_string = _get_entry_from_arch_osdist(arch, osdist)[0]
         return cls.from_epd_platform_string(epd_platform_string)
@@ -61,6 +65,8 @@ class LegacyEPDPlatform(HasTraits):
         entry = _get_entry(self.short)
         return entry[1]
 
+    def __str__(self):
+        return self.short
 
 def _get_entry(short):
     for entry in _SUBDIR:
