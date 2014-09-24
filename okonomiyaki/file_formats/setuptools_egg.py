@@ -3,7 +3,7 @@ import re
 from okonomiyaki.errors import OkonomiyakiError
 
 _R_EGG_NAME = re.compile("""
-        (?P<name>[^.-]+)
+        (?P<name>^[^.-]+)
         (-(?P<version>[^-]+))?
         (-py(?P<pyver>(\d+\.\d+)))?
         \.egg
