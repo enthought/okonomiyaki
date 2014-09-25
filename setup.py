@@ -76,6 +76,8 @@ def main():
 
     from okonomiyaki import __version__
 
+    package_data = {"okonomiyaki.repositories.tests": ["data/*egg"]}
+
     setup(name="okonomiyaki",
           author="David Cournapeau",
           author_email="David Cournapeau",
@@ -90,6 +92,7 @@ def main():
                     "okonomiyaki.repositories.tests",
                     "okonomiyaki.utils",
                     ],
+          package_data=package_data,
           install_requires=["six"],
           license="BSD",
           version=__version__
