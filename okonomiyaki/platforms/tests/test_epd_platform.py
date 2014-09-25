@@ -34,27 +34,29 @@ class TestEPDPlatformApplies(unittest.TestCase):
     @mock.patch("sys.platform", "linux2")
     @mock.patch("platform.dist", lambda: ("redhat", "5.8", "Final"))
     def test_all(self):
-        self.assertTrue(applies("all", "current"))
-        self.assertFalse(applies("!all", "current"))
+        with mock.patch("platform.machine", lambda: "x86"):
+            with mock.patch("platform.architecture", lambda: ("32bit",)):
+                self.assertTrue(applies("all", "current"))
+                self.assertFalse(applies("!all", "current"))
 
     @mock.patch("sys.platform", "linux2")
     @mock.patch("platform.dist", lambda: ("redhat", "5.8", "Final"))
     def test_current_linux(self):
-        for expected_supported in ("rh5", "rh"):
-            self.assertTrue(applies(expected_supported, "current"))
-            self.assertFalse(applies("!" + expected_supported, "current"))
-
-        for expected_unsupported in ("win", "win-32", "osx", "rh6", "rh3"):
-            self.assertFalse(applies(expected_unsupported, "current"))
-            self.assertTrue(applies("!" + expected_unsupported, "current"))
-
-        self.assertTrue(applies("win,rh", "current"))
-        self.assertFalse(applies("win,osx", "current"))
-        self.assertTrue(applies("!win,osx", "current"))
-        self.assertFalse(applies("!rh,osx", "current"))
-
         with mock.patch("platform.machine", lambda: "x86"):
             with mock.patch("platform.architecture", lambda: ("32bit",)):
+                for expected_supported in ("rh5", "rh"):
+                    self.assertTrue(applies(expected_supported, "current"))
+                    self.assertFalse(applies("!" + expected_supported, "current"))
+
+                for expected_unsupported in ("win", "win-32", "osx", "rh6", "rh3"):
+                    self.assertFalse(applies(expected_unsupported, "current"))
+                    self.assertTrue(applies("!" + expected_unsupported, "current"))
+
+                self.assertTrue(applies("win,rh", "current"))
+                self.assertFalse(applies("win,osx", "current"))
+                self.assertTrue(applies("!win,osx", "current"))
+                self.assertFalse(applies("!rh,osx", "current"))
+
                 self.assertTrue(applies("rh5-32", "current"))
                 self.assertFalse(applies("!rh5-32", "current"))
 
@@ -65,11 +67,10 @@ class TestEPDPlatformApplies(unittest.TestCase):
 
     @mock.patch("sys.platform", "win32")
     def test_current_windows(self):
-        for platform in ("rh5", "rh", "osx-32"):
-            self.assertFalse(applies(platform, "current"))
-
         with mock.patch("platform.machine", lambda: "x86"):
             with mock.patch("platform.architecture", lambda: ("32bit",)):
+                for platform in ("rh5", "rh", "osx-32"):
+                    self.assertFalse(applies(platform, "current"))
                 for platform in ("win", "win-32"):
                     self.assertTrue(applies(platform, "current"))
 
