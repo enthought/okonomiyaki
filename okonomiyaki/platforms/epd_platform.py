@@ -122,13 +122,23 @@ def applies(platform_string, to='current'):
     def _are_compatible(short_left, short_right):
         return short_left == short_right or \
             short_left == "rh" and short_right.startswith("rh") \
+            or short_right == "rh" and short_left.startswith("rh") \
             or short_left == "all"
 
     if isinstance(to, str):
         if to == 'current':
-            to = EPDPlatform.from_running_system()
+            full = EPDPlatform.from_running_system()
+            to_platform = full.platform
+            to_arch_bits = full.arch_bits
+        elif '-' in to:
+            full = EPDPlatform.from_epd_string(to)
+            to_platform = full.platform
+            to_arch_bits = full.arch_bits
         else:
-            to = EPDPlatform.from_epd_string(to)
+            if not (to in PLATFORM_NAMES or to == 'rh'):
+                raise ValueError("Invalid 'to' argument: {0!r}".format(to))
+            to_platform = to
+            to_arch_bits = None
 
     conditions = []
 
@@ -142,11 +152,11 @@ def applies(platform_string, to='current'):
     platform_strings = [s for s in platform_string.split(",")]
     for platform_string in platform_strings:
         short, bits = _parse_component(platform_string)
-        if _are_compatible(short, to.platform):
+        if _are_compatible(short, to_platform):
             if bits is None:
                 conditions.append(True)
             else:
-                conditions.append(bits == to.arch_bits)
+                conditions.append(bits == to_arch_bits or to_arch_bits is None)
         else:
             conditions.append(False)
 
