@@ -74,6 +74,18 @@ class TestEPDPlatformApplies(unittest.TestCase):
                 for platform in ("win", "win-32"):
                     self.assertTrue(applies(platform, "current"))
 
+    @mock.patch("sys.platform", "linux2")
+    @mock.patch("platform.dist", lambda: ("redhat", "5.8", "Final"))
+    def test_applies_rh(self):
+        with mock.patch("platform.machine", lambda: "x86"):
+            with mock.patch("platform.architecture", lambda: ("32bit",)):
+                self.assertTrue(applies("rh5-32", "rh5"))
+                self.assertTrue(applies("rh5-64", "rh5"))
+                self.assertFalse(applies("win-64", "rh5"))
+                self.assertFalse(applies("rh6-64", "rh5"))
+                self.assertTrue(applies("rh5-32", "rh"))
+                self.assertTrue(applies("rh6-32", "rh"))
+                self.assertFalse(applies("win-32", "rh"))
 
 class TestGuessEPDPlatform(unittest.TestCase):
     @mock.patch("sys.platform", "win32")
