@@ -1,6 +1,6 @@
 import six
 
-if six.PY3:
-    long = int
-else:
+if six.PY2:
     long = long
+else:
+    long = int

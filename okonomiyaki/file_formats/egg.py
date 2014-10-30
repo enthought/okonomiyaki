@@ -234,7 +234,8 @@ class LegacySpecDepend(HasTraits):
         return "1.1"
 
     def _to_dict(self):
-        data = {"name": self.name,
+        raw_data = {
+                "name": self.name,
                 "version": self.version,
                 "build": self.build,
                 "arch": self.arch,
@@ -242,8 +243,16 @@ class LegacySpecDepend(HasTraits):
                 "osdist": self.osdist,
                 "packages": [str(p) for p in self.packages],
                 "python": self.python,
-                "metadata_version": self.metadata_version}
-        return _encode_none_values(data, _CAN_BE_NONE_KEYS)
+                "metadata_version": self.metadata_version
+        }
+
+        ret = {}
+        for k, v in _encode_none_values(raw_data, _CAN_BE_NONE_KEYS).items():
+            if isinstance(v, six.string_types):
+                v = str(v)
+            ret[k] = v
+        return ret
+
 
     def to_string(self):
         """
@@ -251,15 +260,15 @@ class LegacySpecDepend(HasTraits):
         legacy egg.
         """
         template = """\
-metadata_version = '{metadata_version}'
-name = '{name}'
-version = '{version}'
+metadata_version = {metadata_version!r}
+name = {name!r}
+version = {version!r}
 build = {build}
 
-arch = '{arch}'
-platform = '{platform}'
-osdist = '{osdist}'
-python = '{python}'
+arch = {arch!r}
+platform = {platform!r}
+osdist = {osdist!r}
+python = {python!r}
 packages = {packages}
 """
         data = self._to_dict()
