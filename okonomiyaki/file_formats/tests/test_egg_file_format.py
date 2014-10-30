@@ -173,6 +173,25 @@ packages = [
 
         self.assertMultiLineEqual(depend.to_string(), r_depend)
 
+    def test_to_string(self):
+        r_depend = """\
+metadata_version = '1.1'
+name = 'Qt_debug'
+version = '4.8.5'
+build = 2
+
+arch = 'x86'
+platform = 'linux2'
+osdist = 'RedHat_5'
+python = None
+packages = []
+"""
+        data = {"name": "Qt_debug", "version": "4.8.5", "build": 2,
+                "python": "", "packages": []}
+        depend = LegacySpecDepend.from_data(data, "rh5-32")
+
+        self.assertMultiLineEqual(depend.to_string(), r_depend)
+
 
 class TestLegacySpec(unittest.TestCase):
     def test_depend_content(self):
