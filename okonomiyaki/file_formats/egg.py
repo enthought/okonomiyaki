@@ -260,14 +260,14 @@ class LegacySpecDepend(HasTraits):
         legacy egg.
         """
         template = """\
-metadata_version = '{metadata_version}'
-name = '{name}'
-version = '{version}'
+metadata_version = {metadata_version!r}
+name = {name!r}
+version = {version!r}
 build = {build}
 
-arch = '{arch}'
-platform = '{platform}'
-osdist = '{osdist}'
+arch = {arch!r}
+platform = {platform!r}
+osdist = {osdist!r}
 python = {python!r}
 packages = {packages}
 """
