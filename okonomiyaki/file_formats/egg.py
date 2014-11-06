@@ -254,15 +254,15 @@ class LegacySpecDepend(HasTraits):
 
     def _to_dict(self):
         raw_data = {
-                "name": self.name,
-                "version": self.version,
-                "build": self.build,
-                "arch": self.arch,
-                "platform": self.platform,
-                "osdist": self.osdist,
-                "packages": [str(p) for p in self.packages],
-                "python": self.python,
-                "metadata_version": self.metadata_version
+            "name": self.name,
+            "version": self.version,
+            "build": self.build,
+            "arch": self.arch,
+            "platform": self.platform,
+            "osdist": self.osdist,
+            "packages": [str(p) for p in self.packages],
+            "python": self.python,
+            "metadata_version": self.metadata_version
         }
 
         ret = {}
@@ -271,7 +271,6 @@ class LegacySpecDepend(HasTraits):
                 v = str(v)
             ret[k] = v
         return ret
-
 
     def to_string(self):
         """
