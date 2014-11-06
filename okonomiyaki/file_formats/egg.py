@@ -9,7 +9,7 @@ import os.path as op
 import six
 
 from ..bundled.traitlets import HasTraits, Bool, Instance, List, Long, Unicode
-from ..errors import InvalidDependencyString, InvalidEggName
+from ..errors import InvalidDependencyString, InvalidEggName, OkonomiyakiError
 from ..platforms.legacy import LegacyEPDPlatform
 from ..utils import parse_assignments
 from ..utils.traitlets import NoneOrUnicode
@@ -185,7 +185,7 @@ class LegacySpecDepend(HasTraits):
         return cls.from_data(data, epd_platform, python)
 
     @classmethod
-    def from_string(cls, spec_depend_string):
+    def from_string(cls, spec_depend_string, epd_platform_string=None):
         raw_data = parse_rawspec(spec_depend_string)
 
         data = {
@@ -198,8 +198,29 @@ class LegacySpecDepend(HasTraits):
         python = raw_data["python"]
 
         arch, osdist = raw_data["arch"], raw_data["osdist"]
-        epd_platform = LegacyEPDPlatform.from_arch_and_osdist(arch,
-                                                              osdist)
+        if epd_platform_string is not None:
+            epd_platform = \
+                LegacyEPDPlatform.from_epd_platform_string(epd_platform_string)
+            if arch is not None:
+                if not arch == epd_platform.arch:
+                    msg = "Arch mismatch: {0!r} found in spec/depend, but " \
+                          "{1!r} specified".format(arch, epd_platform.arch)
+                    raise OkonomiyakiError(msg)
+            if osdist is not None:
+                if not osdist == epd_platform.osdist:
+                    msg = "Osdist mismatch: {0!r} found in spec/depend, but " \
+                          "{1!r} specified".format(osdist, epd_platform.osdist)
+                    raise OkonomiyakiError(msg)
+        else:
+            if osdist is None:
+                msg = "Cannot guess platform for egg with osdist = None"
+                raise OkonomiyakiError(msg)
+            if osdist is None:
+                msg = "Cannot guess platform for egg with osdist = None"
+                raise OkonomiyakiError(msg)
+
+            epd_platform = \
+                LegacyEPDPlatform.from_arch_and_osdist(arch, osdist)
         return cls.from_data(data, epd_platform.short, python)
 
     @property

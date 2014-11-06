@@ -29,6 +29,11 @@ class LegacyEPDPlatform(HasTraits):
         return cls(_epd_platform=EPDPlatform.from_running_system(arch))
 
     @classmethod
+    def from_arch_and_platform(cls, arch, platform):
+        epd_platform_string = _get_entry_from_arch_platform(arch, platform)[0]
+        return cls.from_epd_platform_string(epd_platform_string)
+
+    @classmethod
     def from_arch_and_osdist(cls, arch, osdist):
         epd_platform_string = _get_entry_from_arch_osdist(arch, osdist)[0]
         return cls.from_epd_platform_string(epd_platform_string)
@@ -68,6 +73,7 @@ class LegacyEPDPlatform(HasTraits):
     def __str__(self):
         return self.short
 
+
 def _get_entry(short):
     for entry in _SUBDIR:
         if entry[0] == short:
@@ -81,3 +87,11 @@ def _get_entry_from_arch_osdist(arch, osdist):
             return entry
     raise OkonomiyakiError("Invalid arch/osdist combination: {0}/{1}".
                            format(arch, osdist))
+
+
+def _get_entry_from_arch_platform(arch, platform):
+    for entry in _SUBDIR:
+        if entry[2] == arch and entry[-2] == platform:
+            return entry
+    raise OkonomiyakiError("Invalid arch/platform combination: {0}/{1}".
+                           format(arch, platform))

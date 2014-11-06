@@ -10,7 +10,7 @@ else:
 
 import os.path as op
 
-from okonomiyaki.errors import InvalidEggName
+from okonomiyaki.errors import InvalidEggName, OkonomiyakiError
 from okonomiyaki.file_formats.egg import Dependency, EggBuilder, LegacySpec, \
     LegacySpecDepend, info_from_z, parse_rawspec, split_egg_name
 from okonomiyaki.utils import ZipFile
@@ -172,6 +172,33 @@ packages = [
         depend = LegacySpecDepend.from_string(r_depend)
 
         self.assertMultiLineEqual(depend.to_string(), r_depend)
+
+    def test_from_string_no_osdist_no_platform(self):
+        # Given
+        r_depend = """\
+metadata_version = '1.1'
+name = 'Qt_debug'
+version = '4.8.5'
+build = 2
+
+arch = 'x86'
+platform = None
+osdist = None
+python = '2.7'
+packages = [
+  'Qt 4.8.5',
+]
+"""
+        # When/Then
+        with self.assertRaises(OkonomiyakiError):
+            LegacySpecDepend.from_string(r_depend)
+
+        # When
+        depend = LegacySpecDepend.from_string(r_depend, "win-32")
+
+        # Then
+        self.assertMultiLineEqual(depend.arch, "x86")
+        self.assertMultiLineEqual(depend.platform, "win32")
 
     def test_to_string(self):
         # Given
