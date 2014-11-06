@@ -174,6 +174,7 @@ packages = [
         self.assertMultiLineEqual(depend.to_string(), r_depend)
 
     def test_to_string(self):
+        # Given
         r_depend = """\
 metadata_version = '1.1'
 name = 'Qt_debug'
@@ -188,8 +189,11 @@ packages = []
 """
         data = {"name": "Qt_debug", "version": "4.8.5", "build": 2,
                 "python": "", "packages": []}
+
+        # When
         depend = LegacySpecDepend.from_data(data, "rh5-32")
 
+        # Then
         self.assertMultiLineEqual(depend.to_string(), r_depend)
 
 

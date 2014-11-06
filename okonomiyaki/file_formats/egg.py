@@ -12,8 +12,7 @@ from ..bundled.traitlets import HasTraits, Bool, Instance, List, Long, Unicode
 from ..errors import InvalidDependencyString, InvalidEggName
 from ..platforms.legacy import LegacyEPDPlatform
 from ..utils import parse_assignments
-
-_CAN_BE_NONE_KEYS = ("osdist", "platform", "python")
+from ..utils.traitlets import NoneOrUnicode
 
 _EGG_NAME_RE = re.compile("""
     (?P<name>[\.\w]+)
@@ -141,7 +140,7 @@ class LegacySpecDepend(HasTraits):
     Build number
     """
 
-    python = Unicode()
+    python = NoneOrUnicode()
     """
     Python version
     """
@@ -165,7 +164,6 @@ class LegacySpecDepend(HasTraits):
             Dependency.from_spec_string(s) for s in args.get("packages", [])
         ]
 
-        args = _decode_none_values(args, _CAN_BE_NONE_KEYS)
         return cls(**args)
 
     @classmethod
@@ -247,7 +245,7 @@ class LegacySpecDepend(HasTraits):
         }
 
         ret = {}
-        for k, v in _encode_none_values(raw_data, _CAN_BE_NONE_KEYS).items():
+        for k, v in raw_data.items():
             if isinstance(v, six.string_types):
                 v = str(v)
             ret[k] = v
