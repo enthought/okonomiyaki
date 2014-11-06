@@ -15,12 +15,26 @@ class TestEggBuilder(unittest.TestCase):
         path = "nose-1.2.1-py2.6.egg"
 
         # When
-        name, version, pyver, _ = parse_filename(path)
+        name, version, pyver, platform = parse_filename(path)
 
         # Then
         self.assertEqual(name, "nose")
         self.assertEqual(version, "1.2.1")
         self.assertEqual(pyver, "2.6")
+        self.assertIsNone(platform)
+
+    def test_simple_with_extension(self):
+        # Given
+        path = "numpy-1.9.1-py2.6-win-amd64.egg"
+
+        # When
+        name, version, pyver, platform = parse_filename(path)
+
+        # Then
+        self.assertEqual(name, "numpy")
+        self.assertEqual(version, "1.9.1")
+        self.assertEqual(pyver, "2.6")
+        self.assertEqual(platform, "win-amd64")
 
     def test_enthought_egg(self):
         # Given
