@@ -47,6 +47,7 @@ packages = []
 
         data = dict(
             name="Qt_debug",
+            metadata_version="1.1",
             version="4.8.5",
             build=2,
             summary="Debug symbol files for Qt.",
@@ -203,7 +204,7 @@ packages = [
     def test_to_string(self):
         # Given
         r_depend = """\
-metadata_version = '1.1'
+metadata_version = '1.2'
 name = 'Qt_debug'
 version = '4.8.5'
 build = 2
@@ -212,6 +213,7 @@ arch = 'x86'
 platform = 'linux2'
 osdist = 'RedHat_5'
 python = None
+python_tag = None
 packages = []
 """
         data = {"name": "Qt_debug", "version": "4.8.5", "build": 2,
@@ -227,7 +229,7 @@ packages = []
 class TestLegacySpec(unittest.TestCase):
     def test_depend_content(self):
         r_depend = """\
-metadata_version = '1.1'
+metadata_version = '1.2'
 name = 'Qt_debug'
 version = '4.8.5'
 build = 2
@@ -236,6 +238,7 @@ arch = 'x86'
 platform = 'linux2'
 osdist = 'RedHat_5'
 python = '2.7'
+python_tag = 'cp27'
 packages = [
   'Qt 4.8.5',
 ]
@@ -314,6 +317,7 @@ class TestParseRawspec(unittest.TestCase):
     def test_simple(self):
         r_spec = {'arch': 'x86',
                   'build': 1,
+                  'metadata_version': "1.1",
                   'name': 'Cython',
                   'osdist': 'RedHat_5',
                   'packages': [],
@@ -339,6 +343,7 @@ packages = []
     def test_with_dependencies(self):
         r_spec = {'arch': 'x86',
                   'build': 1,
+                  'metadata_version': "1.1",
                   'name': 'pandas',
                   'osdist': 'RedHat_5',
                   'packages': ['numpy 1.7.1', 'python_dateutil'],
@@ -367,6 +372,7 @@ packages = [
     def test_with_none(self):
         r_spec = {'arch': 'x86',
                   'build': 1,
+                  'metadata_version': "1.1",
                   'name': 'pandas',
                   'osdist': None,
                   'packages': ['numpy 1.7.1', 'python_dateutil'],

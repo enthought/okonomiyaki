@@ -8,7 +8,8 @@ import os.path as op
 
 import six
 
-from ..bundled.traitlets import HasTraits, Bool, Instance, List, Long, Unicode
+from ..bundled.traitlets import (HasTraits, Bool, Enum, Instance, List, Long,
+                                 Unicode)
 from ..errors import InvalidDependencyString, InvalidEggName, OkonomiyakiError
 from ..platforms.legacy import LegacyEPDPlatform
 from ..utils import parse_assignments
@@ -31,6 +32,15 @@ _SPEC_DEPEND_LOCATION = posixpath.join(EGG_INFO_PREFIX, "spec", "depend")
 _SPEC_LIB_DEPEND_LOCATION = posixpath.join(EGG_INFO_PREFIX, "spec",
                                            "lib-depend")
 _USR_PREFIX_LOCATION = posixpath.join(EGG_INFO_PREFIX, "usr")
+
+# Kept for backward compatibility: python tag should be specified, we use this
+# table for eggs that do not define the python tag.
+_PYTHON_VERSION_TO_PYTHON_TAG = {
+    "2.7": "cp27",
+    "2.6": "cp26",
+    "2.5": "cp25",
+    None: None,
+}
 
 
 class Dependency(HasTraits):
@@ -122,6 +132,35 @@ class Dependency(HasTraits):
             return self.name
 
 
+_METADATA_TEMPLATES = {
+    "1.1": """\
+metadata_version = '1.1'
+name = {name!r}
+version = {version!r}
+build = {build}
+
+arch = {arch!r}
+platform = {platform!r}
+osdist = {osdist!r}
+python = {python!r}
+packages = {packages}
+""",
+    "1.2": """\
+metadata_version = '1.2'
+name = {name!r}
+version = {version!r}
+build = {build}
+
+arch = {arch!r}
+platform = {platform!r}
+osdist = {osdist!r}
+python = {python!r}
+python_tag = {python_tag!r}
+packages = {packages}
+"""
+}
+
+
 class LegacySpecDepend(HasTraits):
     """
     This models the EGG-INFO/spec/depend content.
@@ -144,6 +183,11 @@ class LegacySpecDepend(HasTraits):
     """
     Python version
     """
+    python_tag = NoneOrUnicode()
+    """
+    Python tag (as defined in PEP 425)
+    """
+
     packages = List(Instance(Dependency))
     """
     List of dependencies for this egg
@@ -151,14 +195,19 @@ class LegacySpecDepend(HasTraits):
 
     _epd_legacy_platform = Instance(LegacyEPDPlatform)
 
+    _metadata_version = Enum(["1.1", "1.2"], "1.2")
+
     @classmethod
-    def from_data(cls, data, epd_platform_string, python=None):
+    def from_data(cls, data, epd_platform_string, python=None,
+                  python_tag=None):
         args = data.copy()
 
         args["_epd_legacy_platform"] = \
             LegacyEPDPlatform.from_epd_platform_string(epd_platform_string)
 
         args["python"] = python
+        args["python_tag"] = python_tag or \
+            _PYTHON_VERSION_TO_PYTHON_TAG[python]
 
         args["packages"] = [
             Dependency.from_spec_string(s) for s in args.get("packages", [])
@@ -179,10 +228,17 @@ class LegacySpecDepend(HasTraits):
             else:
                 python = None
 
+            if "python_tag" in info_data:
+                python_tag = info_data["python_tag"]
+            else:
+                python_tag = None
+
             data["packages"] = info_data["packages"]
+            if "metadata_version" in info_data:
+                data["metadata_version"] = info_data["metadata_version"]
         finally:
             fp.close()
-        return cls.from_data(data, epd_platform, python)
+        return cls.from_data(data, epd_platform, python, python_tag)
 
     @classmethod
     def from_string(cls, spec_depend_string, epd_platform_string=None):
@@ -195,7 +251,12 @@ class LegacySpecDepend(HasTraits):
             "packages": raw_data["packages"],
         }
 
+        if "metadata_version" in raw_data:
+            data["metadata_version"] = raw_data["metadata_version"]
+
         python = raw_data["python"]
+        python_tag = raw_data.get("python_tag",
+                                  _PYTHON_VERSION_TO_PYTHON_TAG[python])
 
         arch, osdist = raw_data["arch"], raw_data["osdist"]
         if epd_platform_string is not None:
@@ -221,7 +282,7 @@ class LegacySpecDepend(HasTraits):
 
             epd_platform = \
                 LegacyEPDPlatform.from_arch_and_osdist(arch, osdist)
-        return cls.from_data(data, epd_platform.short, python)
+        return cls.from_data(data, epd_platform.short, python, python_tag)
 
     @property
     def arch(self):
@@ -250,7 +311,11 @@ class LegacySpecDepend(HasTraits):
 
     @property
     def metadata_version(self):
-        return "1.1"
+        return self._metadata_version
+
+    @metadata_version.setter
+    def metadata_version(self, value):
+        self._metadata_version = value
 
     def _to_dict(self):
         raw_data = {
@@ -262,6 +327,7 @@ class LegacySpecDepend(HasTraits):
             "osdist": self.osdist,
             "packages": [str(p) for p in self.packages],
             "python": self.python,
+            "python_tag": self.python_tag,
             "metadata_version": self.metadata_version
         }
 
@@ -277,18 +343,7 @@ class LegacySpecDepend(HasTraits):
         Returns a string that is suitable for the depend file inside our
         legacy egg.
         """
-        template = """\
-metadata_version = {metadata_version!r}
-name = {name!r}
-version = {version!r}
-build = {build}
-
-arch = {arch!r}
-platform = {platform!r}
-osdist = {osdist!r}
-python = {python!r}
-packages = {packages}
-"""
+        template = _METADATA_TEMPLATES.get(self.metadata_version, None)
         data = self._to_dict()
 
         # This is just to ensure the exact same string as the produced by the
@@ -492,6 +547,7 @@ def parse_rawspec(spec_string):
     spec = parse_assignments(six.StringIO(spec_string.replace('\r', '')))
     res = {}
     for k in ('name', 'version', 'build',
-              'arch', 'platform', 'osdist', 'python', 'packages'):
+              'arch', 'platform', 'osdist', 'python', 'packages',
+              'metadata_version'):
         res[k] = spec[k]
     return res
