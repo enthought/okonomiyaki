@@ -8,6 +8,7 @@ from .enpkg import EnpkgS3IndexEntry
 
 _DEFAULT_QA_LEVEL = "stable"
 
+
 class GritsEggEntry(HasTraits):
     """
     This class models an egg entry metadata as required by Grits.
@@ -129,9 +130,11 @@ class GritsEggEntry(HasTraits):
         data.setdefault("egg_basename", _grits_egg_key_to_egg_basename(key))
         return cls._from_grits_metadata(data, platform)
 
+
 def _grits_egg_key_to_platform(key):
     parts = key.split("/")
     return parts[2]
+
 
 def _grits_egg_key_to_egg_basename(key):
     parts = key.split("/")

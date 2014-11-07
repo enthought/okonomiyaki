@@ -79,7 +79,7 @@ class EPDPlatform(HasTraits):
             raise OkonomiyakiError("Invalid epd string: {0}".format(s))
 
         platform_name, arch_bits = parts
-        if not arch_bits in _ARCHBITS_TO_ARCH:
+        if arch_bits not in _ARCHBITS_TO_ARCH:
             raise OkonomiyakiError("Invalid epd string (invalid arch): {0}".
                                    format(s))
         else:

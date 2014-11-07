@@ -79,6 +79,3 @@ class TestGritsEggEntry(unittest.TestCase):
             path, "rh5-32", "commercial", qa_level='staging'
         )
         self.assertEqual(entry.grits_metadata['qa_level'], 'staging')
-
-
-

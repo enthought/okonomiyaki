@@ -17,6 +17,7 @@ _CAN_BE_NONE_KEYS = ["osdist", "platform", "python"]
 _AVAILABLE_DEFAULT = False
 _PRODUCT_DEFAULT = "commercial"
 
+
 class EnpkgS3IndexEntry(HasTraits):
     """
     Model an S3 legacy index entry.
@@ -82,7 +83,7 @@ class EnpkgS3IndexEntry(HasTraits):
     def from_setuptools_egg(cls, path, build=1, product=_PRODUCT_DEFAULT, available=_AVAILABLE_DEFAULT):
         name, version, pyver, platform = parse_filename(path)
         kw = {"available": True, "build": build, "python": pyver,
-                "type": "egg", "version": version}
+              "type": "egg", "version": version}
         st = os.stat(path)
         kw["mtime"] = st.st_mtime
         kw["size"] = st.st_size
@@ -109,17 +110,18 @@ class EnpkgS3IndexEntry(HasTraits):
         """
         Returns the data in the index.json on S3.
         """
-        data = {"available": self.available,
-                "build": self.build,
-                "md5": self.md5,
-                "mtime": self.mtime,
-                "name": self.name,
-                "packages": [str(p) for p in self.packages],
-                "product": self.product,
-                "python": self.python,
-                "size": self.size,
-                "type": self.type,
-                "version": self.version,
+        data = {
+            "available": self.available,
+            "build": self.build,
+            "md5": self.md5,
+            "mtime": self.mtime,
+            "name": self.name,
+            "packages": [str(p) for p in self.packages],
+            "product": self.product,
+            "python": self.python,
+            "size": self.size,
+            "type": self.type,
+            "version": self.version,
         }
         data = _encode_none_values(data, _CAN_BE_NONE_KEYS)
         return data

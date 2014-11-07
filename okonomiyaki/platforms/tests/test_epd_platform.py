@@ -87,6 +87,7 @@ class TestEPDPlatformApplies(unittest.TestCase):
                 self.assertTrue(applies("rh6-32", "rh"))
                 self.assertFalse(applies("win-32", "rh"))
 
+
 class TestGuessEPDPlatform(unittest.TestCase):
     @mock.patch("sys.platform", "win32")
     def test_guess_win32_platform(self):
