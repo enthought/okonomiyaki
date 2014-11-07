@@ -1,11 +1,6 @@
-import sys
 import textwrap
 
-if sys.version_info < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest # pragma: noqa
-
+from six.moves import unittest
 from six import StringIO
 
 from okonomiyaki.errors import OkonomiyakiError

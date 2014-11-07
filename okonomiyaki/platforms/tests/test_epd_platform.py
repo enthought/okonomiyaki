@@ -4,8 +4,8 @@ import unittest
 from okonomiyaki.errors import OkonomiyakiError
 
 from okonomiyaki.platforms import EPD_PLATFORM_SHORT_NAMES, EPDPlatform
-from okonomiyaki.platforms.epd_platform import _guess_architecture, \
-    _guess_epd_platform, applies
+from okonomiyaki.platforms.epd_platform import (_guess_architecture,
+                                                _guess_epd_platform, applies)
 from okonomiyaki.platforms.legacy import _SUBDIR
 
 
@@ -46,11 +46,14 @@ class TestEPDPlatformApplies(unittest.TestCase):
             with mock.patch("platform.architecture", lambda: ("32bit",)):
                 for expected_supported in ("rh5", "rh"):
                     self.assertTrue(applies(expected_supported, "current"))
-                    self.assertFalse(applies("!" + expected_supported, "current"))
+                    self.assertFalse(applies("!" + expected_supported,
+                                             "current"))
 
-                for expected_unsupported in ("win", "win-32", "osx", "rh6", "rh3"):
+                for expected_unsupported in ("win", "win-32", "osx", "rh6",
+                                             "rh3"):
                     self.assertFalse(applies(expected_unsupported, "current"))
-                    self.assertTrue(applies("!" + expected_unsupported, "current"))
+                    self.assertTrue(applies("!" + expected_unsupported,
+                                            "current"))
 
                 self.assertTrue(applies("win,rh", "current"))
                 self.assertFalse(applies("win,osx", "current"))
@@ -86,6 +89,7 @@ class TestEPDPlatformApplies(unittest.TestCase):
                 self.assertTrue(applies("rh5-32", "rh"))
                 self.assertTrue(applies("rh6-32", "rh"))
                 self.assertFalse(applies("win-32", "rh"))
+
 
 class TestGuessEPDPlatform(unittest.TestCase):
     @mock.patch("sys.platform", "win32")

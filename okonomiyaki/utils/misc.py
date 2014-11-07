@@ -26,7 +26,8 @@ class _AssignmentParser(ast.NodeVisitor):
         try:
             value = ast.literal_eval(node.value)
         except ValueError:
-            msg = "Invalid configuration syntax at line {0}".format(node.lineno)
+            msg = ("Invalid configuration syntax at line {0}".
+                   format(node.lineno))
             raise OkonomiyakiError(msg)
         else:
             for target in node.targets:
