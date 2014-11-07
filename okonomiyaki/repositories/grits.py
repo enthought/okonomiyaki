@@ -102,7 +102,8 @@ class GritsEggEntry(HasTraits):
         enpkg_metadata = EnpkgS3IndexEntry.from_egg(path, repository_type)
 
         return cls(
-            platform=platform, qa_level=qa_level, _enpkg_metadata=enpkg_metadata
+            platform=platform, qa_level=qa_level,
+            _enpkg_metadata=enpkg_metadata
         )
 
     @classmethod

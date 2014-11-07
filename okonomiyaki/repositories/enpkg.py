@@ -54,7 +54,8 @@ class EnpkgS3IndexEntry(HasTraits):
         return cls(**data)
 
     @classmethod
-    def from_egg(cls, path, product=_PRODUCT_DEFAULT, available=_AVAILABLE_DEFAULT):
+    def from_egg(cls, path, product=_PRODUCT_DEFAULT,
+                 available=_AVAILABLE_DEFAULT):
         kw = {}
         fp = zipfile.ZipFile(path)
         try:
@@ -80,7 +81,8 @@ class EnpkgS3IndexEntry(HasTraits):
         return cls.from_data(kw)
 
     @classmethod
-    def from_setuptools_egg(cls, path, build=1, product=_PRODUCT_DEFAULT, available=_AVAILABLE_DEFAULT):
+    def from_setuptools_egg(cls, path, build=1, product=_PRODUCT_DEFAULT,
+                            available=_AVAILABLE_DEFAULT):
         name, version, pyver, platform = parse_filename(path)
         kw = {"available": True, "build": build, "python": pyver,
               "type": "egg", "version": version}
