@@ -10,7 +10,7 @@ else:
 
 import os.path as op
 
-from okonomiyaki.errors import InvalidEggName, OkonomiyakiError
+from okonomiyaki.errors import InvalidEggName, InvalidMetadata
 from okonomiyaki.file_formats.egg import Dependency, EggBuilder, LegacySpec, \
     LegacySpecDepend, info_from_z, parse_rawspec, split_egg_name
 from okonomiyaki.utils import ZipFile
@@ -192,8 +192,9 @@ packages = [
 """
 
         # When/Then
-        with self.assertRaises(OkonomiyakiError):
+        with self.assertRaises(InvalidMetadata) as exc:
             LegacySpecDepend.from_string(r_depend)
+        self.assertEqual(exc.exception.attribute, "python_tag")
 
     def test_from_string_no_osdist_no_platform(self):
         # Given
@@ -212,7 +213,7 @@ packages = [
 ]
 """
         # When/Then
-        with self.assertRaises(OkonomiyakiError):
+        with self.assertRaises(InvalidMetadata):
             LegacySpecDepend.from_string(r_depend)
 
         # When
@@ -340,7 +341,7 @@ class TestParseRawspec(unittest.TestCase):
         spec_string = "metadata_version = '1.0'"
 
         # When/Then
-        with self.assertRaises(OkonomiyakiError):
+        with self.assertRaises(InvalidMetadata):
             parse_rawspec(spec_string)
 
     def test_simple_1_2(self):

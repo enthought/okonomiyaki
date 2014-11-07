@@ -10,7 +10,7 @@ import six
 
 from ..bundled.traitlets import (HasTraits, Bool, Enum, Instance, List, Long,
                                  Unicode)
-from ..errors import InvalidDependencyString, InvalidEggName, OkonomiyakiError
+from ..errors import InvalidDependencyString, InvalidEggName, InvalidMetadata
 from ..platforms.legacy import LegacyEPDPlatform
 from ..utils import parse_assignments
 from ..utils.traitlets import NoneOrUnicode
@@ -177,7 +177,7 @@ def _get_default_python_tag(data, python):
         if python_tag == _UNSUPPORTED:
             msg = "python = {0} is not supported for metadata_version " \
                   "= {1!r}".format(python, data["metadata_version"])
-            raise OkonomiyakiError(msg)
+            raise InvalidMetadata(msg, "python_tag")
 
     return python_tag
 
@@ -287,16 +287,16 @@ class LegacySpecDepend(HasTraits):
                 if not arch == epd_platform.arch:
                     msg = "Arch mismatch: {0!r} found in spec/depend, but " \
                           "{1!r} specified".format(arch, epd_platform.arch)
-                    raise OkonomiyakiError(msg)
+                    raise InvalidMetadata(msg, "arch")
             if osdist is not None:
                 if not osdist == epd_platform.osdist:
                     msg = "Osdist mismatch: {0!r} found in spec/depend, but " \
                           "{1!r} specified".format(osdist, epd_platform.osdist)
-                    raise OkonomiyakiError(msg)
+                    raise InvalidMetadata("osdist", msg)
         else:
             if osdist is None:
                 msg = "Cannot guess platform for egg with osdist = None"
-                raise OkonomiyakiError(msg)
+                raise InvalidMetadata(msg, "osdist")
 
             epd_platform = \
                 LegacyEPDPlatform.from_arch_and_osdist(arch, osdist)
@@ -568,7 +568,7 @@ def parse_rawspec(spec_string):
     keys = _METADATA_VERSION_TO_KEYS.get(metadata_version)
     if keys is None:
         msg = "Invalid metadata version: {0!r}".format(metadata_version)
-        raise OkonomiyakiError(msg)
+        raise InvalidMetadata(msg, "metadata_version")
     else:
         res = {}
         for key in keys:
