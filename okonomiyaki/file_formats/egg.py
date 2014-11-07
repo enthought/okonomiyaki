@@ -297,9 +297,6 @@ class LegacySpecDepend(HasTraits):
             if osdist is None:
                 msg = "Cannot guess platform for egg with osdist = None"
                 raise OkonomiyakiError(msg)
-            if osdist is None:
-                msg = "Cannot guess platform for egg with osdist = None"
-                raise OkonomiyakiError(msg)
 
             epd_platform = \
                 LegacyEPDPlatform.from_arch_and_osdist(arch, osdist)
