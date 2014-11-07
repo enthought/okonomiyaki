@@ -11,6 +11,7 @@ IS_RELEASED = False
 
 VERSION = '%d.%d.%d' % (MAJOR, MINOR, MICRO)
 
+
 # Return the git revision as a string
 def git_version():
     def _minimal_ext_cmd(cmd):
@@ -24,7 +25,8 @@ def git_version():
         env['LANGUAGE'] = 'C'
         env['LANG'] = 'C'
         env['LC_ALL'] = 'C'
-        out = subprocess.Popen(cmd, stdout = subprocess.PIPE, env=env).communicate()[0]
+        out = (subprocess.Popen(cmd, stdout=subprocess.PIPE, env=env).
+               communicate()[0])
         return out
 
     try:
@@ -34,6 +36,7 @@ def git_version():
         git_revision = "Unknown"
 
     return git_revision
+
 
 def write_version_py(filename):
     template = """\
@@ -71,6 +74,7 @@ if not is_released:
                                  git_revision=git_rev,
                                  is_released=IS_RELEASED))
 
+
 def main():
     write_version_py("okonomiyaki/_version.py")
 
@@ -95,8 +99,7 @@ def main():
           package_data=package_data,
           install_requires=["six"],
           license="BSD",
-          version=__version__
-    )
+          version=__version__)
 
 if __name__ == "__main__":
     main()
