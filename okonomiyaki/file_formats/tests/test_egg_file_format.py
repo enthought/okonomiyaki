@@ -314,7 +314,43 @@ class TestEggName(unittest.TestCase):
 
 
 class TestParseRawspec(unittest.TestCase):
-    def test_simple(self):
+    def test_simple_unsupported(self):
+        # Given
+        spec_string = "metadata_version = '1.0'"
+
+        # When/Then
+        with self.assertRaises(OkonomiyakiError):
+            parse_rawspec(spec_string)
+
+    def test_simple_1_2(self):
+        r_spec = {'arch': 'x86',
+                  'build': 1,
+                  'metadata_version': "1.2",
+                  'name': 'Cython',
+                  'osdist': 'RedHat_5',
+                  'packages': [],
+                  'platform': 'linux2',
+                  'python': '2.7',
+                  'python_tag': 'cp27',
+                  'version': '0.19.1'}
+
+        spec_s = """\
+metadata_version = '1.2'
+name = 'Cython'
+version = '0.19.1'
+build = 1
+
+arch = 'x86'
+platform = 'linux2'
+osdist = 'RedHat_5'
+python = '2.7'
+python_tag = 'cp27'
+packages = []
+"""
+        spec = parse_rawspec(spec_s)
+        self.assertEqual(spec, r_spec)
+
+    def test_simple_1_1(self):
         r_spec = {'arch': 'x86',
                   'build': 1,
                   'metadata_version': "1.1",

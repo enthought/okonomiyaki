@@ -42,6 +42,13 @@ _PYTHON_VERSION_TO_PYTHON_TAG = {
     None: None,
 }
 
+_METADATA_VERSION_TO_KEYS = {
+    "1.1": ('name', 'version', 'build', 'arch', 'platform', 'osdist',
+            'python', 'packages', 'metadata_version'),
+    "1.2": ('name', 'version', 'build', 'arch', 'platform', 'osdist',
+            'python', 'python_tag', 'packages', 'metadata_version'),
+}
+
 
 class Dependency(HasTraits):
     """
@@ -545,9 +552,14 @@ def info_from_z(z):
 
 def parse_rawspec(spec_string):
     spec = parse_assignments(six.StringIO(spec_string.replace('\r', '')))
-    res = {}
-    for k in ('name', 'version', 'build',
-              'arch', 'platform', 'osdist', 'python', 'packages',
-              'metadata_version'):
-        res[k] = spec[k]
-    return res
+    metadata_version = spec["metadata_version"]
+
+    keys = _METADATA_VERSION_TO_KEYS.get(metadata_version)
+    if keys is None:
+        msg = "Invalid metadata version: {0!r}".format(metadata_version)
+        raise OkonomiyakiError(msg)
+    else:
+        res = {}
+        for key in keys:
+            res[key] = spec[key]
+        return res
