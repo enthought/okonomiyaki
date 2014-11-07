@@ -10,7 +10,7 @@ else:
 
 import os.path as op
 
-from okonomiyaki.errors import InvalidEggName
+from okonomiyaki.errors import InvalidEggName, InvalidMetadata
 from okonomiyaki.file_formats.egg import Dependency, EggBuilder, LegacySpec, \
     LegacySpecDepend, info_from_z, parse_rawspec, split_egg_name
 from okonomiyaki.utils import ZipFile
@@ -47,6 +47,7 @@ packages = []
 
         data = dict(
             name="Qt_debug",
+            metadata_version="1.1",
             version="4.8.5",
             build=2,
             summary="Debug symbol files for Qt.",
@@ -173,9 +174,59 @@ packages = [
 
         self.assertMultiLineEqual(depend.to_string(), r_depend)
 
-    def test_to_string(self):
+    def test_from_string_no_python_tag_no_default(self):
+        # Given
         r_depend = """\
 metadata_version = '1.1'
+name = 'Qt_debug'
+version = '4.8.5'
+build = 2
+
+arch = 'x86'
+platform = 'linux2'
+osdist = 'RedHat_5'
+python = '3.2'
+packages = [
+  'Qt 4.8.5',
+]
+"""
+
+        # When/Then
+        with self.assertRaises(InvalidMetadata) as exc:
+            LegacySpecDepend.from_string(r_depend)
+        self.assertEqual(exc.exception.attribute, "python_tag")
+
+    def test_from_string_no_osdist_no_platform(self):
+        # Given
+        r_depend = """\
+metadata_version = '1.1'
+name = 'Qt_debug'
+version = '4.8.5'
+build = 2
+
+arch = 'x86'
+platform = None
+osdist = None
+python = '2.7'
+packages = [
+  'Qt 4.8.5',
+]
+"""
+        # When/Then
+        with self.assertRaises(InvalidMetadata):
+            LegacySpecDepend.from_string(r_depend)
+
+        # When
+        depend = LegacySpecDepend.from_string(r_depend, "win-32")
+
+        # Then
+        self.assertMultiLineEqual(depend.arch, "x86")
+        self.assertMultiLineEqual(depend.platform, "win32")
+
+    def test_to_string(self):
+        # Given
+        r_depend = """\
+metadata_version = '1.2'
 name = 'Qt_debug'
 version = '4.8.5'
 build = 2
@@ -184,19 +235,23 @@ arch = 'x86'
 platform = 'linux2'
 osdist = 'RedHat_5'
 python = None
+python_tag = None
 packages = []
 """
         data = {"name": "Qt_debug", "version": "4.8.5", "build": 2,
                 "python": "", "packages": []}
+
+        # When
         depend = LegacySpecDepend.from_data(data, "rh5-32")
 
+        # Then
         self.assertMultiLineEqual(depend.to_string(), r_depend)
 
 
 class TestLegacySpec(unittest.TestCase):
     def test_depend_content(self):
         r_depend = """\
-metadata_version = '1.1'
+metadata_version = '1.2'
 name = 'Qt_debug'
 version = '4.8.5'
 build = 2
@@ -205,6 +260,7 @@ arch = 'x86'
 platform = 'linux2'
 osdist = 'RedHat_5'
 python = '2.7'
+python_tag = 'cp27'
 packages = [
   'Qt 4.8.5',
 ]
@@ -280,9 +336,46 @@ class TestEggName(unittest.TestCase):
 
 
 class TestParseRawspec(unittest.TestCase):
-    def test_simple(self):
+    def test_simple_unsupported(self):
+        # Given
+        spec_string = "metadata_version = '1.0'"
+
+        # When/Then
+        with self.assertRaises(InvalidMetadata):
+            parse_rawspec(spec_string)
+
+    def test_simple_1_2(self):
         r_spec = {'arch': 'x86',
                   'build': 1,
+                  'metadata_version': "1.2",
+                  'name': 'Cython',
+                  'osdist': 'RedHat_5',
+                  'packages': [],
+                  'platform': 'linux2',
+                  'python': '2.7',
+                  'python_tag': 'cp27',
+                  'version': '0.19.1'}
+
+        spec_s = """\
+metadata_version = '1.2'
+name = 'Cython'
+version = '0.19.1'
+build = 1
+
+arch = 'x86'
+platform = 'linux2'
+osdist = 'RedHat_5'
+python = '2.7'
+python_tag = 'cp27'
+packages = []
+"""
+        spec = parse_rawspec(spec_s)
+        self.assertEqual(spec, r_spec)
+
+    def test_simple_1_1(self):
+        r_spec = {'arch': 'x86',
+                  'build': 1,
+                  'metadata_version': "1.1",
                   'name': 'Cython',
                   'osdist': 'RedHat_5',
                   'packages': [],
@@ -308,6 +401,7 @@ packages = []
     def test_with_dependencies(self):
         r_spec = {'arch': 'x86',
                   'build': 1,
+                  'metadata_version': "1.1",
                   'name': 'pandas',
                   'osdist': 'RedHat_5',
                   'packages': ['numpy 1.7.1', 'python_dateutil'],
@@ -336,6 +430,7 @@ packages = [
     def test_with_none(self):
         r_spec = {'arch': 'x86',
                   'build': 1,
+                  'metadata_version': "1.1",
                   'name': 'pandas',
                   'osdist': None,
                   'packages': ['numpy 1.7.1', 'python_dateutil'],
@@ -360,6 +455,71 @@ packages = [
 """
 
         self.assertEqual(r_spec, parse_rawspec(spec_s))
+
+    def test_invalid_spec_strings(self):
+        # Given a spec_string without metadata_version
+        spec_s = """\
+name = 'pandas'
+version = '0.12.0'
+build = 1
+
+arch = 'x86'
+platform = None
+osdist = None
+python = None
+packages = [
+  'numpy 1.7.1',
+  'python_dateutil',
+]
+"""
+
+        # When/Then
+        with self.assertRaises(InvalidMetadata) as exc:
+            parse_rawspec(spec_s)
+        self.assertEqual(exc.exception.attribute, "metadata_version")
+
+        # Given a spec_string without some other metadata in >= 1.1
+        spec_s = """\
+metadata_version = '1.1'
+name = 'pandas'
+version = '0.12.0'
+build = 1
+
+arch = 'x86'
+osdist = None
+python = None
+packages = [
+  'numpy 1.7.1',
+  'python_dateutil',
+]
+"""
+
+        # When/Then
+        with self.assertRaises(InvalidMetadata) as exc:
+            parse_rawspec(spec_s)
+        self.assertEqual(exc.exception.attribute, "platform")
+
+        # Given a spec_string without some other metadata in >= 1.2
+        spec_s = """\
+metadata_version = '1.2'
+name = 'pandas'
+version = '0.12.0'
+build = 1
+
+arch = 'x86'
+osdist = None
+platform = None
+python = None
+packages = [
+  'numpy 1.7.1',
+  'python_dateutil',
+]
+"""
+
+        # When/Then
+        with self.assertRaises(InvalidMetadata) as exc:
+            parse_rawspec(spec_s)
+        self.assertEqual(exc.exception.attribute, "python_tag")
 
 
 class TestInfoFromZ(unittest.TestCase):
