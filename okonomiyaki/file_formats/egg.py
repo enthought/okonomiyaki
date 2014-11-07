@@ -49,6 +49,8 @@ _METADATA_VERSION_TO_KEYS = {
             'python', 'python_tag', 'packages', 'metadata_version'),
 }
 
+_UNSUPPORTED = "unsupported"
+
 
 class Dependency(HasTraits):
     """
@@ -168,6 +170,21 @@ packages = {packages}
 }
 
 
+def _get_default_python_tag(data, python):
+    python_tag = data.get("python_tag")
+    if python_tag is None:
+        python_tag = _PYTHON_VERSION_TO_PYTHON_TAG.get(python, _UNSUPPORTED)
+        if python_tag == _UNSUPPORTED:
+            msg = "python = {0} is not supported for metadata_version " \
+                  "= {1!r}".format(python, data["metadata_version"])
+            raise OkonomiyakiError(msg)
+
+    return python_tag
+
+
+_METADATA_DEFAULT_VERSION = "1.2"
+
+
 class LegacySpecDepend(HasTraits):
     """
     This models the EGG-INFO/spec/depend content.
@@ -202,19 +219,21 @@ class LegacySpecDepend(HasTraits):
 
     _epd_legacy_platform = Instance(LegacyEPDPlatform)
 
-    _metadata_version = Enum(["1.1", "1.2"], "1.2")
+    _metadata_version = Enum(["1.1", "1.2"], _METADATA_DEFAULT_VERSION)
 
     @classmethod
     def from_data(cls, data, epd_platform_string, python=None,
                   python_tag=None):
         args = data.copy()
+        args["metadata_version"] = args.get("metadata_version",
+                                            _METADATA_DEFAULT_VERSION)
 
         args["_epd_legacy_platform"] = \
             LegacyEPDPlatform.from_epd_platform_string(epd_platform_string)
 
         args["python"] = python
-        args["python_tag"] = python_tag or \
-            _PYTHON_VERSION_TO_PYTHON_TAG[python]
+        args["python_tag"] = python_tag or _get_default_python_tag(args,
+                                                                   python)
 
         args["packages"] = [
             Dependency.from_spec_string(s) for s in args.get("packages", [])
@@ -235,10 +254,7 @@ class LegacySpecDepend(HasTraits):
             else:
                 python = None
 
-            if "python_tag" in info_data:
-                python_tag = info_data["python_tag"]
-            else:
-                python_tag = None
+            python_tag = _get_default_python_tag(data, python)
 
             data["packages"] = info_data["packages"]
             if "metadata_version" in info_data:
@@ -258,12 +274,10 @@ class LegacySpecDepend(HasTraits):
             "packages": raw_data["packages"],
         }
 
-        if "metadata_version" in raw_data:
-            data["metadata_version"] = raw_data["metadata_version"]
+        data["metadata_version"] = raw_data["metadata_version"]
 
         python = raw_data["python"]
-        python_tag = raw_data.get("python_tag",
-                                  _PYTHON_VERSION_TO_PYTHON_TAG[python])
+        python_tag = _get_default_python_tag(raw_data, python)
 
         arch, osdist = raw_data["arch"], raw_data["osdist"]
         if epd_platform_string is not None:
