@@ -563,14 +563,20 @@ def info_from_z(z):
 
 def parse_rawspec(spec_string):
     spec = parse_assignments(six.StringIO(spec_string.replace('\r', '')))
-    metadata_version = spec["metadata_version"]
 
-    keys = _METADATA_VERSION_TO_KEYS.get(metadata_version)
-    if keys is None:
+    metadata_version = spec.get("metadata_version")
+    if metadata_version is None \
+            or metadata_version not in _METADATA_VERSION_TO_KEYS:
         msg = "Invalid metadata version: {0!r}".format(metadata_version)
         raise InvalidMetadata(msg, "metadata_version")
-    else:
-        res = {}
-        for key in keys:
+
+    res = {}
+
+    keys = _METADATA_VERSION_TO_KEYS.get(metadata_version)
+    for key in keys:
+        try:
             res[key] = spec[key]
-        return res
+        except KeyError:
+            msg = "Missing attribute {0!r} (metadata_version: {1!r})"
+            raise InvalidMetadata(msg.format(key, metadata_version), key)
+    return res

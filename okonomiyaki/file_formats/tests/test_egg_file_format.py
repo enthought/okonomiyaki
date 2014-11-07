@@ -456,6 +456,71 @@ packages = [
 
         self.assertEqual(r_spec, parse_rawspec(spec_s))
 
+    def test_invalid_spec_strings(self):
+        # Given a spec_string without metadata_version
+        spec_s = """\
+name = 'pandas'
+version = '0.12.0'
+build = 1
+
+arch = 'x86'
+platform = None
+osdist = None
+python = None
+packages = [
+  'numpy 1.7.1',
+  'python_dateutil',
+]
+"""
+
+        # When/Then
+        with self.assertRaises(InvalidMetadata) as exc:
+            parse_rawspec(spec_s)
+        self.assertEqual(exc.exception.attribute, "metadata_version")
+
+        # Given a spec_string without some other metadata in >= 1.1
+        spec_s = """\
+metadata_version = '1.1'
+name = 'pandas'
+version = '0.12.0'
+build = 1
+
+arch = 'x86'
+osdist = None
+python = None
+packages = [
+  'numpy 1.7.1',
+  'python_dateutil',
+]
+"""
+
+        # When/Then
+        with self.assertRaises(InvalidMetadata) as exc:
+            parse_rawspec(spec_s)
+        self.assertEqual(exc.exception.attribute, "platform")
+
+        # Given a spec_string without some other metadata in >= 1.2
+        spec_s = """\
+metadata_version = '1.2'
+name = 'pandas'
+version = '0.12.0'
+build = 1
+
+arch = 'x86'
+osdist = None
+platform = None
+python = None
+packages = [
+  'numpy 1.7.1',
+  'python_dateutil',
+]
+"""
+
+        # When/Then
+        with self.assertRaises(InvalidMetadata) as exc:
+            parse_rawspec(spec_s)
+        self.assertEqual(exc.exception.attribute, "python_tag")
+
 
 class TestInfoFromZ(unittest.TestCase):
     def test_with_info_json(self):
