@@ -2,8 +2,7 @@ import zipfile
 
 import six
 
-if six.PY2:
-    six.add_move(six.MovedModule("unittest", "unittest2", "unittest"))
+six.add_move(six.MovedModule("unittest", "unittest2", "unittest"))
 
 
 class ZipFile(zipfile.ZipFile):
