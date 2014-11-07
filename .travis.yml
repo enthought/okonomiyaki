@@ -9,9 +9,14 @@ python:
 
 install:
     - bash scripts/travis_install.sh
+    - pip install coveralls
 
 script:
-    - nosetests --with-coverage --cover-package=okonomiyaki okonomiyaki
+    - haas okonomiyaki
+    - coverage run -a -m haas tests/functional
+
+after_success:
+    coveralls
 
 notifications:
     email:
