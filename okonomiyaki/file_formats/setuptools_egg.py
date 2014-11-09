@@ -7,8 +7,8 @@ _R_EGG_NAME = re.compile("""
         (?P<name>^[^.-]+)
         (-(?P<version>[^-]+))
         (-py(?P<pyver>(\d+\.\d+)))
-        (-(?P<platform>[^.]+))?
-        \.egg
+        (-(?P<platform>(?!/boot).+))?
+        \.egg$
 """, re.VERBOSE)
 
 

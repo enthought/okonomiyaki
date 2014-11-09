@@ -23,6 +23,19 @@ class TestEggBuilder(unittest.TestCase):
         self.assertEqual(pyver, "2.6")
         self.assertIsNone(platform)
 
+    def test_simple_with_extension_osx(self):
+        # Given
+        path = "dc_analysis-1.0-py2.7-macosx-10.6-x86_64.egg"
+
+        # When
+        name, version, pyver, platform = parse_filename(path)
+
+        # Then
+        self.assertEqual(name, "dc_analysis")
+        self.assertEqual(version, "1.0")
+        self.assertEqual(pyver, "2.7")
+        self.assertEqual(platform, "macosx-10.6-x86_64")
+
     def test_simple_with_extension(self):
         # Given
         path = "numpy-1.9.1-py2.6-win-amd64.egg"
