@@ -94,6 +94,8 @@ def main():
                     "okonomiyaki.platforms.tests",
                     "okonomiyaki.repositories",
                     "okonomiyaki.repositories.tests",
+                    "okonomiyaki.versions",
+                    "okonomiyaki.versions.tests",
                     "okonomiyaki.utils",
                     ],
           package_data=package_data,
