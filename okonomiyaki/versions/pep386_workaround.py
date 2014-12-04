@@ -73,6 +73,10 @@ class PEP386WorkaroundVersion(object):
         self._comparable_parts = comparable_parts
         self._is_worked_around = is_worked_around
 
+    @property
+    def is_worked_around(self):
+        return self._is_worked_around
+
     def __str__(self):
         if self._is_worked_around:
             return ".".join(self._parts)
