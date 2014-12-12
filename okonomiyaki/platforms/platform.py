@@ -121,8 +121,10 @@ class Platform(HasTraits):
         return _guess_platform(arch_string)
 
     def __str__(self):
-        return "{0} on {1.machine}".format(NAME_TO_PRETTY_NAMES[self.name],
-                                           self)
+        return "{0} {1.release} on {1.machine}".format(
+            NAME_TO_PRETTY_NAMES[self.name],
+            self
+        )
 
 
 def _guess_architecture():

@@ -116,7 +116,8 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(platform.os, "linux")
         self.assertEqual(platform.name, "centos")
         self.assertEqual(platform.family, "rhel")
-        self.assertEqual(str(platform), "CentOS on x86")
+        self.assertEqual(platform.release, "5.8")
+        self.assertEqual(str(platform), "CentOS 5.8 on x86")
 
     @mock_ubuntu_raring
     @mock_x86
@@ -128,7 +129,7 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(platform.os, "linux")
         self.assertEqual(platform.name, "ubuntu")
         self.assertEqual(platform.family, "debian")
-        self.assertEqual(str(platform), "Ubuntu on x86")
+        self.assertEqual(str(platform), "Ubuntu 13.04 on x86")
 
     @mock_windows_7
     @mock_x86
@@ -140,7 +141,8 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(platform.os, "windows")
         self.assertEqual(platform.name, "windows")
         self.assertEqual(platform.family, "windows")
-        self.assertEqual(str(platform), "Windows on x86")
+        self.assertEqual(platform.release, "7")
+        self.assertEqual(str(platform), "Windows 7 on x86")
 
     @mock_osx_10_7
     @mock_x86
@@ -152,7 +154,7 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(platform.os, "darwin")
         self.assertEqual(platform.name, "mac_os_x")
         self.assertEqual(platform.family, "mac_os_x")
-        self.assertEqual(str(platform), "Mac OS X on x86")
+        self.assertEqual(str(platform), "Mac OS X 10.7.5 on x86")
 
 
 class TestPlatformRunningSystem(unittest.TestCase):
