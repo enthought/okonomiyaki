@@ -3,8 +3,9 @@ from __future__ import absolute_import
 import platform
 import sys
 
-from okonomiyaki.errors import OkonomiyakiError
 from okonomiyaki.bundled.traitlets import HasTraits, Enum, Instance, Unicode
+from okonomiyaki.platforms.epd_platform import EPDPlatform
+from okonomiyaki.errors import OkonomiyakiError
 
 
 X86 = "x86"
@@ -125,6 +126,48 @@ class Platform(HasTraits):
             NAME_TO_PRETTY_NAMES[self.name],
             self
         )
+
+    @property
+    def _epd_platform_string(self):
+        def _append_bits(base):
+            if self.arch.name == X86:
+                return base + "-32"
+            elif self.arch.name == X86_64:
+                return base + "-64"
+            else:
+                msg = ("Unsupported arch in {0.name}: {0.arch.name!r}".
+                       format(self))
+                raise OkonomiyakiError(msg)
+
+        if self.os == WINDOWS:
+            return _append_bits("win")
+        elif self.os == DARWIN:
+            return _append_bits("osx")
+        elif self.os == LINUX:
+            if self.family == RHEL:
+                parts = self.release.split(".")
+                if parts[0] == "3":
+                    base = "rh3"
+                elif parts[0] == "5":
+                    base = "rh5"
+                elif parts[0] == "6":
+                    base = "rh6"
+                else:
+                    msg = ("Unsupported rhel release: {0!r}".
+                           format(self.release))
+                    raise OkonomiyakiError(msg)
+                return _append_bits(base)
+            else:
+                msg = ("Unsupported distribution: {0!r}".
+                       format(self.family))
+                raise OkonomiyakiError(msg)
+        else:
+            msg = "Unsupported OS: {0!r}".format(self.name)
+            raise OkonomiyakiError(msg)
+
+    @property
+    def epd_platform(self):
+        return EPDPlatform.from_epd_string(self._epd_platform_string)
 
 
 def _guess_architecture():

@@ -5,8 +5,9 @@ from ..platform import Arch, Platform
 
 from .common import (mock_machine_armv71, mock_x86, mock_x86_64,
                      mock_x86_on_x86_64, mock_machine_x86_64)
-from .common import (mock_centos_5_8, mock_osx_10_7, mock_ubuntu_raring,
-                     mock_windows_7)
+from .common import (mock_centos_3_5, mock_centos_5_8, mock_centos_6_3,
+                     mock_centos_7_0, mock_osx_10_7, mock_solaris,
+                     mock_ubuntu_raring, mock_windows_7)
 
 
 class TestArch(unittest.TestCase):
@@ -118,6 +119,7 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(platform.family, "rhel")
         self.assertEqual(platform.release, "5.8")
         self.assertEqual(str(platform), "CentOS 5.8 on x86")
+        self.assertEqual(platform._epd_platform_string, "rh5-32")
 
     @mock_ubuntu_raring
     @mock_x86
@@ -131,6 +133,9 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(platform.family, "debian")
         self.assertEqual(str(platform), "Ubuntu 13.04 on x86")
 
+        with self.assertRaises(OkonomiyakiError):
+            self.assertEqual(platform._epd_platform_string)
+
     @mock_windows_7
     @mock_x86
     def test_windows7(self):
@@ -143,6 +148,7 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(platform.family, "windows")
         self.assertEqual(platform.release, "7")
         self.assertEqual(str(platform), "Windows 7 on x86")
+        self.assertEqual(platform._epd_platform_string, "win-32")
 
     @mock_osx_10_7
     @mock_x86
@@ -155,6 +161,7 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(platform.name, "mac_os_x")
         self.assertEqual(platform.family, "mac_os_x")
         self.assertEqual(str(platform), "Mac OS X 10.7.5 on x86")
+        self.assertEqual(platform._epd_platform_string, "osx-32")
 
 
 class TestPlatformRunningSystem(unittest.TestCase):
@@ -190,3 +197,87 @@ class TestPlatformRunningSystem(unittest.TestCase):
         # Then
         self.assertEqual(platform.arch.name, "x86")
         self.assertEqual(platform.machine.name, "x86_64")
+
+
+class TestEpdPlatform(unittest.TestCase):
+    @mock_centos_3_5
+    def test_centos_3_5(self):
+        # When
+        with mock_x86:
+            platform = Platform.from_running_python()
+
+        # Then
+        self.assertEqual(platform.epd_platform.short, "rh3-32")
+
+        # When
+        with mock_x86_64:
+            platform = Platform.from_running_python()
+
+        # Then
+        self.assertEqual(platform.epd_platform.short, "rh3-64")
+
+    @mock_centos_5_8
+    def test_centos_5_8(self):
+        # When
+        with mock_x86:
+            platform = Platform.from_running_python()
+
+        # Then
+        self.assertEqual(platform.epd_platform.short, "rh5-32")
+
+        # When
+        with mock_x86_64:
+            platform = Platform.from_running_python()
+
+        # Then
+        self.assertEqual(platform.epd_platform.short, "rh5-64")
+
+    @mock_centos_6_3
+    def test_centos_6_3(self):
+        # When
+        with mock_x86:
+            platform = Platform.from_running_python()
+
+        # Then
+        self.assertEqual(platform.epd_platform.short, "rh6-32")
+
+        # When
+        with mock_x86_64:
+            platform = Platform.from_running_python()
+
+        # Then
+        self.assertEqual(platform.epd_platform.short, "rh6-64")
+
+    @mock_centos_7_0
+    def test_centos_7_0(self):
+        # When
+        with mock_x86:
+            platform = Platform.from_running_python()
+
+        # Then
+        with self.assertRaises(OkonomiyakiError):
+            platform.epd_platform.short
+
+    @mock_centos_6_3
+    @mock_machine_armv71
+    def test_centos_6_3_arm(self):
+        # When/Then
+        with self.assertRaises(OkonomiyakiError):
+            Platform.from_running_python()
+
+    @mock_ubuntu_raring
+    def test_ubuntu_raring(self):
+        # When
+        with mock_x86:
+            platform = Platform.from_running_python()
+
+        # Then
+        with self.assertRaises(OkonomiyakiError):
+            platform.epd_platform.short
+
+    @mock_solaris
+    @mock_x86_64
+    def test_solaris(self):
+        # When/Then
+        with self.assertRaises(OkonomiyakiError):
+            Platform.from_running_python()
