@@ -20,27 +20,34 @@ def _mock_platform_linux_distribution(info):
 
 
 mock_centos_3_5 = MultiPatcher([
+    mock.patch("sys.platform", "linux2"),
     _mock_platform_dist(("redhat", "3.5", "Final")),
     _mock_platform_linux_distribution(("CentOS", "3.5", "Final"))
 ])
 
 mock_centos_5_8 = MultiPatcher([
+    mock.patch("sys.platform", "linux2"),
     _mock_platform_dist(("redhat", "5.8", "Final")),
     _mock_platform_linux_distribution(("CentOS", "5.8", "Final"))
 ])
 
 mock_centos_6_3 = MultiPatcher([
+    mock.patch("sys.platform", "linux2"),
     _mock_platform_dist(("redhat", "6.3", "Final")),
     _mock_platform_linux_distribution(("CentOS", "6.3", "Final"))
 ])
 
 mock_centos_7_0 = MultiPatcher([
+    mock.patch("sys.platform", "linux2"),
     _mock_platform_dist(("redhat", "7.0", "Final")),
     _mock_platform_linux_distribution(("CentOS", "7.0", "Final"))
 ])
 
-mock_ubuntu_raring = Patcher(_mock_platform_dist(("Ubuntu", "13.04",
-                                                  "raring")))
+mock_ubuntu_raring = MultiPatcher([
+    _mock_platform_dist(("Ubuntu", "13.04", "raring")),
+    _mock_platform_linux_distribution(("Ubuntu", "13.04", "raring")),
+    mock.patch("sys.platform", "linux2"),
+])
 
 mock_windows_7 = MultiPatcher([
     mock.patch("sys.platform", "win32"),
