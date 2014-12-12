@@ -1,3 +1,13 @@
+Dev Guide
+---------
+
+This part of the documentation explains the main concepts of okonomiyaki.
+
+.. toctree::
+   :maxdepth: 2
+
+   examples
+
 API Reference
 -------------
 
