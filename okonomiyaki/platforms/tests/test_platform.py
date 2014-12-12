@@ -24,6 +24,24 @@ class TestArch(unittest.TestCase):
         self.assertEqual(arch.bits, bits)
         self.assertEqual(str(arch), arch.name)
 
+    def test_hashing(self):
+        # Given
+        name = "x86"
+
+        # When
+        arch1 = Arch(name, 32)
+        arch2 = Arch(name, 32)
+        arch3 = Arch(name, 64)
+
+        # Then
+        self.assertEqual(arch1, arch2)
+        self.assertNotEqual(arch1, arch3)
+        self.assertEqual(hash(arch1), hash(arch1))
+        self.assertTrue(arch1 == arch2)
+        self.assertFalse(arch1 != arch2)
+        self.assertTrue(arch1 != arch3)
+        self.assertFalse(arch1 == arch3)
+
     def test_from_name(self):
         # Given
         name = "x86"
@@ -281,3 +299,25 @@ class TestEpdPlatform(unittest.TestCase):
         # When/Then
         with self.assertRaises(OkonomiyakiError):
             Platform.from_running_python()
+
+
+class TestPlatform(unittest.TestCase):
+    @mock_windows_7
+    def test_hashing(self):
+        # Given
+        with mock_x86:
+            win32_1 = Platform.from_running_system()
+            win32_2 = Platform.from_running_system()
+        with mock_x86_64:
+            win64 = Platform.from_running_system()
+
+        # When/Then
+        self.assertEqual(win32_1, win32_2)
+        self.assertNotEqual(win32_1, win64)
+        self.assertEqual(hash(win32_1), hash(win32_1))
+        self.assertTrue(win32_1 == win32_2)
+        self.assertFalse(win32_1 != win32_2)
+        self.assertTrue(win32_1 != win64)
+        self.assertFalse(win32_1 == win64)
+
+        self.assertNotEqual(win32_1, None)

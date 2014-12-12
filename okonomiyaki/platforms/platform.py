@@ -75,6 +75,18 @@ class Arch(HasTraits):
     def __str__(self):
         return self.name
 
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+        else:
+            return self.name == other.name and self.bits == other.bits
+
+    def __ne__(self, other):
+        return not (self == other)
+
+    def __hash__(self):
+        return hash((self.name, self.bits))
+
 
 class Platform(HasTraits):
     """
@@ -168,6 +180,20 @@ class Platform(HasTraits):
     @property
     def epd_platform(self):
         return EPDPlatform.from_epd_string(self._epd_platform_string)
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+        else:
+            return (self.name == other.name and self.release == other.release
+                    and self.arch == other.arch
+                    and self.machine == other.machine)
+
+    def __ne__(self, other):
+        return not (self == other)
+
+    def __hash__(self):
+        return hash((self.name, self.release, self.arch, self.machine))
 
 
 def _guess_architecture():
