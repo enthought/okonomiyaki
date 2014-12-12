@@ -102,7 +102,7 @@ class Platform(HasTraits):
     The most specific platform description
     """
 
-    family = Enum(["windows", "rhel", "debian", "mac_os_x", "solaris"])
+    family = Enum([WINDOWS, RHEL, DEBIAN, MAC_OS_X, SOLARIS])
     """
     The 'kind' of platforms. For example, both debian and ubuntu distributions
     share the same kind, 'debian'.
