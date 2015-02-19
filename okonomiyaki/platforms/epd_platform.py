@@ -183,6 +183,9 @@ def _guess_architecture():
             return amd64
     elif machine in ("x86", "i386", "i686") and bits == "32bit":
         return x86
+    elif platform.system() == 'Darwin' and \
+             machine == "i386" and bits == "64bit":  # Yes, this is possible on OSX
+        return amd64
     else:
         raise OkonomiyakiError("Unknown bits/machine combination {0}/{1}".
                                format(bits, machine))
