@@ -58,6 +58,16 @@ class Arch(HasTraits):
     """
 
     @classmethod
+    def _from_bidwith(cls, bitwidth):
+        if bitwidth == "32":
+            return cls.from_name(X86)
+        elif bitwidth == "64":
+            return cls.from_name(X86_64)
+        else:
+            msg = "Invalid bits width: {0!r}".format(bitwidth)
+            raise OkonomiyakiError(msg)
+
+    @classmethod
     def from_name(cls, name):
         return cls(name, _ARCH_NAME_TO_BITS[name])
 
@@ -162,13 +172,7 @@ class Platform(HasTraits):
         parts = s.split("-")
         if len(parts) == 2:
             name, bits = parts
-            if bits == "32":
-                arch = machine = Arch.from_name(X86)
-            elif bits == "64":
-                arch = machine = Arch.from_name(X86_64)
-            else:
-                msg = "Invalid bits width: {0!r}".format(bits)
-                raise OkonomiyakiError(msg)
+            arch = machine = Arch._from_bidwith(bits)
             os, name, family, release = _epd_name_to_quadruplet(name)
             return cls(os, name, family, arch, machine, release)
         elif len(parts) == 1:
