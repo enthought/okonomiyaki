@@ -3,6 +3,8 @@ from __future__ import absolute_import
 import platform
 import sys
 
+from okonomiyaki.platforms import epd_platform
+
 from okonomiyaki.bundled.traitlets import HasTraits, Enum, Instance, Unicode
 from okonomiyaki.platforms.epd_platform import EPDPlatform
 from okonomiyaki.errors import OkonomiyakiError
@@ -200,18 +202,14 @@ def _guess_architecture():
     """
     Returns the architecture of the running python.
     """
-    bits = platform.architecture()[0]
-    machine = platform.machine()
-    if machine in ("AMD64", "x86_64"):
-        if bits == "32bit":
-            return Arch.from_name(X86)
-        elif bits == "64bit":
-            return Arch.from_name(X86_64)
-    elif machine in ("x86", "i386", "i686") and bits == "32bit":
+    epd_platform_arch = epd_platform._guess_architecture()
+    if epd_platform_arch == "x86":
         return Arch.from_name(X86)
+    elif epd_platform_arch == "amd64":
+        return Arch.from_name(X86_64)
     else:
-        raise OkonomiyakiError("Unknown bits/machine combination {0}/{1}".
-                               format(bits, machine))
+        raise OkonomiyakiError("Unknown architecture {0!r}".
+                               format(epd_platform_arch))
 
 
 def _guess_machine():

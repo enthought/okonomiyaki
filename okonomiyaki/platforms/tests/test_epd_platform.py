@@ -8,9 +8,11 @@ from okonomiyaki.platforms.epd_platform import (_guess_architecture,
                                                 _guess_epd_platform, applies)
 from okonomiyaki.platforms.legacy import _SUBDIR
 
-from .common import (mock_centos_3_5, mock_centos_5_8, mock_centos_6_3,
+from .common import (mock_architecture_32bit, mock_architecture_64bit,
+                     mock_centos_3_5, mock_centos_5_8, mock_centos_6_3,
                      mock_darwin, mock_machine_armv71, mock_solaris,
-                     mock_ubuntu_raring, mock_windows, mock_x86, mock_x86_64)
+                     mock_ubuntu_raring, mock_windows, mock_x86,
+                     mock_x86_64)
 
 
 class TestEPDPlatform(unittest.TestCase):
@@ -109,27 +111,27 @@ class TestGuessEPDPlatform(unittest.TestCase):
             self.assertEqual(epd_platform.short, "rh5-64")
 
             with mock.patch("platform.machine", lambda: "x86"):
-                with mock.patch("platform.architecture", lambda: ("32bit",)):
+                with mock_architecture_32bit:
                     epd_platform = _guess_epd_platform()
                     self.assertEqual(epd_platform.short, "rh5-32")
 
             with mock.patch("platform.machine", lambda: "i386"):
-                with mock.patch("platform.architecture", lambda: ("32bit",)):
+                with mock_architecture_32bit:
                     epd_platform = _guess_epd_platform()
                     self.assertEqual(epd_platform.short, "rh5-32")
 
             with mock.patch("platform.machine", lambda: "i686"):
-                with mock.patch("platform.architecture", lambda: ("32bit",)):
+                with mock_architecture_32bit:
                     epd_platform = _guess_epd_platform()
                     self.assertEqual(epd_platform.short, "rh5-32")
 
             with mock.patch("platform.machine", lambda: "x86_64"):
-                with mock.patch("platform.architecture", lambda: ("32bit",)):
+                with mock_architecture_32bit:
                     epd_platform = _guess_epd_platform()
                     self.assertEqual(epd_platform.short, "rh5-32")
 
             with mock.patch("platform.machine", lambda: "x86_64"):
-                with mock.patch("platform.architecture", lambda: ("64bit",)):
+                with mock_architecture_64bit:
                     epd_platform = _guess_epd_platform()
                     self.assertEqual(epd_platform.short, "rh5-64")
 

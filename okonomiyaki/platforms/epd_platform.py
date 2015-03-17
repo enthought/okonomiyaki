@@ -174,7 +174,11 @@ def _guess_architecture():
     """
     x86 = "x86"
     amd64 = "amd64"
-    bits = platform.architecture()[0]
+    if sys.maxsize > 2 ** 32:
+        bits = "64bit"
+    else:
+        bits = "32bit"
+
     machine = platform.machine()
     if machine in ("AMD64", "x86_64"):
         if bits == "32bit":
