@@ -172,23 +172,16 @@ def _guess_architecture():
     """
     Returns the architecture of the running python.
     """
-    x86 = "x86"
-    amd64 = "amd64"
-
-    if sys.maxsize > 2 ** 32:
-        bits = "64bit"
-    else:
-        bits = "32bit"
-
     machine = platform.machine()
+
     if machine in ("AMD64", "x86_64", "x86", "i386", "i686"):
         if sys.maxsize > 2 ** 32:
-            return amd64
+            return "amd64"
         else:
-            return x86
+            return "x86"
     else:
-        raise OkonomiyakiError("Unknown bits/machine combination {0}/{1}".
-                               format(bits, machine))
+        raise OkonomiyakiError("Unknown machine combination {0!r}".
+                               format(machine))
 
 
 def _guess_epd_platform(arch=None):
