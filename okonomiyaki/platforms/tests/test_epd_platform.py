@@ -3,9 +3,11 @@ import unittest
 
 from okonomiyaki.errors import OkonomiyakiError
 
-from okonomiyaki.platforms import EPD_PLATFORM_SHORT_NAMES, EPDPlatform
+from okonomiyaki.platforms import EPDPlatform
 from okonomiyaki.platforms.epd_platform import (_guess_architecture,
-                                                _guess_epd_platform, applies)
+                                                _guess_epd_platform,
+                                                EPD_PLATFORM_SHORT_NAMES,
+                                                applies)
 from okonomiyaki.platforms.legacy import _SUBDIR
 
 from .common import (mock_centos_3_5, mock_centos_5_8, mock_centos_6_3,
