@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
-from okonomiyaki.bundled.traitlets import HasTraits, Enum, Instance, Unicode
+from okonomiyaki.bundled.traitlets import (HasTraits, Bool, Enum, Instance,
+                                           List, Unicode)
 
 from .platform import DARWIN, LINUX, SOLARIS, WINDOWS
 from .platform import CENTOS, RHEL, DEBIAN, UBUNTU, MAC_OS_X
@@ -55,5 +56,31 @@ class PlatformLabel(HasTraits):
 
         if self.arch and not platform.arch == self.arch:
             return False
+
+        return True
+
+
+class PlatformLiteral(HasTraits):
+    label = Instance(PlatformLabel)
+    is_true = Bool(True)
+
+    def __init__(self, label, is_true=True):
+        super(PlatformLiteral, self).__init__(label=label, is_true=is_true)
+
+
+class PlatformFilter(HasTraits):
+    platform_labels = List(Instance(PlatformLiteral))
+
+    def __init__(self, labels):
+        super(PlatformFilter, self).__init__(platform_labels=labels)
+
+    def matches(self, platform):
+        for platform_label in self.platform_labels:
+            if ((platform_label.is_true
+                 and not platform_label.label.matches(platform))
+                or
+                (not platform_label.is_true
+                 and platform_label.label.matches(platform))):
+                return False
 
         return True

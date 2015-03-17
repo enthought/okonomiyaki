@@ -3,7 +3,14 @@ from __future__ import absolute_import
 import unittest
 
 from ..platform import Arch, Platform
-from ..platform_filters import PlatformLabel
+from ..platform_filters import PlatformFilter, PlatformLabel, PlatformLiteral
+
+LABEL_WINDOWS_ANY = PlatformLabel()
+LABEL_WINDOWS_ANY.os = "windows"
+
+LABEL_OSX_32 = PlatformLabel()
+LABEL_OSX_32.os = "darwin"
+LABEL_OSX_32.arch = Arch.from_name("x86")
 
 RH5_32 = Platform.from_epd_platform_string("rh5-32")
 RH5_64 = Platform.from_epd_platform_string("rh5-64")
@@ -62,3 +69,16 @@ class TestPlatformLabel(unittest.TestCase):
         self.assertFalse(label.matches(UBUNTU_12_10_X32))
         self.assertTrue(label.matches(UBUNTU_14_04_X32))
         self.assertFalse(label.matches(UBUNTU_14_04_X64))
+
+
+class TestPlatformFilter(unittest.TestCase):
+    def test_conjonction(self):
+        # Given
+        literals = [PlatformLiteral(LABEL_WINDOWS_ANY, False),
+                    PlatformLiteral(LABEL_OSX_32, False)]
+
+        # When
+        filtre = PlatformFilter(literals)
+
+        # Then
+        self.assertTrue(filtre.matches(RH5_64))
