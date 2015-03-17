@@ -57,7 +57,7 @@ class PlatformLabel(HasTraits):
         parts = s.split("-")
         if len(parts) == 2:
             name, bits = parts
-            arch = Arch._from_bidwith(bits)
+            arch = Arch._from_bitwidth(bits)
             os, name, family, release = _epd_name_to_quadruplet(name)
             return cls(os, name, family, arch, release)
         elif len(parts) == 1:
@@ -65,7 +65,7 @@ class PlatformLabel(HasTraits):
             if parts[0] == "all":
                 return cls()
             elif parts[0] in ("32", "64"):
-                arch = Arch._from_bidwith(parts[0])
+                arch = Arch._from_bitwidth(parts[0])
                 return cls(arch=arch)
             else:
                 arch = None

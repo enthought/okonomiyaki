@@ -58,7 +58,7 @@ class Arch(HasTraits):
     """
 
     @classmethod
-    def _from_bidwith(cls, bitwidth):
+    def _from_bitwidth(cls, bitwidth):
         if bitwidth == "32":
             return cls.from_name(X86)
         elif bitwidth == "64":
@@ -174,7 +174,7 @@ class Platform(HasTraits):
         parts = s.split("-")
         if len(parts) == 2:
             name, bits = parts
-            arch = machine = Arch._from_bidwith(bits)
+            arch = machine = Arch._from_bitwidth(bits)
             os, name, family, release = _epd_name_to_quadruplet(name)
             return cls(os, name, family, arch, machine, release)
         elif len(parts) == 1:
