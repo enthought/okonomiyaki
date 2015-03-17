@@ -133,7 +133,7 @@ class TestPlatformLabel(unittest.TestCase):
 
 
 class TestPlatformFilter(unittest.TestCase):
-    def test_conjonction(self):
+    def test_simple(self):
         # Given
         literals = [PlatformLiteral(LABEL_WINDOWS_ANY, False),
                     PlatformLiteral(LABEL_OSX_32, False)]
@@ -143,3 +143,64 @@ class TestPlatformFilter(unittest.TestCase):
 
         # Then
         self.assertTrue(filtre.matches(RH5_64))
+
+    def test_from_pisi_string_simple(self):
+        # Given
+        legacy_string = "all"
+
+        # When
+        filtre = PlatformFilter.from_legacy_string(legacy_string)
+
+        # Then
+        self.assertTrue(filtre.matches(RH5_32))
+        self.assertTrue(filtre.matches(RH5_64))
+        self.assertTrue(filtre.matches(OSX_32))
+        self.assertTrue(filtre.matches(WIN_64))
+        self.assertTrue(filtre.matches(UBUNTU_12_10_X32))
+        self.assertTrue(filtre.matches(UBUNTU_14_04_X32))
+        self.assertTrue(filtre.matches(UBUNTU_14_04_X64))
+
+        # Given
+        legacy_string = "!all"
+
+        # When
+        filtre = PlatformFilter.from_legacy_string(legacy_string)
+
+        # Then
+        self.assertFalse(filtre.matches(RH5_32))
+        self.assertFalse(filtre.matches(RH5_64))
+        self.assertFalse(filtre.matches(OSX_32))
+        self.assertFalse(filtre.matches(WIN_64))
+        self.assertFalse(filtre.matches(UBUNTU_12_10_X32))
+        self.assertFalse(filtre.matches(UBUNTU_14_04_X32))
+        self.assertFalse(filtre.matches(UBUNTU_14_04_X64))
+
+        # Given
+        legacy_string = "win"
+
+        # When
+        filtre = PlatformFilter.from_legacy_string(legacy_string)
+
+        # Then
+        self.assertFalse(filtre.matches(RH5_32))
+        self.assertFalse(filtre.matches(RH5_64))
+        self.assertFalse(filtre.matches(OSX_32))
+        self.assertTrue(filtre.matches(WIN_64))
+        self.assertFalse(filtre.matches(UBUNTU_12_10_X32))
+        self.assertFalse(filtre.matches(UBUNTU_14_04_X32))
+
+    def test_from_pisi_string_composite(self):
+        # Given
+        legacy_string = "!win,!osx"
+
+        # When
+        filtre = PlatformFilter.from_legacy_string(legacy_string)
+
+        # Then
+        self.assertTrue(filtre.matches(RH5_32))
+        self.assertTrue(filtre.matches(RH5_64))
+        self.assertFalse(filtre.matches(OSX_32))
+        self.assertFalse(filtre.matches(WIN_64))
+        self.assertTrue(filtre.matches(UBUNTU_12_10_X32))
+        self.assertTrue(filtre.matches(UBUNTU_14_04_X32))
+        self.assertTrue(filtre.matches(UBUNTU_14_04_X64))

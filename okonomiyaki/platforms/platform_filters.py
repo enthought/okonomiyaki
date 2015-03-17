@@ -110,6 +110,23 @@ class PlatformLiteral(HasTraits):
 class PlatformFilter(HasTraits):
     platform_labels = List(Instance(PlatformLiteral))
 
+    @classmethod
+    def from_legacy_string(cls, s):
+        """ Create a filter from a legacy pisi string, e.g. `!win'.
+        """
+        parts = [p.strip() for p in s.split(",")]
+        literals = []
+        for part in parts:
+            if part.startswith("!"):
+                label = PlatformLabel._from_legacy_string(part[1:])
+                literal = PlatformLiteral(label, False)
+            else:
+                label = PlatformLabel._from_legacy_string(part)
+                literal = PlatformLiteral(label, True)
+            literals.append(literal)
+
+        return cls(literals)
+
     def __init__(self, labels):
         super(PlatformFilter, self).__init__(platform_labels=labels)
 
