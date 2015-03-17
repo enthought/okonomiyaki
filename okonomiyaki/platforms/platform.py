@@ -159,7 +159,9 @@ class Platform(HasTraits):
         e.g. 'rh5-32', or 'osx'
         """
         def _epd_name_to_quadruplet(name):
-            if name == "rh5":
+            if name == "rh6":
+                return (LINUX, RHEL, RHEL, "6.5")
+            elif name == "rh5":
                 return (LINUX, RHEL, RHEL, "5.8")
             elif name == "osx":
                 return (DARWIN, MAC_OS_X, MAC_OS_X, "10.6")

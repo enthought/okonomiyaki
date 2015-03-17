@@ -70,6 +70,67 @@ class TestPlatformLabel(unittest.TestCase):
         self.assertTrue(label.matches(UBUNTU_14_04_X32))
         self.assertFalse(label.matches(UBUNTU_14_04_X64))
 
+    def test_from_legacy_string(self):
+        # Given
+        label = PlatformLabel._from_legacy_string("rh")
+
+        # When/Then
+        self.assertTrue(label.matches(RH5_32))
+        self.assertTrue(label.matches(RH5_64))
+        self.assertFalse(label.matches(OSX_32))
+        self.assertFalse(label.matches(WIN_64))
+        self.assertFalse(label.matches(UBUNTU_12_10_X32))
+        self.assertFalse(label.matches(UBUNTU_14_04_X32))
+        self.assertFalse(label.matches(UBUNTU_14_04_X64))
+
+        # Given
+        label = PlatformLabel._from_legacy_string("rh6")
+
+        # When/Then
+        self.assertFalse(label.matches(RH5_32))
+        self.assertFalse(label.matches(RH5_64))
+        self.assertFalse(label.matches(OSX_32))
+        self.assertFalse(label.matches(WIN_64))
+        self.assertFalse(label.matches(UBUNTU_12_10_X32))
+        self.assertFalse(label.matches(UBUNTU_14_04_X32))
+        self.assertFalse(label.matches(UBUNTU_14_04_X64))
+
+        # Given
+        label = PlatformLabel._from_legacy_string("win-64")
+
+        # When/Then
+        self.assertFalse(label.matches(RH5_32))
+        self.assertFalse(label.matches(RH5_64))
+        self.assertFalse(label.matches(OSX_32))
+        self.assertTrue(label.matches(WIN_64))
+        self.assertFalse(label.matches(UBUNTU_12_10_X32))
+        self.assertFalse(label.matches(UBUNTU_14_04_X32))
+        self.assertFalse(label.matches(UBUNTU_14_04_X64))
+
+        # Given
+        label = PlatformLabel._from_legacy_string("64")
+
+        # When/Then
+        self.assertFalse(label.matches(RH5_32))
+        self.assertTrue(label.matches(RH5_64))
+        self.assertFalse(label.matches(OSX_32))
+        self.assertTrue(label.matches(WIN_64))
+        self.assertFalse(label.matches(UBUNTU_12_10_X32))
+        self.assertFalse(label.matches(UBUNTU_14_04_X32))
+        self.assertTrue(label.matches(UBUNTU_14_04_X64))
+
+        # Given
+        label = PlatformLabel._from_legacy_string("all")
+
+        # When/Then
+        self.assertTrue(label.matches(RH5_32))
+        self.assertTrue(label.matches(RH5_64))
+        self.assertTrue(label.matches(OSX_32))
+        self.assertTrue(label.matches(WIN_64))
+        self.assertTrue(label.matches(UBUNTU_12_10_X32))
+        self.assertTrue(label.matches(UBUNTU_14_04_X32))
+        self.assertTrue(label.matches(UBUNTU_14_04_X64))
+
 
 class TestPlatformFilter(unittest.TestCase):
     def test_conjonction(self):

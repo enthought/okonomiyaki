@@ -2,10 +2,11 @@ from __future__ import absolute_import
 
 from okonomiyaki.bundled.traitlets import (HasTraits, Bool, Enum, Instance,
                                            List, Unicode)
+from okonomiyaki.errors import OkonomiyakiError
 
 from .platform import DARWIN, LINUX, SOLARIS, WINDOWS
 from .platform import CENTOS, RHEL, DEBIAN, UBUNTU, MAC_OS_X
-from .platform import Arch
+from .platform import Arch, Platform
 
 
 class PlatformLabel(HasTraits):
@@ -39,6 +40,44 @@ class PlatformLabel(HasTraits):
     """
     Actual architecture. May be None.
     """
+
+    @classmethod
+    def _from_legacy_string(cls, s):
+        """ Create a filter from a simple pisi string, e.g. '64', 'win-32' or
+        'all'.
+        """
+        def _epd_name_to_quadruplet(name):
+            if name == "rh":
+                return (LINUX, RHEL, RHEL, "")
+            else:
+                platform = Platform.from_epd_platform_string(name)
+                return (platform.os, platform.name, platform.family,
+                        platform.release)
+
+        parts = s.split("-")
+        if len(parts) == 2:
+            name, bits = parts
+            arch = Arch._from_bidwith(bits)
+            os, name, family, release = _epd_name_to_quadruplet(name)
+            return cls(os, name, family, arch, release)
+        elif len(parts) == 1:
+            name = parts[0]
+            if parts[0] == "all":
+                return cls()
+            elif parts[0] in ("32", "64"):
+                arch = Arch._from_bidwith(parts[0])
+                return cls(arch=arch)
+            else:
+                arch = None
+                os, name, family, release = _epd_name_to_quadruplet(name)
+                return cls(os, name, family, arch, release)
+        else:
+            msg = "Invalid epd string: {0!r}".format(s)
+            raise OkonomiyakiError(msg)
+
+    def __init__(self, os=None, name=None, family=None, arch=None, release=""):
+        super(PlatformLabel, self).__init__(os=os, name=name, family=family,
+                                            arch=arch, release=release)
 
     def matches(self, platform):
         """ Returns True if the given platform matches this label."""
