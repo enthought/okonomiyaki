@@ -81,19 +81,19 @@ class PlatformLabel(HasTraits):
 
     def matches(self, platform):
         """ Returns True if the given platform matches this label."""
-        if self.os and not platform.os == self.os:
+        if self.os and platform.os != self.os:
             return False
 
-        if self.family and not platform.family == self.family:
+        if self.family and platform.family != self.family:
             return False
 
-        if self.name and not platform.name == self.name:
+        if self.name and platform.name != self.name:
             return False
 
-        if self.release and not platform.release == self.release:
+        if self.release and platform.release != self.release:
             return False
 
-        if self.arch and not platform.arch == self.arch:
+        if self.arch and platform.arch != self.arch:
             return False
 
         return True
