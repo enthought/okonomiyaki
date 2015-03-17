@@ -10,7 +10,8 @@ from okonomiyaki.platforms.legacy import _SUBDIR
 
 from .common import (mock_architecture_32bit, mock_architecture_64bit,
                      mock_centos_3_5, mock_centos_5_8, mock_centos_6_3,
-                     mock_darwin, mock_machine_armv71, mock_solaris,
+                     mock_darwin, mock_machine_x86, mock_machine_x86_64,
+                     mock_machine_armv71, mock_solaris,
                      mock_ubuntu_raring, mock_windows, mock_x86,
                      mock_x86_64)
 
@@ -96,11 +97,51 @@ class TestGuessEPDPlatform(unittest.TestCase):
 
     @mock_darwin
     def test_guess_darwin_platform(self):
-        epd_platform = _guess_epd_platform("x86")
+        # When
+        with mock_machine_x86:
+            epd_platform = _guess_epd_platform("x86")
+
+        # Then
         self.assertEqual(epd_platform.short, "osx-32")
 
-        epd_platform = _guess_epd_platform("amd64")
+        # When
+        with mock_machine_x86:
+            epd_platform = _guess_epd_platform("amd64")
+
+        # Then
         self.assertEqual(epd_platform.short, "osx-64")
+
+        # When
+        with mock_machine_x86:
+            with mock_architecture_32bit:
+                epd_platform = _guess_epd_platform()
+
+        # Then
+        self.assertEqual(epd_platform.short, "osx-32")
+
+        # When
+        with mock_machine_x86:
+            with mock_architecture_64bit:
+                epd_platform = _guess_epd_platform()
+
+        # Then
+        self.assertEqual(epd_platform.short, "osx-64")
+
+        # When
+        with mock_machine_x86_64:
+            with mock_architecture_64bit:
+                epd_platform = _guess_epd_platform()
+
+        # Then
+        self.assertEqual(epd_platform.short, "osx-64")
+
+        # When
+        with mock_machine_x86_64:
+            with mock_architecture_32bit:
+                epd_platform = _guess_epd_platform()
+
+        # Then
+        self.assertEqual(epd_platform.short, "osx-32")
 
     def test_guess_linux2_platform(self):
         with mock_centos_5_8:
