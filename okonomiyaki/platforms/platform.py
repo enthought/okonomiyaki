@@ -127,11 +127,65 @@ class Platform(HasTraits):
 
     @classmethod
     def from_running_python(cls):
+        """ Guess the platform, using the running python to guess the
+        architecture.
+        """
         return _guess_platform()
 
     @classmethod
     def from_running_system(cls, arch_string=None):
+        """ Guess the platform, with an optional architecture string.
+
+        Parameters
+        ----------
+        arch_string: str, None
+            If given, should be a valid architecture name (e.g. 'x86')
+        """
         return _guess_platform(arch_string)
+
+    @classmethod
+    def from_epd_platform_string(cls, s):
+        """ Creates a new Platform instrance from a legacy epd platform string,
+        e.g. 'rh5-32', or 'osx'
+        """
+        def _epd_name_to_quadruplet(name):
+            if name == "rh5":
+                return (LINUX, RHEL, RHEL, "5.8")
+            elif name == "osx":
+                return (DARWIN, MAC_OS_X, MAC_OS_X, "10.6")
+            elif name == "win":
+                return (WINDOWS, WINDOWS, WINDOWS, "")
+            else:
+                msg = "Invalid epd platform string name: {0!r}".format(name)
+                raise OkonomiyakiError(msg)
+
+        parts = s.split("-")
+        if len(parts) == 2:
+            name, bits = parts
+            if bits == "32":
+                arch = machine = Arch.from_name(X86)
+            elif bits == "64":
+                arch = machine = Arch.from_name(X86_64)
+            else:
+                msg = "Invalid bits width: {0!r}".format(bits)
+                raise OkonomiyakiError(msg)
+            os, name, family, release = _epd_name_to_quadruplet(name)
+            return cls(os, name, family, arch, machine, release)
+        elif len(parts) == 1:
+            name = parts[0]
+            arch = machine = Arch.from_running_python()
+            os, name, family, release = _epd_name_to_quadruplet(name)
+            return cls(os, name, family, arch, machine, release)
+        else:
+            msg = "Invalid epd string: {0!r}".format(s)
+            raise OkonomiyakiError(msg)
+
+    def __init__(self, os, name, family, arch, machine=None, release=""):
+        super(Platform, self).__init__(os=os, name=name, family=family,
+                                       arch=arch, machine=machine,
+                                       release=release)
+        if machine is None:
+            self.machine = self.arch
 
     def __str__(self):
         return "{0} {1.release} on {1.machine}".format(

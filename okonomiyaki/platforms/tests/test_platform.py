@@ -2,6 +2,7 @@ import unittest
 
 from okonomiyaki.errors import OkonomiyakiError
 from ..platform import Arch, Platform
+from ..platform import DARWIN, LINUX, MAC_OS_X, RHEL, WINDOWS, X86, X86_64
 
 from .common import (mock_machine_armv71, mock_x86, mock_x86_64,
                      mock_x86_on_x86_64, mock_machine_x86_64)
@@ -322,3 +323,90 @@ class TestPlatform(unittest.TestCase):
         self.assertFalse(win32_1 == win64)
 
         self.assertNotEqual(win32_1, None)
+
+    def test_from_epd_platform_string(self):
+        # Given
+        epd_platform_string = "rh5-32"
+
+        # When
+        platform = Platform.from_epd_platform_string(epd_platform_string)
+
+        # Then
+        self.assertEqual(platform.os, LINUX)
+        self.assertEqual(platform.family, RHEL)
+        self.assertEqual(platform.name, RHEL)
+        self.assertEqual(platform.arch, Arch.from_name(X86))
+        self.assertEqual(platform.machine, Arch.from_name(X86))
+
+        # Given
+        epd_platform_string = "win-32"
+
+        # When
+        platform = Platform.from_epd_platform_string(epd_platform_string)
+
+        # Then
+        self.assertEqual(platform.os, WINDOWS)
+        self.assertEqual(platform.family, WINDOWS)
+        self.assertEqual(platform.name, WINDOWS)
+        self.assertEqual(platform.arch, Arch.from_name(X86))
+        self.assertEqual(platform.machine, Arch.from_name(X86))
+
+        # Given
+        epd_platform_string = "osx-64"
+
+        # When
+        platform = Platform.from_epd_platform_string(epd_platform_string)
+
+        # Then
+        self.assertEqual(platform.os, DARWIN)
+        self.assertEqual(platform.family, MAC_OS_X)
+        self.assertEqual(platform.name, MAC_OS_X)
+        self.assertEqual(platform.arch, Arch.from_name(X86_64))
+        self.assertEqual(platform.machine, Arch.from_name(X86_64))
+
+        # Given
+        epd_platform_string = "osx"
+
+        # When
+        with mock_x86_64:
+            platform = Platform.from_epd_platform_string(epd_platform_string)
+
+        # Then
+        self.assertEqual(platform.os, DARWIN)
+        self.assertEqual(platform.family, MAC_OS_X)
+        self.assertEqual(platform.name, MAC_OS_X)
+        self.assertEqual(platform.arch, Arch.from_name(X86_64))
+        self.assertEqual(platform.machine, Arch.from_name(X86_64))
+
+        # When
+        with mock_x86:
+            platform = Platform.from_epd_platform_string(epd_platform_string)
+
+        # Then
+        self.assertEqual(platform.arch, Arch.from_name(X86))
+        self.assertEqual(platform.machine, Arch.from_name(X86))
+
+    def test_from_epd_platform_string_invalid(self):
+        # Given
+        # Invalid bitwidth
+        epd_platform_string = "linux-32-1"
+
+        # When/Then
+        with self.assertRaises(OkonomiyakiError):
+            Platform.from_epd_platform_string(epd_platform_string)
+
+        # Given
+        # Invalid bitwidth
+        epd_platform_string = "osx-63"
+
+        # When/Then
+        with self.assertRaises(OkonomiyakiError):
+            Platform.from_epd_platform_string(epd_platform_string)
+
+        # Given
+        # Invalid platform basename
+        epd_platform_string = "netbsd-32"
+
+        # When/Then
+        with self.assertRaises(OkonomiyakiError):
+            Platform.from_epd_platform_string(epd_platform_string)
