@@ -4,10 +4,10 @@ import subprocess
 from setuptools import setup
 
 MAJOR = 0
-MINOR = 5
+MINOR = 6
 MICRO = 0
 
-IS_RELEASED = True
+IS_RELEASED = False
 
 VERSION = '%d.%d.%d' % (MAJOR, MINOR, MICRO)
 
