@@ -11,6 +11,8 @@ from ..errors import OkonomiyakiError
 _ARCHBITS_TO_ARCH = {
     "32": "x86",
     "64": "amd64",
+    "x86": "x86",
+    "x86_64": "amd64",
 }
 
 PLATFORM_NAMES = [
@@ -82,8 +84,9 @@ class EPDPlatform(HasTraits):
 
         platform_name, arch_bits = parts
         if arch_bits not in _ARCHBITS_TO_ARCH:
-            raise OkonomiyakiError("Invalid epd string (invalid arch): {0}".
-                                   format(s))
+            msg = ("Invalid epd string {0!r}: invalid arch {1!r}".
+                   format(s, arch_bits))
+            raise OkonomiyakiError(msg)
         else:
             arch = _ARCHBITS_TO_ARCH[arch_bits]
 
