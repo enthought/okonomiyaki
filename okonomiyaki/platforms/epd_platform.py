@@ -11,6 +11,8 @@ from ..errors import OkonomiyakiError
 _ARCHBITS_TO_ARCH = {
     "32": "x86",
     "64": "amd64",
+    "x86": "x86",
+    "x86_64": "amd64",
 }
 
 PLATFORM_NAMES = [

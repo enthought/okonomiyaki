@@ -9,6 +9,7 @@ from okonomiyaki.platforms.epd_platform import (_guess_architecture,
                                                 EPD_PLATFORM_SHORT_NAMES,
                                                 applies)
 from okonomiyaki.platforms.legacy import _SUBDIR
+from okonomiyaki.platforms.platform import X86, X86_64
 
 from .common import (mock_architecture_32bit, mock_architecture_64bit,
                      mock_centos_3_5, mock_centos_5_8, mock_centos_6_3,
@@ -28,6 +29,23 @@ class TestEPDPlatform(unittest.TestCase):
         """Ensure every epd short platform is understood by EPDPlatform."""
         for epd_platform_string in EPD_PLATFORM_SHORT_NAMES:
             EPDPlatform.from_epd_string(epd_platform_string)
+
+    def test_epd_platform_from_string_new_arch(self):
+        def old_to_new_name(epd_platform_string):
+            left, right = epd_platform_string.split("-")
+            return "{}-{}".format(left, {"32": X86, "64": X86_64}[right])
+
+        # Given
+        name_to_platform = {}
+
+        # When
+        for old_name in EPD_PLATFORM_SHORT_NAMES:
+            new_name = old_to_new_name(old_name)
+            name_to_platform[old_name] = EPDPlatform.from_epd_string(new_name)
+
+        # Then
+        for old_name in name_to_platform:
+            self.assertEqual(name_to_platform[old_name].short, old_name)
 
     def test_guessed_epd_platform(self):
         with mock_centos_5_8:
