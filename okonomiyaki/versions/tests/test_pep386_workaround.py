@@ -274,11 +274,11 @@ class TestOldCases(unittest.TestCase):
 
     def test_dev_tag_without_number(self):
         # Given
-        r_version = PEP386WorkaroundVersion.from_string("1.0.0.dev1")
         version_string = "1.0.0.dev"
 
         # When
         version = PEP386WorkaroundVersion.from_string(version_string)
 
         # Then
-        self.assertEqual(version, r_version)
+        self.assertTrue(version.is_worked_around)
+        self.assertEqual(str(version), version_string)
