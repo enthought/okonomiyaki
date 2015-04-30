@@ -1,30 +1,6 @@
 from .pep386 import IrrationalVersionError, NormalizedVersion
 
 
-def normalize_version_string(version_string):
-    """
-    Normalize the given version string to a string that can be converted to
-    a NormalizedVersion.
-
-    This function applies various special cases needed for EPD/Canopy and not
-    handled in NormalizedVersion parser.
-
-    Parameters
-    ----------
-    version_string: str
-        The version to convert
-
-    Returns
-    -------
-    normalized_version: str
-        The normalized version string. Note that this is not guaranteed to be
-        convertible to a NormalizedVersion
-    """
-    if version_string.endswith(".dev"):
-        version_string += "1"
-    return version_string
-
-
 class PEP386WorkaroundVersion(object):
     """A version class that supports comparison, with an escape for
     versions not compatible with PEP386.
@@ -39,9 +15,7 @@ class PEP386WorkaroundVersion(object):
     @classmethod
     def from_string(cls, s):
         try:
-            normalized = normalize_version_string(s)
-            version = NormalizedVersion(normalized,
-                                        error_on_huge_major_num=False)
+            version = NormalizedVersion(s, error_on_huge_major_num=False)
             parts = version.parts
             return cls(parts)
         except IrrationalVersionError:
