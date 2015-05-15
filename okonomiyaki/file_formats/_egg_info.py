@@ -13,9 +13,10 @@ from okonomiyaki.bundled.traitlets import (
 from okonomiyaki.errors import (
     InvalidDependencyString, InvalidEggName, InvalidMetadata
 )
+from okonomiyaki.platforms import Platform
 from okonomiyaki.platforms.legacy import LegacyEPDPlatform
 from okonomiyaki.utils import parse_assignments
-from okonomiyaki.utils.traitlets import NoneOrUnicode
+from okonomiyaki.utils.traitlets import NoneOrInstance, NoneOrUnicode
 
 
 _EGG_NAME_RE = re.compile("""
@@ -267,6 +268,23 @@ def _get_default_python_tag(data, python):
 _METADATA_DEFAULT_VERSION = "1.2"
 
 
+def _platform_from_raw_spec(raw_spec):
+    """ Create a Platform instance from the metadata info returned by
+    parse_rawspec.
+
+    if no platform is defined ('platform' and 'osdist' set to None), then
+    None is returned.
+    """
+    arch_string = raw_spec[_TAG_ARCH]
+    platform_string = raw_spec[_TAG_PLATFORM]
+    osdist_string = raw_spec[_TAG_OSDIST]
+    if platform_string is None and osdist_string is None:
+        return None
+    else:
+        return Platform.from_spec_depend_data(platform_string,
+                                              osdist_string, arch_string)
+
+
 class LegacySpecDepend(HasTraits):
     """
     This models the EGG-INFO/spec/depend content.
@@ -299,19 +317,22 @@ class LegacySpecDepend(HasTraits):
     List of dependencies for this egg
     """
 
-    _epd_legacy_platform = Instance(LegacyEPDPlatform)
+    _epd_legacy_platform = NoneOrInstance(LegacyEPDPlatform)
 
     _metadata_version = Enum(["1.1", "1.2"], _METADATA_DEFAULT_VERSION)
 
     @classmethod
-    def from_data(cls, data, epd_platform_string, python=None,
-                  python_tag=None):
+    def _from_data(cls, data, platform=None, python=None,
+                   python_tag=None):
         args = data.copy()
         args[_TAG_METADATA_VERSION] = args.get(_TAG_METADATA_VERSION,
                                                _METADATA_DEFAULT_VERSION)
 
-        args["_epd_legacy_platform"] = \
-            LegacyEPDPlatform.from_epd_platform_string(epd_platform_string)
+        if platform is None:
+            _epd_legacy_platform = None
+        else:
+            _epd_legacy_platform = LegacyEPDPlatform(platform.epd_platform)
+        args["_epd_legacy_platform"] = _epd_legacy_platform
 
         args[_TAG_PYTHON] = python
         args[_TAG_PYTHON_TAG] = python_tag or _get_default_python_tag(args,
@@ -324,7 +345,7 @@ class LegacySpecDepend(HasTraits):
         return cls(**args)
 
     @classmethod
-    def from_egg(cls, egg, epd_platform):
+    def from_egg(cls, egg):
         name, version, build = split_egg_name(op.basename(egg))
         data = dict(name=name, version=version, build=build)
 
@@ -341,12 +362,14 @@ class LegacySpecDepend(HasTraits):
             data[_TAG_PACKAGES] = info_data[_TAG_PACKAGES]
             if _TAG_METADATA_VERSION in info_data:
                 data[_TAG_METADATA_VERSION] = info_data[_TAG_METADATA_VERSION]
+
+            platform = _platform_from_raw_spec(info_data)
         finally:
             fp.close()
-        return cls.from_data(data, epd_platform, python, python_tag)
+        return cls._from_data(data, platform, python, python_tag)
 
     @classmethod
-    def from_string(cls, spec_depend_string, epd_platform_string=None):
+    def from_string(cls, spec_depend_string):
         raw_data = parse_rawspec(spec_depend_string)
 
         data = {
@@ -361,35 +384,19 @@ class LegacySpecDepend(HasTraits):
         python = raw_data[_TAG_PYTHON]
         python_tag = _get_default_python_tag(raw_data, python)
 
-        arch, osdist = raw_data[_TAG_ARCH], raw_data[_TAG_OSDIST]
-        if epd_platform_string is not None:
-            epd_platform = \
-                LegacyEPDPlatform.from_epd_platform_string(epd_platform_string)
-            if arch is not None:
-                if not arch == epd_platform.arch:
-                    msg = "Arch mismatch: {0!r} found in spec/depend, but " \
-                          "{1!r} specified".format(arch, epd_platform.arch)
-                    raise InvalidMetadata(msg, _TAG_ARCH)
-            if osdist is not None:
-                if not osdist == epd_platform.osdist:
-                    msg = "Osdist mismatch: {0!r} found in spec/depend, but " \
-                          "{1!r} specified".format(osdist, epd_platform.osdist)
-                    raise InvalidMetadata(_TAG_OSDIST, msg)
-        else:
-            if osdist is None:
-                msg = "Cannot guess platform for egg with osdist = None"
-                raise InvalidMetadata(msg, _TAG_OSDIST)
+        platform = _platform_from_raw_spec(raw_data)
 
-            epd_platform = \
-                LegacyEPDPlatform.from_arch_and_osdist(arch, osdist)
-        return cls.from_data(data, epd_platform.short, python, python_tag)
+        return cls._from_data(data, platform, python, python_tag)
 
     @property
     def arch(self):
         """
         Egg architecture.
         """
-        return self._epd_legacy_platform.arch
+        if self._epd_legacy_platform is None: 
+            return None
+        else:
+            return self._epd_legacy_platform.arch
 
     @property
     def egg_name(self):
@@ -400,14 +407,20 @@ class LegacySpecDepend(HasTraits):
 
     @property
     def osdist(self):
-        return self._epd_legacy_platform.osdist
+        if self._epd_legacy_platform is None: 
+            return None
+        else:
+            return self._epd_legacy_platform.osdist
 
     @property
     def platform(self):
         """
         The legacy platform name (sys.platform).
         """
-        return self._epd_legacy_platform.platform
+        if self._epd_legacy_platform is None: 
+            return None
+        else:
+            return self._epd_legacy_platform.platform
 
     @property
     def metadata_version(self):
@@ -481,8 +494,8 @@ class LegacySpec(HasTraits):
     """
 
     @classmethod
-    def from_egg(cls, egg, epd_platform):
-        spec_depend = LegacySpecDepend.from_egg(egg, epd_platform)
+    def from_egg(cls, egg):
+        spec_depend = LegacySpecDepend.from_egg(egg)
 
         data = {"depend": spec_depend}
 

@@ -45,14 +45,7 @@ python = '2.7'
 packages = []
 """
 
-        data = dict(
-            name="Qt_debug",
-            metadata_version="1.1",
-            version="4.8.5",
-            build=2,
-            summary="Debug symbol files for Qt.",
-        )
-        depend = LegacySpecDepend.from_data(data, "rh5-32", "2.7")
+        depend = LegacySpecDepend.from_string(r_spec_depend)
         spec = LegacySpec(depend=depend)
 
         with EggBuilder(spec, cwd=self.d) as fp:
@@ -150,7 +143,7 @@ class TestLegacySpecDepend(unittest.TestCase):
         finally:
             zp.close()
 
-        spec_depend = LegacySpecDepend.from_egg(egg_path, "rh5-32")
+        spec_depend = LegacySpecDepend.from_egg(egg_path)
 
         self.maxDiff = 4096
         self.assertMultiLineEqual(spec_depend.to_string(), r_spec_depend)
@@ -196,33 +189,6 @@ packages = [
             LegacySpecDepend.from_string(r_depend)
         self.assertEqual(exc.exception.attribute, "python_tag")
 
-    def test_from_string_no_osdist_no_platform(self):
-        # Given
-        r_depend = """\
-metadata_version = '1.1'
-name = 'Qt_debug'
-version = '4.8.5'
-build = 2
-
-arch = 'x86'
-platform = None
-osdist = None
-python = '2.7'
-packages = [
-  'Qt 4.8.5',
-]
-"""
-        # When/Then
-        with self.assertRaises(InvalidMetadata):
-            LegacySpecDepend.from_string(r_depend)
-
-        # When
-        depend = LegacySpecDepend.from_string(r_depend, "win-32")
-
-        # Then
-        self.assertMultiLineEqual(depend.arch, "x86")
-        self.assertMultiLineEqual(depend.platform, "win32")
-
     def test_to_string(self):
         # Given
         r_depend = """\
@@ -238,11 +204,9 @@ python = None
 python_tag = None
 packages = []
 """
-        data = {"name": "Qt_debug", "version": "4.8.5", "build": 2,
-                "python": "", "packages": []}
 
         # When
-        depend = LegacySpecDepend.from_data(data, "rh5-32")
+        depend = LegacySpecDepend.from_string(r_depend)
 
         # Then
         self.assertMultiLineEqual(depend.to_string(), r_depend)
@@ -266,29 +230,28 @@ packages = [
 ]
 """
 
-        data = dict(
-            name="Qt_debug",
-            version="4.8.5",
-            build=2,
-            python="2.7",
-            packages=["Qt 4.8.5"],
-            summary="Debug symbol files for Qt.",
-        )
-        depend = LegacySpecDepend.from_data(data, "rh5-32", "2.7")
+        depend = LegacySpecDepend.from_string(r_depend)
         spec = LegacySpec(depend=depend)
 
         self.assertEqual(spec.depend_content(), r_depend)
 
     def test_windows_platform(self):
         """Test we handle None correctly in windows-specific metadata."""
-        data = dict(
-            name="Qt_debug",
-            version="4.8.5",
-            build=2,
-            python="2.7",
-            summary="Debug symbol files for Qt.",
-        )
-        depend = LegacySpecDepend.from_data(data, "win-32", "2.7")
+        r_depend = """\
+metadata_version = "1.1"
+name= "Qt_debug"
+version = "4.8.5"
+build = 2
+
+arch = 'x86'
+platform = 'win32'
+osdist = None
+
+python = "2.7"
+packages = [
+]
+"""
+        depend = LegacySpecDepend.from_string(r_depend)
         LegacySpec(depend=depend)
 
     def test_create_from_egg1(self):
@@ -310,7 +273,7 @@ packages = [
         finally:
             zp.close()
 
-        legacy = LegacySpec.from_egg(egg_path, "rh5-32")
+        legacy = LegacySpec.from_egg(egg_path)
 
         self.maxDiff = 4096
         self.assertMultiLineEqual(legacy.depend_content(), r_depend)

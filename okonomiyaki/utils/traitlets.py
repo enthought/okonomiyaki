@@ -1,4 +1,4 @@
-from okonomiyaki.bundled.traitlets import Unicode
+from okonomiyaki.bundled.traitlets import Instance, Unicode
 
 
 class NoneOrUnicode(Unicode):
@@ -10,3 +10,14 @@ class NoneOrUnicode(Unicode):
         if value is None:
             return None
         return super(NoneOrUnicode, self).validate(obj, value)
+
+
+class NoneOrInstance(Instance):
+
+    default_value = None
+    info_text = 'None or a instance'
+
+    def validate(self, obj, value):
+        if value is None:
+            return None
+        return super(NoneOrInstance, self).validate(obj, value)
