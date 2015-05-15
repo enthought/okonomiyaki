@@ -393,7 +393,7 @@ class LegacySpecDepend(HasTraits):
         """
         Egg architecture.
         """
-        if self._epd_legacy_platform is None: 
+        if self._epd_legacy_platform is None:
             return None
         else:
             return self._epd_legacy_platform.arch
@@ -407,7 +407,7 @@ class LegacySpecDepend(HasTraits):
 
     @property
     def osdist(self):
-        if self._epd_legacy_platform is None: 
+        if self._epd_legacy_platform is None:
             return None
         else:
             return self._epd_legacy_platform.osdist
@@ -417,7 +417,7 @@ class LegacySpecDepend(HasTraits):
         """
         The legacy platform name (sys.platform).
         """
-        if self._epd_legacy_platform is None: 
+        if self._epd_legacy_platform is None:
             return None
         else:
             return self._epd_legacy_platform.platform
