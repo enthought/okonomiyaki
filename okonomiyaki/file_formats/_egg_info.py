@@ -1,3 +1,4 @@
+import collections
 import json
 import posixpath
 import re
@@ -17,6 +18,7 @@ from okonomiyaki.platforms import Platform
 from okonomiyaki.platforms.legacy import LegacyEPDPlatform
 from okonomiyaki.utils import parse_assignments
 from okonomiyaki.utils.traitlets import NoneOrInstance, NoneOrUnicode
+from okonomiyaki.versions import EnpkgVersion
 
 
 _EGG_NAME_RE = re.compile("""
@@ -527,3 +529,119 @@ class LegacySpec(HasTraits):
         """
         # The added "" is for round-tripping with the current egg format
         return "\n".join(str(entry) for entry in self.lib_depend + [""])
+
+
+Dependencies = collections.namedtuple("Dependencies", ["build", "runtime"])
+
+_TAG_RE = re.compile("(?P<interpreter>(cp|pp|cpython))(?P<version>([\d_]+))")
+
+
+def _python_tag_to_python(python_tag):
+    # This converts only python version we currently intent to support in
+    # metadata version 1.x.
+    if python_tag is None:
+        return None
+
+    generic_msg = "Python tag {0!r} not understood".format(python_tag)
+
+    m = _TAG_RE.match(python_tag)
+    if m is None:
+        raise OkonomiyakiError(generic_msg)
+    else:
+        d = m.groupdict()
+        version = d["version"]
+        if len(version) == 1:
+            msg = "Version {0!r} not supported".format(msg)
+            raise OkonomiyakiError(msg)
+        elif len(version) == 2:
+            return "{0}.{1}".format(version[0], version[1])
+        else:
+            raise OkonomiyakiError(generic_msg)
+
+
+class EggMetadata(object):
+    """ Enthought egg metadata for format 1.x.
+    """
+    @classmethod
+    def from_egg(cls, path):
+        spec_depend = LegacySpecDepend.from_egg(path)
+        return cls._from_spec_depend(spec_depend)
+
+    @classmethod
+    def _from_spec_depend(cls, spec_depend):
+        raw_name = spec_depend.name
+
+        version = EnpkgVersion.from_upstream_and_build(spec_depend.version,
+                                                       spec_depend.build)
+
+        python_tag = spec_depend.python_tag
+
+        if spec_depend._epd_legacy_platform is None:
+            platform = None
+        else:
+            platform_string = str(spec_depend._epd_legacy_platform)
+            platform = Platform.from_epd_platform_string(platform_string)
+
+        dependencies = Dependencies(
+            (),
+            tuple(str(dep) for dep in spec_depend.packages)
+        )
+
+        metadata_version_info = tuple(
+            int(s) for s in spec_depend.metadata_version.split(".")
+        )
+
+        return cls(raw_name, version, platform, python_tag, dependencies,
+                   metadata_version_info)
+
+    def __init__(self, raw_name, version, platform, python_tag, dependencies,
+                 metadata_version_info=None):
+        """ EggMetadata instances encompass Enthought egg metadata.
+
+        Parameters
+        ----------
+        raw_name: str
+            The 'raw' name, i.e. the name value in spec/depend.
+        version: EnpkgVersion
+            The full version
+        platform: Platform
+            An okonomyaki platform instance, or None for cross-platform eggs
+        python_tag: str
+            The python tag, e.g. 'cp27'. May be None.
+        dependencies: Dependencies
+            A Dependencies instance.
+        """
+        self._raw_name = raw_name
+        self.version = version
+
+        self.platform = platform
+
+        self._python = _python_tag_to_python(python_tag)
+        self.python_tag = python_tag
+
+        self.runtime_dependencies = tuple(dependencies.runtime)
+
+        if metadata_version_info is None:
+            self.metadata_version_info = (1, 2)
+        else:
+            self.metadata_version_info = metadata_version_info
+
+    @property
+    def build(self):
+        return self.version.build
+
+    @property
+    def egg_name(self):
+        return egg_name(self._raw_name, str(self.version.upstream), self.build)
+
+    @property
+    def kind(self):
+        return "egg"
+
+    @property
+    def name(self):
+        return self._raw_name.lower().replace("-", "_")
+
+    @property
+    def upstream_version(self):
+        return str(self.version.upstream)

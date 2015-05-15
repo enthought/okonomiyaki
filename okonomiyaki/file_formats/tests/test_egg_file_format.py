@@ -1,3 +1,4 @@
+import os.path
 import shutil
 import sys
 import tempfile
@@ -13,7 +14,10 @@ import os.path as op
 from okonomiyaki.errors import InvalidEggName, InvalidMetadata
 from okonomiyaki.file_formats.egg import Dependency, EggBuilder, LegacySpec, \
     LegacySpecDepend, info_from_z, parse_rawspec, split_egg_name
+from okonomiyaki.file_formats._egg_info import EggMetadata
+from okonomiyaki.platforms import Platform
 from okonomiyaki.utils import ZipFile
+from okonomiyaki.versions import EnpkgVersion
 
 import okonomiyaki.repositories
 
@@ -21,6 +25,7 @@ DATA_DIR = op.join(op.dirname(okonomiyaki.repositories.__file__), "tests",
                    "data")
 
 ENSTALLER_EGG = op.join(DATA_DIR, "enstaller-4.5.0-1.egg")
+ETS_EGG = op.join(DATA_DIR, "ets-4.3.0-3.egg")
 
 
 class TestEggBuilder(unittest.TestCase):
@@ -491,3 +496,44 @@ class TestInfoFromZ(unittest.TestCase):
 
         with ZipFile(egg) as zp:
             info_from_z(zp)
+
+
+class TestEggInfo(unittest.TestCase):
+    def test_from_cross_platform_egg(self):
+        # Given
+        egg = ENSTALLER_EGG
+
+        # When
+        metadata = EggMetadata.from_egg(egg)
+
+        # Then
+        self.assertEqual(metadata.egg_name, os.path.basename(egg))
+        self.assertEqual(metadata.kind, "egg")
+        self.assertEqual(metadata.name, "enstaller")
+        self.assertEqual(metadata.version, EnpkgVersion.from_string("4.5.0-1"))
+        self.assertEqual(metadata.build, 1)
+        self.assertEqual(metadata.upstream_version, "4.5.0")
+        self.assertIsNone(metadata.python_tag)
+        self.assertEqual(metadata.metadata_version_info, (1, 1))
+
+    def test_from_platform_egg(self):
+        # Given
+        egg = ETS_EGG
+
+        # When
+        metadata = EggMetadata.from_egg(egg)
+
+        # Then
+        self.assertEqual(metadata.egg_name, os.path.basename(egg))
+        self.assertEqual(metadata.kind, "egg")
+        self.assertEqual(metadata.name, "ets")
+        self.assertEqual(
+            metadata.version, EnpkgVersion.from_string("4.3.0-3")
+        )
+        self.assertEqual(metadata.build, 3)
+        self.assertEqual(metadata.upstream_version, "4.3.0")
+        self.assertEqual(metadata.metadata_version_info, (1, 1))
+        self.assertEqual(metadata.python_tag, "cp27")
+        self.assertEqual(
+            metadata.platform, Platform.from_epd_platform_string("rh5-32")
+        )
