@@ -74,7 +74,6 @@ class TestEnpkgS3IndexEntry(unittest.TestCase):
     "md5": "efaf1e95fe51ffc7b07219668d4d5a29",
     "mtime": 1.0,
     "egg_basename": "numpy",
-    "osdist": null,
     "packages": [
       "MKL 10.3-1"
     ],
@@ -85,9 +84,6 @@ class TestEnpkgS3IndexEntry(unittest.TestCase):
 }
 """
         index_entry = EnpkgS3IndexEntry.from_data(json.loads(json_data))
-
-        # Test the value that may be null in the json
-        self.assertEqual(index_entry.osdist, "")
 
         self.assertEqual(index_entry.name, six.u("numpy"))
 
