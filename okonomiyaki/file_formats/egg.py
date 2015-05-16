@@ -8,7 +8,7 @@ from ..bundled.traitlets import HasTraits, Bool, Instance, Unicode
 
 # those imports are for backward compatibility
 from ._egg_info import (
-    Dependency, LegacySpecDepend, egg_name, info_from_z, is_egg_name_valid,
+    Dependency, LegacySpecDepend, egg_name, is_egg_name_valid,
     parse_rawspec, split_egg_name
 )  # flake8: noqa
 from ._egg_info import (

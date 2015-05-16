@@ -79,27 +79,6 @@ def split_egg_name(s):
         return name, version, int(build)
 
 
-# info_from_z and parse_rawspec are copied from egginst.eggmeta. Unlikely to
-# change soon hopefully.
-def info_from_z(z):
-    """
-    Create a 'spec-like' dictionary from an egg file object (i.e. a
-    ZipFile instance).
-    """
-    res = {"type": "egg"}
-
-    arcname = _SPEC_DEPEND_LOCATION
-    if arcname in z.namelist():
-        res.update(parse_rawspec(z.read(arcname).decode()))
-
-    arcname = _INFO_JSON_LOCATION
-    if arcname in z.namelist():
-        res.update(json.loads(z.read(arcname).decode()))
-
-    res['name'] = res['name'].lower().replace('-', '_')
-    return res
-
-
 def parse_rawspec(spec_string):
     spec = parse_assignments(six.StringIO(spec_string.replace('\r', '')))
 

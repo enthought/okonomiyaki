@@ -1,15 +1,12 @@
 """Traitlets-based models for enpkg-related metadata."""
 import json
 import os
-import zipfile
-
-import os.path as op
 
 from ..bundled.traitlets import (
     HasTraits, Bool, Enum, Float, Instance, List, Long, Unicode
 )
 from ..file_formats.egg import (
-    Dependency, egg_name, info_from_z, split_egg_name
+    Dependency, LegacySpecDepend, egg_name
 )
 from ..file_formats.setuptools_egg import parse_filename
 from ..utils import compute_md5
@@ -58,22 +55,21 @@ class EnpkgS3IndexEntry(HasTraits):
     def from_egg(cls, path, product=_PRODUCT_DEFAULT,
                  available=_AVAILABLE_DEFAULT):
         kw = {}
-        fp = zipfile.ZipFile(path)
-        try:
-            data = info_from_z(fp)
-            for k in ["build", "python", "type", "version"]:
-                kw[k] = data[k]
-            kw["packages"] = data.get("packages", [])
-            kw["product"] = product
-            kw["egg_basename"] = split_egg_name(op.basename(path))[0]
 
-            st = os.stat(path)
-            kw["mtime"] = st.st_mtime
-            kw["size"] = st.st_size
+        spec_depend = LegacySpecDepend.from_egg(path)
+        kw["version"] = spec_depend.version
+        kw["build"] = spec_depend.build
+        kw["python"] = spec_depend.python
+        kw["type"] = "egg"
+        kw["packages"] = tuple(str(p) for p in spec_depend.packages)
+        kw["product"] = product
+        kw["egg_basename"] = spec_depend.name
 
-            kw["available"] = available
-        finally:
-            fp.close()
+        st = os.stat(path)
+        kw["mtime"] = st.st_mtime
+        kw["size"] = st.st_size
+
+        kw["available"] = available
 
         # XXX: keep the hash computing *outside* any other file operation.
         # Opening the same file can cause some IO errors, even on Linux (seen

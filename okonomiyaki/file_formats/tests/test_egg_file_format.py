@@ -13,7 +13,7 @@ import os.path as op
 
 from okonomiyaki.errors import InvalidEggName, InvalidMetadata
 from okonomiyaki.file_formats.egg import Dependency, EggBuilder, LegacySpec, \
-    LegacySpecDepend, info_from_z, parse_rawspec, split_egg_name
+    LegacySpecDepend, parse_rawspec, split_egg_name
 from okonomiyaki.file_formats._egg_info import EggMetadata
 from okonomiyaki.platforms import Platform
 from okonomiyaki.utils import ZipFile
@@ -488,14 +488,6 @@ packages = [
         with self.assertRaises(InvalidMetadata) as exc:
             parse_rawspec(spec_s)
         self.assertEqual(exc.exception.attribute, "python_tag")
-
-
-class TestInfoFromZ(unittest.TestCase):
-    def test_with_info_json(self):
-        egg = ENSTALLER_EGG
-
-        with ZipFile(egg) as zp:
-            info_from_z(zp)
 
 
 class TestEggInfo(unittest.TestCase):
