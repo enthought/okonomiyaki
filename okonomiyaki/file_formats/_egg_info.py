@@ -324,21 +324,20 @@ class LegacySpecDepend(HasTraits):
     _metadata_version = Enum(["1.1", "1.2"], _METADATA_DEFAULT_VERSION)
 
     @classmethod
-    def _from_data(cls, data, platform=None, python=None,
-                   python_tag=None):
+    def _from_data(cls, data):
         args = data.copy()
         args[_TAG_METADATA_VERSION] = args.get(_TAG_METADATA_VERSION,
                                                _METADATA_DEFAULT_VERSION)
+
+        platform = _platform_from_raw_spec(args)
+        for k in (_TAG_ARCH, _TAG_PLATFORM, _TAG_OSDIST):
+            args.pop(k)
 
         if platform is None:
             _epd_legacy_platform = None
         else:
             _epd_legacy_platform = LegacyEPDPlatform(platform.epd_platform)
         args["_epd_legacy_platform"] = _epd_legacy_platform
-
-        args[_TAG_PYTHON] = python
-        args[_TAG_PYTHON_TAG] = python_tag or _get_default_python_tag(args,
-                                                                      python)
 
         args[_TAG_PACKAGES] = [
             Dependency.from_spec_string(s) for s in args.get(_TAG_PACKAGES, [])
@@ -348,43 +347,20 @@ class LegacySpecDepend(HasTraits):
 
     @classmethod
     def from_egg(cls, egg):
-        name, version, build = split_egg_name(op.basename(egg))
-        data = dict(name=name, version=version, build=build)
-
         with zipfile2.ZipFile(egg) as fp:
-            info_data = info_from_z(fp)
-
-            python = info_data.get(_TAG_PYTHON)
-            python_tag = _get_default_python_tag(data, python)
-
-            data[_TAG_PACKAGES] = info_data[_TAG_PACKAGES]
-            data[_TAG_METADATA_VERSION] = info_data.get(
-                _TAG_METADATA_VERSION, "1.1"
-            )
-
-            platform = _platform_from_raw_spec(info_data)
-
-        return cls._from_data(data, platform, python, python_tag)
+            try:
+                spec_depend_string = fp.read(_SPEC_DEPEND_LOCATION).decode()
+            except KeyError:
+                msg = ("File {0!r} is not an Enthought egg (is missing {1})"
+                       .format(egg, _SPEC_DEPEND_LOCATION))
+                raise InvalidEggFormat(msg)
+            else:
+                return cls.from_string(spec_depend_string)
 
     @classmethod
     def from_string(cls, spec_depend_string):
-        raw_data = parse_rawspec(spec_depend_string)
-
-        data = {
-            _TAG_NAME: raw_data[_TAG_NAME],
-            _TAG_VERSION: raw_data[_TAG_VERSION],
-            _TAG_BUILD: raw_data[_TAG_BUILD],
-            _TAG_PACKAGES: raw_data[_TAG_PACKAGES],
-        }
-
-        data[_TAG_METADATA_VERSION] = raw_data[_TAG_METADATA_VERSION]
-
-        python = raw_data[_TAG_PYTHON]
-        python_tag = _get_default_python_tag(raw_data, python)
-
-        platform = _platform_from_raw_spec(raw_data)
-
-        return cls._from_data(data, platform, python, python_tag)
+        data = _normalized_info_from_string(spec_depend_string)
+        return cls._from_data(_normalized_info_from_string(spec_depend_string))
 
     @property
     def arch(self):
@@ -427,6 +403,10 @@ class LegacySpecDepend(HasTraits):
     @metadata_version.setter
     def metadata_version(self, value):
         self._metadata_version = value
+
+    @property
+    def metadata_version_info(self):
+        return _metadata_version_to_tuple(self._metadata_version)
 
     def _to_dict(self):
         raw_data = {
@@ -552,6 +532,38 @@ def _python_tag_to_python(python_tag):
             raise OkonomiyakiError(generic_msg)
 
 
+def _metadata_version_to_tuple(metadata_version):
+    """ Convert a metadata version string to a tuple for comparison."""
+    return tuple(int(s) for s in metadata_version.split("."))
+
+
+def _normalized_info_from_string(spec_depend_string):
+    """ Return a 'normalized' dictionary from the given spec/depend string.
+
+    Note: the name value is NOT lower-cased, so that the egg filename may
+    rebuilt from the data.
+    """
+    raw_data = parse_rawspec(spec_depend_string)
+
+    data = {}
+    for k in (_TAG_METADATA_VERSION,
+              _TAG_NAME, _TAG_VERSION, _TAG_BUILD,
+              _TAG_ARCH, _TAG_OSDIST, _TAG_PLATFORM,
+              _TAG_PYTHON, _TAG_PACKAGES):
+        data[k] = raw_data[k]
+
+    metadata_version_info = _metadata_version_to_tuple(
+        data[_TAG_METADATA_VERSION]
+    )
+    if metadata_version_info[0] < (1, 2):
+        data[_TAG_PYTHON_TAG] = _get_default_python_tag(raw_data,
+                                                        raw_data[_TAG_PYTHON])
+    else:
+        data[_TAG_PYTHON_TAG] = raw_data[_TAG_PYTHON_TAG]
+
+    return data
+
+
 class EggMetadata(object):
     """ Enthought egg metadata for format 1.x.
     """
@@ -580,9 +592,7 @@ class EggMetadata(object):
             tuple(str(dep) for dep in spec_depend.packages)
         )
 
-        metadata_version_info = tuple(
-            int(s) for s in spec_depend.metadata_version.split(".")
-        )
+        metadata_version_info = spec_depend.metadata_version_info
 
         return cls(raw_name, version, platform, python_tag, dependencies,
                    metadata_version_info)
