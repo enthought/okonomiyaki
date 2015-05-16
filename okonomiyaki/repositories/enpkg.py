@@ -6,7 +6,7 @@ from ..bundled.traitlets import (
     HasTraits, Bool, Enum, Float, Instance, List, Long, Unicode
 )
 from ..file_formats.egg import (
-    Dependency, LegacySpecDepend, egg_name
+    Dependency, EggMetadata, egg_name
 )
 from ..file_formats.setuptools_egg import parse_filename
 from ..utils import compute_md5
@@ -56,14 +56,14 @@ class EnpkgS3IndexEntry(HasTraits):
                  available=_AVAILABLE_DEFAULT):
         kw = {}
 
-        spec_depend = LegacySpecDepend.from_egg(path)
-        kw["version"] = spec_depend.version
-        kw["build"] = spec_depend.build
-        kw["python"] = spec_depend.python
+        metadata = EggMetadata.from_egg(path)
+        kw["version"] = metadata.upstream_version
+        kw["build"] = metadata.build
+        kw["python"] = metadata._python
         kw["type"] = "egg"
-        kw["packages"] = tuple(str(p) for p in spec_depend.packages)
+        kw["packages"] = metadata.runtime_dependencies
         kw["product"] = product
-        kw["egg_basename"] = spec_depend.name
+        kw["egg_basename"] = metadata.egg_basename
 
         st = os.stat(path)
         kw["mtime"] = st.st_mtime

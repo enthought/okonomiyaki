@@ -613,6 +613,10 @@ class EggMetadata(object):
         return self.version.build
 
     @property
+    def egg_basename(self):
+        return self._raw_name
+
+    @property
     def egg_name(self):
         return egg_name(self._raw_name, str(self.version.upstream), self.build)
 

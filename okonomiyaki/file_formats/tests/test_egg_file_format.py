@@ -12,9 +12,11 @@ else:
 import os.path as op
 
 from okonomiyaki.errors import InvalidEggName, InvalidMetadata
-from okonomiyaki.file_formats.egg import Dependency, EggBuilder, LegacySpec, \
-    LegacySpecDepend, parse_rawspec, split_egg_name
-from okonomiyaki.file_formats._egg_info import EggMetadata
+from okonomiyaki.file_formats.egg import (
+    Dependency, EggBuilder, EggMetadata, LegacySpec, parse_rawspec,
+    split_egg_name
+)
+from okonomiyaki.file_formats._egg_info import LegacySpecDepend
 from okonomiyaki.platforms import Platform
 from okonomiyaki.utils import ZipFile
 from okonomiyaki.versions import EnpkgVersion
