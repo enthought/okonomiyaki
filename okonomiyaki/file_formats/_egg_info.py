@@ -2,7 +2,7 @@ import collections
 import json
 import posixpath
 import re
-import zipfile
+import zipfile2
 
 import os.path as op
 
@@ -351,23 +351,19 @@ class LegacySpecDepend(HasTraits):
         name, version, build = split_egg_name(op.basename(egg))
         data = dict(name=name, version=version, build=build)
 
-        fp = zipfile.ZipFile(egg)
-        try:
+        with zipfile2.ZipFile(egg) as fp:
             info_data = info_from_z(fp)
-            if _TAG_PYTHON in info_data:
-                python = info_data[_TAG_PYTHON]
-            else:
-                python = None
 
+            python = info_data.get(_TAG_PYTHON)
             python_tag = _get_default_python_tag(data, python)
 
             data[_TAG_PACKAGES] = info_data[_TAG_PACKAGES]
-            if _TAG_METADATA_VERSION in info_data:
-                data[_TAG_METADATA_VERSION] = info_data[_TAG_METADATA_VERSION]
+            data[_TAG_METADATA_VERSION] = info_data.get(
+                _TAG_METADATA_VERSION, "1.1"
+            )
 
             platform = _platform_from_raw_spec(info_data)
-        finally:
-            fp.close()
+
         return cls._from_data(data, platform, python, python_tag)
 
     @classmethod
@@ -501,15 +497,12 @@ class LegacySpec(HasTraits):
 
         data = {"depend": spec_depend}
 
-        fp = zipfile.ZipFile(egg)
-        try:
+        with zipfile2.ZipFile(egg) as fp:
             try:
                 lib_depend_data = fp.read(_SPEC_LIB_DEPEND_LOCATION).decode()
                 data["lib_depend"] = lib_depend_data.splitlines()
             except KeyError:
                 pass
-        finally:
-            fp.close()
 
         return cls(**data)
 
