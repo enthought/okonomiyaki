@@ -534,7 +534,7 @@ def _normalized_info_from_string(spec_depend_string):
     metadata_version_info = _metadata_version_to_tuple(
         data[_TAG_METADATA_VERSION]
     )
-    if metadata_version_info[0] < (1, 2):
+    if metadata_version_info[:2] < (1, 2):
         data[_TAG_PYTHON_TAG] = _get_default_python_tag(raw_data,
                                                         raw_data[_TAG_PYTHON])
     else:
