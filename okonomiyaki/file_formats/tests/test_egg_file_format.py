@@ -493,6 +493,23 @@ packages = [
 
 
 class TestEggInfo(unittest.TestCase):
+    def test_simple(self):
+        # Given
+        egg = ENSTALLER_EGG
+
+        # When
+        metadata = EggMetadata.from_egg(egg)
+
+        # Then
+        self.assertEqual(metadata.name, "enstaller")
+
+        # When
+        with zipfile.ZipFile(egg) as zp:
+            metadata = EggMetadata.from_egg(zp)
+
+        # Then
+        self.assertEqual(metadata.name, "enstaller")
+
     def test_from_cross_platform_egg(self):
         # Given
         egg = ENSTALLER_EGG

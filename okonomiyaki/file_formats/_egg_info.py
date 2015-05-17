@@ -547,12 +547,25 @@ class EggMetadata(object):
     """ Enthought egg metadata for format 1.x.
     """
     @classmethod
-    def from_egg(cls, path):
-        spec_depend = LegacySpecDepend.from_egg(path)
+    def from_egg(cls, path_or_file):
+        """ Create a EggMetadata instance from an existing Enthought egg.
+
+        Parameters
+        ----------
+        path: str or file-like object.
+            If a string, understood as the path to the egg. Otherwise,
+            understood as a zipfile-like object.
+        """
+        if isinstance(path_or_file, six.string_types):
+            spec_depend = LegacySpecDepend.from_egg(path_or_file)
+        else:
+            spec_depend_string = (path_or_file.read(_SPEC_DEPEND_LOCATION)
+                                  .decode())
+            spec_depend = LegacySpecDepend.from_string(spec_depend_string)
         return cls._from_spec_depend(spec_depend)
 
     @classmethod
-    def _from_spec_depend(cls, spec_depend):
+    def _from_spec_depend(cls, spec_depend, metadata_version_info=None):
         raw_name = spec_depend.name
 
         version = EnpkgVersion.from_upstream_and_build(spec_depend.version,
@@ -571,7 +584,9 @@ class EggMetadata(object):
             tuple(str(dep) for dep in spec_depend.packages)
         )
 
-        metadata_version_info = spec_depend.metadata_version_info
+        metadata_version_info = (
+            metadata_version_info or spec_depend.metadata_version_info
+        )
 
         return cls(raw_name, version, platform, python_tag, dependencies,
                    metadata_version_info)
@@ -604,7 +619,7 @@ class EggMetadata(object):
         self.runtime_dependencies = tuple(dependencies.runtime)
 
         if metadata_version_info is None:
-            self.metadata_version_info = (1, 2)
+            self.metadata_version_info = _METADATA_DEFAULT_VERSION
         else:
             self.metadata_version_info = metadata_version_info
 
@@ -627,6 +642,41 @@ class EggMetadata(object):
     @property
     def name(self):
         return self._raw_name.lower().replace("-", "_")
+
+    @property
+    def to_spec_depend_string(self, metadata_version_info=None):
+        """ Returns the spec/depend data as a string.
+
+        Parameters
+        ----------
+        metadata_version_info: tuple
+            The metadata version to use for the spec/depend format. If not
+            specified, use the instance metadata version.
+        """
+        metadata_version_info = (
+            metadata_version_info or self.metadata_version_info
+        )
+
+        _epd_legacy_platform = (
+            self.platform or LegacyEPDPlatform(self.platform.epd_platform)
+        )
+
+        args = {
+            "name": self._raw_name,
+            "version": self.upstream_version,
+            "build": self.build,
+            "python": self._python,
+            "python_tag": self.python_tag,
+            "dependencies": [
+                Dependency.from_spec_string(dep)
+                for dep in self.runtime_dependencies
+            ],
+            "_epd_legacy_platform": _epd_legacy_platform,
+            "_metadata_version": ".".join(
+                str(i) for i in self.metadata_version_info
+            ),
+        }
+        return LegacySpecDepend(**args).to_string()
 
     @property
     def upstream_version(self):
