@@ -2,6 +2,7 @@ import os.path
 import shutil
 import sys
 import tempfile
+import textwrap
 import zipfile2
 
 if sys.version_info[:2] < (2, 7):
@@ -537,4 +538,46 @@ class TestEggInfo(unittest.TestCase):
         self.assertEqual(metadata.python_tag, "cp27")
         self.assertEqual(
             metadata.platform, Platform.from_epd_platform_string("rh5-32")
+        )
+
+    def test_to_spec_string(self):
+        # Given
+        egg = ETS_EGG
+        r_spec_depend_string = textwrap.dedent("""\
+        metadata_version = '1.1'
+        name = 'ets'
+        version = '4.3.0'
+        build = 3
+
+        arch = 'x86'
+        platform = 'linux2'
+        osdist = 'RedHat_5'
+        python = '2.7'
+        packages = [
+          'apptools 4.2.0-2',
+          'blockcanvas 4.0.3-1',
+          'casuarius 1.1-1',
+          'chaco 4.3.0-2',
+          'codetools 4.1.0-2',
+          'enable 4.3.0-5',
+          'enaml 0.6.8-2',
+          'encore 0.3-1',
+          'envisage 4.3.0-2',
+          'etsdevtools 4.0.2-1',
+          'etsproxy 0.1.2-1',
+          'graphcanvas 4.0.2-1',
+          'mayavi 4.3.0-3',
+          'pyface 4.3.0-2',
+          'scimath 4.1.2-2',
+          'traits 4.3.0-2',
+          'traitsui 4.3.0-2',
+        ]
+        """)
+
+        # When
+        metadata = EggMetadata.from_egg(egg)
+
+        # Then
+        self.assertMultiLineEqual(
+            metadata.spec_depend_string, r_spec_depend_string
         )

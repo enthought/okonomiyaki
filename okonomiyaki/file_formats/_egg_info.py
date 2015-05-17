@@ -640,22 +640,11 @@ class EggMetadata(object):
         return self._raw_name.lower().replace("-", "_")
 
     @property
-    def to_spec_depend_string(self, metadata_version_info=None):
-        """ Returns the spec/depend data as a string.
-
-        Parameters
-        ----------
-        metadata_version_info: tuple
-            The metadata version to use for the spec/depend format. If not
-            specified, use the instance metadata version.
-        """
-        metadata_version_info = (
-            metadata_version_info or self.metadata_version_info
-        )
-
-        _epd_legacy_platform = (
-            self.platform or LegacyEPDPlatform(self.platform.epd_platform)
-        )
+    def spec_depend_string(self):
+        if self.platform is None:
+            _epd_legacy_platform = None
+        else:
+            _epd_legacy_platform = LegacyEPDPlatform(self.platform.epd_platform)
 
         args = {
             "name": self._raw_name,
@@ -663,7 +652,7 @@ class EggMetadata(object):
             "build": self.build,
             "python": self._python,
             "python_tag": self.python_tag,
-            "dependencies": [
+            "packages": [
                 Dependency.from_spec_string(dep)
                 for dep in self.runtime_dependencies
             ],
