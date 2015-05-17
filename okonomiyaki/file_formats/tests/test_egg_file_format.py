@@ -18,7 +18,6 @@ from okonomiyaki.file_formats.egg import (
 )
 from okonomiyaki.file_formats._egg_info import LegacySpecDepend
 from okonomiyaki.platforms import Platform
-from okonomiyaki.utils import ZipFile
 from okonomiyaki.versions import EnpkgVersion
 
 import okonomiyaki.repositories

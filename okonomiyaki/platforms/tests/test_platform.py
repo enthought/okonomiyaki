@@ -415,19 +415,19 @@ class TestPlatform(unittest.TestCase):
         # Given
         examples = (
             (("linux2", None, "x86"),
-              Platform.from_epd_platform_string("rh5-32"),),
+             Platform.from_epd_platform_string("rh5-32"),),
             (("linux2", "RedHat_5", "x86"),
-              Platform.from_epd_platform_string("rh5-32"),),
+             Platform.from_epd_platform_string("rh5-32"),),
             (("linux2", "RedHat_5", "amd64"),
-              Platform.from_epd_platform_string("rh5-64"),),
+             Platform.from_epd_platform_string("rh5-64"),),
             (("darwin", None, "x86"),
-              Platform.from_epd_platform_string("osx-32"),),
+             Platform.from_epd_platform_string("osx-32"),),
             (("darwin", None, "amd64"),
-              Platform.from_epd_platform_string("osx-64"),),
+             Platform.from_epd_platform_string("osx-64"),),
             (("win32", None, "x86"),
-              Platform.from_epd_platform_string("win-32"),),
+             Platform.from_epd_platform_string("win-32"),),
             (("win32", None, "amd64"),
-              Platform.from_epd_platform_string("win-64"),),
+             Platform.from_epd_platform_string("win-64"),),
         )
 
         # When/Then

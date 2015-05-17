@@ -1,10 +1,7 @@
 import collections
-import json
 import posixpath
 import re
 import zipfile2
-
-import os.path as op
 
 import six
 
@@ -332,13 +329,12 @@ class LegacySpecDepend(HasTraits):
             except KeyError:
                 msg = ("File {0!r} is not an Enthought egg (is missing {1})"
                        .format(egg, _SPEC_DEPEND_LOCATION))
-                raise InvalidEggFormat(msg)
+                raise InvalidMetadata(msg)
             else:
                 return cls.from_string(spec_depend_string)
 
     @classmethod
     def from_string(cls, spec_depend_string):
-        data = _normalized_info_from_string(spec_depend_string)
         return cls._from_data(_normalized_info_from_string(spec_depend_string))
 
     @property
@@ -498,17 +494,17 @@ def _python_tag_to_python(python_tag):
 
     m = _TAG_RE.match(python_tag)
     if m is None:
-        raise OkonomiyakiError(generic_msg)
+        raise InvalidMetadata(generic_msg)
     else:
         d = m.groupdict()
         version = d["version"]
         if len(version) == 1:
-            msg = "Version {0!r} not supported".format(msg)
-            raise OkonomiyakiError(msg)
+            msg = "Version {0!r} not supported".format(version)
+            raise InvalidMetadata(msg)
         elif len(version) == 2:
             return "{0}.{1}".format(version[0], version[1])
         else:
-            raise OkonomiyakiError(generic_msg)
+            raise InvalidMetadata(generic_msg)
 
 
 def _metadata_version_to_tuple(metadata_version):
