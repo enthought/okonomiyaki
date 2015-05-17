@@ -2,7 +2,7 @@ import os.path
 import shutil
 import sys
 import tempfile
-import zipfile
+import zipfile2
 
 if sys.version_info[:2] < (2, 7):
     import unittest2 as unittest
@@ -61,13 +61,10 @@ packages = []
         egg_path = op.join(self.d, "Qt_debug-4.8.5-2.egg")
         self.assertTrue(op.exists(egg_path))
 
-        fp = zipfile.ZipFile(egg_path, "r")
-        try:
+        with zipfile2.ZipFile(egg_path, "r") as fp:
             self.assertEqual(fp.namelist(), r_files)
             self.assertMultiLineEqual(fp.read("EGG-INFO/spec/depend").decode(),
                                       r_spec_depend)
-        finally:
-            fp.close()
 
 
 class TestDependency(unittest.TestCase):
@@ -144,11 +141,8 @@ class TestLegacySpecDepend(unittest.TestCase):
         self._test_create_from_egg(egg)
 
     def _test_create_from_egg(self, egg_path):
-        zp = zipfile.ZipFile(egg_path, "r")
-        try:
+        with zipfile2.ZipFile(egg_path, "r") as zp:
             r_spec_depend = zp.read("EGG-INFO/spec/depend").decode()
-        finally:
-            zp.close()
 
         spec_depend = LegacySpecDepend.from_egg(egg_path)
 
@@ -270,15 +264,12 @@ packages = [
         self._test_create_from_egg(egg)
 
     def _test_create_from_egg(self, egg_path):
-        zp = zipfile.ZipFile(egg_path, "r")
-        try:
+        with zipfile2.ZipFile(egg_path, "r") as zp:
             r_depend = zp.read("EGG-INFO/spec/depend").decode()
             try:
                 r_lib_depend = zp.read("EGG-INFO/spec/lib-depend").decode()
             except KeyError:
                 r_lib_depend = ""
-        finally:
-            zp.close()
 
         legacy = LegacySpec.from_egg(egg_path)
 
@@ -504,7 +495,7 @@ class TestEggInfo(unittest.TestCase):
         self.assertEqual(metadata.name, "enstaller")
 
         # When
-        with zipfile.ZipFile(egg) as zp:
+        with zipfile2.ZipFile(egg) as zp:
             metadata = EggMetadata.from_egg(zp)
 
         # Then
