@@ -5,17 +5,17 @@ import zipfile2
 
 import six
 
-from okonomiyaki.bundled.traitlets import (
+from ..bundled.traitlets import (
     HasTraits, Enum, Instance, List, Long, Unicode
 )
-from okonomiyaki.errors import (
+from ..errors import (
     InvalidDependencyString, InvalidEggName, InvalidMetadata
 )
-from okonomiyaki.platforms import Platform
-from okonomiyaki.platforms.legacy import LegacyEPDPlatform
-from okonomiyaki.utils import parse_assignments
-from okonomiyaki.utils.traitlets import NoneOrInstance, NoneOrUnicode
-from okonomiyaki.versions import EnpkgVersion
+from ..platforms import Platform
+from ..platforms.legacy import LegacyEPDPlatform
+from ..utils import parse_assignments
+from ..utils.traitlets import NoneOrInstance, NoneOrUnicode
+from ..versions import EnpkgVersion
 
 
 _EGG_NAME_RE = re.compile("""
@@ -644,7 +644,8 @@ class EggMetadata(object):
         if self.platform is None:
             _epd_legacy_platform = None
         else:
-            _epd_legacy_platform = LegacyEPDPlatform(self.platform.epd_platform)
+            epd_platform = self.platform.epd_platform
+            _epd_legacy_platform = LegacyEPDPlatform(epd_platform)
 
         args = {
             "name": self._raw_name,

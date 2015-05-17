@@ -1,6 +1,6 @@
 import unittest
 
-from okonomiyaki.errors import OkonomiyakiError
+from ...errors import OkonomiyakiError
 from ..platform import Arch, Platform
 from ..platform import DARWIN, LINUX, MAC_OS_X, RHEL, WINDOWS, X86, X86_64
 

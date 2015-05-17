@@ -1,15 +1,15 @@
 import mock
 import unittest
 
-from okonomiyaki.errors import OkonomiyakiError
+from ...errors import OkonomiyakiError
 
-from okonomiyaki.platforms import EPDPlatform
-from okonomiyaki.platforms.epd_platform import (_guess_architecture,
-                                                _guess_epd_platform,
-                                                EPD_PLATFORM_SHORT_NAMES,
-                                                applies)
-from okonomiyaki.platforms.legacy import _SUBDIR
-from okonomiyaki.platforms.platform import X86, X86_64
+from .. import EPDPlatform
+from ..epd_platform import (
+    _guess_architecture, _guess_epd_platform, EPD_PLATFORM_SHORT_NAMES,
+    applies
+)
+from ..legacy import _SUBDIR
+from ..platform import X86, X86_64
 
 from .common import (mock_architecture_32bit, mock_architecture_64bit,
                      mock_centos_3_5, mock_centos_5_8, mock_centos_6_3,

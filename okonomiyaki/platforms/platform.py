@@ -3,12 +3,10 @@ from __future__ import absolute_import
 import platform
 import sys
 
-from okonomiyaki.platforms import epd_platform
+from . import epd_platform
 
-from okonomiyaki.bundled.traitlets import HasTraits, Enum, Instance, Unicode
-from okonomiyaki.platforms.epd_platform import EPDPlatform
-from okonomiyaki.errors import OkonomiyakiError
-
+from ..bundled.traitlets import HasTraits, Enum, Instance, Unicode
+from ..errors import OkonomiyakiError
 
 X86 = "x86"
 X86_64 = "x86_64"
@@ -267,7 +265,9 @@ class Platform(HasTraits):
 
     @property
     def epd_platform(self):
-        return EPDPlatform.from_epd_string(self._epd_platform_string)
+        return epd_platform.EPDPlatform.from_epd_string(
+            self._epd_platform_string
+        )
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):

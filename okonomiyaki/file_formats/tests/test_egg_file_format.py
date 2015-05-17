@@ -12,19 +12,18 @@ else:
 
 import os.path as op
 
-from okonomiyaki.errors import InvalidEggName, InvalidMetadata
-from okonomiyaki.file_formats.egg import (
+from ...errors import InvalidEggName, InvalidMetadata
+from ..egg import (
     Dependency, EggBuilder, EggMetadata, LegacySpec, parse_rawspec,
     split_egg_name
 )
-from okonomiyaki.file_formats._egg_info import LegacySpecDepend
-from okonomiyaki.platforms import Platform
-from okonomiyaki.versions import EnpkgVersion
+from .._egg_info import LegacySpecDepend
+from ...platforms import Platform
+from ...versions import EnpkgVersion
 
-import okonomiyaki.repositories
+from ... import repositories
 
-DATA_DIR = op.join(op.dirname(okonomiyaki.repositories.__file__), "tests",
-                   "data")
+DATA_DIR = op.join(op.dirname(repositories.__file__), "tests", "data")
 
 ENSTALLER_EGG = op.join(DATA_DIR, "enstaller-4.5.0-1.egg")
 ETS_EGG = op.join(DATA_DIR, "ets-4.3.0-3.egg")

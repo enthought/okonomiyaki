@@ -1,6 +1,6 @@
 import mock
 
-from okonomiyaki.utils.testing import MultiPatcher, Patcher
+from ...utils.testing import MultiPatcher, Patcher
 
 
 # OS mocking

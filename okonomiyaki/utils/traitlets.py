@@ -1,4 +1,4 @@
-from okonomiyaki.bundled.traitlets import Instance, Unicode
+from ..bundled.traitlets import Instance, Unicode
 
 
 class NoneOrUnicode(Unicode):
