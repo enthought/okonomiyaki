@@ -499,6 +499,7 @@ class TestEggInfo(unittest.TestCase):
 
         # Then
         self.assertEqual(metadata.name, "enstaller")
+        self.assertEqual(metadata.metadata_version_info, (1, 1))
 
     def test_from_cross_platform_egg(self):
         # Given

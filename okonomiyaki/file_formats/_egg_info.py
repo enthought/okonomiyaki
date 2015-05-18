@@ -615,7 +615,9 @@ class EggMetadata(object):
         self.runtime_dependencies = tuple(dependencies.runtime)
 
         if metadata_version_info is None:
-            self.metadata_version_info = _METADATA_DEFAULT_VERSION
+            self.metadata_version_info = _metadata_version_to_tuple(
+                _METADATA_DEFAULT_VERSION
+            )
         else:
             self.metadata_version_info = metadata_version_info
 
