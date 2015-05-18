@@ -582,3 +582,10 @@ class TestEggInfo(unittest.TestCase):
             metadata.spec_depend_string, r_spec_depend_string
         )
         self.assertEqual(metadata.pkg_info.name, "ets")
+        self.assertEqual(
+            metadata.pkg_info.summary, "Enthought Tool Suite meta-project"
+        )
+        self.assertEqual(
+            metadata.summary,
+            "components to construct custom scientific applications\n"
+        )

@@ -553,18 +553,33 @@ class EggMetadata(object):
             If a string, understood as the path to the egg. Otherwise,
             understood as a zipfile-like object.
         """
+        def _read_summary(fp):
+            summary_arcname = "EGG-INFO/spec/summary"
+            try:
+                summary = fp.read(summary_arcname)
+            except KeyError:
+                # the summary file may not exist for eggs built with
+                # endist/repack
+                summary = ""
+            return summary
+
         if isinstance(path_or_file, six.string_types):
             spec_depend = LegacySpecDepend.from_egg(path_or_file)
+            with zipfile2.ZipFile(path_or_file) as fp:
+                summary = _read_summary(fp)
         else:
             spec_depend_string = (path_or_file.read(_SPEC_DEPEND_LOCATION)
                                   .decode())
             spec_depend = LegacySpecDepend.from_string(spec_depend_string)
+            summary = _read_summary(path_or_file)
+
         pkg_info = PackageInfo.from_egg(path_or_file)
-        return cls._from_spec_depend(spec_depend, pkg_info)
+
+        return cls._from_spec_depend(spec_depend, pkg_info, summary)
 
     @classmethod
-    def _from_spec_depend(cls, spec_depend, pkg_info,
-            metadata_version_info=None):
+    def _from_spec_depend(cls, spec_depend, pkg_info, summary,
+                          metadata_version_info=None):
         raw_name = spec_depend.name
 
         version = EnpkgVersion.from_upstream_and_build(spec_depend.version,
@@ -588,10 +603,10 @@ class EggMetadata(object):
         )
 
         return cls(raw_name, version, platform, python_tag, dependencies,
-                   pkg_info, metadata_version_info)
+                   pkg_info, summary, metadata_version_info)
 
     def __init__(self, raw_name, version, platform, python_tag, dependencies,
-                 pkg_info, metadata_version_info=None):
+                 pkg_info, summary, metadata_version_info=None):
         """ EggMetadata instances encompass Enthought egg metadata.
 
         Parameters
@@ -606,8 +621,11 @@ class EggMetadata(object):
             The python tag, e.g. 'cp27'. May be None.
         dependencies: Dependencies
             A Dependencies instance.
-        pkg_info: PackageInfo
-
+        pkg_info: PackageInfo or None
+            Instance modeling the PKG-INFO content of the egg.
+        summary: str
+            The summary. Models the string in EGG-INFO/spec/summary. May
+            be empty.
         """
         self._raw_name = raw_name
         self.version = version
@@ -627,6 +645,7 @@ class EggMetadata(object):
             self.metadata_version_info = metadata_version_info
 
         self.pkg_info = pkg_info
+        self.summary = summary
 
     @property
     def build(self):
