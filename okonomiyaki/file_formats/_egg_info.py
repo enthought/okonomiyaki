@@ -482,7 +482,10 @@ class LegacySpec(HasTraits):
 
 Dependencies = collections.namedtuple("Dependencies", ["build", "runtime"])
 
-_TAG_RE = re.compile("(?P<interpreter>(cp|pp|cpython))(?P<version>([\d_]+))")
+_TAG_RE = re.compile("""
+    (?P<interpreter>(cp|pp|cpython|py))
+    (?P<version>([\d_]+))
+""", flags=re.VERBOSE)
 
 
 def _python_tag_to_python(python_tag):
