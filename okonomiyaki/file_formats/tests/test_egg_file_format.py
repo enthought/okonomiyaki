@@ -581,3 +581,4 @@ class TestEggInfo(unittest.TestCase):
         self.assertMultiLineEqual(
             metadata.spec_depend_string, r_spec_depend_string
         )
+        self.assertEqual(metadata.pkg_info.name, "ets")

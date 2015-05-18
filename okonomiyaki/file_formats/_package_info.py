@@ -59,7 +59,7 @@ class PackageInfo(object):
             with zipfile2.ZipFile(path_or_file) as fp:
                 data = fp.read(pkg_info_path)
         else:
-            data = fp.read(pkg_info_path)
+            data = path_or_file.read(pkg_info_path)
         return cls.from_string(data.decode())
 
     @classmethod

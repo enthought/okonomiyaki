@@ -16,6 +16,7 @@ from ..platforms.legacy import LegacyEPDPlatform
 from ..utils import parse_assignments
 from ..utils.traitlets import NoneOrInstance, NoneOrUnicode
 from ..versions import EnpkgVersion
+from ._package_info import PackageInfo
 
 
 _EGG_NAME_RE = re.compile("""
@@ -558,10 +559,12 @@ class EggMetadata(object):
             spec_depend_string = (path_or_file.read(_SPEC_DEPEND_LOCATION)
                                   .decode())
             spec_depend = LegacySpecDepend.from_string(spec_depend_string)
-        return cls._from_spec_depend(spec_depend)
+        pkg_info = PackageInfo.from_egg(path_or_file)
+        return cls._from_spec_depend(spec_depend, pkg_info)
 
     @classmethod
-    def _from_spec_depend(cls, spec_depend, metadata_version_info=None):
+    def _from_spec_depend(cls, spec_depend, pkg_info,
+            metadata_version_info=None):
         raw_name = spec_depend.name
 
         version = EnpkgVersion.from_upstream_and_build(spec_depend.version,
@@ -585,10 +588,10 @@ class EggMetadata(object):
         )
 
         return cls(raw_name, version, platform, python_tag, dependencies,
-                   metadata_version_info)
+                   pkg_info, metadata_version_info)
 
     def __init__(self, raw_name, version, platform, python_tag, dependencies,
-                 metadata_version_info=None):
+                 pkg_info, metadata_version_info=None):
         """ EggMetadata instances encompass Enthought egg metadata.
 
         Parameters
@@ -603,6 +606,8 @@ class EggMetadata(object):
             The python tag, e.g. 'cp27'. May be None.
         dependencies: Dependencies
             A Dependencies instance.
+        pkg_info: PackageInfo
+
         """
         self._raw_name = raw_name
         self.version = version
@@ -620,6 +625,8 @@ class EggMetadata(object):
             )
         else:
             self.metadata_version_info = metadata_version_info
+
+        self.pkg_info = pkg_info
 
     @property
     def build(self):
