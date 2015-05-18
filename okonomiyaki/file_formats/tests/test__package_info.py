@@ -11,11 +11,13 @@ else:
 from okonomiyaki import repositories
 
 
-DATA_DIR = os.path.join(os.path.dirname(repositories.__file__), "tests", "data")
+DATA_DIR = os.path.join(os.path.dirname(repositories.__file__), "tests",
+                        "data")
 
 ENSTALLER_EGG = os.path.join(DATA_DIR, "enstaller-4.5.0-1.egg")
 PIP_EGG = os.path.join(DATA_DIR, "pip-6.0.8-1.egg")
 
+# flake8: noqa
 PKG_INFO_ENSTALLER_1_0 = """\
 Metadata-Version: 1.0
 Name: enstaller

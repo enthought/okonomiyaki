@@ -11,7 +11,7 @@ import zipfile2
 from six.moves import StringIO
 
 
-HEADER_ATTRS_1_0 = ( # PEP 241
+HEADER_ATTRS_1_0 = (  # PEP 241
     ('Metadata-Version', 'metadata_version', False),
     ('Name', 'name', False),
     ('Version', 'version', False),
@@ -26,7 +26,7 @@ HEADER_ATTRS_1_0 = ( # PEP 241
     ('License', 'license', False),
 )
 
-HEADER_ATTRS_1_1 = HEADER_ATTRS_1_0 + ( # PEP 314
+HEADER_ATTRS_1_1 = HEADER_ATTRS_1_0 + (  # PEP 314
     ('Classifier', 'classifiers', True),
     ('Download-URL', 'download_url', False),
     ('Requires', 'requires', True),
@@ -94,10 +94,10 @@ class PackageInfo(object):
         return cls(metadata_version, name, version, **kw)
 
     def __init__(self, metadata_version, name, version, platforms=None,
-            supported_platforms=None, summary="", description="",
-            keywords="", home_page="", download_url="", author="",
-            author_email="", license="", classifiers=None,
-            requires=None, provides=None, obsoletes=None):
+                 supported_platforms=None, summary="", description="",
+                 keywords="", home_page="", download_url="", author="",
+                 author_email="", license="", classifiers=None,
+                 requires=None, provides=None, obsoletes=None):
         self.metadata_version = metadata_version
 
         # version 1.0
@@ -129,13 +129,14 @@ def _parse(fp):
     return Parser().parse(fp)
 
 
-def _must_decode(value):     #pragma NO COVER
+def _must_decode(value):  # pragma NO COVER
     if type(value) is bytes:
         try:
             return value.decode('utf-8')
         except UnicodeDecodeError:
             return value.decode('latin1')
     return value
+
 
 def _get(msg, header):
     return _collapse_leading_ws(header, msg.get(header))
