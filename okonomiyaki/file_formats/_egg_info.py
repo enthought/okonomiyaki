@@ -560,8 +560,8 @@ class EggMetadata(object):
             except KeyError:
                 # the summary file may not exist for eggs built with
                 # endist/repack
-                summary = ""
-            return summary
+                summary = b""
+            return summary.decode()
 
         if isinstance(path_or_file, six.string_types):
             spec_depend = LegacySpecDepend.from_egg(path_or_file)
