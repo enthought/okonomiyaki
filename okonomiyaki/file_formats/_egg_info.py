@@ -657,7 +657,7 @@ class EggMetadata(object):
 
     @property
     def egg_name(self):
-        return egg_name(self._raw_name, str(self.version.upstream), self.build)
+        return self._spec_depend.egg_name
 
     @property
     def kind(self):
@@ -669,6 +669,14 @@ class EggMetadata(object):
 
     @property
     def spec_depend_string(self):
+        return self._spec_depend.to_string()
+
+    @property
+    def upstream_version(self):
+        return str(self.version.upstream)
+
+    @property
+    def _spec_depend(self):
         if self.platform is None:
             _epd_legacy_platform = None
         else:
@@ -690,8 +698,5 @@ class EggMetadata(object):
                 str(i) for i in self.metadata_version_info
             ),
         }
-        return LegacySpecDepend(**args).to_string()
+        return LegacySpecDepend(**args)
 
-    @property
-    def upstream_version(self):
-        return str(self.version.upstream)
