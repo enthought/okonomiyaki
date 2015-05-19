@@ -3,8 +3,6 @@ Most of the code below is adapted from pkg-info 1.2.1
 
 We support only 1.0 and 1.1, as 1.2 does not seem to be used anywhere ?
 """
-import string
-
 from email.parser import Parser
 
 import six
@@ -164,19 +162,12 @@ class PackageInfo(object):
         return s.getvalue()
 
     def _write_field(self, s, name, value):
-        s.write(b'%s: %s\n' % (name, self._encode_field(value)))
+        value = '%s: %s\n' % (name, value)
+        s.write(value)
 
     def _write_list (self, s, name, values):
         for value in values:
             self._write_field(s, name, value)
-
-    def _encode_field(self, value):
-        if value is None:
-            return None
-        if isinstance(value, unicode):
-            return value.encode(PKG_INFO_ENCODING)
-        return str(value)
-
 
 
 def _get_header_attributes(metadata_version):
@@ -223,6 +214,6 @@ def _rfc822_escape (header):
     """Return a version of the string escaped for inclusion in an
     RFC-822 header, by ensuring there are 8 spaces space after each newline.
     """
-    lines = string.split(header, '\n')
-    header = string.join(lines, '\n' + 8*' ')
+    lines = header.split('\n')
+    header = ('\n' + 8*' ').join(lines)
     return header

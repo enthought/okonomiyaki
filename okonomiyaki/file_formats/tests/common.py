@@ -2,7 +2,8 @@ import os.path
 
 from ... import repositories
 
-DATA_DIR = os.path.join(os.path.dirname(repositories.__file__), "tests", "data")
+DATA_DIR = os.path.join(os.path.dirname(repositories.__file__),
+                        "tests", "data")
 
 ENSTALLER_EGG = os.path.join(DATA_DIR, "enstaller-4.5.0-1.egg")
 ETS_EGG = os.path.join(DATA_DIR, "ets-4.3.0-3.egg")
