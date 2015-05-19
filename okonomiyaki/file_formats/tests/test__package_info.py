@@ -1,4 +1,3 @@
-import os.path
 import sys
 
 from .._package_info import PackageInfo

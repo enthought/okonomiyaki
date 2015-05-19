@@ -23,7 +23,7 @@ from ...platforms import Platform
 from ...platforms.legacy import LegacyEPDPlatform
 from ...versions import EnpkgVersion
 
-from .common import DATA_DIR, ENSTALLER_EGG, ETS_EGG, PIP_EGG, PIP_PKG_INFO
+from .common import DATA_DIR, ENSTALLER_EGG, ETS_EGG, PIP_PKG_INFO
 
 
 class TestEggBuilder(unittest.TestCase):
@@ -68,9 +68,9 @@ packages = []
                                       r_spec_depend)
 
     def _create_fake_metadata(self):
-        pkg_info = PackageInfo.from_string(PIP_PKG_INFO )
+        pkg_info = PackageInfo.from_string(PIP_PKG_INFO)
         pkg_info.version = "4.8.6"
-        pkg_info.name = name = "Qt_debug"
+        pkg_info.name = "Qt_debug"
 
         version = EnpkgVersion.from_upstream_and_build(pkg_info.version, 1)
         platform = Platform.from_epd_platform_string("rh5-32")
@@ -92,7 +92,7 @@ packages = []
 
         # When/Then
         with self.assertRaises(ValueError):
-            builder = EggBuilder(metadata)
+            EggBuilder(metadata)
 
     def test_simple_with_tree(self):
         # Given
@@ -301,8 +301,6 @@ packages = []
         self.assertMultiLineEqual(depend.to_string(), r_depend)
 
     def test_windows_platform(self):
-        r_legacy_epd_platform = \
-            LegacyEPDPlatform.from_epd_platform_string("win-32")
         r_depend = """\
 metadata_version = "1.1"
 name= "Qt_debug"

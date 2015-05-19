@@ -165,7 +165,7 @@ class PackageInfo(object):
         value = '%s: %s\n' % (name, value)
         s.write(value)
 
-    def _write_list (self, s, name, values):
+    def _write_list(self, s, name, values):
         for value in values:
             self._write_field(s, name, value)
 
@@ -210,7 +210,7 @@ def _collapse_leading_ws(header, txt):
 
 
 # Copied from distutils.util
-def _rfc822_escape (header):
+def _rfc822_escape(header):
     """Return a version of the string escaped for inclusion in an
     RFC-822 header, by ensuring there are 8 spaces space after each newline.
     """

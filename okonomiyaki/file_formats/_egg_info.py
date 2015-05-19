@@ -647,4 +647,3 @@ class EggMetadata(object):
             ),
         }
         return LegacySpecDepend(**args)
-
