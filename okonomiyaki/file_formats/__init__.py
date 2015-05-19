@@ -4,3 +4,9 @@ formats we support at Enthought
 
 At the moment, we only support the Enthought's egg format.
 """
+# flake8: noqa
+from ._egg_info import (
+    Dependencies, EggMetadata, egg_name, is_egg_name_valid, split_egg_name
+)
+from ._package_info import PackageInfo
+from .egg import EggBuilder

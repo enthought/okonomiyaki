@@ -14,10 +14,11 @@ else:
 import os.path as op
 
 from ...errors import InvalidEggName, InvalidMetadata
-from ..egg import (
-    Dependency, EggBuilder, EggMetadata, parse_rawspec, split_egg_name
+from ..egg import EggBuilder
+from .._egg_info import (
+    Dependency, Dependencies, EggMetadata, LegacySpecDepend, parse_rawspec,
+    split_egg_name
 )
-from .._egg_info import Dependencies, LegacySpecDepend
 from .._package_info import PackageInfo
 from ...platforms import Platform
 from ...platforms.legacy import LegacyEPDPlatform

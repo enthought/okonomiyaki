@@ -5,9 +5,8 @@ import os
 from ..bundled.traitlets import (
     HasTraits, Bool, Enum, Float, Instance, List, Long, Unicode
 )
-from ..file_formats.egg import (
-    Dependency, EggMetadata, egg_name
-)
+from ..file_formats import EggMetadata, egg_name
+from ..file_formats._egg_info import Dependency
 from ..file_formats.setuptools_egg import parse_filename
 from ..utils import compute_md5
 from ..utils.traitlets import NoneOrUnicode

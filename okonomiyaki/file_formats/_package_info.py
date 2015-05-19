@@ -3,8 +3,6 @@ Most of the code below is adapted from pkg-info 1.2.1
 
 We support only 1.0 and 1.1, as 1.2 does not seem to be used anywhere ?
 """
-from email.parser import Parser
-
 import six
 import zipfile2
 
@@ -175,6 +173,7 @@ def _get_header_attributes(metadata_version):
 
 
 def _parse(fp):
+    from email.parser import Parser
     return Parser().parse(fp)
 
 
