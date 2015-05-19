@@ -1,4 +1,3 @@
-import collections
 import posixpath
 import re
 import zipfile2
@@ -425,7 +424,11 @@ class LegacySpecDepend(HasTraits):
         return template.format(**data)
 
 
-Dependencies = collections.namedtuple("Dependencies", ["build", "runtime"])
+class Dependencies(object):
+    def __init__(self, runtime=None, build=None):
+        self.runtime = runtime or ()
+        self.build = runtime or ()
+
 
 _TAG_RE = re.compile("""
     (?P<interpreter>(cp|pp|cpython|py))
@@ -542,7 +545,6 @@ class EggMetadata(object):
             platform = Platform.from_epd_platform_string(platform_string)
 
         dependencies = Dependencies(
-            (),
             tuple(str(dep) for dep in spec_depend.packages)
         )
 
