@@ -1,19 +1,11 @@
 import os
 import os.path
-import posixpath
 import zipfile
 
 import zipfile2
 
-from ..bundled.traitlets import HasTraits, Bool, Instance, Unicode
-
-# those imports are for backward compatibility
 from ._egg_info import (
-    Dependency, EggMetadata, egg_name, is_egg_name_valid,
-    parse_rawspec, split_egg_name
-)  # flake8: noqa
-from ._egg_info import (
-    _SPEC_DEPEND_LOCATION, _SPEC_SUMMARY_LOCATION, _USR_PREFIX_LOCATION
+    _SPEC_DEPEND_LOCATION, _SPEC_SUMMARY_LOCATION
 )
 from ._package_info import _PKG_INFO_LOCATION
 

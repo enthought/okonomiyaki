@@ -1,6 +1,6 @@
 from ..bundled.traitlets import HasTraits, Enum, Instance
 from ..errors import OkonomiyakiError
-from ..file_formats.egg import egg_name, split_egg_name
+from ..file_formats import egg_name, split_egg_name
 from ..platforms.epd_platform import EPD_PLATFORM_SHORT_NAMES, EPDPlatform
 
 from .enpkg import EnpkgS3IndexEntry
