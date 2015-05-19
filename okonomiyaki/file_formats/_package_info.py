@@ -12,6 +12,8 @@ import zipfile2
 
 from six.moves import StringIO
 
+_PKG_INFO_LOCATION = "EGG-INFO/PKG-INFO"
+
 PKG_INFO_ENCODING = 'utf-8'
 
 HEADER_ATTRS_1_0 = (  # PEP 241
@@ -56,13 +58,11 @@ class PackageInfo(object):
             If a string, understood as the path to the egg. Otherwise,
             understood as a zipfile-like object.
         """
-        pkg_info_path = "EGG-INFO/PKG-INFO"
-
         if isinstance(path_or_file, six.string_types):
             with zipfile2.ZipFile(path_or_file) as fp:
-                data = fp.read(pkg_info_path)
+                data = fp.read(_PKG_INFO_LOCATION)
         else:
-            data = path_or_file.read(pkg_info_path)
+            data = path_or_file.read(_PKG_INFO_LOCATION)
         return cls.from_string(data.decode())
 
     @classmethod

@@ -35,6 +35,7 @@ _INFO_JSON_LOCATION = posixpath.join(EGG_INFO_PREFIX, "info.json")
 _SPEC_DEPEND_LOCATION = posixpath.join(EGG_INFO_PREFIX, "spec", "depend")
 _SPEC_LIB_DEPEND_LOCATION = posixpath.join(EGG_INFO_PREFIX, "spec",
                                            "lib-depend")
+_SPEC_SUMMARY_LOCATION = posixpath.join(EGG_INFO_PREFIX, "spec", "summary")
 _USR_PREFIX_LOCATION = posixpath.join(EGG_INFO_PREFIX, "usr")
 
 # Kept for backward compatibility: python tag should be specified, we use this
