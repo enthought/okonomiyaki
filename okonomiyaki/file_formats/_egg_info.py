@@ -1,4 +1,3 @@
-import collections
 import posixpath
 import re
 import zipfile2
@@ -35,6 +34,7 @@ _INFO_JSON_LOCATION = posixpath.join(EGG_INFO_PREFIX, "info.json")
 _SPEC_DEPEND_LOCATION = posixpath.join(EGG_INFO_PREFIX, "spec", "depend")
 _SPEC_LIB_DEPEND_LOCATION = posixpath.join(EGG_INFO_PREFIX, "spec",
                                            "lib-depend")
+_SPEC_SUMMARY_LOCATION = posixpath.join(EGG_INFO_PREFIX, "spec", "summary")
 _USR_PREFIX_LOCATION = posixpath.join(EGG_INFO_PREFIX, "usr")
 
 # Kept for backward compatibility: python tag should be specified, we use this
@@ -424,63 +424,11 @@ class LegacySpecDepend(HasTraits):
         return template.format(**data)
 
 
-class LegacySpec(HasTraits):
-    """
-    This models the EGG-INFO/spec content.
-    """
-    depend = Instance(LegacySpecDepend)
-    """
-    Models the spec/depend content
-    """
+class Dependencies(object):
+    def __init__(self, runtime=None, build=None):
+        self.runtime = runtime or ()
+        self.build = runtime or ()
 
-    lib_depend = List()
-    """
-    List of freeform content
-    """
-    lib_provide = List()
-    """
-    List of freeform content
-    """
-
-    summary = Unicode()
-    """
-    Summary metadata of the egg.
-    """
-
-    @classmethod
-    def from_egg(cls, egg):
-        spec_depend = LegacySpecDepend.from_egg(egg)
-
-        data = {"depend": spec_depend}
-
-        with zipfile2.ZipFile(egg) as fp:
-            try:
-                lib_depend_data = fp.read(_SPEC_LIB_DEPEND_LOCATION).decode()
-                data["lib_depend"] = lib_depend_data.splitlines()
-            except KeyError:
-                pass
-
-        return cls(**data)
-
-    @property
-    def egg_name(self):
-        return "{0}-{1}-{2}.egg".format(self.depend.name,
-                                        self.depend.version,
-                                        self.depend.build)
-
-    def depend_content(self):
-        return self.depend.to_string()
-
-    def lib_depend_content(self):
-        """
-        Returns a string that is suitable for the lib-depend file inside our
-        legacy egg.
-        """
-        # The added "" is for round-tripping with the current egg format
-        return "\n".join(str(entry) for entry in self.lib_depend + [""])
-
-
-Dependencies = collections.namedtuple("Dependencies", ["build", "runtime"])
 
 _TAG_RE = re.compile("""
     (?P<interpreter>(cp|pp|cpython|py))
@@ -597,7 +545,6 @@ class EggMetadata(object):
             platform = Platform.from_epd_platform_string(platform_string)
 
         dependencies = Dependencies(
-            (),
             tuple(str(dep) for dep in spec_depend.packages)
         )
 
@@ -702,4 +649,3 @@ class EggMetadata(object):
             ),
         }
         return LegacySpecDepend(**args)
-

@@ -1,8 +1,9 @@
 import os
+import os.path
 import posixpath
 import zipfile
 
-import os.path as op
+import zipfile2
 
 from ..bundled.traitlets import HasTraits, Bool, Instance, Unicode
 
@@ -12,70 +13,91 @@ from ._egg_info import (
     parse_rawspec, split_egg_name
 )  # flake8: noqa
 from ._egg_info import (
-    _SPEC_DEPEND_LOCATION, _USR_PREFIX_LOCATION, LegacySpec
+    _SPEC_DEPEND_LOCATION, _SPEC_SUMMARY_LOCATION, _USR_PREFIX_LOCATION
 )
+from ._package_info import _PKG_INFO_LOCATION
 
 
-class EggBuilder(HasTraits):
+class EggBuilder(object):
     """
-    Class to build eggs from an install tree.
+    Class to build eggs from an install tree. This is mostly useful to
+    build eggs from non-python packages.
     """
-    compress = Bool()
-    """
-    True if the egg must be compressed.
-    """
-    cwd = Unicode()
-    """
-    Root directory from which paths will be resolved.
-    """
-    spec = Instance(LegacySpec)
-    """
-    Spec instance
-    """
+    def __init__(self, egg_metadata, compress=True, cwd=None):
+        self.cwd = cwd or os.getcwd()
 
-    _fp = Instance(zipfile.ZipFile)
-
-    def __init__(self, spec, cwd=None, compress=True):
-        if cwd is None:
-            cwd = os.getcwd()
-
-        super(EggBuilder, self).__init__(spec=spec, cwd=cwd, compres=compress)
+        if egg_metadata.pkg_info is None:
+            msg = ("EggBuilder does not accept EggMetadata instances with "
+                   "a None pkg_info attribute.")
+            raise ValueError(msg)
 
         if compress is True:
-            self._fp = zipfile.ZipFile(self.egg_path, "w",
-                                       zipfile.ZIP_DEFLATED)
+            flag = zipfile.ZIP_DEFLATED
         else:
-            self._fp = zipfile.ZipFile(self.egg_path, "w")
+            flag = zipfile.ZIP_STORED
+
+        self._egg_metadata = egg_metadata
+        self._fp = zipfile2.ZipFile(self.path, "w", flag)
+
+        # Write those now so that they are at the beginning of the file.
+        self._write_pkg_info()
+        self._write_spec_summary()
+        self._write_spec_depend()
 
     @property
-    def egg_path(self):
-        return op.join(self.cwd, self.spec.egg_name)
+    def path(self):
+        return os.path.join(self.cwd, self._egg_metadata.egg_name)
 
     def close(self):
-        self._write_spec_depend()
         self._fp.close()
 
     def __enter__(self):
         return self
 
     def __exit__(self, *a, **kw):
-        self.close()
+        self.commit()
 
-    def add_usr_files_iterator(self, it):
+    def add_iterator(self, iterator):
         """
-        Add the given files to the egg inside the usr subdirectory (i.e. not
-        in site-packages).
+        Add the files specified by the given iterator.
 
         Parameters
         ----------
-        it: generator
-            Assumed to yield pairs (path, arcname) where path is the path of
-            the file to write into the archive, and arcname the archive name
-            relative to the usr subdirectory, i.e. ('foo.h', 'include/foo.h')
-            will write foo.h as EGG-INFO/usr/include/foo.h).
+        iterator: iterator
+            An iterator yielding (path, arcname) pairs.
         """
-        for path, arcname in it:
-            self._fp.write(path, posixpath.join(_USR_PREFIX_LOCATION, arcname))
+        for path, arcname in iterator:
+            self._fp.write(path, arcname)
+
+    def add_tree(self, directory, archive_prefix=""):
+        """
+        Add the given directory to the egg, under the given archive_prefix.
+
+        Parameters
+        ----------
+        directory: path
+            A path to a directory. Every file in this directory will be
+            included, recursively.
+        """
+        for root, dirs, files in os.walk(directory):
+            for item in dirs + files:
+                path = os.path.join(root, item)
+                name = os.path.join(archive_prefix,
+                                    os.path.relpath(path, directory))
+                self._fp.write(path, name)
+
+    def commit(self):
+        """ Commit the metadata, and close the file.
+        """
+        self.close()
 
     def _write_spec_depend(self):
-        self._fp.writestr(_SPEC_DEPEND_LOCATION, self.spec.depend_content())
+        spec_depend_string = self._egg_metadata.spec_depend_string
+        self._fp.writestr(_SPEC_DEPEND_LOCATION, spec_depend_string)
+
+    def _write_spec_summary(self):
+        self._fp.writestr(_SPEC_SUMMARY_LOCATION, self._egg_metadata.summary)
+
+    def _write_pkg_info(self):
+        data = self._egg_metadata.pkg_info.to_string()
+        self._fp.writestr(_PKG_INFO_LOCATION, data)

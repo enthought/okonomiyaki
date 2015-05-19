@@ -9,8 +9,9 @@ from ...utils.testing import MultiPatcher, Patcher
 # XXX: We need to patch platform.uname as well, as that function is cached, and
 # the result depend on sys.platform value.
 uname_result = collections.namedtuple("uname_result",
-				      "system node release version machine "
-				      "processor")
+                                      "system node release version machine "
+                                      "processor")
+
 
 def _mock_uname(*args):
     if sys.version_info[0] == 2:
@@ -21,30 +22,31 @@ def _mock_uname(*args):
 mock_darwin = MultiPatcher([
     mock.patch("sys.platform", "darwin"),
     mock.patch("platform.uname",
-	       lambda: _mock_uname("Darwin", "localhost", "11.4.2",
-		                   "Darwin Kernel Version 11.4.2 bla bla",
-		                   "x86_64", "i386")),
+               lambda: _mock_uname("Darwin", "localhost", "11.4.2",
+                                   "Darwin Kernel Version 11.4.2 bla bla",
+                                   "x86_64", "i386")),
 ])
 
 mock_linux = MultiPatcher([
     mock.patch("sys.platform", "linux2"),
     mock.patch("platform.uname",
-	       lambda: _mock_uname("Linux", "localhost", "2.6.19-308.el5",
-		                   "#1 SMP Tue Feb 21 20:06:06 EST 2012",
-		                   "x86_64", "x86_64"))
+               lambda: _mock_uname("Linux", "localhost", "2.6.19-308.el5",
+                                   "#1 SMP Tue Feb 21 20:06:06 EST 2012",
+                                   "x86_64", "x86_64"))
 ])
 mock_solaris = MultiPatcher([
     mock.patch("sys.platform", "sunos5"),
     mock.patch("platform.uname",
-	       lambda: _mock_uname("Solaris", "localhost", "fake",
-		                   "fake", "x86_64", "x86_64")),
+               lambda: _mock_uname("Solaris", "localhost", "fake",
+                                   "fake", "x86_64", "x86_64")),
 ])
 mock_windows = MultiPatcher([
     mock.patch("sys.platform", "win32"),
     mock.patch("platform.uname",
-	       lambda: _mock_uname('Windows', 'localhost', '7', '6.1.7601',
-	                           'x86',
-			           'x86 Family 6 Model 4 5 Stepping 7, GenuineIntel'))
+               lambda: _mock_uname('Windows', 'localhost', '7', '6.1.7601',
+                                   'x86',
+                                   ('x86 Family 6 Model 4 5 Stepping 7, '
+                                    'GenuineIntel')))
 ])
 
 

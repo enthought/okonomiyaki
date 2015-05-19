@@ -10,6 +10,9 @@ import zipfile2
 
 from six.moves import StringIO
 
+_PKG_INFO_LOCATION = "EGG-INFO/PKG-INFO"
+
+PKG_INFO_ENCODING = 'utf-8'
 
 HEADER_ATTRS_1_0 = (  # PEP 241
     ('Metadata-Version', 'metadata_version', False),
@@ -53,13 +56,11 @@ class PackageInfo(object):
             If a string, understood as the path to the egg. Otherwise,
             understood as a zipfile-like object.
         """
-        pkg_info_path = "EGG-INFO/PKG-INFO"
-
         if isinstance(path_or_file, six.string_types):
             with zipfile2.ZipFile(path_or_file) as fp:
-                data = fp.read(pkg_info_path)
+                data = fp.read(_PKG_INFO_LOCATION)
         else:
-            data = path_or_file.read(pkg_info_path)
+            data = path_or_file.read(_PKG_INFO_LOCATION)
         return cls.from_string(data.decode())
 
     @classmethod
@@ -80,7 +81,12 @@ class PackageInfo(object):
                 continue
 
             if header_name in msg:
-                if multiple:
+                if header_name == "Keywords":
+                    if msg != "UNKNOWN":
+                        value = _collapse_leading_ws(header_name,
+                                                     msg.get(header_name))
+                        kw[attr_name] = tuple(value.split())
+                elif multiple:
                     values = _get_all(msg, header_name)
                     if values != ["UNKNOWN"]:
                         kw[attr_name] = values
@@ -95,7 +101,7 @@ class PackageInfo(object):
 
     def __init__(self, metadata_version, name, version, platforms=None,
                  supported_platforms=None, summary="", description="",
-                 keywords="", home_page="", download_url="", author="",
+                 keywords=None, home_page="", download_url="", author="",
                  author_email="", license="", classifiers=None,
                  requires=None, provides=None, obsoletes=None):
         self.metadata_version = metadata_version
@@ -107,7 +113,7 @@ class PackageInfo(object):
         self.supported_platforms = supported_platforms or ()
         self.summary = summary
         self.description = description
-        self.keywords = keywords
+        self.keywords = keywords or ()
         self.home_page = home_page
         self.download_url = download_url
         self.author = author
@@ -119,6 +125,49 @@ class PackageInfo(object):
         self.requires = requires or ()
         self.provides = provides or ()
         self.obsoletes = obsoletes or ()
+
+    def to_string(self, metadata_version_info=(1, 2)):
+        s = StringIO()
+        self._write_field(s, 'Metadata-Version', self.metadata_version)
+        self._write_field(s, 'Name', self.name)
+        self._write_field(s, 'Version', self.version)
+        self._write_field(s, 'Summary', self.summary)
+        self._write_field(s, 'Home-page', self.home_page)
+        self._write_field(s, 'Author', self.author)
+        self._write_field(s, 'Author-email', self.author_email)
+        self._write_field(s, 'License', self.license)
+        if metadata_version_info >= (1, 1):
+            if self.download_url:
+                self._write_field(s, 'Download-URL', self.download_url)
+
+        description = _rfc822_escape(self.description)
+        self._write_field(s, 'Description', description)
+
+        keywords = ' '.join(self.keywords)
+        if keywords:
+            self._write_field(s, 'Keywords', keywords)
+
+        if len(self.platforms) == 0:
+            self._write_list(s, 'Platform', ("UNKNOWN",))
+        else:
+            self._write_list(s, 'Platform', self.platforms)
+
+        if metadata_version_info >= (1, 1):
+            self._write_list(s, 'Classifier', self.classifiers)
+
+            self._write_list(s, 'Requires', self.requires)
+            self._write_list(s, 'Provides', self.provides)
+            self._write_list(s, 'Obsoletes', self.obsoletes)
+
+        return s.getvalue()
+
+    def _write_field(self, s, name, value):
+        value = '%s: %s\n' % (name, value)
+        s.write(value)
+
+    def _write_list(self, s, name, values):
+        for value in values:
+            self._write_field(s, name, value)
 
 
 def _get_header_attributes(metadata_version):
@@ -151,7 +200,20 @@ def _collapse_leading_ws(header, txt):
     ``Description`` header must preserve newlines; all others need not
     """
     if header.lower() == 'description':  # preserve newlines
-        return '\n'.join([x[8:] if x.startswith(' ' * 8) else x
-                          for x in txt.strip().splitlines()])
+        lines = [x[8:] if x.startswith(' ' * 8) else x
+                 for x in txt.strip().splitlines()]
+        # Append a line to be char-by-char compatible with distutils
+        lines.append('')
+        return '\n'.join(lines)
     else:
         return ' '.join([x.strip() for x in txt.splitlines()])
+
+
+# Copied from distutils.util
+def _rfc822_escape(header):
+    """Return a version of the string escaped for inclusion in an
+    RFC-822 header, by ensuring there are 8 spaces space after each newline.
+    """
+    lines = header.split('\n')
+    header = ('\n' + 8*' ').join(lines)
+    return header

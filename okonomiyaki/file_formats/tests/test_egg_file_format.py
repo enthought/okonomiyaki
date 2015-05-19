@@ -1,3 +1,4 @@
+import os
 import os.path
 import shutil
 import sys
@@ -14,19 +15,15 @@ import os.path as op
 
 from ...errors import InvalidEggName, InvalidMetadata
 from ..egg import (
-    Dependency, EggBuilder, EggMetadata, LegacySpec, parse_rawspec,
-    split_egg_name
+    Dependency, EggBuilder, EggMetadata, parse_rawspec, split_egg_name
 )
-from .._egg_info import LegacySpecDepend
+from .._egg_info import Dependencies, LegacySpecDepend
+from .._package_info import PackageInfo
 from ...platforms import Platform
+from ...platforms.legacy import LegacyEPDPlatform
 from ...versions import EnpkgVersion
 
-from ... import repositories
-
-DATA_DIR = op.join(op.dirname(repositories.__file__), "tests", "data")
-
-ENSTALLER_EGG = op.join(DATA_DIR, "enstaller-4.5.0-1.egg")
-ETS_EGG = op.join(DATA_DIR, "ets-4.3.0-3.egg")
+from .common import DATA_DIR, ENSTALLER_EGG, ETS_EGG, PIP_PKG_INFO
 
 
 class TestEggBuilder(unittest.TestCase):
@@ -37,7 +34,11 @@ class TestEggBuilder(unittest.TestCase):
         shutil.rmtree(self.d)
 
     def test_simple(self):
-        r_files = ["EGG-INFO/spec/depend"]
+        r_files = [
+            "EGG-INFO/PKG-INFO",
+            "EGG-INFO/spec/depend",
+            "EGG-INFO/spec/summary",
+        ]
         r_spec_depend = """\
 metadata_version = '1.1'
 name = 'Qt_debug'
@@ -51,19 +52,107 @@ python = '2.7'
 packages = []
 """
 
-        depend = LegacySpecDepend.from_string(r_spec_depend)
-        spec = LegacySpec(depend=depend)
+        spec_depend = LegacySpecDepend.from_string(r_spec_depend)
+        pkg_info = PackageInfo("1.2", "Qt_debug", "4.8.5")
+        metadata = EggMetadata._from_spec_depend(spec_depend, pkg_info, "")
 
-        with EggBuilder(spec, cwd=self.d) as fp:
+        with EggBuilder(metadata, cwd=self.d) as fp:
             pass
 
         egg_path = op.join(self.d, "Qt_debug-4.8.5-2.egg")
         self.assertTrue(op.exists(egg_path))
 
         with zipfile2.ZipFile(egg_path, "r") as fp:
-            self.assertEqual(fp.namelist(), r_files)
+            self.assertEqual(set(fp.namelist()), set(r_files))
             self.assertMultiLineEqual(fp.read("EGG-INFO/spec/depend").decode(),
                                       r_spec_depend)
+
+    def _create_fake_metadata(self):
+        pkg_info = PackageInfo.from_string(PIP_PKG_INFO)
+        pkg_info.version = "4.8.6"
+        pkg_info.name = "Qt_debug"
+
+        version = EnpkgVersion.from_upstream_and_build(pkg_info.version, 1)
+        platform = Platform.from_epd_platform_string("rh5-32")
+        dependencies = Dependencies((), ())
+
+        return EggMetadata(
+            pkg_info.name, version, platform, "cp27", dependencies,
+            pkg_info, pkg_info.summary
+        )
+
+    def test_reject_no_pkg_info(self):
+        # Given
+        version = EnpkgVersion.from_string("4.8.4-1")
+        platform = Platform.from_running_system()
+        dependencies = Dependencies((), ())
+
+        metadata = EggMetadata("foo", version, platform, "cp27",
+                               dependencies, None, "")
+
+        # When/Then
+        with self.assertRaises(ValueError):
+            EggBuilder(metadata)
+
+    def test_simple_with_tree(self):
+        # Given
+        r_files = [
+            "EGG-INFO/PKG-INFO",
+            "EGG-INFO/spec/depend",
+            "EGG-INFO/spec/summary",
+            "EGG-INFO/usr/bin/",
+            "EGG-INFO/usr/bin/exe",
+        ]
+
+        tree = os.path.join(self.d, "usr")
+        exe = os.path.join(tree, "bin", "exe")
+        os.makedirs(os.path.dirname(exe))
+        with open(exe, "wb") as fp:
+            fp.write(b"some fake executable")
+
+        metadata = self._create_fake_metadata()
+
+        # When
+        with EggBuilder(metadata, cwd=self.d) as fp:
+            fp.add_tree(tree, "EGG-INFO/usr")
+
+        # Then
+        egg_path = os.path.join(self.d, "Qt_debug-4.8.6-1.egg")
+        self.assertTrue(os.path.exists(egg_path))
+
+        with zipfile2.ZipFile(egg_path, "r") as fp:
+            self.assertEqual(set(fp.namelist()), set(r_files))
+
+    def test_simple_with_iterator(self):
+        # Given
+        r_files = [
+            "EGG-INFO/PKG-INFO",
+            "EGG-INFO/spec/depend",
+            "EGG-INFO/spec/summary",
+            "EGG-INFO/usr/bin/exe",
+        ]
+
+        tree = os.path.join(self.d, "usr")
+        exe = os.path.join(tree, "bin", "exe")
+        os.makedirs(os.path.dirname(exe))
+        with open(exe, "wb") as fp:
+            fp.write(b"some fake executable")
+
+        metadata = self._create_fake_metadata()
+
+        def it():
+            yield (exe, "EGG-INFO/usr/bin/exe")
+
+        # When
+        with EggBuilder(metadata, cwd=self.d) as fp:
+            fp.add_iterator(it())
+
+        # Then
+        egg_path = os.path.join(self.d, "Qt_debug-4.8.6-1.egg")
+        self.assertTrue(os.path.exists(egg_path))
+
+        with zipfile2.ZipFile(egg_path, "r") as fp:
+            self.assertEqual(set(fp.namelist()), set(r_files))
 
 
 class TestDependency(unittest.TestCase):
@@ -211,32 +300,7 @@ packages = []
         # Then
         self.assertMultiLineEqual(depend.to_string(), r_depend)
 
-
-class TestLegacySpec(unittest.TestCase):
-    def test_depend_content(self):
-        r_depend = """\
-metadata_version = '1.2'
-name = 'Qt_debug'
-version = '4.8.5'
-build = 2
-
-arch = 'x86'
-platform = 'linux2'
-osdist = 'RedHat_5'
-python = '2.7'
-python_tag = 'cp27'
-packages = [
-  'Qt 4.8.5',
-]
-"""
-
-        depend = LegacySpecDepend.from_string(r_depend)
-        spec = LegacySpec(depend=depend)
-
-        self.assertEqual(spec.depend_content(), r_depend)
-
     def test_windows_platform(self):
-        """Test we handle None correctly in windows-specific metadata."""
         r_depend = """\
 metadata_version = "1.1"
 name= "Qt_debug"
@@ -252,29 +316,15 @@ packages = [
 ]
 """
         depend = LegacySpecDepend.from_string(r_depend)
-        LegacySpec(depend=depend)
 
-    def test_create_from_egg1(self):
-        egg = op.join(DATA_DIR, "Cython-0.19.1-1.egg")
-        self._test_create_from_egg(egg)
-
-    def test_create_from_egg2(self):
-        egg = op.join(DATA_DIR, "ets-4.3.0-3.egg")
-        self._test_create_from_egg(egg)
-
-    def _test_create_from_egg(self, egg_path):
-        with zipfile2.ZipFile(egg_path, "r") as zp:
-            r_depend = zp.read("EGG-INFO/spec/depend").decode()
-            try:
-                r_lib_depend = zp.read("EGG-INFO/spec/lib-depend").decode()
-            except KeyError:
-                r_lib_depend = ""
-
-        legacy = LegacySpec.from_egg(egg_path)
-
-        self.maxDiff = 4096
-        self.assertMultiLineEqual(legacy.depend_content(), r_depend)
-        self.assertMultiLineEqual(legacy.lib_depend_content(), r_lib_depend)
+        # Then
+        self.assertEqual(depend.arch, "x86")
+        self.assertEqual(depend.platform, "win32")
+        self.assertIsNone(depend.osdist)
+        self.assertEqual(
+            depend._epd_legacy_platform,
+            LegacyEPDPlatform.from_epd_platform_string("win-32")
+        )
 
 
 class TestEggName(unittest.TestCase):
