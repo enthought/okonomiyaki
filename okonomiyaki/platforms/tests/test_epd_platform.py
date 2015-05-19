@@ -14,7 +14,7 @@ from ..platform import X86, X86_64
 from .common import (mock_architecture_32bit, mock_architecture_64bit,
                      mock_centos_3_5, mock_centos_5_8, mock_centos_6_3,
                      mock_darwin, mock_machine_x86, mock_machine_x86_64,
-                     mock_machine_armv71, mock_solaris,
+                     mock_machine_armv71, mock_linux, mock_solaris,
                      mock_ubuntu_raring, mock_windows, mock_x86,
                      mock_x86_64)
 
@@ -204,8 +204,9 @@ class TestGuessEPDPlatform(unittest.TestCase):
             self.assertEqual(epd_platform.short, "rh6-64")
 
     def test_guess_linux2_unsupported(self):
-        with mock_centos_3_5:
-            self.assertRaises(OkonomiyakiError, _guess_epd_platform)
+        with mock_linux:
+            with self.assertRaises(OkonomiyakiError):
+                _guess_epd_platform()
 
         with mock_ubuntu_raring:
             self.assertRaises(OkonomiyakiError, _guess_epd_platform)
