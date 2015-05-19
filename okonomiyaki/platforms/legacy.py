@@ -70,6 +70,20 @@ class LegacyEPDPlatform(HasTraits):
         entry = _get_entry(self.short)
         return entry[1]
 
+    @property
+    def _comp_key(self):
+        return (self.arch, self.platform, self.osdist)
+
+    def __eq__(self, other):
+        if not isinstance(other, LegacyEPDPlatform):
+            return NotImplemented
+        return self._comp_key == other._comp_key
+
+    def __ne__(self, other):
+        if not isinstance(other, LegacyEPDPlatform):
+            return NotImplemented
+        return self._comp_key != other._comp_key
+
     def __str__(self):
         return self.short
 

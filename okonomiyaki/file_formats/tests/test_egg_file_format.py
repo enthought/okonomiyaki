@@ -14,11 +14,11 @@ import os.path as op
 
 from ...errors import InvalidEggName, InvalidMetadata
 from ..egg import (
-    Dependency, EggBuilder, EggMetadata, LegacySpec, parse_rawspec,
-    split_egg_name
+    Dependency, EggBuilder, EggMetadata, parse_rawspec, split_egg_name
 )
 from .._egg_info import LegacySpecDepend
 from ...platforms import Platform
+from ...platforms.legacy import LegacyEPDPlatform
 from ...versions import EnpkgVersion
 
 from ... import repositories
@@ -51,10 +51,10 @@ python = '2.7'
 packages = []
 """
 
-        depend = LegacySpecDepend.from_string(r_spec_depend)
-        spec = LegacySpec(depend=depend)
+        spec_depend = LegacySpecDepend.from_string(r_spec_depend)
+        metadata = EggMetadata._from_spec_depend(spec_depend, None, "")
 
-        with EggBuilder(spec, cwd=self.d) as fp:
+        with EggBuilder(metadata, cwd=self.d) as fp:
             pass
 
         egg_path = op.join(self.d, "Qt_debug-4.8.5-2.egg")
@@ -211,32 +211,9 @@ packages = []
         # Then
         self.assertMultiLineEqual(depend.to_string(), r_depend)
 
-
-class TestLegacySpec(unittest.TestCase):
-    def test_depend_content(self):
-        r_depend = """\
-metadata_version = '1.2'
-name = 'Qt_debug'
-version = '4.8.5'
-build = 2
-
-arch = 'x86'
-platform = 'linux2'
-osdist = 'RedHat_5'
-python = '2.7'
-python_tag = 'cp27'
-packages = [
-  'Qt 4.8.5',
-]
-"""
-
-        depend = LegacySpecDepend.from_string(r_depend)
-        spec = LegacySpec(depend=depend)
-
-        self.assertEqual(spec.depend_content(), r_depend)
-
     def test_windows_platform(self):
-        """Test we handle None correctly in windows-specific metadata."""
+        r_legacy_epd_platform = \
+            LegacyEPDPlatform.from_epd_platform_string("win-32")
         r_depend = """\
 metadata_version = "1.1"
 name= "Qt_debug"
@@ -252,29 +229,15 @@ packages = [
 ]
 """
         depend = LegacySpecDepend.from_string(r_depend)
-        LegacySpec(depend=depend)
 
-    def test_create_from_egg1(self):
-        egg = op.join(DATA_DIR, "Cython-0.19.1-1.egg")
-        self._test_create_from_egg(egg)
-
-    def test_create_from_egg2(self):
-        egg = op.join(DATA_DIR, "ets-4.3.0-3.egg")
-        self._test_create_from_egg(egg)
-
-    def _test_create_from_egg(self, egg_path):
-        with zipfile2.ZipFile(egg_path, "r") as zp:
-            r_depend = zp.read("EGG-INFO/spec/depend").decode()
-            try:
-                r_lib_depend = zp.read("EGG-INFO/spec/lib-depend").decode()
-            except KeyError:
-                r_lib_depend = ""
-
-        legacy = LegacySpec.from_egg(egg_path)
-
-        self.maxDiff = 4096
-        self.assertMultiLineEqual(legacy.depend_content(), r_depend)
-        self.assertMultiLineEqual(legacy.lib_depend_content(), r_lib_depend)
+        # Then
+        self.assertEqual(depend.arch, "x86")
+        self.assertEqual(depend.platform, "win32")
+        self.assertIsNone(depend.osdist)
+        self.assertEqual(
+            depend._epd_legacy_platform,
+            LegacyEPDPlatform.from_epd_platform_string("win-32")
+        )
 
 
 class TestEggName(unittest.TestCase):
