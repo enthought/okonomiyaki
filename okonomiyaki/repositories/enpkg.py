@@ -1,18 +1,17 @@
 """Traitlets-based models for enpkg-related metadata."""
 import json
 import os
-import zipfile
 
-import os.path as op
-
-from ..bundled.traitlets import HasTraits, Bool, Enum, Float, \
-    Instance, List, Long, Unicode
-from ..file_formats.egg import Dependency, _decode_none_values, \
-    _encode_none_values, egg_name, info_from_z, split_egg_name
+from ..bundled.traitlets import (
+    HasTraits, Bool, Enum, Float, Instance, List, Long, Unicode
+)
+from ..file_formats.egg import (
+    Dependency, EggMetadata, egg_name
+)
 from ..file_formats.setuptools_egg import parse_filename
 from ..utils import compute_md5
+from ..utils.traitlets import NoneOrUnicode
 
-_CAN_BE_NONE_KEYS = ["osdist", "platform", "python"]
 
 _AVAILABLE_DEFAULT = False
 _PRODUCT_DEFAULT = "commercial"
@@ -34,7 +33,7 @@ class EnpkgS3IndexEntry(HasTraits):
     egg_basename = Unicode()
     packages = List(Instance(Dependency))
     product = Enum(["pypi", "commercial", "free"], _PRODUCT_DEFAULT)
-    python = Unicode()
+    python = NoneOrUnicode()
     size = Long()
     type = Enum(["egg"], "egg")
     version = Unicode()
@@ -47,7 +46,6 @@ class EnpkgS3IndexEntry(HasTraits):
 
         Note: the passed in dictionary may be modified.
         """
-        data = _decode_none_values(data, _CAN_BE_NONE_KEYS)
         data["packages"] = [
             Dependency.from_spec_string(s) for s in data.get("packages", [])
         ]
@@ -57,22 +55,21 @@ class EnpkgS3IndexEntry(HasTraits):
     def from_egg(cls, path, product=_PRODUCT_DEFAULT,
                  available=_AVAILABLE_DEFAULT):
         kw = {}
-        fp = zipfile.ZipFile(path)
-        try:
-            data = info_from_z(fp)
-            for k in ["build", "python", "type", "version"]:
-                kw[k] = data[k]
-            kw["packages"] = data.get("packages", [])
-            kw["product"] = product
-            kw["egg_basename"] = split_egg_name(op.basename(path))[0]
 
-            st = os.stat(path)
-            kw["mtime"] = st.st_mtime
-            kw["size"] = st.st_size
+        metadata = EggMetadata.from_egg(path)
+        kw["version"] = metadata.upstream_version
+        kw["build"] = metadata.build
+        kw["python"] = metadata._python
+        kw["type"] = "egg"
+        kw["packages"] = metadata.runtime_dependencies
+        kw["product"] = product
+        kw["egg_basename"] = metadata.egg_basename
 
-            kw["available"] = available
-        finally:
-            fp.close()
+        st = os.stat(path)
+        kw["mtime"] = st.st_mtime
+        kw["size"] = st.st_size
+
+        kw["available"] = available
 
         # XXX: keep the hash computing *outside* any other file operation.
         # Opening the same file can cause some IO errors, even on Linux (seen
@@ -125,7 +122,6 @@ class EnpkgS3IndexEntry(HasTraits):
             "type": self.type,
             "version": self.version,
         }
-        data = _encode_none_values(data, _CAN_BE_NONE_KEYS)
         return data
 
     def to_dict(self):
@@ -141,7 +137,6 @@ class EnpkgS3IndexEntry(HasTraits):
                 "size": self.size,
                 "type": self.type,
                 "version": self.version}
-        data = _encode_none_values(data, _CAN_BE_NONE_KEYS)
         return data
 
     def to_json(self):

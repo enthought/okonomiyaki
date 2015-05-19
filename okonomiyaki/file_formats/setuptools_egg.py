@@ -1,6 +1,6 @@
 import re
 
-from okonomiyaki.errors import OkonomiyakiError
+from ..errors import OkonomiyakiError
 
 
 _R_EGG_NAME = re.compile("""

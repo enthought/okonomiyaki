@@ -1,5 +1,5 @@
 # side-effect import to get the unittest six moves registered
-import okonomiyaki.utils._compat  # noqa
+from ...utils import _compat  # noqa
 
 from six.moves import unittest
 

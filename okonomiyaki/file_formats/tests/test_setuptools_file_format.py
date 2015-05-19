@@ -5,8 +5,8 @@ if sys.version_info[:2] < (2, 7):
 else:
     import unittest
 
-from okonomiyaki.errors import OkonomiyakiError
-from okonomiyaki.file_formats.setuptools_egg import parse_filename
+from ...errors import OkonomiyakiError
+from ..setuptools_egg import parse_filename
 
 
 class TestEggBuilder(unittest.TestCase):

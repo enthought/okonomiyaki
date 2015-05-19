@@ -3,7 +3,7 @@ import textwrap
 from six.moves import unittest
 from six import StringIO
 
-from okonomiyaki.errors import OkonomiyakiError
+from ...errors import OkonomiyakiError
 from ..misc import parse_assignments
 
 

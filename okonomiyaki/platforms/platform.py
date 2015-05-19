@@ -3,12 +3,10 @@ from __future__ import absolute_import
 import platform
 import sys
 
-from okonomiyaki.platforms import epd_platform
+from . import epd_platform
 
-from okonomiyaki.bundled.traitlets import HasTraits, Enum, Instance, Unicode
-from okonomiyaki.platforms.epd_platform import EPDPlatform
-from okonomiyaki.errors import OkonomiyakiError
-
+from ..bundled.traitlets import HasTraits, Enum, Instance, Unicode
+from ..errors import OkonomiyakiError
 
 X86 = "x86"
 X86_64 = "x86_64"
@@ -36,6 +34,15 @@ NAME_TO_PRETTY_NAMES = {
 _ARCH_NAME_TO_BITS = {
     X86: 32,
     X86_64: 64,
+}
+
+_ARCH_NAME_TO_NORMALIZED = {
+    "amd64": X86_64,
+    "AMD64": X86_64,
+    "x86_64": X86_64,
+    "x86": X86,
+    "i386": X86,
+    "i686": X86,
 }
 
 _DIST_NAME_TO_NAME = {
@@ -100,6 +107,20 @@ class Arch(HasTraits):
         return hash((self.name, self.bits))
 
 
+def _epd_name_to_quadruplet(name):
+    if name == "rh6":
+        return (LINUX, RHEL, RHEL, "6.5")
+    elif name == "rh5":
+        return (LINUX, RHEL, RHEL, "5.8")
+    elif name == "osx":
+        return (DARWIN, MAC_OS_X, MAC_OS_X, "10.6")
+    elif name == "win":
+        return (WINDOWS, WINDOWS, WINDOWS, "")
+    else:
+        msg = "Invalid epd platform string name: {0!r}".format(name)
+        raise OkonomiyakiError(msg)
+
+
 class Platform(HasTraits):
     """
     An sane generic platform representation.
@@ -138,6 +159,22 @@ class Platform(HasTraits):
     """
 
     @classmethod
+    def from_spec_depend_data(cls, platform, osdist, arch_name):
+        arch = machine = Arch.from_name(_ARCH_NAME_TO_NORMALIZED[arch_name])
+        if platform == "darwin":
+            epd_name = "osx"
+        elif platform == "win32":
+            epd_name = "win"
+        elif platform.startswith("linux") and osdist in (None, "RedHat_5"):
+            epd_name = "rh5"
+        else:
+            msg = ("Unrecognized platform/osdist combination: {0!r}/{1!r}"
+                   .format(platform, osdist))
+            raise ValueError(msg)
+        os, name, family, release = _epd_name_to_quadruplet(epd_name)
+        return cls(os, name, family, arch, machine, release)
+
+    @classmethod
     def from_running_python(cls):
         """ Guess the platform, using the running python to guess the
         architecture.
@@ -160,19 +197,6 @@ class Platform(HasTraits):
         """ Creates a new Platform instrance from a legacy epd platform string,
         e.g. 'rh5-32', or 'osx'
         """
-        def _epd_name_to_quadruplet(name):
-            if name == "rh6":
-                return (LINUX, RHEL, RHEL, "6.5")
-            elif name == "rh5":
-                return (LINUX, RHEL, RHEL, "5.8")
-            elif name == "osx":
-                return (DARWIN, MAC_OS_X, MAC_OS_X, "10.6")
-            elif name == "win":
-                return (WINDOWS, WINDOWS, WINDOWS, "")
-            else:
-                msg = "Invalid epd platform string name: {0!r}".format(name)
-                raise OkonomiyakiError(msg)
-
         parts = s.split("-")
         if len(parts) == 2:
             name, bits = parts
@@ -241,7 +265,9 @@ class Platform(HasTraits):
 
     @property
     def epd_platform(self):
-        return EPDPlatform.from_epd_string(self._epd_platform_string)
+        return epd_platform.EPDPlatform.from_epd_string(
+            self._epd_platform_string
+        )
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
@@ -277,12 +303,11 @@ def _guess_machine():
     Returns the underlying machine.
     """
     machine = platform.machine()
-    if machine in ("AMD64", "x86_64"):
-        return Arch.from_name(X86_64)
-    elif machine in ("x86", "i386", "i686"):
-        return Arch.from_name(X86)
-    else:
+    name = _ARCH_NAME_TO_NORMALIZED.get(machine)
+    if name is None:
         raise OkonomiyakiError("Unknown machine: {0}".  format(machine))
+    else:
+        return Arch.from_name(name)
 
 
 def _guess_os():

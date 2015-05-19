@@ -1,6 +1,6 @@
 import unittest
 
-from okonomiyaki.errors import OkonomiyakiError
+from ...errors import OkonomiyakiError
 from ..platform import Arch, Platform
 from ..platform import DARWIN, LINUX, MAC_OS_X, RHEL, WINDOWS, X86, X86_64
 
@@ -410,3 +410,27 @@ class TestPlatform(unittest.TestCase):
         # When/Then
         with self.assertRaises(OkonomiyakiError):
             Platform.from_epd_platform_string(epd_platform_string)
+
+    def test_from_spec_depend_data(self):
+        # Given
+        examples = (
+            (("linux2", None, "x86"),
+             Platform.from_epd_platform_string("rh5-32"),),
+            (("linux2", "RedHat_5", "x86"),
+             Platform.from_epd_platform_string("rh5-32"),),
+            (("linux2", "RedHat_5", "amd64"),
+             Platform.from_epd_platform_string("rh5-64"),),
+            (("darwin", None, "x86"),
+             Platform.from_epd_platform_string("osx-32"),),
+            (("darwin", None, "amd64"),
+             Platform.from_epd_platform_string("osx-64"),),
+            (("win32", None, "x86"),
+             Platform.from_epd_platform_string("win-32"),),
+            (("win32", None, "amd64"),
+             Platform.from_epd_platform_string("win-64"),),
+        )
+
+        # When/Then
+        for args, r_platform in examples:
+            platform = Platform.from_spec_depend_data(*args)
+            self.assertEqual(platform, r_platform)

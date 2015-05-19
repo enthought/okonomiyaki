@@ -1,8 +1,7 @@
 from __future__ import absolute_import
 
-from okonomiyaki.bundled.traitlets import (HasTraits, Bool, Enum, Instance,
-                                           List, Unicode)
-from okonomiyaki.errors import OkonomiyakiError
+from ..bundled.traitlets import HasTraits, Bool, Enum, Instance, List, Unicode
+from ..errors import OkonomiyakiError
 
 from .platform import DARWIN, LINUX, SOLARIS, WINDOWS
 from .platform import CENTOS, RHEL, DEBIAN, UBUNTU, MAC_OS_X
