@@ -124,6 +124,92 @@ packages = []
         with zipfile2.ZipFile(egg_path, "r") as fp:
             self.assertEqual(set(fp.namelist()), set(r_files))
 
+    def test_add_file(self):
+        # Given
+        r_files = [
+            "EGG-INFO/PKG-INFO",
+            "EGG-INFO/spec/depend",
+            "EGG-INFO/spec/summary",
+            "exe",
+        ]
+
+        tree = os.path.join(self.d, "usr")
+        exe = os.path.join(tree, "bin", "exe")
+        os.makedirs(os.path.dirname(exe))
+        with open(exe, "wb") as fp:
+            fp.write(b"some fake executable")
+
+        metadata = self._create_fake_metadata()
+
+        # When
+        with EggBuilder(metadata, cwd=self.d) as fp:
+            fp.add_file(exe)
+
+        # Then
+        egg_path = os.path.join(self.d, "Qt_debug-4.8.6-1.egg")
+        self.assertTrue(os.path.exists(egg_path))
+
+        with zipfile2.ZipFile(egg_path, "r") as fp:
+            self.assertEqual(set(fp.namelist()), set(r_files))
+
+        # Given
+        r_files = [
+            "EGG-INFO/PKG-INFO",
+            "EGG-INFO/spec/depend",
+            "EGG-INFO/spec/summary",
+            "bin/exe",
+        ]
+
+        # When
+        with EggBuilder(metadata, cwd=self.d) as fp:
+            fp.add_file(exe, "bin")
+
+        # Then
+        egg_path = os.path.join(self.d, "Qt_debug-4.8.6-1.egg")
+        self.assertTrue(os.path.exists(egg_path))
+
+        with zipfile2.ZipFile(egg_path, "r") as fp:
+            self.assertEqual(set(fp.namelist()), set(r_files))
+
+        # Given
+        r_files = [
+            "EGG-INFO/PKG-INFO",
+            "EGG-INFO/spec/depend",
+            "EGG-INFO/spec/summary",
+            "foo.exe",
+        ]
+
+        # When
+        with EggBuilder(metadata, cwd=self.d) as fp:
+            fp.add_file_as(exe, "foo.exe")
+
+        # Then
+        egg_path = os.path.join(self.d, "Qt_debug-4.8.6-1.egg")
+        self.assertTrue(os.path.exists(egg_path))
+
+        with zipfile2.ZipFile(egg_path, "r") as fp:
+            self.assertEqual(set(fp.namelist()), set(r_files))
+
+        # Given
+        r_files = [
+            "EGG-INFO/PKG-INFO",
+            "EGG-INFO/spec/depend",
+            "EGG-INFO/spec/summary",
+            "foo.exe",
+        ]
+
+        # When
+        with EggBuilder(metadata, cwd=self.d) as fp:
+            fp.write_data(b"data", "foo.exe")
+
+        # Then
+        egg_path = os.path.join(self.d, "Qt_debug-4.8.6-1.egg")
+        self.assertTrue(os.path.exists(egg_path))
+
+        with zipfile2.ZipFile(egg_path, "r") as fp:
+            self.assertEqual(set(fp.namelist()), set(r_files))
+            self.assertEqual(fp.read("foo.exe"), b"data")
+
     def test_simple_with_iterator(self):
         # Given
         r_files = [
