@@ -200,7 +200,7 @@ packages = []
 
         # When
         with EggBuilder(metadata, cwd=self.d) as fp:
-            fp.write_data(b"data", "foo.exe")
+            fp.add_data(b"data", "foo.exe")
 
         # Then
         egg_path = os.path.join(self.d, "Qt_debug-4.8.6-1.egg")

@@ -70,7 +70,7 @@ class EggBuilder(object):
         """ Add the given file to the egg, under the given archive name."""
         self._fp.write(path, archive_name)
 
-    def write_data(self, data, archive_name):
+    def add_data(self, data, archive_name):
         """ Write the given data as the given archive name."""
         self._fp.writestr(archive_name, data)
 
