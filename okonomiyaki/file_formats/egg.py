@@ -61,6 +61,19 @@ class EggBuilder(object):
         for path, arcname in iterator:
             self._fp.write(path, arcname)
 
+    def add_file(self, path, archive_prefix=""):
+        """ Add the given file to the egg, under the given archive prefix."""
+        arcname = os.path.join(archive_prefix, os.path.basename(path))
+        self._fp.write(path, arcname)
+
+    def add_file_as(self, path, archive_name):
+        """ Add the given file to the egg, under the given archive name."""
+        self._fp.write(path, archive_name)
+
+    def add_data(self, data, archive_name):
+        """ Write the given data as the given archive name."""
+        self._fp.writestr(archive_name, data)
+
     def add_tree(self, directory, archive_prefix=""):
         """
         Add the given directory to the egg, under the given archive_prefix.
