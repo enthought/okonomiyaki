@@ -7,6 +7,7 @@ if sys.version_info[:2] < (2, 7):
 else:
     import unittest
 
+from ...errors import OkonomiyakiError
 from .common import (
     PIP_EGG, PKG_INFO_ENSTALLER_1_0_DESCRIPTION, PIP_PKG_INFO,
     PKG_INFO_ENSTALLER_1_0
@@ -47,6 +48,14 @@ class TestPackageInfo(unittest.TestCase):
         self.assertEqual(pkg_info.requires, ())
         self.assertEqual(pkg_info.provides, ())
         self.assertEqual(pkg_info.obsoletes, ())
+
+    def test_from_string_unsupported(self):
+        # Given
+        data = "Metadata-Version: 1.2"
+
+        # When/Then
+        with self.assertRaises(OkonomiyakiError):
+            PackageInfo.from_string(data)
 
     def test_simple_from_egg(self):
         # Given
