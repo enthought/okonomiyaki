@@ -8,6 +8,9 @@ import zipfile2
 
 from six.moves import StringIO
 
+from ..errors import OkonomiyakiError
+
+
 _PKG_INFO_LOCATION = "EGG-INFO/PKG-INFO"
 
 PKG_INFO_ENCODING = 'utf-8'
@@ -169,7 +172,13 @@ class PackageInfo(object):
 
 
 def _get_header_attributes(metadata_version):
-    return HEADER_ATTRS.get(metadata_version, [])
+    attributes = HEADER_ATTRS.get(metadata_version)
+    if attributes is None:
+        msg = ("Unsupported PKG-INFO metadata format: {0!r}"
+               .format(metadata_version))
+        raise OkonomiyakiError(msg)
+    else:
+        return attributes
 
 
 def _parse(fp):
