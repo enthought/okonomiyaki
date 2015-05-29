@@ -8,11 +8,11 @@ from ..bundled.traitlets import (
     HasTraits, Enum, Instance, List, Long, Unicode
 )
 from ..errors import (
-    InvalidDependencyString, InvalidEggName, InvalidMetadata
+    InvalidDependencyString, InvalidEggName, InvalidMetadata, OkonomiyakiError
 )
 from ..platforms import Platform
 from ..platforms.legacy import LegacyEPDPlatform
-from ..platforms.platform import MAC_OS_X, RHEL, WINDOWS
+from ..platforms.platform import MAC_OS_X, RHEL, WINDOWS, X86, X86_64
 from ..utils import parse_assignments
 from ..utils.traitlets import NoneOrInstance, NoneOrUnicode
 from ..versions import EnpkgVersion
@@ -58,6 +58,7 @@ _TAG_PLATFORM = "platform"
 _TAG_PYTHON = "python"
 _TAG_PYTHON_PEP425_TAG = "python_tag"
 _TAG_ABI_PEP425_TAG = "abi_tag"
+_TAG_PLATFORM_PEP425_TAG = "platform_tag"
 _TAG_PACKAGES = "packages"
 
 _METADATA_VERSION_TO_KEYS = {
@@ -68,7 +69,8 @@ _METADATA_VERSION_TO_KEYS["1.2"] = \
     _METADATA_VERSION_TO_KEYS["1.1"] + (_TAG_PYTHON_PEP425_TAG, )
 
 _METADATA_VERSION_TO_KEYS["1.3"] = (
-    _METADATA_VERSION_TO_KEYS["1.2"] + (_TAG_ABI_PEP425_TAG, )
+    _METADATA_VERSION_TO_KEYS["1.2"] +
+    (_TAG_ABI_PEP425_TAG, _TAG_PLATFORM_PEP425_TAG)
 )
 
 _UNSUPPORTED = "unsupported"
@@ -248,6 +250,7 @@ python = {python!r}
 
 python_tag = {python_tag!r}
 abi_tag = {abi_tag!r}
+platform_tag = {platform_tag!r}
 
 packages = {packages}
 """
@@ -315,6 +318,11 @@ class LegacySpecDepend(HasTraits):
     abi_tag = NoneOrUnicode()
     """
     ABI tag (as defined in PEP 425), except that 'none' is None.
+    """
+
+    platform_tag = NoneOrUnicode()
+    """
+    Platform tag (as defined in PEP 425), except that 'any' is None.
     """
 
     packages = List(Instance(Dependency))
@@ -419,6 +427,7 @@ class LegacySpecDepend(HasTraits):
             _TAG_PYTHON: self.python,
             _TAG_PYTHON_PEP425_TAG: self.python_tag,
             _TAG_ABI_PEP425_TAG: self.abi_tag,
+            _TAG_PLATFORM_PEP425_TAG: self.platform_tag,
             _TAG_METADATA_VERSION: self.metadata_version
         }
 
@@ -488,7 +497,13 @@ def _metadata_version_to_tuple(metadata_version):
     return tuple(int(s) for s in metadata_version.split("."))
 
 
-def _guess_abi(platform, python_tag):
+def _can_guess_for_pep425(platform):
+    return (platform.family == MAC_OS_X and platform.release == "10.6"
+            or platform.family == WINDOWS
+            or platform.family == RHEL and platform.release == "5.8")
+
+
+def _guess_abi_tag(platform, python_tag):
     assert python_tag is not None, "BUG, this function expects a python_tag"
 
     # For legacy (aka legacy spec version info < 1.3), we know that pyver
@@ -498,17 +513,39 @@ def _guess_abi(platform, python_tag):
     # as we only ever used one ABI for a given python version/platform.
     pyver = _python_tag_to_python(python_tag)
 
-    is_indeed_legacy = (
-        (platform.family == MAC_OS_X and platform.release == "10.6")
-        or platform.family == WINDOWS
-        or platform.family == RHEL and platform.release == "5.8"
-    )
-
-    if is_indeed_legacy:
+    if _can_guess_for_pep425(platform):
         return "cp{0}{1}m".format(pyver[0], pyver[2])
     else:
         msg = "Cannot guess ABI for combination {0!r}/{1!r}"
         raise OkonomiyakiError(msg.format(platform, python_tag))
+
+
+def _guess_platform_tag(platform):
+    msg = "Cannot guess platform tag for platform {0!r}"
+
+    if platform.family == MAC_OS_X and platform.release == "10.6":
+        if platform.arch.name == X86:
+            return "macosx_10_6_i386"
+        elif platform.arch.name == X86_64:
+            return "macosx_10_6_x86_64"
+        else:
+            raise OkonomiyakiError(msg.format(platform))
+    elif platform.family == RHEL and platform.release == "5.8":
+        if platform.arch.name == X86:
+            return "linux_i686"
+        elif platform.arch.name == X86_64:
+            return "linux_x86_64"
+        else:
+            raise OkonomiyakiError(msg.format(platform))
+    elif platform.family == WINDOWS:
+        if platform.arch.name == X86:
+            return "win32"
+        elif platform.arch.name == X86_64:
+            return "win_amd64"
+        else:
+            raise OkonomiyakiError(msg.format(platform))
+    else:
+        raise OkonomiyakiError(msg.format(platform))
 
 
 def _normalized_info_from_string(spec_depend_string):
@@ -552,10 +589,19 @@ def _normalized_info_from_string(spec_depend_string):
             # an egg containing no C extension.
             abi = None
         else:
-            abi = _guess_abi(platform, python_tag)
+            abi = _guess_abi_tag(platform, python_tag)
         data[_TAG_ABI_PEP425_TAG] = abi
     else:
         data[_TAG_ABI_PEP425_TAG] = raw_data[_TAG_ABI_PEP425_TAG]
+
+    if metadata_version_info[:2] < (1, 3):
+        if platform is None:
+            platform_tag = None
+        else:
+            platform_tag = _guess_platform_tag(platform)
+        data[_TAG_PLATFORM_PEP425_TAG] = platform_tag
+    else:
+        data[_TAG_PLATFORM_PEP425_TAG] = raw_data[_TAG_PLATFORM_PEP425_TAG]
 
     return data, platform
 
@@ -661,6 +707,7 @@ class EggMetadata(object):
         self.python_tag = python_tag
 
         self.abi_tag = abi_tag
+        self._platform_tag = _guess_platform_tag(platform)
 
         self.runtime_dependencies = tuple(dependencies.runtime)
 
@@ -695,6 +742,10 @@ class EggMetadata(object):
         return self._raw_name.lower().replace("-", "_")
 
     @property
+    def platform_tag(self):
+        return self._platform_tag
+
+    @property
     def spec_depend_string(self):
         return self._spec_depend.to_string()
 
@@ -717,6 +768,7 @@ class EggMetadata(object):
             "python": self._python,
             "python_tag": self.python_tag,
             "abi_tag": self.abi_tag,
+            "platform_tag": self.platform_tag,
             "packages": [
                 Dependency.from_spec_string(dep)
                 for dep in self.runtime_dependencies
