@@ -9,8 +9,9 @@ else:
 
 from ...errors import OkonomiyakiError
 from .common import (
-    PIP_EGG, PKG_INFO_ENSTALLER_1_0_DESCRIPTION, PIP_PKG_INFO,
-    PKG_INFO_ENSTALLER_1_0
+    BROKEN_MCCABE_EGG, PIP_EGG, PKG_INFO_ENSTALLER_1_0_DESCRIPTION,
+    PIP_PKG_INFO, PKG_INFO_ENSTALLER_1_0, UNICODE_DESCRIPTION_EGG,
+    UNICODE_DESCRIPTION_TEXT
 )
 
 
@@ -83,3 +84,35 @@ class TestPackageInfo(unittest.TestCase):
 
         # Then
         self.assertMultiLineEqual(pkg_info.to_string(), r_pkg_info_s)
+
+    def test_from_broken_egg(self):
+        # Given
+        egg = BROKEN_MCCABE_EGG
+
+        # When
+        pkg_info = PackageInfo.from_egg(egg)
+
+        # Then
+        self.assertEqual(pkg_info.metadata_version, "1.1")
+        self.assertEqual(pkg_info.name, "mccabe")
+        self.assertEqual(pkg_info.version, "0.2.1")
+        self.assertEqual(
+            pkg_info.summary,
+            "McCabe checker, plugin for flake8",
+        )
+
+    def test_from_egg_unicode(self):
+        # Given
+        egg = UNICODE_DESCRIPTION_EGG
+
+        # When
+        pkg_info = PackageInfo.from_egg(egg)
+
+        # Then
+        self.assertEqual(pkg_info.metadata_version, "1.1")
+        self.assertEqual(pkg_info.name, "pymongo")
+        self.assertEqual(pkg_info.version, "2.8")
+        self.assertMultiLineEqual(
+            pkg_info.description,
+            UNICODE_DESCRIPTION_TEXT
+        )
