@@ -12,6 +12,7 @@ from ..errors import (
 )
 from ..platforms import Platform
 from ..platforms.legacy import LegacyEPDPlatform
+from ..platforms.platform import MAC_OS_X, RHEL, WINDOWS
 from ..utils import parse_assignments
 from ..utils.traitlets import NoneOrInstance, NoneOrUnicode
 from ..versions import EnpkgVersion
@@ -55,7 +56,8 @@ _TAG_ARCH = "arch"
 _TAG_OSDIST = "osdist"
 _TAG_PLATFORM = "platform"
 _TAG_PYTHON = "python"
-_TAG_PYTHON_TAG = "python_tag"
+_TAG_PYTHON_PEP425_TAG = "python_tag"
+_TAG_ABI_PEP425_TAG = "abi_tag"
 _TAG_PACKAGES = "packages"
 
 _METADATA_VERSION_TO_KEYS = {
@@ -63,7 +65,11 @@ _METADATA_VERSION_TO_KEYS = {
             _TAG_ARCH, _TAG_PLATFORM, _TAG_OSDIST, _TAG_PYTHON, _TAG_PACKAGES),
 }
 _METADATA_VERSION_TO_KEYS["1.2"] = \
-    _METADATA_VERSION_TO_KEYS["1.1"] + (_TAG_PYTHON_TAG, )
+    _METADATA_VERSION_TO_KEYS["1.1"] + (_TAG_PYTHON_PEP425_TAG, )
+
+_METADATA_VERSION_TO_KEYS["1.3"] = (
+    _METADATA_VERSION_TO_KEYS["1.2"] + (_TAG_ABI_PEP425_TAG, )
+)
 
 _UNSUPPORTED = "unsupported"
 
@@ -228,23 +234,37 @@ osdist = {osdist!r}
 python = {python!r}
 python_tag = {python_tag!r}
 packages = {packages}
+""",
+    "1.3": """\
+metadata_version = '1.3'
+name = {name!r}
+version = {version!r}
+build = {build}
+
+arch = {arch!r}
+platform = {platform!r}
+osdist = {osdist!r}
+python = {python!r}
+
+python_tag = {python_tag!r}
+abi_tag = {abi_tag!r}
+
+packages = {packages}
 """
 }
 
 
-def _get_default_python_tag(data, python):
-    python_tag = data.get(_TAG_PYTHON_TAG)
+def _get_default_python_tag(python_tag, python):
     if python_tag is None:
         python_tag = _PYTHON_VERSION_TO_PYTHON_TAG.get(python, _UNSUPPORTED)
         if python_tag == _UNSUPPORTED:
-            msg = "python = {0} is not supported for metadata_version " \
-                  "= {1!r}".format(python, data[_TAG_METADATA_VERSION])
-            raise InvalidMetadata(msg, _TAG_PYTHON_TAG)
+            msg = "python_tag cannot be guessed for python = {0}"
+            raise InvalidMetadata(msg.format(python), _TAG_PYTHON_PEP425_TAG)
 
     return python_tag
 
 
-_METADATA_DEFAULT_VERSION = "1.2"
+_METADATA_DEFAULT_VERSION = "1.3"
 
 
 def _platform_from_raw_spec(raw_spec):
@@ -286,9 +306,15 @@ class LegacySpecDepend(HasTraits):
     """
     Python version
     """
+
     python_tag = NoneOrUnicode()
     """
-    Python tag (as defined in PEP 425)
+    Python tag (as defined in PEP 425).
+    """
+
+    abi_tag = NoneOrUnicode()
+    """
+    ABI tag (as defined in PEP 425), except that 'none' is None.
     """
 
     packages = List(Instance(Dependency))
@@ -298,17 +324,13 @@ class LegacySpecDepend(HasTraits):
 
     _epd_legacy_platform = NoneOrInstance(LegacyEPDPlatform)
 
-    _metadata_version = Enum(["1.1", "1.2"], _METADATA_DEFAULT_VERSION)
+    _metadata_version = Enum(["1.1", "1.2", "1.3"], _METADATA_DEFAULT_VERSION)
 
     @classmethod
-    def _from_data(cls, data):
+    def _from_data(cls, data, platform):
         args = data.copy()
         args[_TAG_METADATA_VERSION] = args.get(_TAG_METADATA_VERSION,
                                                _METADATA_DEFAULT_VERSION)
-
-        platform = _platform_from_raw_spec(args)
-        for k in (_TAG_ARCH, _TAG_PLATFORM, _TAG_OSDIST):
-            args.pop(k)
 
         if platform is None:
             _epd_legacy_platform = None
@@ -336,7 +358,8 @@ class LegacySpecDepend(HasTraits):
 
     @classmethod
     def from_string(cls, spec_depend_string):
-        return cls._from_data(_normalized_info_from_string(spec_depend_string))
+        data, platform = _normalized_info_from_string(spec_depend_string)
+        return cls._from_data(data, platform)
 
     @property
     def arch(self):
@@ -394,7 +417,8 @@ class LegacySpecDepend(HasTraits):
             _TAG_OSDIST: self.osdist,
             _TAG_PACKAGES: [str(p) for p in self.packages],
             _TAG_PYTHON: self.python,
-            _TAG_PYTHON_TAG: self.python_tag,
+            _TAG_PYTHON_PEP425_TAG: self.python_tag,
+            _TAG_ABI_PEP425_TAG: self.abi_tag,
             _TAG_METADATA_VERSION: self.metadata_version
         }
 
@@ -464,6 +488,29 @@ def _metadata_version_to_tuple(metadata_version):
     return tuple(int(s) for s in metadata_version.split("."))
 
 
+def _guess_abi(platform, python_tag):
+    assert python_tag is not None, "BUG, this function expects a python_tag"
+
+    # For legacy (aka legacy spec version info < 1.3), we know that pyver
+    # can only be one of "2.X" with X in (5, 6, 7).
+    #
+    # In those cases, the mapping (platform pyver) -> ABI is unambiguous,
+    # as we only ever used one ABI for a given python version/platform.
+    pyver = _python_tag_to_python(python_tag)
+
+    is_indeed_legacy = (
+        (platform.family == MAC_OS_X and platform.release == "10.6")
+        or platform.family == WINDOWS
+        or platform.family == RHEL and platform.release == "5.8"
+    )
+
+    if is_indeed_legacy:
+        return "cp{0}{1}m".format(pyver[0], pyver[2])
+    else:
+        msg = "Cannot guess ABI for combination {0!r}/{1!r}"
+        raise OkonomiyakiError(msg.format(platform, python_tag))
+
+
 def _normalized_info_from_string(spec_depend_string):
     """ Return a 'normalized' dictionary from the given spec/depend string.
 
@@ -479,16 +526,38 @@ def _normalized_info_from_string(spec_depend_string):
               _TAG_PYTHON, _TAG_PACKAGES):
         data[k] = raw_data[k]
 
+    platform = _platform_from_raw_spec(data)
+    for k in (_TAG_ARCH, _TAG_PLATFORM, _TAG_OSDIST):
+        data.pop(k)
+
     metadata_version_info = _metadata_version_to_tuple(
         data[_TAG_METADATA_VERSION]
     )
     if metadata_version_info[:2] < (1, 2):
-        data[_TAG_PYTHON_TAG] = _get_default_python_tag(raw_data,
-                                                        raw_data[_TAG_PYTHON])
+        data[_TAG_PYTHON_PEP425_TAG] = \
+            _get_default_python_tag(data.get(_TAG_PYTHON_PEP425_TAG),
+                                    raw_data[_TAG_PYTHON])
     else:
-        data[_TAG_PYTHON_TAG] = raw_data[_TAG_PYTHON_TAG]
+        data[_TAG_PYTHON_PEP425_TAG] = raw_data[_TAG_PYTHON_PEP425_TAG]
 
-    return data
+    if metadata_version_info[:2] < (1, 3):
+        python_tag = data[_TAG_PYTHON_PEP425_TAG]
+
+        if python_tag is None:
+            # No python tag, so should only be a "pure binary" egg, i.e.
+            # an egg containing no python code and no python C extensions.
+            abi = None
+        elif platform is None:
+            # No platform, so should only be a "pure python" egg, i.e.
+            # an egg containing no C extension.
+            abi = None
+        else:
+            abi = _guess_abi(platform, python_tag)
+        data[_TAG_ABI_PEP425_TAG] = abi
+    else:
+        data[_TAG_ABI_PEP425_TAG] = raw_data[_TAG_ABI_PEP425_TAG]
+
+    return data, platform
 
 
 class EggMetadata(object):
@@ -537,6 +606,7 @@ class EggMetadata(object):
                                                        spec_depend.build)
 
         python_tag = spec_depend.python_tag
+        abi_tag = spec_depend.abi_tag
 
         if spec_depend._epd_legacy_platform is None:
             platform = None
@@ -552,12 +622,15 @@ class EggMetadata(object):
             metadata_version_info or spec_depend.metadata_version_info
         )
 
-        return cls(raw_name, version, platform, python_tag, dependencies,
-                   pkg_info, summary, metadata_version_info)
+        return cls(raw_name, version, platform, python_tag, abi_tag,
+                   dependencies, pkg_info, summary, metadata_version_info)
 
-    def __init__(self, raw_name, version, platform, python_tag, dependencies,
-                 pkg_info, summary, metadata_version_info=None):
+    def __init__(self, raw_name, version, platform, python_tag, abi_tag,
+                 dependencies, pkg_info, summary, metadata_version_info=None):
         """ EggMetadata instances encompass Enthought egg metadata.
+
+        Note: the constructor is considered private, please use one of the
+        from_* class methods.
 
         Parameters
         ----------
@@ -569,6 +642,8 @@ class EggMetadata(object):
             An okonomyaki platform instance, or None for cross-platform eggs
         python_tag: str
             The python tag, e.g. 'cp27'. May be None.
+        abi_tag: str
+            The ABI tag, e.g. 'cp27m'. May be None.
         dependencies: Dependencies
             A Dependencies instance.
         pkg_info: PackageInfo or None
@@ -584,6 +659,8 @@ class EggMetadata(object):
 
         self._python = _python_tag_to_python(python_tag)
         self.python_tag = python_tag
+
+        self.abi_tag = abi_tag
 
         self.runtime_dependencies = tuple(dependencies.runtime)
 
@@ -639,6 +716,7 @@ class EggMetadata(object):
             "build": self.build,
             "python": self._python,
             "python_tag": self.python_tag,
+            "abi_tag": self.abi_tag,
             "packages": [
                 Dependency.from_spec_string(dep)
                 for dep in self.runtime_dependencies

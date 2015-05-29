@@ -78,7 +78,7 @@ packages = []
         dependencies = Dependencies((), ())
 
         return EggMetadata(
-            pkg_info.name, version, platform, "cp27", dependencies,
+            pkg_info.name, version, platform, "cp27", "cp27m", dependencies,
             pkg_info, pkg_info.summary
         )
 
@@ -89,7 +89,7 @@ packages = []
         dependencies = Dependencies((), ())
 
         metadata = EggMetadata("foo", version, platform, "cp27",
-                               dependencies, None, "")
+                               "cp27m", dependencies, None, "")
 
         # When/Then
         with self.assertRaises(ValueError):
@@ -412,6 +412,163 @@ packages = [
             depend._epd_legacy_platform,
             LegacyEPDPlatform.from_epd_platform_string("win-32")
         )
+
+    def test_format_1_3(self):
+        r_depend = """\
+metadata_version = "1.3"
+name= "numpy_debug"
+version = "1.9.2"
+build = 3
+
+arch = 'x86'
+platform = 'win32'
+osdist = None
+
+python = "2.7"
+python_tag = "cp27"
+abi_tag = "cp27m"
+
+packages = [
+]
+"""
+        depend = LegacySpecDepend.from_string(r_depend)
+
+        # Then
+        self.assertEqual(depend._metadata_version, "1.3")
+        self.assertEqual(depend.python_tag, "cp27")
+        self.assertEqual(depend.abi_tag, "cp27m")
+
+
+class TestLegacySpecDependAbi(unittest.TestCase):
+    def test_default_no_python_egg(self):
+        # Given
+        spec_depend_string = """\
+metadata_version = '1.1'
+name = 'MKL'
+version = '10.3'
+build = 1
+
+arch = 'amd64'
+platform = 'darwin'
+osdist = None
+python = None
+packages = []
+"""
+
+        # When
+        spec_depend = LegacySpecDepend.from_string(spec_depend_string)
+
+        # Then
+        self.assertIsNone(spec_depend.abi_tag, None)
+
+    def test_default_pure_python_egg(self):
+        # Given
+        spec_depend_string = """\
+metadata_version = '1.1'
+name = 'nose'
+version = '1.3.4'
+build = 1
+
+arch = 'amd64'
+platform = 'darwin'
+osdist = None
+python = '2.7'
+packages = []
+"""
+
+        # When
+        spec_depend = LegacySpecDepend.from_string(spec_depend_string)
+
+        # Then
+        self.assertEqual(spec_depend.abi_tag, "cp27m")
+
+    def test_default_extension_python_egg(self):
+        # Given
+        spec_depend_string = """\
+metadata_version = '1.1'
+name = 'numpy'
+version = '1.9.2'
+build = 1
+
+arch = 'amd64'
+platform = 'darwin'
+osdist = None
+python = '2.7'
+packages = [
+  'MKL 10.3-1',
+]
+"""
+
+        # When
+        spec_depend = LegacySpecDepend.from_string(spec_depend_string)
+
+        # Then
+        self.assertEqual(spec_depend.abi_tag, "cp27m")
+
+    def test_default_pure_python_egg_pypi(self):
+        # Given
+        spec_depend_string = """\
+metadata_version = '1.1'
+name = 'numpydoc'
+version = '0.4'
+build = 1
+
+arch = None
+platform = None
+osdist = None
+python = '2.7'
+packages = [
+  'sphinx',
+]
+"""
+
+        # When
+        spec_depend = LegacySpecDepend.from_string(spec_depend_string)
+
+        # Then
+        self.assertIsNone(spec_depend.abi_tag)
+
+    def test_to_string(self):
+        # Given
+        r_spec_depend_string = """\
+metadata_version = '1.3'
+name = 'nose'
+version = '1.3.4'
+build = 1
+
+arch = 'amd64'
+platform = 'darwin'
+osdist = None
+python = '2.7'
+
+python_tag = 'cp27'
+abi_tag = 'cp27m'
+
+packages = []
+"""
+
+        spec_depend_string = """\
+metadata_version = '1.1'
+name = 'nose'
+version = '1.3.4'
+build = 1
+
+arch = 'amd64'
+platform = 'darwin'
+osdist = None
+python = '2.7'
+packages = []
+"""
+
+        # When
+        spec_depend = LegacySpecDepend.from_string(spec_depend_string)
+        # A bit of an hack, but this is the only way to force a specific
+        # metadata version for to_string for now
+        spec_depend._metadata_version = "1.3"
+        spec_depend_string = spec_depend.to_string()
+
+        # Then
+        self.assertMultiLineEqual(spec_depend_string, r_spec_depend_string)
 
 
 class TestEggName(unittest.TestCase):
