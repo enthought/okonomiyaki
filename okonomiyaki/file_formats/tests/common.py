@@ -9,6 +9,14 @@ ENSTALLER_EGG = os.path.join(DATA_DIR, "enstaller-4.5.0-1.egg")
 ETS_EGG = os.path.join(DATA_DIR, "ets-4.3.0-3.egg")
 PIP_EGG = os.path.join(DATA_DIR, "pip-6.0.8-1.egg")
 
+# Some eggs are for some reason built without EGG-INFO/PKG-INFO. A few
+# eggs were built in a broken way, and some explicitly with this feature
+# (see dcdd2492066b9a88e1cf39459c3fff99589f789d in buildsystem).
+# In most of those cases, the PKG-INFO is instead written as
+# EGG-INFO/PKG-INFO.bak (don't ask).
+BROKEN_MCCABE_EGG = os.path.join(DATA_DIR, "broken_legacy_eggs",
+                                 "mccabe-0.2.1-2.egg")
+
 # flake8: noqa
 PKG_INFO_ENSTALLER_1_0 = """\
 Metadata-Version: 1.0

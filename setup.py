@@ -80,7 +80,11 @@ def main():
 
     from okonomiyaki import __version__
 
-    package_data = {"okonomiyaki.repositories.tests": ["data/*egg"]}
+    package_data = {
+        "okonomiyaki.repositories.tests": [
+            "data/*egg", "data/broken_legacy_eggs/*egg"
+        ],
+    }
 
     setup(name="okonomiyaki",
           author="David Cournapeau",

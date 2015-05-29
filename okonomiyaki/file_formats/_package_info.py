@@ -12,6 +12,10 @@ from ..errors import OkonomiyakiError
 
 
 _PKG_INFO_LOCATION = "EGG-INFO/PKG-INFO"
+_PKG_INFO_CANDIDATES = (
+    _PKG_INFO_LOCATION,
+    "EGG-INFO/PKG-INFO.bak",
+)
 
 PKG_INFO_ENCODING = 'utf-8'
 
@@ -59,7 +63,15 @@ class PackageInfo(object):
         """
         if isinstance(path_or_file, six.string_types):
             with zipfile2.ZipFile(path_or_file) as fp:
-                data = fp.read(_PKG_INFO_LOCATION)
+                for candidate in _PKG_INFO_CANDIDATES:
+                    try:
+                        data = fp.read(candidate)
+                        break
+                    except KeyError:
+                        pass
+                else:
+                    msg = "No PKG-INFO metadata found"
+                    raise OkonomiyakiError(msg)
         else:
             data = path_or_file.read(_PKG_INFO_LOCATION)
         return cls.from_string(data.decode())
