@@ -74,7 +74,7 @@ class PackageInfo(object):
                     raise OkonomiyakiError(msg)
         else:
             data = path_or_file.read(_PKG_INFO_LOCATION)
-        return cls.from_string(data.decode())
+        return cls.from_string(data.decode(PKG_INFO_ENCODING))
 
     @classmethod
     def from_string(cls, s):

@@ -82,7 +82,7 @@ def main():
 
     package_data = {
         "okonomiyaki.repositories.tests": [
-            "data/*egg", "data/broken_legacy_eggs/*egg"
+            "data/*egg", "data/broken_legacy_eggs/*egg", "data/*.txt",
         ],
     }
 

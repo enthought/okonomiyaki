@@ -17,6 +17,10 @@ PIP_EGG = os.path.join(DATA_DIR, "pip-6.0.8-1.egg")
 BROKEN_MCCABE_EGG = os.path.join(DATA_DIR, "broken_legacy_eggs",
                                  "mccabe-0.2.1-2.egg")
 
+UNICODE_DESCRIPTION_EGG = os.path.join(DATA_DIR, "pymongo-2.8-1.egg")
+with open(os.path.join(DATA_DIR, "pymongo_description.txt"), "rb") as fp:
+    UNICODE_DESCRIPTION_TEXT = fp.read().decode("utf8")
+
 # flake8: noqa
 PKG_INFO_ENSTALLER_1_0 = """\
 Metadata-Version: 1.0
