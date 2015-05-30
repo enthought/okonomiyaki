@@ -521,6 +521,9 @@ def _guess_abi_tag(platform, python_tag):
 
 
 def _guess_platform_tag(platform):
+    if platform is None:
+        return None
+
     msg = "Cannot guess platform tag for platform {0!r}"
 
     if platform.family == MAC_OS_X and platform.release == "10.6":
