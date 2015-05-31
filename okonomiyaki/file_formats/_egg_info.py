@@ -12,7 +12,7 @@ from ..errors import (
 )
 from ..platforms import Platform
 from ..platforms.legacy import LegacyEPDPlatform
-from ..platforms.platform import MAC_OS_X, RHEL, WINDOWS, X86, X86_64
+from ..platforms.platform import MAC_OS_X, RHEL, WINDOWS
 from ..utils import parse_assignments
 from ..utils.traitlets import NoneOrInstance, NoneOrUnicode
 from ..versions import EnpkgVersion
