@@ -524,30 +524,10 @@ def _guess_platform_tag(platform):
     if platform is None:
         return None
 
-    msg = "Cannot guess platform tag for platform {0!r}"
-
-    if platform.family == MAC_OS_X and platform.release == "10.6":
-        if platform.arch.name == X86:
-            return "macosx_10_6_i386"
-        elif platform.arch.name == X86_64:
-            return "macosx_10_6_x86_64"
-        else:
-            raise OkonomiyakiError(msg.format(platform))
-    elif platform.family == RHEL and platform.release == "5.8":
-        if platform.arch.name == X86:
-            return "linux_i686"
-        elif platform.arch.name == X86_64:
-            return "linux_x86_64"
-        else:
-            raise OkonomiyakiError(msg.format(platform))
-    elif platform.family == WINDOWS:
-        if platform.arch.name == X86:
-            return "win32"
-        elif platform.arch.name == X86_64:
-            return "win_amd64"
-        else:
-            raise OkonomiyakiError(msg.format(platform))
+    if _can_guess_for_pep425(platform):
+        return platform.pep425_tag
     else:
+        msg = "Cannot guess platform tag for platform {0!r}"
         raise OkonomiyakiError(msg.format(platform))
 
 
@@ -710,7 +690,6 @@ class EggMetadata(object):
         self.python_tag = python_tag
 
         self.abi_tag = abi_tag
-        self._platform_tag = _guess_platform_tag(platform)
 
         self.runtime_dependencies = tuple(dependencies.runtime)
 
@@ -746,7 +725,10 @@ class EggMetadata(object):
 
     @property
     def platform_tag(self):
-        return self._platform_tag
+        if self.platform is None:
+            return None
+        else:
+            return self.platform.pep425_tag
 
     @property
     def spec_depend_string(self):
