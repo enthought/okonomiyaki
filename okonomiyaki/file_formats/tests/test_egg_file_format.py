@@ -427,6 +427,7 @@ osdist = None
 python = "2.7"
 python_tag = "cp27"
 abi_tag = "cp27m"
+platform_tag = "win32"
 
 packages = [
 ]
@@ -437,6 +438,7 @@ packages = [
         self.assertEqual(depend._metadata_version, "1.3")
         self.assertEqual(depend.python_tag, "cp27")
         self.assertEqual(depend.abi_tag, "cp27m")
+        self.assertEqual(depend.platform_tag, "win32")
 
 
 class TestLegacySpecDependAbi(unittest.TestCase):
@@ -543,6 +545,7 @@ python = '2.7'
 
 python_tag = 'cp27'
 abi_tag = 'cp27m'
+platform_tag = 'macosx_10_6_x86_64'
 
 packages = []
 """
@@ -569,6 +572,117 @@ packages = []
 
         # Then
         self.assertMultiLineEqual(spec_depend_string, r_spec_depend_string)
+
+
+class TestLegacySpecDependPlatform(unittest.TestCase):
+    def test_default_win_64(self):
+        # Given
+        spec_depend_string = """\
+metadata_version = '1.1'
+name = 'MKL'
+version = '10.3'
+build = 1
+
+arch = 'amd64'
+platform = 'win32'
+osdist = None
+
+python = None
+packages = []
+"""
+
+        # When
+        spec_depend = LegacySpecDepend.from_string(spec_depend_string)
+
+        # Then
+        self.assertEqual(spec_depend.platform_tag, "win_amd64")
+
+    def test_default_win_32(self):
+        # Given
+        spec_depend_string = """\
+metadata_version = '1.1'
+name = 'MKL'
+version = '10.3'
+build = 1
+
+arch = 'i386'
+platform = 'win32'
+osdist = None
+
+python = None
+packages = []
+"""
+
+        # When
+        spec_depend = LegacySpecDepend.from_string(spec_depend_string)
+
+        # Then
+        self.assertEqual(spec_depend.platform_tag, "win32")
+
+    def test_default_rh5_32(self):
+        # Given
+        spec_depend_string = """\
+metadata_version = '1.1'
+name = 'MKL'
+version = '10.3'
+build = 1
+
+arch = 'i386'
+platform = 'linux2'
+osdist = 'RedHat_5'
+
+python = None
+packages = []
+"""
+
+        # When
+        spec_depend = LegacySpecDepend.from_string(spec_depend_string)
+
+        # Then
+        self.assertEqual(spec_depend.platform_tag, "linux_i686")
+
+    def test_default_rh5_64(self):
+        # Given
+        spec_depend_string = """\
+metadata_version = '1.1'
+name = 'MKL'
+version = '10.3'
+build = 1
+
+arch = 'amd64'
+platform = 'linux2'
+osdist = 'RedHat_5'
+
+python = None
+packages = []
+"""
+
+        # When
+        spec_depend = LegacySpecDepend.from_string(spec_depend_string)
+
+        # Then
+        self.assertEqual(spec_depend.platform_tag, "linux_x86_64")
+
+    def test_default_all_none(self):
+        # Given
+        spec_depend_string = """\
+metadata_version = '1.1'
+name = 'MKL'
+version = '10.3'
+build = 1
+
+arch = None
+platform = None
+osdist = None
+python = None
+packages = []
+"""
+
+        # When
+        spec_depend = LegacySpecDepend.from_string(spec_depend_string)
+
+        # Then
+        self.assertIsNone(spec_depend.platform_tag)
 
 
 class TestEggName(unittest.TestCase):

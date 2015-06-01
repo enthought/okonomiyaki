@@ -269,6 +269,34 @@ class Platform(HasTraits):
             self._epd_platform_string
         )
 
+    @property
+    def pep425_tag(self):
+        msg = "Cannot guess platform tag for platform {0!r}"
+
+        if self.family == MAC_OS_X:
+            if self.arch.name == X86:
+                return "macosx_10_6_i386"
+            elif self.arch.name == X86_64:
+                return "macosx_10_6_x86_64"
+            else:
+                raise OkonomiyakiError(msg.format(self))
+        elif self.os == LINUX:
+            if self.arch.name == X86:
+                return "linux_i686"
+            elif self.arch.name == X86_64:
+                return "linux_x86_64"
+            else:
+                raise OkonomiyakiError(msg.format(self))
+        elif self.family == WINDOWS:
+            if self.arch.name == X86:
+                return "win32"
+            elif self.arch.name == X86_64:
+                return "win_amd64"
+            else:
+                raise OkonomiyakiError(msg.format(self))
+        else:
+            raise OkonomiyakiError(msg.format(self))
+
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
             return False
