@@ -275,7 +275,7 @@ class Platform(HasTraits):
 
         if self.family == MAC_OS_X:
             if self.arch.name == X86:
-                return "macosx_{0}_i386".format(self.release, )
+                return "macosx_10_6_i386"
             elif self.arch.name == X86_64:
                 return "macosx_10_6_x86_64"
             else:
