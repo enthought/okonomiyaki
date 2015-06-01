@@ -668,36 +668,49 @@ class EggMetadata(object):
         """
         self._raw_name = raw_name
         self.version = version
+        """ The version, as an EnpkgVersion instance."""
 
         self.platform = platform
+        """ The platform, as a Platform instance."""
 
         self._python = _python_tag_to_python(python_tag)
         self.python_tag = python_tag
+        """ The python tag, following the PEP425 format."""
 
         self.abi_tag = abi_tag
+        """ The ABI tag, following the PEP425 format, except that no ABI
+        is sorted as None."""
 
         self.runtime_dependencies = tuple(dependencies.runtime)
+        """ List of runtime dependencies (as strings)."""
 
         if metadata_version_info is None:
-            self.metadata_version_info = _metadata_version_to_tuple(
+            metadata_version_info = _metadata_version_to_tuple(
                 _METADATA_DEFAULT_VERSION
             )
-        else:
-            self.metadata_version_info = metadata_version_info
+        self.metadata_version_info = metadata_version_info
+        """ The version format of the underlying metadata."""
 
         self.pkg_info = pkg_info
+        """ A PackageInfo instance modeling the underlying PKG-INFO. May
+        be None for eggs without an PKG-INFO file."""
+
         self.summary = summary
+        """ The summary string."""
 
     @property
     def build(self):
+        """ The build number."""
         return self.version.build
 
     @property
     def egg_basename(self):
+        """ The egg "base name", i.e. the name part of the egg filename."""
         return self._raw_name
 
     @property
     def egg_name(self):
+        """ The egg filename."""
         return self._spec_depend.egg_name
 
     @property
@@ -706,10 +719,13 @@ class EggMetadata(object):
 
     @property
     def name(self):
+        """ The package name."""
         return self._raw_name.lower().replace("-", "_")
 
     @property
     def platform_tag(self):
+        """ Platform tag following PEP425, except that no platform is
+        represented as None and not 'any'."""
         if self.platform is None:
             return None
         else:

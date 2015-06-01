@@ -30,39 +30,17 @@ One can access details through EPDPlatform instances' attributes.
 Enthought egg features
 ======================
 
-.. currentmodule:: okonomiyaki.file_formats.egg
+.. currentmodule:: okonomiyaki.file_formats
 
-LegacySpecDepend class
-----------------------
+EggMetadata class
+-----------------
 
-Represents the content of the spec/depend file in Enthought egg's metadata.
-You can create one from an existing egg::
+This models the metadata of an Enthought egg::
 
-    spec = LegacySpecDepend.from_egg("numpy-1.7.1-1.egg")
-    print spec.packages
-    print spec.osdist
+    metadata = EggMetadata.from_egg("numpy-1.7.1-1.egg")
+    print(metadata.platform_tag)
 
-    # generate the spec/depend content
-    print spec.to_string()
-
-.. autoclass:: LegacySpec
-   :members:
-
-LegacySpec class
-----------------
-
-This models the content of the spec directory in Enthought egg's metadata.
-You can create one from an existing egg::
-
-    spec = LegacySpec.from_egg("numpy-1.7.1-1.egg")
-    print spec.summary
-    print spec.lib_depend
-    print spec.lib_provide
-
-    # generate the spec/depend content
-    print spec.depend_content()
-
-.. autoclass:: LegacySpec
+.. autoclass:: EggMetadata
    :members:
 
 EggBuilder class

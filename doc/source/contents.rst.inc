@@ -1,3 +1,14 @@
+User Guide
+----------
+
+This part of the documentation focuses on step-by-step instructions for getting
+the most out of the library.
+
+.. toctree::
+   :maxdepth: 2
+
+   user/quickstart
+
 Dev Guide
 ---------
 
