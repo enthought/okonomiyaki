@@ -6,10 +6,11 @@ else:
     import unittest
 
 from ...errors import OkonomiyakiError
-from ..setuptools_egg import parse_filename
+from ..setuptools_egg import SetuptoolsEggMetadata, parse_filename
+from .common import TRAITS_SETUPTOOLS_EGG
 
 
-class TestEggBuilder(unittest.TestCase):
+class TestParseFilename(unittest.TestCase):
     def test_simple(self):
         # Given
         path = "nose-1.2.1-py2.6.egg"
@@ -56,3 +57,18 @@ class TestEggBuilder(unittest.TestCase):
         # When/Then
         with self.assertRaises(OkonomiyakiError):
             parse_filename(path)
+
+
+class TestSetuptoolsEggMetadata(unittest.TestCase):
+    def test_simple(self):
+        # Given
+        path = TRAITS_SETUPTOOLS_EGG
+
+        # When
+        metadata = SetuptoolsEggMetadata.from_egg(path)
+
+        # Then
+        self.assertEqual(metadata.name, "traits")
+        self.assertEqual(metadata.version, "4.6.0.dev235")
+        self.assertEqual(metadata.python_tag, "cp27")
+        self.assertEqual(metadata.abi_tag, "cp27m")
