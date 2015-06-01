@@ -246,6 +246,6 @@ texinfo_documents = [
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'http://docs.python.org/': None}
 
-sys.path.append(os.path.abspath('.themes'))
-html_theme_path = ['.themes']
-html_theme = 'kr'
+import enthought_sphinx_theme
+html_theme_path = [enthought_sphinx_theme.theme_path]
+html_theme = 'enthought'
