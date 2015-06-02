@@ -25,6 +25,7 @@ PLATFORM_NAMES = [
     "rh3",
     "rh5",
     "rh6",
+    "rh7",
     "sol",
     "win",
 ]
@@ -37,6 +38,7 @@ EPD_PLATFORM_SHORT_NAMES = [
     "rh5-32",
     "rh5-64",
     "rh6-64",
+    "rh7-64",
     "sol-32",
     "sol-64",
     "win-32",
@@ -106,16 +108,24 @@ class EPDPlatform(HasTraits):
 
     @classmethod
     def _from_spec_depend_data(cls, platform, osdist, arch_name):
+        msg = ("Unrecognized platform/osdist combination: {0!r}/{1!r}"
+               .format(platform, osdist))
+
         arch = Arch.from_name(arch_name)
         if platform == "darwin":
             epd_name = "osx"
         elif platform == "win32":
             epd_name = "win"
-        elif platform.startswith("linux") and osdist in (None, "RedHat_5"):
-            epd_name = "rh5"
+        elif platform.startswith("linux"):
+            if osdist in (None, "RedHat_5"):
+                epd_name = "rh5"
+            elif osdist == "RedHat_6":
+                epd_name = "rh6"
+            elif osdist == "RedHat_7":
+                epd_name = "rh7"
+            else:
+                raise ValueError(msg)
         else:
-            msg = ("Unrecognized platform/osdist combination: {0!r}/{1!r}"
-                   .format(platform, osdist))
             raise ValueError(msg)
         return cls.from_epd_string("{0}-{1}".format(epd_name, arch._arch_bits))
 
@@ -202,6 +212,8 @@ class EPDPlatform(HasTraits):
                     base = "rh5"
                 elif parts[0] == "6":
                     base = "rh6"
+                elif parts[0] == "7":
+                    base = "rh7"
                 else:
                     msg = ("Unsupported rhel release: {0!r}".format(release))
                     raise OkonomiyakiError(msg)
@@ -295,6 +307,8 @@ def applies(platform_string, to='current'):
 
 
 def _epd_name_to_quadruplet(name):
+    if name == "rh7":
+        return (LINUX, RHEL, RHEL, "7.1")
     if name == "rh6":
         return (LINUX, RHEL, RHEL, "6.5")
     elif name == "rh5":
