@@ -1,6 +1,6 @@
 # flake8: noqa
 from .epd_platform import EPDPlatform, applies
 from .platform import Platform
+from ._arch import X86, X86_64
 
-# Other variables above will hopefully disappear before v1
-__all__ = ["EPDPlatform", "Platform"]
+__all__ = ["EPDPlatform", "Platform", "X86", "X86_64"]

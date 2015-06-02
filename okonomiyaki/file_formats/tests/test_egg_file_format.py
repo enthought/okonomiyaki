@@ -20,7 +20,7 @@ from .._egg_info import (
     split_egg_name
 )
 from .._package_info import PackageInfo
-from ...platforms import Platform
+from ...platforms import EPDPlatform
 from ...platforms.legacy import LegacyEPDPlatform
 from ...versions import EnpkgVersion
 
@@ -74,7 +74,7 @@ packages = []
         pkg_info.name = "Qt_debug"
 
         version = EnpkgVersion.from_upstream_and_build(pkg_info.version, 1)
-        platform = Platform.from_epd_platform_string("rh5-32")
+        platform = EPDPlatform.from_epd_string("rh5-32")
         dependencies = Dependencies((), ())
 
         return EggMetadata(
@@ -85,7 +85,7 @@ packages = []
     def test_reject_no_pkg_info(self):
         # Given
         version = EnpkgVersion.from_string("4.8.4-1")
-        platform = Platform.from_running_system()
+        platform = EPDPlatform.from_epd_string("rh5-64")
         dependencies = Dependencies((), ())
 
         metadata = EggMetadata("foo", version, platform, "cp27",
@@ -945,7 +945,7 @@ class TestEggInfo(unittest.TestCase):
         self.assertEqual(metadata.metadata_version_info, (1, 1))
         self.assertEqual(metadata.python_tag, "cp27")
         self.assertEqual(
-            metadata.platform, Platform.from_epd_platform_string("rh5-32")
+            metadata.platform, EPDPlatform.from_epd_string("rh5-32")
         )
 
     def test_to_spec_string(self):

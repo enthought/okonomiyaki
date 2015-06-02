@@ -8,11 +8,10 @@ from ..bundled.traitlets import (
     HasTraits, Enum, Instance, List, Long, Unicode
 )
 from ..errors import (
-    InvalidDependencyString, InvalidEggName, InvalidMetadata, OkonomiyakiError
+    InvalidDependencyString, InvalidEggName, InvalidMetadata
 )
-from ..platforms import Platform
+from ..platforms import EPDPlatform
 from ..platforms.legacy import LegacyEPDPlatform
-from ..platforms.platform import MAC_OS_X, RHEL, WINDOWS
 from ..utils import parse_assignments
 from ..utils.traitlets import NoneOrInstance, NoneOrUnicode
 from ..versions import EnpkgVersion
@@ -270,8 +269,8 @@ def _get_default_python_tag(python_tag, python):
 _METADATA_DEFAULT_VERSION = "1.3"
 
 
-def _platform_from_raw_spec(raw_spec):
-    """ Create a Platform instance from the metadata info returned by
+def _epd_platform_from_raw_spec(raw_spec):
+    """ Create an EPDPlatform instance from the metadata info returned by
     parse_rawspec.
 
     if no platform is defined ('platform' and 'osdist' set to None), then
@@ -283,8 +282,9 @@ def _platform_from_raw_spec(raw_spec):
     if platform_string is None and osdist_string is None:
         return None
     else:
-        return Platform.from_spec_depend_data(platform_string,
-                                              osdist_string, arch_string)
+        return EPDPlatform._from_spec_depend_data(
+            platform_string, osdist_string, arch_string
+        )
 
 
 class LegacySpecDepend(HasTraits):
@@ -335,15 +335,15 @@ class LegacySpecDepend(HasTraits):
     _metadata_version = Enum(["1.1", "1.2", "1.3"], _METADATA_DEFAULT_VERSION)
 
     @classmethod
-    def _from_data(cls, data, platform):
+    def _from_data(cls, data, epd_platform):
         args = data.copy()
         args[_TAG_METADATA_VERSION] = args.get(_TAG_METADATA_VERSION,
                                                _METADATA_DEFAULT_VERSION)
 
-        if platform is None:
+        if epd_platform is None:
             _epd_legacy_platform = None
         else:
-            _epd_legacy_platform = LegacyEPDPlatform(platform.epd_platform)
+            _epd_legacy_platform = LegacyEPDPlatform(epd_platform)
         args["_epd_legacy_platform"] = _epd_legacy_platform
 
         args[_TAG_PACKAGES] = [
@@ -366,8 +366,8 @@ class LegacySpecDepend(HasTraits):
 
     @classmethod
     def from_string(cls, spec_depend_string):
-        data, platform = _normalized_info_from_string(spec_depend_string)
-        return cls._from_data(data, platform)
+        data, epd_platform = _normalized_info_from_string(spec_depend_string)
+        return cls._from_data(data, epd_platform)
 
     @property
     def arch(self):
@@ -377,7 +377,7 @@ class LegacySpecDepend(HasTraits):
         if self._epd_legacy_platform is None:
             return None
         else:
-            return self._epd_legacy_platform.arch
+            return self._epd_legacy_platform.arch._legacy_name
 
     @property
     def egg_name(self):
@@ -497,12 +497,6 @@ def _metadata_version_to_tuple(metadata_version):
     return tuple(int(s) for s in metadata_version.split("."))
 
 
-def _can_guess_for_pep425(platform):
-    return (platform.family == MAC_OS_X and platform.release == "10.6"
-            or platform.family == WINDOWS
-            or platform.family == RHEL and platform.release == "5.8")
-
-
 def _guess_abi_tag(platform, python_tag):
     assert python_tag is not None, "BUG, this function expects a python_tag"
 
@@ -512,23 +506,14 @@ def _guess_abi_tag(platform, python_tag):
     # In those cases, the mapping (platform pyver) -> ABI is unambiguous,
     # as we only ever used one ABI for a given python version/platform.
     pyver = _python_tag_to_python(python_tag)
-
-    if _can_guess_for_pep425(platform):
-        return "cp{0}{1}m".format(pyver[0], pyver[2])
-    else:
-        msg = "Cannot guess ABI for combination {0!r}/{1!r}"
-        raise OkonomiyakiError(msg.format(platform, python_tag))
+    return "cp{0}{1}m".format(pyver[0], pyver[2])
 
 
 def _guess_platform_tag(platform):
     if platform is None:
         return None
 
-    if _can_guess_for_pep425(platform):
-        return platform.pep425_tag
-    else:
-        msg = "Cannot guess platform tag for platform {0!r}"
-        raise OkonomiyakiError(msg.format(platform))
+    return platform.pep425_tag
 
 
 def _normalized_info_from_string(spec_depend_string):
@@ -546,7 +531,7 @@ def _normalized_info_from_string(spec_depend_string):
               _TAG_PYTHON, _TAG_PACKAGES):
         data[k] = raw_data[k]
 
-    platform = _platform_from_raw_spec(data)
+    epd_platform = _epd_platform_from_raw_spec(data)
     for k in (_TAG_ARCH, _TAG_PLATFORM, _TAG_OSDIST):
         data.pop(k)
 
@@ -567,26 +552,26 @@ def _normalized_info_from_string(spec_depend_string):
             # No python tag, so should only be a "pure binary" egg, i.e.
             # an egg containing no python code and no python C extensions.
             abi = None
-        elif platform is None:
+        elif epd_platform is None:
             # No platform, so should only be a "pure python" egg, i.e.
             # an egg containing no C extension.
             abi = None
         else:
-            abi = _guess_abi_tag(platform, python_tag)
+            abi = _guess_abi_tag(epd_platform, python_tag)
         data[_TAG_ABI_PEP425_TAG] = abi
     else:
         data[_TAG_ABI_PEP425_TAG] = raw_data[_TAG_ABI_PEP425_TAG]
 
     if metadata_version_info[:2] < (1, 3):
-        if platform is None:
+        if epd_platform is None:
             platform_tag = None
         else:
-            platform_tag = _guess_platform_tag(platform)
+            platform_tag = _guess_platform_tag(epd_platform)
         data[_TAG_PLATFORM_PEP425_TAG] = platform_tag
     else:
         data[_TAG_PLATFORM_PEP425_TAG] = raw_data[_TAG_PLATFORM_PEP425_TAG]
 
-    return data, platform
+    return data, epd_platform
 
 
 class EggMetadata(object):
@@ -641,7 +626,7 @@ class EggMetadata(object):
             platform = None
         else:
             platform_string = str(spec_depend._epd_legacy_platform)
-            platform = Platform.from_epd_platform_string(platform_string)
+            platform = EPDPlatform.from_epd_string(platform_string)
 
         dependencies = Dependencies(
             tuple(str(dep) for dep in spec_depend.packages)
@@ -743,8 +728,7 @@ class EggMetadata(object):
         if self.platform is None:
             _epd_legacy_platform = None
         else:
-            epd_platform = self.platform.epd_platform
-            _epd_legacy_platform = LegacyEPDPlatform(epd_platform)
+            _epd_legacy_platform = LegacyEPDPlatform(self.platform)
 
         args = {
             "name": self._raw_name,

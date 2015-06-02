@@ -5,17 +5,17 @@ from ...errors import OkonomiyakiError
 
 from .. import EPDPlatform
 from ..epd_platform import (
-    _guess_architecture, _guess_epd_platform, EPD_PLATFORM_SHORT_NAMES,
-    applies
+    _guess_epd_platform, EPD_PLATFORM_SHORT_NAMES, applies
 )
 from ..legacy import _SUBDIR
-from ..platform import X86, X86_64
+from ..platform import DARWIN, LINUX, MAC_OS_X, RHEL, WINDOWS
+from .._arch import Arch, X86, X86_64
 
 from .common import (
     mock_architecture_32bit, mock_architecture_64bit, mock_centos_5_8,
     mock_centos_6_3, mock_darwin, mock_machine_x86, mock_machine_x86_64,
-    mock_machine_armv71, mock_linux, mock_solaris, mock_ubuntu_raring,
-    mock_windows, mock_x86, mock_x86_64
+    mock_linux, mock_solaris, mock_ubuntu_raring, mock_windows, mock_x86,
+    mock_x86_64
 )
 
 
@@ -109,24 +109,24 @@ class TestEPDPlatformApplies(unittest.TestCase):
 class TestGuessEPDPlatform(unittest.TestCase):
     @mock_windows
     def test_guess_win32_platform(self):
-        epd_platform = _guess_epd_platform("x86")
+        epd_platform = _guess_epd_platform(Arch.from_name("x86"))
         self.assertEqual(epd_platform.short, "win-32")
 
-        epd_platform = _guess_epd_platform("amd64")
+        epd_platform = _guess_epd_platform(Arch.from_name("amd64"))
         self.assertEqual(epd_platform.short, "win-64")
 
     @mock_darwin
     def test_guess_darwin_platform(self):
         # When
         with mock_machine_x86:
-            epd_platform = _guess_epd_platform("x86")
+            epd_platform = _guess_epd_platform(Arch.from_name("x86"))
 
         # Then
         self.assertEqual(epd_platform.short, "osx-32")
 
         # When
         with mock_machine_x86:
-            epd_platform = _guess_epd_platform("amd64")
+            epd_platform = _guess_epd_platform(Arch.from_name("amd64"))
 
         # Then
         self.assertEqual(epd_platform.short, "osx-64")
@@ -165,10 +165,10 @@ class TestGuessEPDPlatform(unittest.TestCase):
 
     def test_guess_linux2_platform(self):
         with mock_centos_5_8:
-            epd_platform = _guess_epd_platform("x86")
+            epd_platform = _guess_epd_platform(Arch.from_name("x86"))
             self.assertEqual(epd_platform.short, "rh5-32")
 
-            epd_platform = _guess_epd_platform("amd64")
+            epd_platform = _guess_epd_platform(Arch.from_name("amd64"))
             self.assertEqual(epd_platform.short, "rh5-64")
 
             with mock.patch("platform.machine", lambda: "x86"):
@@ -197,10 +197,10 @@ class TestGuessEPDPlatform(unittest.TestCase):
                     self.assertEqual(epd_platform.short, "rh5-64")
 
         with mock_centos_6_3:
-            epd_platform = _guess_epd_platform("x86")
+            epd_platform = _guess_epd_platform(Arch.from_name("x86"))
             self.assertEqual(epd_platform.short, "rh6-32")
 
-            epd_platform = _guess_epd_platform("amd64")
+            epd_platform = _guess_epd_platform(Arch.from_name("amd64"))
             self.assertEqual(epd_platform.short, "rh6-64")
 
     def test_guess_linux2_unsupported(self):
@@ -215,6 +215,94 @@ class TestGuessEPDPlatform(unittest.TestCase):
     def test_guess_solaris_unsupported(self):
         self.assertRaises(OkonomiyakiError, _guess_epd_platform)
 
-    @mock_machine_armv71
-    def test_guess_unsupported_processor(self):
-        self.assertRaises(OkonomiyakiError, _guess_architecture)
+    def test_from_spec_depend_data(self):
+        # Given
+        examples = (
+            (("linux2", None, "x86"),
+             EPDPlatform.from_epd_string("rh5-32"),),
+            (("linux2", "RedHat_5", "x86"),
+             EPDPlatform.from_epd_string("rh5-32"),),
+            (("linux2", "RedHat_5", "amd64"),
+             EPDPlatform.from_epd_string("rh5-64"),),
+            (("darwin", None, "x86"),
+             EPDPlatform.from_epd_string("osx-32"),),
+            (("darwin", None, "amd64"),
+             EPDPlatform.from_epd_string("osx-64"),),
+            (("win32", None, "x86"),
+             EPDPlatform.from_epd_string("win-32"),),
+            (("win32", None, "amd64"),
+             EPDPlatform.from_epd_string("win-64"),),
+        )
+
+        # When/Then
+        for args, r_platform in examples:
+            platform = EPDPlatform._from_spec_depend_data(*args)
+            self.assertEqual(platform, r_platform)
+
+    def test_from_epd_platform_string(self):
+        # Given
+        epd_platform_string = "rh5-32"
+
+        # When
+        epd_platform = EPDPlatform.from_epd_string(epd_platform_string)
+
+        # Then
+        platform = epd_platform.platform
+        self.assertEqual(platform.os, LINUX)
+        self.assertEqual(platform.family, RHEL)
+        self.assertEqual(platform.name, RHEL)
+        self.assertEqual(platform.arch, Arch.from_name(X86))
+        self.assertEqual(platform.machine, Arch.from_name(X86))
+
+        # Given
+        epd_platform_string = "win-32"
+
+        # When
+        epd_platform = EPDPlatform.from_epd_string(epd_platform_string)
+
+        # Then
+        platform = epd_platform.platform
+        self.assertEqual(platform.os, WINDOWS)
+        self.assertEqual(platform.family, WINDOWS)
+        self.assertEqual(platform.name, WINDOWS)
+        self.assertEqual(platform.arch, Arch.from_name(X86))
+        self.assertEqual(platform.machine, Arch.from_name(X86))
+
+        # Given
+        epd_platform_string = "osx-64"
+
+        # When
+        epd_platform = EPDPlatform.from_epd_string(epd_platform_string)
+        platform = epd_platform.platform
+
+        # Then
+        self.assertEqual(platform.os, DARWIN)
+        self.assertEqual(platform.family, MAC_OS_X)
+        self.assertEqual(platform.name, MAC_OS_X)
+        self.assertEqual(platform.arch, Arch.from_name(X86_64))
+        self.assertEqual(platform.machine, Arch.from_name(X86_64))
+
+    def test_from_epd_platform_string_invalid(self):
+        # Given
+        # Invalid bitwidth
+        epd_platform_string = "linux-32-1"
+
+        # When/Then
+        with self.assertRaises(OkonomiyakiError):
+            EPDPlatform.from_epd_string(epd_platform_string)
+
+        # Given
+        # Invalid bitwidth
+        epd_platform_string = "osx-63"
+
+        # When/Then
+        with self.assertRaises(OkonomiyakiError):
+            EPDPlatform.from_epd_string(epd_platform_string)
+
+        # Given
+        # Invalid platform basename
+        epd_platform_string = "netbsd-32"
+
+        # When/Then
+        with self.assertRaises(OkonomiyakiError):
+            EPDPlatform.from_epd_string(epd_platform_string)
