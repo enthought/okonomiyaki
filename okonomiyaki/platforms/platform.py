@@ -7,9 +7,11 @@ from . import epd_platform
 
 from ..bundled.traitlets import HasTraits, Enum, Instance, Unicode
 from ..errors import OkonomiyakiError
+from ._arch import Arch, X86, X86_64
+from ._arch import (
+    _ARCH_NAME_TO_NORMALIZED, _guess_architecture, _guess_machine
+)
 
-X86 = "x86"
-X86_64 = "x86_64"
 
 DARWIN = "darwin"
 LINUX = "linux"
@@ -31,80 +33,12 @@ NAME_TO_PRETTY_NAMES = {
     DEBIAN: "Debian",
 }
 
-_ARCH_NAME_TO_BITS = {
-    X86: 32,
-    X86_64: 64,
-}
-
-_ARCH_NAME_TO_NORMALIZED = {
-    "amd64": X86_64,
-    "AMD64": X86_64,
-    "x86_64": X86_64,
-    "x86": X86,
-    "i386": X86,
-    "i686": X86,
-}
-
 _DIST_NAME_TO_NAME = {
     "centos": CENTOS,
     "redhat": RHEL,
     "ubuntu": UBUNTU,
     "debian": DEBIAN,
 }
-
-
-class Arch(HasTraits):
-    name = Enum([X86, X86_64])
-    """
-    Actual architecture name (e.g. 'x86'). The architecture is guessed from the
-    running python.
-    """
-
-    bits = Enum([32, 64])
-    """
-    Actual architecture bits (e.g. 32). The architecture is guessed from the
-    running python.
-    """
-
-    @classmethod
-    def _from_bitwidth(cls, bitwidth):
-        if bitwidth == "32":
-            return cls.from_name(X86)
-        elif bitwidth == "64":
-            return cls.from_name(X86_64)
-        else:
-            msg = "Invalid bits width: {0!r}".format(bitwidth)
-            raise OkonomiyakiError(msg)
-
-    @classmethod
-    def from_name(cls, name):
-        return cls(name, _ARCH_NAME_TO_BITS[name])
-
-    @classmethod
-    def from_running_python(cls):
-        return _guess_architecture()
-
-    @classmethod
-    def from_running_system(cls):
-        return _guess_machine()
-
-    def __init__(self, name, bits):
-        super(Arch, self).__init__(name=name, bits=bits)
-
-    def __str__(self):
-        return self.name
-
-    def __eq__(self, other):
-        if not isinstance(other, self.__class__):
-            return False
-        else:
-            return self.name == other.name and self.bits == other.bits
-
-    def __ne__(self, other):
-        return not (self == other)
-
-    def __hash__(self):
-        return hash((self.name, self.bits))
 
 
 def _epd_name_to_quadruplet(name):
@@ -310,32 +244,6 @@ class Platform(HasTraits):
 
     def __hash__(self):
         return hash((self.name, self.release, self.arch, self.machine))
-
-
-def _guess_architecture():
-    """
-    Returns the architecture of the running python.
-    """
-    epd_platform_arch = epd_platform._guess_architecture()
-    if epd_platform_arch == "x86":
-        return Arch.from_name(X86)
-    elif epd_platform_arch == "amd64":
-        return Arch.from_name(X86_64)
-    else:
-        raise OkonomiyakiError("Unknown architecture {0!r}".
-                               format(epd_platform_arch))
-
-
-def _guess_machine():
-    """
-    Returns the underlying machine.
-    """
-    machine = platform.machine()
-    name = _ARCH_NAME_TO_NORMALIZED.get(machine)
-    if name is None:
-        raise OkonomiyakiError("Unknown machine: {0}".  format(machine))
-    else:
-        return Arch.from_name(name)
 
 
 def _guess_os():
