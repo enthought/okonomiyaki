@@ -1,11 +1,10 @@
 from __future__ import absolute_import
 
 import platform
+import sys
 
 from ..bundled.traitlets import HasTraits, Enum
 from ..errors import OkonomiyakiError
-
-from . import epd_platform
 
 
 X86 = "x86"
@@ -59,7 +58,17 @@ class Arch(HasTraits):
 
     @classmethod
     def from_running_python(cls):
-        return _guess_architecture()
+        machine = platform.machine()
+
+        if machine in _ARCH_NAME_TO_NORMALIZED:
+            if sys.maxsize > 2 ** 32:
+                return Arch.from_name(X86_64)
+            else:
+                return Arch.from_name(X86)
+        else:
+            raise OkonomiyakiError("Unknown machine combination {0!r}".
+                                   format(machine))
+
 
     @classmethod
     def from_running_system(cls):
@@ -82,17 +91,3 @@ class Arch(HasTraits):
 
     def __hash__(self):
         return hash((self.name, self.bits))
-
-
-def _guess_architecture():
-    """
-    Returns the architecture of the running python.
-    """
-    epd_platform_arch = epd_platform._guess_architecture()
-    if epd_platform_arch == "x86":
-        return Arch.from_name(X86)
-    elif epd_platform_arch == "amd64":
-        return Arch.from_name(X86_64)
-    else:
-        raise OkonomiyakiError("Unknown architecture {0!r}".
-                               format(epd_platform_arch))

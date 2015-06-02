@@ -8,7 +8,6 @@ from . import epd_platform
 from ..bundled.traitlets import HasTraits, Enum, Instance, Unicode
 from ..errors import OkonomiyakiError
 from ._arch import Arch, X86, X86_64
-from ._arch import _guess_architecture
 
 
 DARWIN = "darwin"
@@ -275,7 +274,7 @@ def _guess_platform_details(os):
 
 def _guess_platform(arch_string=None):
     if arch_string is None:
-        arch = _guess_architecture()
+        arch = Arch.from_running_python()
     else:
         arch = Arch.from_name(arch_string)
 
