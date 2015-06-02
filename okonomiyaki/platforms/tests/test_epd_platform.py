@@ -8,8 +8,7 @@ from ..epd_platform import (
     _guess_epd_platform, EPD_PLATFORM_SHORT_NAMES, applies
 )
 from ..legacy import _SUBDIR
-from .._arch import Arch
-from ..platform import X86, X86_64
+from .._arch import Arch, X86, X86_64
 
 from .common import (
     mock_architecture_32bit, mock_architecture_64bit, mock_centos_5_8,

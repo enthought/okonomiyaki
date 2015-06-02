@@ -3,7 +3,8 @@ import unittest
 from ...errors import OkonomiyakiError
 from ..epd_platform import EPDPlatform
 from ..platform import Arch, Platform
-from ..platform import DARWIN, LINUX, MAC_OS_X, RHEL, WINDOWS, X86, X86_64
+from ..platform import DARWIN, LINUX, MAC_OS_X, RHEL, WINDOWS
+from .._arch import X86, X86_64
 
 from .common import (mock_machine_armv71, mock_x86, mock_x86_64,
                      mock_machine_x86_64)

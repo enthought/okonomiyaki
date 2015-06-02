@@ -85,7 +85,7 @@ packages = []
     def test_reject_no_pkg_info(self):
         # Given
         version = EnpkgVersion.from_string("4.8.4-1")
-        platform = EPDPlatform.from_running_system()
+        platform = EPDPlatform.from_epd_string("rh5-64")
         dependencies = Dependencies((), ())
 
         metadata = EggMetadata("foo", version, platform, "cp27",
