@@ -6,7 +6,7 @@ from ..errors import OkonomiyakiError
 from .epd_platform import EPDPlatform
 from .platform import DARWIN, LINUX, SOLARIS, WINDOWS
 from .platform import CENTOS, RHEL, DEBIAN, UBUNTU, MAC_OS_X
-from .platform import Arch, Platform
+from .platform import Arch
 
 
 class PlatformLabel(HasTraits):

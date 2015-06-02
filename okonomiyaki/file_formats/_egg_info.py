@@ -10,7 +10,7 @@ from ..bundled.traitlets import (
 from ..errors import (
     InvalidDependencyString, InvalidEggName, InvalidMetadata
 )
-from ..platforms import EPDPlatform, Platform
+from ..platforms import EPDPlatform
 from ..platforms.legacy import LegacyEPDPlatform
 from ..utils import parse_assignments
 from ..utils.traitlets import NoneOrInstance, NoneOrUnicode
