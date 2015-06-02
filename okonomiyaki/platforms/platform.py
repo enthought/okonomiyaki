@@ -3,8 +3,6 @@ from __future__ import absolute_import
 import platform
 import sys
 
-from . import epd_platform
-
 from ..bundled.traitlets import HasTraits, Enum, Instance, Unicode
 from ..errors import OkonomiyakiError
 from ._arch import Arch, X86, X86_64
@@ -43,8 +41,12 @@ def _epd_name_to_quadruplet(name):
         return (LINUX, RHEL, RHEL, "6.5")
     elif name == "rh5":
         return (LINUX, RHEL, RHEL, "5.8")
+    elif name == "rh3":
+        return (LINUX, RHEL, RHEL, "3.8")
     elif name == "osx":
         return (DARWIN, MAC_OS_X, MAC_OS_X, "10.6")
+    elif name == "sol":
+        return (SOLARIS, SOLARIS, SOLARIS, "")
     elif name == "win":
         return (WINDOWS, WINDOWS, WINDOWS, "")
     else:
@@ -158,47 +160,13 @@ class Platform(HasTraits):
 
     @property
     def _epd_platform_string(self):
-        def _append_bits(base):
-            if self.arch.name == X86:
-                return base + "-32"
-            elif self.arch.name == X86_64:
-                return base + "-64"
-            else:
-                msg = ("Unsupported arch in {0.name}: {0.arch.name!r}".
-                       format(self))
-                raise OkonomiyakiError(msg)
-
-        if self.os == WINDOWS:
-            return _append_bits("win")
-        elif self.os == DARWIN:
-            return _append_bits("osx")
-        elif self.os == LINUX:
-            if self.family == RHEL:
-                parts = self.release.split(".")
-                if parts[0] == "3":
-                    base = "rh3"
-                elif parts[0] == "5":
-                    base = "rh5"
-                elif parts[0] == "6":
-                    base = "rh6"
-                else:
-                    msg = ("Unsupported rhel release: {0!r}".
-                           format(self.release))
-                    raise OkonomiyakiError(msg)
-                return _append_bits(base)
-            else:
-                msg = ("Unsupported distribution: {0!r}".
-                       format(self.family))
-                raise OkonomiyakiError(msg)
-        else:
-            msg = "Unsupported OS: {0!r}".format(self.name)
-            raise OkonomiyakiError(msg)
+        return self.epd_platform.short
 
     @property
     def epd_platform(self):
-        return epd_platform.EPDPlatform.from_epd_string(
-            self._epd_platform_string
-        )
+        # FIXME: temporary local import to work around circular imports
+        from . import epd_platform
+        return epd_platform.EPDPlatform(self)
 
     @property
     def pep425_tag(self):
