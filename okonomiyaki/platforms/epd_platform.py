@@ -17,10 +17,10 @@ _ARCHBITS_TO_ARCH = {
 }
 
 _ARCHBITS_TO_BITS = {
-    "32": 32,
-    "64": 64,
-    "x86": 32,
-    "x86_64": 64,
+    "32": "32",
+    "64": "64",
+    "x86": "32",
+    "x86_64": "64",
 }
 
 PLATFORM_NAMES = [
@@ -101,8 +101,10 @@ class EPDPlatform(HasTraits):
             raise OkonomiyakiError(msg)
         else:
             bits = _ARCHBITS_TO_BITS[arch_bits]
-            s = "{0}-{1}".format(platform_name, bits)
-            platform = Platform.from_epd_platform_string(s)
+
+            arch = machine = Arch._from_bitwidth(bits)
+            os, name, family, release = _epd_name_to_quadruplet(platform_name)
+            platform = Platform(os, name, family, arch, machine, release)
             return cls(platform)
 
     @classmethod
@@ -293,6 +295,24 @@ def applies(platform_string, to='current'):
         return not any(conditions)
     else:
         return any(conditions)
+
+
+def _epd_name_to_quadruplet(name):
+    if name == "rh6":
+        return (LINUX, RHEL, RHEL, "6.5")
+    elif name == "rh5":
+        return (LINUX, RHEL, RHEL, "5.8")
+    elif name == "rh3":
+        return (LINUX, RHEL, RHEL, "3.8")
+    elif name == "osx":
+        return (DARWIN, MAC_OS_X, MAC_OS_X, "10.6")
+    elif name == "sol":
+        return (SOLARIS, SOLARIS, SOLARIS, "")
+    elif name == "win":
+        return (WINDOWS, WINDOWS, WINDOWS, "")
+    else:
+        msg = "Invalid epd platform string name: {0!r}".format(name)
+        raise OkonomiyakiError(msg)
 
 
 def _guess_epd_platform(arch=None):

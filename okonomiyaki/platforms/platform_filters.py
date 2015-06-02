@@ -3,6 +3,7 @@ from __future__ import absolute_import
 from ..bundled.traitlets import HasTraits, Bool, Enum, Instance, List, Unicode
 from ..errors import OkonomiyakiError
 
+from .epd_platform import EPDPlatform
 from .platform import DARWIN, LINUX, SOLARIS, WINDOWS
 from .platform import CENTOS, RHEL, DEBIAN, UBUNTU, MAC_OS_X
 from .platform import Arch, Platform
@@ -49,7 +50,7 @@ class PlatformLabel(HasTraits):
             if name == "rh":
                 return (LINUX, RHEL, RHEL, "")
             else:
-                platform = Platform.from_epd_platform_string(name)
+                platform = EPDPlatform.from_epd_string(name + "-32").platform
                 return (platform.os, platform.name, platform.family,
                         platform.release)
 

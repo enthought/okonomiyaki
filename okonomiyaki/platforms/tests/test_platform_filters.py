@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 import unittest
 
+from ..epd_platform import EPDPlatform
 from ..platform import Arch, Platform
 from ..platform_filters import PlatformFilter, PlatformLabel, PlatformLiteral
 
@@ -12,10 +13,15 @@ LABEL_OSX_32 = PlatformLabel()
 LABEL_OSX_32.os = "darwin"
 LABEL_OSX_32.arch = Arch.from_name("x86")
 
-RH5_32 = Platform.from_epd_platform_string("rh5-32")
-RH5_64 = Platform.from_epd_platform_string("rh5-64")
-OSX_32 = Platform.from_epd_platform_string("osx-32")
-WIN_64 = Platform.from_epd_platform_string("win-64")
+
+def _platform_from_epd_string(s):
+    return EPDPlatform.from_epd_string(s).platform
+
+
+RH5_32 = _platform_from_epd_string("rh5-32")
+RH5_64 = _platform_from_epd_string("rh5-64")
+OSX_32 = _platform_from_epd_string("osx-32")
+WIN_64 = _platform_from_epd_string("win-64")
 
 UBUNTU_12_10_X32 = Platform("linux", "ubuntu", "debian", Arch.from_name("x86"),
                             release="12.10")

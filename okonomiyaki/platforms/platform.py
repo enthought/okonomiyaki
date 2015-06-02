@@ -36,24 +36,6 @@ _DIST_NAME_TO_NAME = {
 }
 
 
-def _epd_name_to_quadruplet(name):
-    if name == "rh6":
-        return (LINUX, RHEL, RHEL, "6.5")
-    elif name == "rh5":
-        return (LINUX, RHEL, RHEL, "5.8")
-    elif name == "rh3":
-        return (LINUX, RHEL, RHEL, "3.8")
-    elif name == "osx":
-        return (DARWIN, MAC_OS_X, MAC_OS_X, "10.6")
-    elif name == "sol":
-        return (SOLARIS, SOLARIS, SOLARIS, "")
-    elif name == "win":
-        return (WINDOWS, WINDOWS, WINDOWS, "")
-    else:
-        msg = "Invalid epd platform string name: {0!r}".format(name)
-        raise OkonomiyakiError(msg)
-
-
 class Platform(HasTraits):
     """
     An sane generic platform representation.
@@ -108,26 +90,6 @@ class Platform(HasTraits):
             If given, should be a valid architecture name (e.g. 'x86')
         """
         return _guess_platform(arch_string)
-
-    @classmethod
-    def from_epd_platform_string(cls, s):
-        """ Creates a new Platform instrance from a legacy epd platform string,
-        e.g. 'rh5-32', or 'osx'
-        """
-        parts = s.split("-")
-        if len(parts) == 2:
-            name, bits = parts
-            arch = machine = Arch._from_bitwidth(bits)
-            os, name, family, release = _epd_name_to_quadruplet(name)
-            return cls(os, name, family, arch, machine, release)
-        elif len(parts) == 1:
-            name = parts[0]
-            arch = machine = Arch.from_running_python()
-            os, name, family, release = _epd_name_to_quadruplet(name)
-            return cls(os, name, family, arch, machine, release)
-        else:
-            msg = "Invalid epd string: {0!r}".format(s)
-            raise OkonomiyakiError(msg)
 
     def __init__(self, os, name, family, arch, machine=None, release=""):
         super(Platform, self).__init__(os=os, name=name, family=family,
