@@ -7,20 +7,17 @@ from .platform import (
     Platform, DARWIN, LINUX, MAC_OS_X, RHEL, SOLARIS, WINDOWS
 )
 
+# the string used in EGG-INFO/spec/depend. Only used during normalization
+# operations.
+_X86_64_LEGACY_SPEC = "amd64"
+
 # Those lists are redundant with legacy spec. We check the consistency in our
 # unit-tests
 _ARCHBITS_TO_ARCH = {
-    "32": "x86",
-    "64": "amd64",
-    "x86": "x86",
-    "x86_64": "amd64",
-}
-
-_ARCHBITS_TO_BITS = {
-    "32": "32",
-    "64": "64",
-    "x86": "32",
-    "x86_64": "64",
+    "32": X86,
+    "64": _X86_64_LEGACY_SPEC,
+    X86: X86,
+    X86_64: _X86_64_LEGACY_SPEC,
 }
 
 PLATFORM_NAMES = [
@@ -100,9 +97,9 @@ class EPDPlatform(HasTraits):
                    format(s, arch_bits))
             raise OkonomiyakiError(msg)
         else:
-            bits = _ARCHBITS_TO_BITS[arch_bits]
+            arch_name = _ARCHBITS_TO_ARCH[arch_bits]
 
-            arch = machine = Arch._from_bitwidth(bits)
+            arch = machine = Arch(arch_name)
             os, name, family, release = _epd_name_to_quadruplet(platform_name)
             platform = Platform(os, name, family, arch, machine, release)
             return cls(platform)
