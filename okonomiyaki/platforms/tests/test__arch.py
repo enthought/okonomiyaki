@@ -60,6 +60,29 @@ class TestArch(unittest.TestCase):
         self.assertEqual(arch.name, name)
         self.assertEqual(arch.bits, 64)
 
+    def test_from_unnormalized_names(self):
+        # Given
+        names = ("x86", "i386", "i686")
+
+        # When
+        for name in names:
+            arch = Arch.from_name(name)
+
+            # Then
+            self.assertEqual(arch.name, "x86")
+            self.assertEqual(arch.bits, 32)
+
+        # Given
+        names = ("x86_64", "amd64", "AMD64")
+
+        # When
+        for name in names:
+            arch = Arch.from_name(name)
+
+            # Then
+            self.assertEqual(arch.name, "x86_64")
+            self.assertEqual(arch.bits, 64)
+
     def test_from_running_python(self):
         # When
         with mock_x86:

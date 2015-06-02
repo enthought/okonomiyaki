@@ -8,9 +8,7 @@ from . import epd_platform
 from ..bundled.traitlets import HasTraits, Enum, Instance, Unicode
 from ..errors import OkonomiyakiError
 from ._arch import Arch, X86, X86_64
-from ._arch import (
-    _ARCH_NAME_TO_NORMALIZED, _guess_architecture, _guess_machine
-)
+from ._arch import _guess_architecture
 
 
 DARWIN = "darwin"
@@ -94,7 +92,7 @@ class Platform(HasTraits):
 
     @classmethod
     def from_spec_depend_data(cls, platform, osdist, arch_name):
-        arch = machine = Arch.from_name(_ARCH_NAME_TO_NORMALIZED[arch_name])
+        arch = machine = Arch.from_name(arch_name)
         if platform == "darwin":
             epd_name = "osx"
         elif platform == "win32":
@@ -281,7 +279,7 @@ def _guess_platform(arch_string=None):
     else:
         arch = Arch.from_name(arch_string)
 
-    machine = _guess_machine()
+    machine = Arch.from_running_system()
     os = _guess_os()
     name, family, release = _guess_platform_details(os)
 

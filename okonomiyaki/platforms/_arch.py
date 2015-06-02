@@ -51,7 +51,11 @@ class Arch(HasTraits):
 
     @classmethod
     def from_name(cls, name):
-        return cls(name, _ARCH_NAME_TO_BITS[name])
+        normalized_name = _ARCH_NAME_TO_NORMALIZED.get(name)
+        if normalized_name is None:
+            msg = "Unsupported/unrecognized architecture: {0!r}"
+            raise OkonomiyakiError(msg.format(name))
+        return cls(normalized_name, _ARCH_NAME_TO_BITS[normalized_name])
 
     @classmethod
     def from_running_python(cls):
@@ -59,7 +63,7 @@ class Arch(HasTraits):
 
     @classmethod
     def from_running_system(cls):
-        return _guess_machine()
+        return Arch.from_name(platform.machine())
 
     def __init__(self, name, bits):
         super(Arch, self).__init__(name=name, bits=bits)
@@ -92,15 +96,3 @@ def _guess_architecture():
     else:
         raise OkonomiyakiError("Unknown architecture {0!r}".
                                format(epd_platform_arch))
-
-
-def _guess_machine():
-    """
-    Returns the underlying machine.
-    """
-    machine = platform.machine()
-    name = _ARCH_NAME_TO_NORMALIZED.get(machine)
-    if name is None:
-        raise OkonomiyakiError("Unknown machine: {0}".  format(machine))
-    else:
-        return Arch.from_name(name)
