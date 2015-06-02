@@ -24,8 +24,8 @@ Example::
     from okonomiyaki.repositories import EnpkgS3IndexEntry
 
     s3_index_entry = EnpkgS3IndexEntry.from_egg("numpy-1.7.1-1.egg")
-    print s3_index_entry.size
-    print s3_index_entry.packages # dependencies
+    print(s3_index_entry.size)
+    print(s3_index_entry.packages) # dependencies
 
 As its version suggests, it is still experimental and its API may change
 in backward-incompatible ways.
