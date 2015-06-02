@@ -32,12 +32,6 @@ class Arch(HasTraits):
     running python.
     """
 
-    bits = Enum([32, 64])
-    """
-    Actual architecture bits (e.g. 32). The architecture is guessed from the
-    running python.
-    """
-
     @classmethod
     def _from_bitwidth(cls, bitwidth):
         if bitwidth == "32":
@@ -50,11 +44,8 @@ class Arch(HasTraits):
 
     @classmethod
     def from_name(cls, name):
-        normalized_name = _ARCH_NAME_TO_NORMALIZED.get(name)
-        if normalized_name is None:
-            msg = "Unsupported/unrecognized architecture: {0!r}"
-            raise OkonomiyakiError(msg.format(name))
-        return cls(normalized_name, _ARCH_NAME_TO_BITS[normalized_name])
+        # FIXME: kept for backward compatibility
+        return cls(name)
 
     @classmethod
     def from_running_python(cls):
@@ -73,8 +64,20 @@ class Arch(HasTraits):
     def from_running_system(cls):
         return Arch.from_name(platform.machine())
 
-    def __init__(self, name, bits):
-        super(Arch, self).__init__(name=name, bits=bits)
+    def __init__(self, name):
+        normalized_name = _ARCH_NAME_TO_NORMALIZED.get(name)
+        if normalized_name is None:
+            msg = "Unsupported/unrecognized architecture: {0!r}"
+            raise OkonomiyakiError(msg.format(name))
+
+        super(Arch, self).__init__(name=normalized_name)
+
+    @property
+    def bits(self):
+        """
+        Actual architecture bits (e.g. 32), as an int.
+        """
+        return _ARCH_NAME_TO_BITS[self.name]
 
     @property
     def _arch_bits(self):

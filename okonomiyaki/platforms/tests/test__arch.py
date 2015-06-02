@@ -14,7 +14,7 @@ class TestArch(unittest.TestCase):
         bits = 32
 
         # When
-        arch = Arch(name, bits)
+        arch = Arch(name)
 
         # Then
         self.assertEqual(arch.name, name)
@@ -23,12 +23,14 @@ class TestArch(unittest.TestCase):
 
     def test_hashing(self):
         # Given
-        name = "x86"
+        name1 = "x86"
+        name2 = "i386"
+        name3 = "amd64"
 
         # When
-        arch1 = Arch(name, 32)
-        arch2 = Arch(name, 32)
-        arch3 = Arch(name, 64)
+        arch1 = Arch(name1)
+        arch2 = Arch(name2)
+        arch3 = Arch(name3)
 
         # Then
         self.assertEqual(arch1, arch2)
