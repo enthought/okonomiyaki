@@ -377,7 +377,7 @@ class LegacySpecDepend(HasTraits):
         if self._epd_legacy_platform is None:
             return None
         else:
-            return self._epd_legacy_platform.arch
+            return self._epd_legacy_platform.arch._legacy_name
 
     @property
     def egg_name(self):

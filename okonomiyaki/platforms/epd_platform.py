@@ -3,8 +3,9 @@ from __future__ import absolute_import
 import platform
 import sys
 
-from ..bundled.traitlets import HasTraits, Enum
+from ..bundled.traitlets import HasTraits, Enum, Instance
 from ..errors import OkonomiyakiError
+from ._arch import Arch
 
 # Those lists are redundant with legacy spec. We check the consistency in our
 # unit-tests
@@ -54,23 +55,27 @@ class EPDPlatform(HasTraits):
     """
     Main name of the platform (e.g. 'rh5')
     """
-    arch = Enum(["x86", "amd64"])
+    arch = Instance(Arch)
     """
-    Actual architecture (e.g. 'x86')
+    Actual architecture.
     """
 
     @classmethod
-    def from_running_system(cls, arch=None):
+    def from_running_system(cls, arch_name=None):
         """
         Attempt to create an EPDPlatform instance by guessing the running
         platform. May raise an OkonomiyakiError exception
 
         Parameters
         ----------
-        arch: str, None
+        arch_name: str, None
             If given, must be a valid architecture string (e.g. 'x86'). If
-            None, will be guessed from the running python.
+            None, will be guessed from the running platform.
         """
+        if arch_name is not None:
+            arch = Arch.from_name(arch_name)
+        else:
+            arch = Arch.from_running_system()
         return _guess_epd_platform(arch)
 
     @classmethod
@@ -88,7 +93,7 @@ class EPDPlatform(HasTraits):
                    format(s, arch_bits))
             raise OkonomiyakiError(msg)
         else:
-            arch = _ARCHBITS_TO_ARCH[arch_bits]
+            arch = Arch.from_name(_ARCHBITS_TO_ARCH[arch_bits])
 
         return cls(platform_name, arch)
 
@@ -100,10 +105,7 @@ class EPDPlatform(HasTraits):
         """
         The number of bits (as a string) of this epd platform.
         """
-        if self.arch == "x86":
-            return "32"
-        else:
-            return "64"
+        return self.arch._arch_bits
 
     @property
     def short(self):
@@ -171,25 +173,9 @@ def applies(platform_string, to='current'):
         return any(conditions)
 
 
-def _guess_architecture():
-    """
-    Returns the architecture of the running python.
-    """
-    machine = platform.machine()
-
-    if machine in ("AMD64", "x86_64", "x86", "i386", "i686"):
-        if sys.maxsize > 2 ** 32:
-            return "amd64"
-        else:
-            return "x86"
-    else:
-        raise OkonomiyakiError("Unknown machine combination {0!r}".
-                               format(machine))
-
-
 def _guess_epd_platform(arch=None):
     if arch is None:
-        arch = _guess_architecture()
+        arch = Arch.from_running_python()
 
     if sys.platform == "win32":
         return EPDPlatform("win", arch)

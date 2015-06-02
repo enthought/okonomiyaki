@@ -5,17 +5,17 @@ from ...errors import OkonomiyakiError
 
 from .. import EPDPlatform
 from ..epd_platform import (
-    _guess_architecture, _guess_epd_platform, EPD_PLATFORM_SHORT_NAMES,
-    applies
+    _guess_epd_platform, EPD_PLATFORM_SHORT_NAMES, applies
 )
 from ..legacy import _SUBDIR
+from .._arch import Arch
 from ..platform import X86, X86_64
 
 from .common import (
     mock_architecture_32bit, mock_architecture_64bit, mock_centos_5_8,
     mock_centos_6_3, mock_darwin, mock_machine_x86, mock_machine_x86_64,
-    mock_machine_armv71, mock_linux, mock_solaris, mock_ubuntu_raring,
-    mock_windows, mock_x86, mock_x86_64
+    mock_linux, mock_solaris, mock_ubuntu_raring, mock_windows, mock_x86,
+    mock_x86_64
 )
 
 
@@ -109,24 +109,24 @@ class TestEPDPlatformApplies(unittest.TestCase):
 class TestGuessEPDPlatform(unittest.TestCase):
     @mock_windows
     def test_guess_win32_platform(self):
-        epd_platform = _guess_epd_platform("x86")
+        epd_platform = _guess_epd_platform(Arch.from_name("x86"))
         self.assertEqual(epd_platform.short, "win-32")
 
-        epd_platform = _guess_epd_platform("amd64")
+        epd_platform = _guess_epd_platform(Arch.from_name("amd64"))
         self.assertEqual(epd_platform.short, "win-64")
 
     @mock_darwin
     def test_guess_darwin_platform(self):
         # When
         with mock_machine_x86:
-            epd_platform = _guess_epd_platform("x86")
+            epd_platform = _guess_epd_platform(Arch.from_name("x86"))
 
         # Then
         self.assertEqual(epd_platform.short, "osx-32")
 
         # When
         with mock_machine_x86:
-            epd_platform = _guess_epd_platform("amd64")
+            epd_platform = _guess_epd_platform(Arch.from_name("amd64"))
 
         # Then
         self.assertEqual(epd_platform.short, "osx-64")
@@ -165,10 +165,10 @@ class TestGuessEPDPlatform(unittest.TestCase):
 
     def test_guess_linux2_platform(self):
         with mock_centos_5_8:
-            epd_platform = _guess_epd_platform("x86")
+            epd_platform = _guess_epd_platform(Arch.from_name("x86"))
             self.assertEqual(epd_platform.short, "rh5-32")
 
-            epd_platform = _guess_epd_platform("amd64")
+            epd_platform = _guess_epd_platform(Arch.from_name("amd64"))
             self.assertEqual(epd_platform.short, "rh5-64")
 
             with mock.patch("platform.machine", lambda: "x86"):
@@ -197,10 +197,10 @@ class TestGuessEPDPlatform(unittest.TestCase):
                     self.assertEqual(epd_platform.short, "rh5-64")
 
         with mock_centos_6_3:
-            epd_platform = _guess_epd_platform("x86")
+            epd_platform = _guess_epd_platform(Arch.from_name("x86"))
             self.assertEqual(epd_platform.short, "rh6-32")
 
-            epd_platform = _guess_epd_platform("amd64")
+            epd_platform = _guess_epd_platform(Arch.from_name("amd64"))
             self.assertEqual(epd_platform.short, "rh6-64")
 
     def test_guess_linux2_unsupported(self):
@@ -214,7 +214,3 @@ class TestGuessEPDPlatform(unittest.TestCase):
     @mock_solaris
     def test_guess_solaris_unsupported(self):
         self.assertRaises(OkonomiyakiError, _guess_epd_platform)
-
-    @mock_machine_armv71
-    def test_guess_unsupported_processor(self):
-        self.assertRaises(OkonomiyakiError, _guess_architecture)

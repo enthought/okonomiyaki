@@ -69,13 +69,26 @@ class Arch(HasTraits):
             raise OkonomiyakiError("Unknown machine combination {0!r}".
                                    format(machine))
 
-
     @classmethod
     def from_running_system(cls):
         return Arch.from_name(platform.machine())
 
     def __init__(self, name, bits):
         super(Arch, self).__init__(name=name, bits=bits)
+
+    @property
+    def _arch_bits(self):
+        # Used by EPDPlatform
+        return str(self.bits)
+
+    @property
+    def _legacy_name(self):
+        # Used for translating the arch into EGG-INFO/spec/depend (old
+        # 'platform' entry)
+        if self.name == X86_64:
+            return "amd64"
+        else:
+            return self.name
 
     def __str__(self):
         return self.name
