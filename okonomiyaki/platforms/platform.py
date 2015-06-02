@@ -92,22 +92,6 @@ class Platform(HasTraits):
     """
 
     @classmethod
-    def from_spec_depend_data(cls, platform, osdist, arch_name):
-        arch = machine = Arch.from_name(arch_name)
-        if platform == "darwin":
-            epd_name = "osx"
-        elif platform == "win32":
-            epd_name = "win"
-        elif platform.startswith("linux") and osdist in (None, "RedHat_5"):
-            epd_name = "rh5"
-        else:
-            msg = ("Unrecognized platform/osdist combination: {0!r}/{1!r}"
-                   .format(platform, osdist))
-            raise ValueError(msg)
-        os, name, family, release = _epd_name_to_quadruplet(epd_name)
-        return cls(os, name, family, arch, machine, release)
-
-    @classmethod
     def from_running_python(cls):
         """ Guess the platform, using the running python to guess the
         architecture.

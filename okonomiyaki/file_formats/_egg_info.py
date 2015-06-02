@@ -282,9 +282,9 @@ def _epd_platform_from_raw_spec(raw_spec):
     if platform_string is None and osdist_string is None:
         return None
     else:
-        platform = Platform.from_spec_depend_data(platform_string,
-                                                  osdist_string, arch_string)
-        return EPDPlatform(platform)
+        return EPDPlatform._from_spec_depend_data(
+            platform_string, osdist_string, arch_string
+        )
 
 
 class LegacySpecDepend(HasTraits):

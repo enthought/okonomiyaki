@@ -213,3 +213,27 @@ class TestGuessEPDPlatform(unittest.TestCase):
     @mock_solaris
     def test_guess_solaris_unsupported(self):
         self.assertRaises(OkonomiyakiError, _guess_epd_platform)
+
+    def test_from_spec_depend_data(self):
+        # Given
+        examples = (
+            (("linux2", None, "x86"),
+             EPDPlatform.from_epd_string("rh5-32"),),
+            (("linux2", "RedHat_5", "x86"),
+             EPDPlatform.from_epd_string("rh5-32"),),
+            (("linux2", "RedHat_5", "amd64"),
+             EPDPlatform.from_epd_string("rh5-64"),),
+            (("darwin", None, "x86"),
+             EPDPlatform.from_epd_string("osx-32"),),
+            (("darwin", None, "amd64"),
+             EPDPlatform.from_epd_string("osx-64"),),
+            (("win32", None, "x86"),
+             EPDPlatform.from_epd_string("win-32"),),
+            (("win32", None, "amd64"),
+             EPDPlatform.from_epd_string("win-64"),),
+        )
+
+        # When/Then
+        for args, r_platform in examples:
+            platform = EPDPlatform._from_spec_depend_data(*args)
+            self.assertEqual(platform, r_platform)

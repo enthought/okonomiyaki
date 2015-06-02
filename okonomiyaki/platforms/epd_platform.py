@@ -105,6 +105,21 @@ class EPDPlatform(HasTraits):
             platform = Platform.from_epd_platform_string(s)
             return cls(platform)
 
+    @classmethod
+    def _from_spec_depend_data(cls, platform, osdist, arch_name):
+        arch = Arch.from_name(arch_name)
+        if platform == "darwin":
+            epd_name = "osx"
+        elif platform == "win32":
+            epd_name = "win"
+        elif platform.startswith("linux") and osdist in (None, "RedHat_5"):
+            epd_name = "rh5"
+        else:
+            msg = ("Unrecognized platform/osdist combination: {0!r}/{1!r}"
+                   .format(platform, osdist))
+            raise ValueError(msg)
+        return cls.from_epd_string("{0}-{1}".format(epd_name, arch._arch_bits))
+
     def __init__(self, platform, **kw):
         if not self._is_supported(platform):
             msg = "Platform {0} not supported".format(platform)
