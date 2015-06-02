@@ -3,7 +3,9 @@ from __future__ import absolute_import
 from ..bundled.traitlets import HasTraits, Instance
 from ..errors import OkonomiyakiError
 from ._arch import Arch, X86_64, X86
-from .platform import Platform, DARWIN, LINUX, RHEL, SOLARIS, WINDOWS
+from .platform import (
+    Platform, DARWIN, LINUX, MAC_OS_X, RHEL, SOLARIS, WINDOWS
+)
 
 # Those lists are redundant with legacy spec. We check the consistency in our
 # unit-tests
@@ -141,6 +143,34 @@ class EPDPlatform(HasTraits):
         return self.arch._arch_bits
 
     @property
+    def pep425_tag(self):
+        msg = "Cannot guess platform tag for platform {0!r}"
+
+        if self.platform.family == MAC_OS_X:
+            if self.platform.arch.name == X86:
+                return "macosx_10_6_i386"
+            elif self.platform.arch.name == X86_64:
+                return "macosx_10_6_x86_64"
+            else:
+                raise OkonomiyakiError(msg.format(self.platform))
+        elif self.platform.os == LINUX:
+            if self.platform.arch.name == X86:
+                return "linux_i686"
+            elif self.platform.arch.name == X86_64:
+                return "linux_x86_64"
+            else:
+                raise OkonomiyakiError(msg.format(self.platform))
+        elif self.platform.family == WINDOWS:
+            if self.platform.arch.name == X86:
+                return "win32"
+            elif self.platform.arch.name == X86_64:
+                return "win_amd64"
+            else:
+                raise OkonomiyakiError(msg.format(self.platform))
+        else:
+            raise OkonomiyakiError(msg.format(self.platform))
+
+    @property
     def platform_name(self):
         os = self.platform.os
         if os == WINDOWS:
@@ -174,6 +204,19 @@ class EPDPlatform(HasTraits):
     @property
     def short(self):
         return "{0}-{1}".format(self.platform_name, self.arch_bits)
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+        return self.platform == other.platform
+
+    def __ne__(self, other):
+        if not isinstance(other, self.__class__):
+            return True
+        return not (self.platform == other.platform)
+
+    def __hash__(self):
+        return hash(self.platform)
 
 
 def applies(platform_string, to='current'):
