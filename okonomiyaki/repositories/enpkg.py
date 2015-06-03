@@ -60,7 +60,7 @@ class EnpkgS3IndexEntry(HasTraits):
         kw["build"] = metadata.build
         kw["python"] = metadata._python
         kw["type"] = "egg"
-        kw["packages"] = metadata.runtime_dependencies
+        kw["packages"] = list(metadata.runtime_dependencies)
         kw["product"] = product
         kw["egg_basename"] = metadata.egg_basename
 
@@ -74,7 +74,7 @@ class EnpkgS3IndexEntry(HasTraits):
         # Opening the same file can cause some IO errors, even on Linux (seen
         # when eggs were on a Samba share).
         kw["md5"] = compute_md5(path)
-        return cls.from_data(kw)
+        return cls(**kw)
 
     @classmethod
     def from_setuptools_egg(cls, path, build=1, product=_PRODUCT_DEFAULT,

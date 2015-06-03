@@ -208,6 +208,21 @@ class Requirement(HasTraits):
         else:
             return self.name
 
+    @property
+    def _key(self):
+        return (self.name, self.version_string, self.build_number)
+
+    def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return False
+        return self._key == other._key
+
+    def __ne__(self, other):
+        return not (self == other)
+
+    def __hash__(self):
+        return hash(self._key)
+
 
 _METADATA_TEMPLATES = {
     "1.1": """\
@@ -632,7 +647,7 @@ class EggMetadata(object):
             platform = EPDPlatform.from_epd_string(platform_string)
 
         dependencies = Dependencies(
-            tuple(str(dep) for dep in spec_depend.packages)
+            tuple(dep for dep in spec_depend.packages)
         )
 
         metadata_version_info = (
@@ -741,10 +756,7 @@ class EggMetadata(object):
             "python_tag": self.python_tag,
             "abi_tag": self.abi_tag,
             "platform_tag": self.platform_tag,
-            "packages": [
-                Requirement.from_spec_string(dep)
-                for dep in self.runtime_dependencies
-            ],
+            "packages": [p for p in self.runtime_dependencies],
             "_epd_legacy_platform": _epd_legacy_platform,
             "_metadata_version": ".".join(
                 str(i) for i in self.metadata_version_info
