@@ -6,7 +6,7 @@ from ..bundled.traitlets import (
     HasTraits, Bool, Enum, Float, Instance, List, Long, Unicode
 )
 from ..file_formats import EggMetadata, egg_name
-from ..file_formats._egg_info import Dependency
+from ..file_formats._egg_info import Requirement
 from ..file_formats.setuptools_egg import parse_filename
 from ..utils import compute_md5
 from ..utils.traitlets import NoneOrUnicode
@@ -30,7 +30,7 @@ class EnpkgS3IndexEntry(HasTraits):
     md5 = Unicode()
     mtime = Float()
     egg_basename = Unicode()
-    packages = List(Instance(Dependency))
+    packages = List(Instance(Requirement))
     product = Enum(["pypi", "commercial", "free"], _PRODUCT_DEFAULT)
     python = NoneOrUnicode()
     size = Long()
@@ -46,7 +46,7 @@ class EnpkgS3IndexEntry(HasTraits):
         Note: the passed in dictionary may be modified.
         """
         data["packages"] = [
-            Dependency.from_spec_string(s) for s in data.get("packages", [])
+            Requirement.from_spec_string(s) for s in data.get("packages", [])
         ]
         return cls(**data)
 

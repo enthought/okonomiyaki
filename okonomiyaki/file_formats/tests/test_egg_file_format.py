@@ -16,7 +16,7 @@ import os.path as op
 from ...errors import InvalidEggName, InvalidMetadata
 from ..egg import EggBuilder
 from .._egg_info import (
-    Dependency, Dependencies, EggMetadata, LegacySpecDepend, parse_rawspec,
+    Requirement, Dependencies, EggMetadata, LegacySpecDepend, parse_rawspec,
     split_egg_name
 )
 from .._package_info import PackageInfo
@@ -242,68 +242,68 @@ packages = []
             self.assertEqual(set(fp.namelist()), set(r_files))
 
 
-class TestDependency(unittest.TestCase):
+class TestRequirement(unittest.TestCase):
     def test_str(self):
-        dependency = Dependency(name="numpy")
+        dependency = Requirement(name="numpy")
         r_str = "numpy"
 
         self.assertEqual(r_str, str(dependency))
 
-        dependency = Dependency(name="numpy", version_string="1.7.1")
+        dependency = Requirement(name="numpy", version_string="1.7.1")
         r_str = "numpy 1.7.1"
 
         self.assertEqual(r_str, str(dependency))
 
-        dependency = Dependency(name="numpy", version_string="1.7.1",
+        dependency = Requirement(name="numpy", version_string="1.7.1",
                                 build_number=1)
         r_str = "numpy 1.7.1-1"
 
         self.assertEqual(r_str, str(dependency))
 
-        dependency = Dependency("numpy", "1.7.1", 1)
+        dependency = Requirement("numpy", "1.7.1", 1)
         r_str = "numpy 1.7.1-1"
 
         self.assertEqual(r_str, str(dependency))
 
     def test_from_spec_string(self):
-        dependency = Dependency.from_spec_string("numpy")
+        dependency = Requirement.from_spec_string("numpy")
         self.assertEqual(dependency.name, "numpy")
         self.assertEqual(dependency.version_string, "")
         self.assertEqual(dependency.build_number, -1)
         self.assertEqual(dependency.strictness, 1)
 
-        dependency = Dependency.from_spec_string("numpy 1.7.1")
+        dependency = Requirement.from_spec_string("numpy 1.7.1")
         self.assertEqual(dependency.name, "numpy")
         self.assertEqual(dependency.version_string, "1.7.1")
         self.assertEqual(dependency.build_number, -1)
         self.assertEqual(dependency.strictness, 2)
 
-        dependency = Dependency.from_spec_string("numpy 1.7.1-2")
+        dependency = Requirement.from_spec_string("numpy 1.7.1-2")
         self.assertEqual(dependency.name, "numpy")
         self.assertEqual(dependency.version_string, "1.7.1")
         self.assertEqual(dependency.build_number, 2)
         self.assertEqual(dependency.strictness, 3)
 
     def test_from_string(self):
-        dependency = Dependency.from_string("numpy-1.7.1-2", 3)
+        dependency = Requirement.from_string("numpy-1.7.1-2", 3)
         self.assertEqual(dependency.name, "numpy")
         self.assertEqual(dependency.version_string, "1.7.1")
         self.assertEqual(dependency.build_number, 2)
 
-        dependency = Dependency.from_string("numpy-1.7.1-2", 2)
+        dependency = Requirement.from_string("numpy-1.7.1-2", 2)
         self.assertEqual(dependency.name, "numpy")
         self.assertEqual(dependency.version_string, "1.7.1")
         self.assertEqual(dependency.build_number, -1)
 
-        dependency = Dependency.from_string("numpy-1.7.1-2", 1)
+        dependency = Requirement.from_string("numpy-1.7.1-2", 1)
         self.assertEqual(dependency.name, "numpy")
         self.assertEqual(dependency.version_string, "")
         self.assertEqual(dependency.build_number, -1)
 
         self.assertRaises(InvalidEggName, lambda:
-                          Dependency.from_string("numpy"))
+                          Requirement.from_string("numpy"))
         self.assertRaises(InvalidEggName, lambda:
-                          Dependency.from_string("numpy 1.7.1"))
+                          Requirement.from_string("numpy 1.7.1"))
 
 
 class TestLegacySpecDepend(unittest.TestCase):
