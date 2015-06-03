@@ -1,5 +1,4 @@
 import os.path
-import re
 import subprocess
 
 from setuptools import setup
@@ -31,18 +30,16 @@ def git_version():
         return out
 
     try:
-        out = _minimal_ext_cmd(['git', 'describe', '--tags'])
+        out = _minimal_ext_cmd(['git', 'rev-parse', 'HEAD'])
+        git_revision = out.strip().decode('ascii')
     except OSError:
-        out = ""
+        git_revision = "Unknown"
 
-    git_description = out.strip().decode('ascii')
-
-    expr = r'.*?\-(?P<count>\d+)-g(?P<hash>[a-fA-F0-9]+)'
-    match = re.match(expr, git_description)
-    if match is None:
-        git_revision, git_count = 'Unknown', '0'
-    else:
-        git_revision, git_count = match.group('hash'), match.group('count')
+    try:
+        out = _minimal_ext_cmd(['git', 'rev-list', '--count', 'HEAD'])
+        git_count = out.strip().decode('ascii')
+    except OSError:
+        git_count = '0'
 
     return git_revision, git_count
 
