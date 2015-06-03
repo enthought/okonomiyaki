@@ -11,22 +11,6 @@ Only the below API should be considered public.
 Platform-related features
 =========================
 
-EPDPlatform class
------------------
-
-.. currentmodule:: okonomiyaki.platforms
-
-The main API is EPDPlatform. You can either create an explicit platform,
-or try to guess the platform from the running system::
-
-    platform = EPDPlatform.from_epd_string("rh5-32")
-    platform = EPDPlatform.from_running_system()
-
-One can access details through EPDPlatform instances' attributes.
-
-.. autoclass:: EPDPlatform
-   :members:
-
 Enthought egg features
 ======================
 
@@ -50,6 +34,28 @@ This is a class to build simple eggs from an existing LegacySpec (e.g. to
 build debug eggs).
 
 .. autoclass:: EggBuilder
+    :members:
+
+Platforms representations
+=========================
+
+.. currentmodule:: okonomiyaki.platforms
+
+The main API is EPDPlatform. You can either create an explicit platform,
+or try to guess the platform from the running system::
+
+    platform = EPDPlatform.from_epd_string("rh5-32")
+    platform = EPDPlatform.from_running_system()
+
+One can access details through EPDPlatform instances' attributes.
+
+.. autoclass:: EPDPlatform
+   :members:
+
+Generic platform representations are available through the `Platform`
+class.
+
+.. autoclass:: Platform
     :members:
 
 Repositories format

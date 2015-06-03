@@ -16,9 +16,8 @@ Example::
     from okonomiyaki.platforms import EPDPlatform
 
     epd_platform = EPDPlatform.from_epd_string("rh5-32")
-    assert epd.platform == "rh5"
+    assert epd.platform_name == "rh5"
     assert epd.arch_bits == "32"
-    assert epd.arch == "x86"
 
     # creating legacy s3 index entries
     from okonomiyaki.repositories import EnpkgS3IndexEntry
