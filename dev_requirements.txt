@@ -2,4 +2,3 @@ coverage
 flake8
 haas
 mock
--e git+https://github.com/enthought/enthought-sphinx-theme#egg=enthought-sphinx-theme
