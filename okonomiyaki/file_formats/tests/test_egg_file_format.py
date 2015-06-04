@@ -16,7 +16,7 @@ import os.path as op
 from ...errors import InvalidEggName, InvalidMetadata
 from ..egg import EggBuilder
 from .._egg_info import (
-    Dependency, Dependencies, EggMetadata, LegacySpecDepend, parse_rawspec,
+    Requirement, Dependencies, EggMetadata, LegacySpecDepend, parse_rawspec,
     split_egg_name
 )
 from .._package_info import PackageInfo
@@ -242,68 +242,68 @@ packages = []
             self.assertEqual(set(fp.namelist()), set(r_files))
 
 
-class TestDependency(unittest.TestCase):
+class TestRequirement(unittest.TestCase):
     def test_str(self):
-        dependency = Dependency(name="numpy")
+        dependency = Requirement(name="numpy")
         r_str = "numpy"
 
         self.assertEqual(r_str, str(dependency))
 
-        dependency = Dependency(name="numpy", version_string="1.7.1")
+        dependency = Requirement(name="numpy", version_string="1.7.1")
         r_str = "numpy 1.7.1"
 
         self.assertEqual(r_str, str(dependency))
 
-        dependency = Dependency(name="numpy", version_string="1.7.1",
+        dependency = Requirement(name="numpy", version_string="1.7.1",
                                 build_number=1)
         r_str = "numpy 1.7.1-1"
 
         self.assertEqual(r_str, str(dependency))
 
-        dependency = Dependency("numpy", "1.7.1", 1)
+        dependency = Requirement("numpy", "1.7.1", 1)
         r_str = "numpy 1.7.1-1"
 
         self.assertEqual(r_str, str(dependency))
 
     def test_from_spec_string(self):
-        dependency = Dependency.from_spec_string("numpy")
+        dependency = Requirement.from_spec_string("numpy")
         self.assertEqual(dependency.name, "numpy")
         self.assertEqual(dependency.version_string, "")
         self.assertEqual(dependency.build_number, -1)
         self.assertEqual(dependency.strictness, 1)
 
-        dependency = Dependency.from_spec_string("numpy 1.7.1")
+        dependency = Requirement.from_spec_string("numpy 1.7.1")
         self.assertEqual(dependency.name, "numpy")
         self.assertEqual(dependency.version_string, "1.7.1")
         self.assertEqual(dependency.build_number, -1)
         self.assertEqual(dependency.strictness, 2)
 
-        dependency = Dependency.from_spec_string("numpy 1.7.1-2")
+        dependency = Requirement.from_spec_string("numpy 1.7.1-2")
         self.assertEqual(dependency.name, "numpy")
         self.assertEqual(dependency.version_string, "1.7.1")
         self.assertEqual(dependency.build_number, 2)
         self.assertEqual(dependency.strictness, 3)
 
     def test_from_string(self):
-        dependency = Dependency.from_string("numpy-1.7.1-2", 3)
+        dependency = Requirement.from_string("numpy-1.7.1-2", 3)
         self.assertEqual(dependency.name, "numpy")
         self.assertEqual(dependency.version_string, "1.7.1")
         self.assertEqual(dependency.build_number, 2)
 
-        dependency = Dependency.from_string("numpy-1.7.1-2", 2)
+        dependency = Requirement.from_string("numpy-1.7.1-2", 2)
         self.assertEqual(dependency.name, "numpy")
         self.assertEqual(dependency.version_string, "1.7.1")
         self.assertEqual(dependency.build_number, -1)
 
-        dependency = Dependency.from_string("numpy-1.7.1-2", 1)
+        dependency = Requirement.from_string("numpy-1.7.1-2", 1)
         self.assertEqual(dependency.name, "numpy")
         self.assertEqual(dependency.version_string, "")
         self.assertEqual(dependency.build_number, -1)
 
         self.assertRaises(InvalidEggName, lambda:
-                          Dependency.from_string("numpy"))
+                          Requirement.from_string("numpy"))
         self.assertRaises(InvalidEggName, lambda:
-                          Dependency.from_string("numpy 1.7.1"))
+                          Requirement.from_string("numpy 1.7.1"))
 
 
 class TestLegacySpecDepend(unittest.TestCase):
@@ -325,6 +325,7 @@ class TestLegacySpecDepend(unittest.TestCase):
         self.assertMultiLineEqual(spec_depend.to_string(), r_spec_depend)
 
     def test_from_string(self):
+        # Given
         r_depend = """\
 metadata_version = '1.1'
 name = 'Qt_debug'
@@ -339,9 +340,14 @@ packages = [
   'Qt 4.8.5',
 ]
 """
+
+        # When
         depend = LegacySpecDepend.from_string(r_depend)
 
+        # Then
         self.assertMultiLineEqual(depend.to_string(), r_depend)
+        self.assertEqual(depend.packages,
+                         [Requirement.from_spec_string("Qt 4.8.5")])
 
     def test_from_string_no_python_tag_no_default(self):
         # Given
@@ -386,6 +392,7 @@ packages = []
 
         # Then
         self.assertMultiLineEqual(depend.to_string(), r_depend)
+        self.assertEqual(depend.packages, [])
 
     def test_windows_platform(self):
         r_depend = """\
@@ -908,6 +915,7 @@ class TestEggInfo(unittest.TestCase):
         # Then
         self.assertEqual(metadata.name, "enstaller")
         self.assertEqual(metadata.metadata_version_info, (1, 1))
+        self.assertEqual(metadata.runtime_dependencies, tuple())
 
     def test_from_cross_platform_egg(self):
         # Given
@@ -929,6 +937,25 @@ class TestEggInfo(unittest.TestCase):
     def test_from_platform_egg(self):
         # Given
         egg = ETS_EGG
+        r_runtime_dependencies = (
+            Requirement.from_spec_string('apptools 4.2.0-2'),
+            Requirement.from_spec_string('blockcanvas 4.0.3-1'),
+            Requirement.from_spec_string('casuarius 1.1-1'),
+            Requirement.from_spec_string('chaco 4.3.0-2'),
+            Requirement.from_spec_string('codetools 4.1.0-2'),
+            Requirement.from_spec_string('enable 4.3.0-5'),
+            Requirement.from_spec_string('enaml 0.6.8-2'),
+            Requirement.from_spec_string('encore 0.3-1'),
+            Requirement.from_spec_string('envisage 4.3.0-2'),
+            Requirement.from_spec_string('etsdevtools 4.0.2-1'),
+            Requirement.from_spec_string('etsproxy 0.1.2-1'),
+            Requirement.from_spec_string('graphcanvas 4.0.2-1'),
+            Requirement.from_spec_string('mayavi 4.3.0-3'),
+            Requirement.from_spec_string('pyface 4.3.0-2'),
+            Requirement.from_spec_string('scimath 4.1.2-2'),
+            Requirement.from_spec_string('traits 4.3.0-2'),
+            Requirement.from_spec_string('traitsui 4.3.0-2'),
+        )
 
         # When
         metadata = EggMetadata.from_egg(egg)
@@ -947,6 +974,7 @@ class TestEggInfo(unittest.TestCase):
         self.assertEqual(
             metadata.platform, EPDPlatform.from_epd_string("rh5-32")
         )
+        self.assertEqual(metadata.runtime_dependencies, r_runtime_dependencies)
 
     def test_to_spec_string(self):
         # Given
