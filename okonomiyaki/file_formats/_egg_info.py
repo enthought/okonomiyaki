@@ -8,7 +8,8 @@ from ..bundled.traitlets import (
     HasTraits, Enum, Instance, List, Long, Unicode
 )
 from ..errors import (
-    InvalidDependencyString, InvalidEggName, InvalidMetadata
+    InvalidDependencyString, InvalidEggName, InvalidMetadata,
+    UnsupportedMetadata
 )
 from ..platforms import EPDPlatform
 from ..platforms.legacy import LegacyEPDPlatform
@@ -90,8 +91,9 @@ def parse_rawspec(spec_string):
     metadata_version = spec.get(_TAG_METADATA_VERSION)
     if metadata_version is None \
             or metadata_version not in _METADATA_VERSION_TO_KEYS:
-        msg = "Invalid metadata version: {0!r}".format(metadata_version)
-        raise InvalidMetadata(msg, _TAG_METADATA_VERSION)
+        msg = ("Invalid metadata version: {0!r}. You may need to update to a "
+               "more recent okonomiyaki version".format(metadata_version))
+        raise UnsupportedMetadata(msg)
 
     res = {}
 

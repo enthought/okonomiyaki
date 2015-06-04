@@ -13,7 +13,7 @@ else:
 
 import os.path as op
 
-from ...errors import InvalidEggName, InvalidMetadata
+from ...errors import InvalidEggName, InvalidMetadata, UnsupportedMetadata
 from ..egg import EggBuilder
 from .._egg_info import (
     Dependency, Dependencies, EggMetadata, LegacySpecDepend, parse_rawspec,
@@ -440,6 +440,33 @@ packages = [
         self.assertEqual(depend.abi_tag, "cp27m")
         self.assertEqual(depend.platform_tag, "win32")
 
+    def test_unsupported_metadata_version(self):
+        # Given
+        s = """\
+metadata_version = "1.4"
+
+name = "foo"
+version = "1.0"
+build = 1
+
+arch = "amd64"
+platform = "darwin"
+osdist = None
+
+python = "2.7"
+
+abi_tag = "none"
+platform_tag = "macosx_10_6_i386"
+python_tag = "cp27"
+
+packages = []
+"""
+
+        # When/Then
+        with self.assertRaises(UnsupportedMetadata):
+            LegacySpecDepend.from_string(s)
+
+
 
 class TestLegacySpecDependAbi(unittest.TestCase):
     def test_default_no_python_egg(self):
@@ -709,7 +736,7 @@ class TestParseRawspec(unittest.TestCase):
         spec_string = "metadata_version = '1.0'"
 
         # When/Then
-        with self.assertRaises(InvalidMetadata):
+        with self.assertRaises(UnsupportedMetadata):
             parse_rawspec(spec_string)
 
     def test_simple_1_2(self):
@@ -842,9 +869,8 @@ packages = [
 """
 
         # When/Then
-        with self.assertRaises(InvalidMetadata) as exc:
+        with self.assertRaises(UnsupportedMetadata) as exc:
             parse_rawspec(spec_s)
-        self.assertEqual(exc.exception.attribute, "metadata_version")
 
         # Given a spec_string without some other metadata in >= 1.1
         spec_s = """\

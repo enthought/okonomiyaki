@@ -6,17 +6,17 @@ class InvalidPackageFormat(OkonomiyakiError):
     pass
 
 
-class InvalidEggFormat(InvalidPackageFormat):
+class UnsupportedMetadata(InvalidPackageFormat):
     pass
 
 
-class InvalidEggName(InvalidEggFormat):
+class InvalidEggName(InvalidPackageFormat):
     def __init__(self, egg_name):
         msg = "Invalid egg name '{0}'".format(egg_name)
         super(InvalidEggName, self).__init__(msg)
 
 
-class InvalidMetadata(InvalidEggFormat):
+class InvalidMetadata(InvalidPackageFormat):
     def __init__(self, message, attribute, *a, **kw):
         self.message = message
         self.attribute = attribute
@@ -26,7 +26,7 @@ class InvalidMetadata(InvalidEggFormat):
         return self.message
 
 
-class InvalidDependencyString(InvalidEggFormat):
+class InvalidDependencyString(InvalidMetadata):
     def __init__(self, dependency_string):
         msg = "Invalid dependency string {0!r}".format(dependency_string)
         super(InvalidDependencyString, self).__init__(msg)
