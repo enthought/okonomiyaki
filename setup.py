@@ -35,12 +35,18 @@ def git_version():
     except OSError:
         git_revision = "Unknown"
 
-    return git_revision
+    try:
+        out = _minimal_ext_cmd(['git', 'rev-list', '--count', 'HEAD'])
+        git_count = out.strip().decode('ascii')
+    except OSError:
+        git_count = '0'
+
+    return git_revision, git_count
 
 
 def write_version_py(filename):
     template = """\
-# THIS FILE IS GENERATED FROM ENSTALLER SETUP.PY
+# THIS FILE IS GENERATED FROM OKONOMIYAKI SETUP.PY
 version = '{version}'
 full_version = '{full_version}'
 git_revision = '{git_revision}'
@@ -53,20 +59,28 @@ if not is_released:
     # otherwise the import of numpy.version messes up the build under Python 3.
     fullversion = VERSION
     if os.path.exists('.git'):
-        git_rev = git_version()
+        git_rev, dev_num = git_version()
     elif os.path.exists(filename):
         # must be a source distribution, use existing version file
         try:
             from okonomiyaki._version import git_revision as git_rev
+            from okonomiyaki._version import full_version as full_v
         except ImportError:
             raise ImportError("Unable to import git_revision. Try removing "
                               "{0} and the build directory "
                               "before building.".format(filename))
+
+        match = re.match(r'.*?\.dev(?P<dev_num>\d+)', full_v)
+        if match is None:
+            dev_num = '0'
+        else:
+            dev_num = match.group('dev_num')
     else:
         git_rev = "Unknown"
+        dev_num = "0"
 
     if not IS_RELEASED:
-        fullversion += '.dev1-' + git_rev[:7]
+        fullversion += '.dev' + dev_num
 
     with open(filename, "wt") as fp:
         fp.write(template.format(version=VERSION,
