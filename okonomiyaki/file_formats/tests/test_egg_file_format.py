@@ -24,7 +24,7 @@ from ...platforms import EPDPlatform
 from ...platforms.legacy import LegacyEPDPlatform
 from ...versions import EnpkgVersion
 
-from .common import DATA_DIR, ENSTALLER_EGG, ETS_EGG, PIP_PKG_INFO
+from .common import DATA_DIR, ENSTALLER_EGG, ETS_EGG, MKL_EGG, PIP_PKG_INFO
 
 
 class TestEggBuilder(unittest.TestCase):
@@ -915,6 +915,31 @@ class TestEggInfo(unittest.TestCase):
         # Then
         self.assertEqual(metadata.name, "enstaller")
         self.assertEqual(metadata.metadata_version_info, (1, 1))
+        self.assertEqual(metadata.abi_tag, None)
+        self.assertEqual(metadata.abi_tag_string, 'none')
+        self.assertEqual(metadata.platform_tag, None)
+        self.assertEqual(metadata.platform_tag_string, 'any')
+        self.assertEqual(metadata.python_tag, None)
+        self.assertEqual(metadata.python_tag_string, 'none')
+
+    def test_simple_non_python_egg(self):
+        # Given
+        egg = MKL_EGG
+
+        # When
+        metadata = EggMetadata.from_egg(egg)
+
+        # Then
+        self.assertEqual(metadata.egg_basename, "MKL")
+        self.assertEqual(metadata.name, "mkl")
+
+        self.assertEqual(metadata.metadata_version_info, (1, 1))
+        self.assertEqual(metadata.abi_tag, None)
+        self.assertEqual(metadata.abi_tag_string, 'none')
+        self.assertEqual(metadata.platform_tag, 'macosx_10_6_x86_64')
+        self.assertEqual(metadata.platform_tag_string, 'macosx_10_6_x86_64')
+        self.assertEqual(metadata.python_tag, None)
+        self.assertEqual(metadata.python_tag_string, 'none')
         self.assertEqual(metadata.runtime_dependencies, tuple())
 
     def test_from_cross_platform_egg(self):
@@ -970,10 +995,15 @@ class TestEggInfo(unittest.TestCase):
         self.assertEqual(metadata.build, 3)
         self.assertEqual(metadata.upstream_version, "4.3.0")
         self.assertEqual(metadata.metadata_version_info, (1, 1))
-        self.assertEqual(metadata.python_tag, "cp27")
         self.assertEqual(
             metadata.platform, EPDPlatform.from_epd_string("rh5-32")
         )
+        self.assertEqual(metadata.abi_tag, 'cp27m')
+        self.assertEqual(metadata.abi_tag_string, 'cp27m')
+        self.assertEqual(metadata.platform_tag, 'linux_i686')
+        self.assertEqual(metadata.platform_tag_string, 'linux_i686')
+        self.assertEqual(metadata.python_tag, 'cp27')
+        self.assertEqual(metadata.python_tag_string, 'cp27')
         self.assertEqual(metadata.runtime_dependencies, r_runtime_dependencies)
 
     def test_to_spec_string(self):

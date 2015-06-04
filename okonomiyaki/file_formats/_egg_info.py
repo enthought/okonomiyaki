@@ -707,6 +707,13 @@ class EggMetadata(object):
         self.summary = summary
 
     @property
+    def abi_tag_string(self):
+        if self.abi_tag is None:
+            return 'none'
+        else:
+            return self.abi_tag
+
+    @property
     def build(self):
         return self.version.build
 
@@ -732,6 +739,22 @@ class EggMetadata(object):
             return None
         else:
             return self.platform.pep425_tag
+
+    @property
+    def platform_tag_string(self):
+        if self.platform_tag is None:
+            return 'any'
+        else:
+            return self.platform_tag
+
+    @property
+    def python_tag_string(self):
+        if self.python_tag is None:
+            # an extension of PEP 425, to signify the egg will work on any
+            # python version (mostly non-python eggs)
+            return 'none'
+        else:
+            return self.python_tag
 
     @property
     def spec_depend_string(self):
