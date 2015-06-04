@@ -8,11 +8,33 @@ API
 
 Only the below API should be considered public.
 
-Platform-related features
-=========================
+Enthought egg features
+======================
 
-EPDPlatform class
+.. currentmodule:: okonomiyaki.file_formats
+
+EggMetadata class
 -----------------
+
+This models the metadata of an Enthought egg::
+
+    metadata = EggMetadata.from_egg("numpy-1.7.1-1.egg")
+    print(metadata.platform_tag)
+
+.. autoclass:: EggMetadata
+   :members:
+
+EggBuilder class
+----------------
+
+This is a class to build simple eggs from an existing LegacySpec (e.g. to
+build debug eggs).
+
+.. autoclass:: EggBuilder
+    :members:
+
+Platforms representations
+=========================
 
 .. currentmodule:: okonomiyaki.platforms
 
@@ -27,51 +49,10 @@ One can access details through EPDPlatform instances' attributes.
 .. autoclass:: EPDPlatform
    :members:
 
-Enthought egg features
-======================
+Generic platform representations are available through the `Platform`
+class.
 
-.. currentmodule:: okonomiyaki.file_formats.egg
-
-LegacySpecDepend class
-----------------------
-
-Represents the content of the spec/depend file in Enthought egg's metadata.
-You can create one from an existing egg::
-
-    spec = LegacySpecDepend.from_egg("numpy-1.7.1-1.egg")
-    print spec.packages
-    print spec.osdist
-
-    # generate the spec/depend content
-    print spec.to_string()
-
-.. autoclass:: LegacySpec
-   :members:
-
-LegacySpec class
-----------------
-
-This models the content of the spec directory in Enthought egg's metadata.
-You can create one from an existing egg::
-
-    spec = LegacySpec.from_egg("numpy-1.7.1-1.egg")
-    print spec.summary
-    print spec.lib_depend
-    print spec.lib_provide
-
-    # generate the spec/depend content
-    print spec.depend_content()
-
-.. autoclass:: LegacySpec
-   :members:
-
-EggBuilder class
-----------------
-
-This is a class to build simple eggs from an existing LegacySpec (e.g. to
-build debug eggs).
-
-.. autoclass:: EggBuilder
+.. autoclass:: Platform
     :members:
 
 Repositories format

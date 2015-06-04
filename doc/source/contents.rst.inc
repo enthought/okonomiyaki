@@ -1,12 +1,13 @@
-Dev Guide
----------
+User Guide
+----------
 
-This part of the documentation explains the main concepts of okonomiyaki.
+This part of the documentation focuses on step-by-step instructions for getting
+the most out of the library.
 
 .. toctree::
    :maxdepth: 2
 
-   examples
+   user/quickstart
 
 API Reference
 -------------

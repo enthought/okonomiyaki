@@ -1,0 +1,3 @@
+sphinx
+-e git+https://github.com/enthought/enthought-sphinx-theme#egg=enthought-sphinx-theme
+refactordoc
