@@ -26,7 +26,7 @@ class InvalidMetadata(InvalidPackageFormat):
         return self.message
 
 
-class InvalidDependencyString(InvalidMetadata):
+class InvalidRequirementString(InvalidPackageFormat):
     def __init__(self, dependency_string):
-        msg = "Invalid dependency string {0!r}".format(dependency_string)
-        super(InvalidDependencyString, self).__init__(msg)
+        msg = "Invalid requirement string {0!r}".format(dependency_string)
+        super(InvalidRequirementString, self).__init__(msg)

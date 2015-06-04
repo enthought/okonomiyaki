@@ -7,6 +7,7 @@ DATA_DIR = os.path.join(os.path.dirname(repositories.__file__),
 
 ENSTALLER_EGG = os.path.join(DATA_DIR, "enstaller-4.5.0-1.egg")
 ETS_EGG = os.path.join(DATA_DIR, "ets-4.3.0-3.egg")
+MKL_EGG = os.path.join(DATA_DIR, "MKL-10.3-1.egg")
 PIP_EGG = os.path.join(DATA_DIR, "pip-6.0.8-1.egg")
 
 # Some eggs are for some reason built without EGG-INFO/PKG-INFO. A few

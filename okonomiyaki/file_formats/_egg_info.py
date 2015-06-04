@@ -8,7 +8,7 @@ from ..bundled.traitlets import (
     HasTraits, Enum, Instance, List, Long, Unicode
 )
 from ..errors import (
-    InvalidDependencyString, InvalidEggName, InvalidMetadata,
+    InvalidRequirementString, InvalidEggName, InvalidMetadata,
     UnsupportedMetadata
 )
 from ..platforms import EPDPlatform
@@ -123,10 +123,9 @@ def is_egg_name_valid(s):
     return _EGG_NAME_RE.match(s) is not None
 
 
-class Dependency(HasTraits):
+class Requirement(HasTraits):
     """
-    Dependency model for entries in the package metadata inside
-    EGG-INFO/spec/depend
+    Model for entries in the package metadata inside EGG-INFO/spec/depend
     """
     name = Unicode()
     version_string = Unicode()
@@ -136,7 +135,7 @@ class Dependency(HasTraits):
         self.name = name
         self.version_string = version_string
         self.build_number = build_number
-        super(Dependency, self).__init__(self, name, version_string,
+        super(Requirement, self).__init__(self, name, version_string,
                                          build_number)
 
     @property
@@ -151,7 +150,7 @@ class Dependency(HasTraits):
     @classmethod
     def from_string(cls, s, strictness=2):
         """
-        Create a Dependency from string following a name-version-build
+        Create a Requirement from string following a name-version-build
         format.
 
         Parameters
@@ -178,14 +177,14 @@ class Dependency(HasTraits):
     @classmethod
     def from_spec_string(cls, s):
         """
-        Create a Dependency from a spec string (as used in
+        Create a Requirement from a spec string (as used in
         EGG-INFO/spec/depend).
         """
         parts = s.split()
         if len(parts) == 1:
             name = parts[0]
             if "-" in name:
-                raise InvalidDependencyString(name)
+                raise InvalidRequirementString(name)
             return cls(name=name)
         elif len(parts) == 2:
             name, version = parts
@@ -198,7 +197,7 @@ class Dependency(HasTraits):
             return cls(name=name, version_string=upstream,
                        build_number=build_number)
         else:
-            raise InvalidDependencyString(name)
+            raise InvalidRequirementString(name)
 
     def __str__(self):
         if len(self.version_string) > 0:
@@ -210,6 +209,21 @@ class Dependency(HasTraits):
                 return "{0} {1}".format(self.name, self.version_string)
         else:
             return self.name
+
+    @property
+    def _key(self):
+        return (self.name, self.version_string, self.build_number)
+
+    def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return False
+        return self._key == other._key
+
+    def __ne__(self, other):
+        return not (self == other)
+
+    def __hash__(self):
+        return hash(self._key)
 
 
 _METADATA_TEMPLATES = {
@@ -327,7 +341,7 @@ class LegacySpecDepend(HasTraits):
     Platform tag (as defined in PEP 425), except that 'any' is None.
     """
 
-    packages = List(Instance(Dependency))
+    packages = List(Instance(Requirement))
     """
     List of dependencies for this egg
     """
@@ -349,7 +363,7 @@ class LegacySpecDepend(HasTraits):
         args["_epd_legacy_platform"] = _epd_legacy_platform
 
         args[_TAG_PACKAGES] = [
-            Dependency.from_spec_string(s) for s in args.get(_TAG_PACKAGES, [])
+            Requirement.from_spec_string(s) for s in args.get(_TAG_PACKAGES, [])
         ]
 
         return cls(**args)
@@ -460,6 +474,10 @@ class LegacySpecDepend(HasTraits):
 
 
 class Dependencies(object):
+    """ Object storing the various dependencies for an egg.
+
+    Each attribute is a tuple of Requirement instances.
+    """
     def __init__(self, runtime=None, build=None):
         self.runtime = runtime or ()
         self.build = runtime or ()
@@ -631,7 +649,7 @@ class EggMetadata(object):
             platform = EPDPlatform.from_epd_string(platform_string)
 
         dependencies = Dependencies(
-            tuple(str(dep) for dep in spec_depend.packages)
+            tuple(dep for dep in spec_depend.packages)
         )
 
         metadata_version_info = (
@@ -691,6 +709,13 @@ class EggMetadata(object):
         self.summary = summary
 
     @property
+    def abi_tag_string(self):
+        if self.abi_tag is None:
+            return 'none'
+        else:
+            return self.abi_tag
+
+    @property
     def build(self):
         return self.version.build
 
@@ -718,6 +743,22 @@ class EggMetadata(object):
             return self.platform.pep425_tag
 
     @property
+    def platform_tag_string(self):
+        if self.platform_tag is None:
+            return 'any'
+        else:
+            return self.platform_tag
+
+    @property
+    def python_tag_string(self):
+        if self.python_tag is None:
+            # an extension of PEP 425, to signify the egg will work on any
+            # python version (mostly non-python eggs)
+            return 'none'
+        else:
+            return self.python_tag
+
+    @property
     def spec_depend_string(self):
         return self._spec_depend.to_string()
 
@@ -740,10 +781,7 @@ class EggMetadata(object):
             "python_tag": self.python_tag,
             "abi_tag": self.abi_tag,
             "platform_tag": self.platform_tag,
-            "packages": [
-                Dependency.from_spec_string(dep)
-                for dep in self.runtime_dependencies
-            ],
+            "packages": [p for p in self.runtime_dependencies],
             "_epd_legacy_platform": _epd_legacy_platform,
             "_metadata_version": ".".join(
                 str(i) for i in self.metadata_version_info
