@@ -136,7 +136,7 @@ class Requirement(HasTraits):
         self.version_string = version_string
         self.build_number = build_number
         super(Requirement, self).__init__(self, name, version_string,
-                                         build_number)
+                                          build_number)
 
     @property
     def strictness(self):
@@ -363,7 +363,8 @@ class LegacySpecDepend(HasTraits):
         args["_epd_legacy_platform"] = _epd_legacy_platform
 
         args[_TAG_PACKAGES] = [
-            Requirement.from_spec_string(s) for s in args.get(_TAG_PACKAGES, [])
+            Requirement.from_spec_string(s)
+            for s in args.get(_TAG_PACKAGES, [])
         ]
 
         return cls(**args)

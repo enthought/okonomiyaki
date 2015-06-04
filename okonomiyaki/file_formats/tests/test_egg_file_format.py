@@ -255,7 +255,7 @@ class TestRequirement(unittest.TestCase):
         self.assertEqual(r_str, str(dependency))
 
         dependency = Requirement(name="numpy", version_string="1.7.1",
-                                build_number=1)
+                                 build_number=1)
         r_str = "numpy 1.7.1-1"
 
         self.assertEqual(r_str, str(dependency))
@@ -472,7 +472,6 @@ packages = []
         # When/Then
         with self.assertRaises(UnsupportedMetadata):
             LegacySpecDepend.from_string(s)
-
 
 
 class TestLegacySpecDependAbi(unittest.TestCase):
