@@ -8,9 +8,6 @@ API
 
 Only the below API should be considered public.
 
-Platform-related features
-=========================
-
 Enthought egg features
 ======================
 
