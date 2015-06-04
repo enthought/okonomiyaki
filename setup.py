@@ -1,4 +1,5 @@
 import os.path
+import re
 import subprocess
 
 from setuptools import setup
