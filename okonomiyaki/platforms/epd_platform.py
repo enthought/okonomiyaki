@@ -67,6 +67,14 @@ class EPDPlatform(HasTraits):
     """
 
     @classmethod
+    def from_running_python(cls):
+        """
+        Attempt to create an EPDPlatform instance by guessing the running
+        python. May raise an OkonomiyakiError exception
+        """
+        return cls(Platform.from_running_python())
+
+    @classmethod
     def from_running_system(cls, arch_name=None):
         """
         Attempt to create an EPDPlatform instance by guessing the running
