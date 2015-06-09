@@ -675,8 +675,8 @@ class EggMetadata(object):
             The 'raw' name, i.e. the name value in spec/depend.
         version: EnpkgVersion
             The full version
-        platform: Platform
-            An okonomyaki platform instance, or None for cross-platform eggs
+        platform: EPDPlatform
+            An EPDPlatform instance, or None for cross-platform eggs
         python_tag: str
             The python tag, e.g. 'cp27'. May be None.
         abi_tag: str
