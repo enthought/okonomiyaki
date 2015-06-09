@@ -367,7 +367,7 @@ packages = [
 """
 
         # When/Then
-        with self.assertRaises(InvalidMetadata) as exc:
+        with self.assertRaises(InvalidMetadata):
             LegacySpecDepend.from_string(r_depend)
 
     def test_to_string(self):
@@ -874,7 +874,7 @@ packages = [
 """
 
         # When/Then
-        with self.assertRaises(UnsupportedMetadata) as exc:
+        with self.assertRaises(UnsupportedMetadata):
             parse_rawspec(spec_s)
 
         # Given a spec_string without some other metadata in >= 1.1
@@ -894,7 +894,7 @@ packages = [
 """
 
         # When/Then
-        with self.assertRaises(InvalidMetadata) as exc:
+        with self.assertRaises(InvalidMetadata):
             parse_rawspec(spec_s)
 
         # Given a spec_string without some other metadata in >= 1.2
@@ -915,7 +915,7 @@ packages = [
 """
 
         # When/Then
-        with self.assertRaises(InvalidMetadata) as exc:
+        with self.assertRaises(InvalidMetadata):
             parse_rawspec(spec_s)
 
     def test_python_tag_major_version_only(self):
@@ -949,8 +949,7 @@ packages = [
 
         # When
         metadata = EggMetadata(name, version, platform, python_tag,
-            abi_tag, dependencies, pkg_info, summary
-        )
+                               abi_tag, dependencies, pkg_info, summary)
 
         # Then
         self.assertEqual(metadata._python, "2.7")
