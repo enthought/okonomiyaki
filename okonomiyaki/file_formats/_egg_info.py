@@ -103,7 +103,7 @@ def parse_rawspec(spec_string):
             res[key] = spec[key]
         except KeyError:
             msg = "Missing attribute {0!r} (metadata_version: {1!r})"
-            raise InvalidMetadata(msg.format(key, metadata_version), key)
+            raise InvalidMetadata(msg.format(key, metadata_version))
     return res
 
 
@@ -277,7 +277,7 @@ def _get_default_python_tag(python_tag, python):
         python_tag = _PYTHON_VERSION_TO_PYTHON_TAG.get(python, _UNSUPPORTED)
         if python_tag == _UNSUPPORTED:
             msg = "python_tag cannot be guessed for python = {0}"
-            raise InvalidMetadata(msg.format(python), _TAG_PYTHON_PEP425_TAG)
+            raise InvalidMetadata(msg.format(python))
 
     return python_tag
 
@@ -505,8 +505,10 @@ def _python_tag_to_python(python_tag):
         d = m.groupdict()
         version = d["version"]
         if len(version) == 1:
-            msg = "Version {0!r} not supported".format(version)
-            raise InvalidMetadata(msg)
+            if version == "2":
+                return "2.7"
+            else:
+                raise InvalidMetadata(generic_msg)
         elif len(version) == 2:
             return "{0}.{1}".format(version[0], version[1])
         else:
@@ -673,8 +675,8 @@ class EggMetadata(object):
             The 'raw' name, i.e. the name value in spec/depend.
         version: EnpkgVersion
             The full version
-        platform: Platform
-            An okonomyaki platform instance, or None for cross-platform eggs
+        platform: EPDPlatform
+            An EPDPlatform instance, or None for cross-platform eggs
         python_tag: str
             The python tag, e.g. 'cp27'. May be None.
         abi_tag: str

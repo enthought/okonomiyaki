@@ -367,9 +367,8 @@ packages = [
 """
 
         # When/Then
-        with self.assertRaises(InvalidMetadata) as exc:
+        with self.assertRaises(InvalidMetadata):
             LegacySpecDepend.from_string(r_depend)
-        self.assertEqual(exc.exception.attribute, "python_tag")
 
     def test_to_string(self):
         # Given
@@ -875,7 +874,7 @@ packages = [
 """
 
         # When/Then
-        with self.assertRaises(UnsupportedMetadata) as exc:
+        with self.assertRaises(UnsupportedMetadata):
             parse_rawspec(spec_s)
 
         # Given a spec_string without some other metadata in >= 1.1
@@ -895,9 +894,8 @@ packages = [
 """
 
         # When/Then
-        with self.assertRaises(InvalidMetadata) as exc:
+        with self.assertRaises(InvalidMetadata):
             parse_rawspec(spec_s)
-        self.assertEqual(exc.exception.attribute, "platform")
 
         # Given a spec_string without some other metadata in >= 1.2
         spec_s = """\
@@ -917,9 +915,55 @@ packages = [
 """
 
         # When/Then
-        with self.assertRaises(InvalidMetadata) as exc:
+        with self.assertRaises(InvalidMetadata):
             parse_rawspec(spec_s)
-        self.assertEqual(exc.exception.attribute, "python_tag")
+
+    def test_python_tag_major_version_only(self):
+        # Given
+        name = "numpy"
+        version = EnpkgVersion.from_string("1.9.2-1")
+        platform = EPDPlatform.from_epd_string("osx-64")
+        python_tag = "py2"
+        abi_tag = "cp27m"
+        dependencies = Dependencies()
+        pkg_info = None
+        summary = "a few words"
+
+        r_spec_depend_string = textwrap.dedent("""\
+        metadata_version = '1.3'
+        name = 'numpy'
+        version = '1.9.2'
+        build = 1
+
+        arch = 'amd64'
+        platform = 'darwin'
+        osdist = None
+        python = '2.7'
+
+        python_tag = 'py2'
+        abi_tag = 'cp27m'
+        platform_tag = 'macosx_10_6_x86_64'
+
+        packages = []
+        """)
+
+        # When
+        metadata = EggMetadata(name, version, platform, python_tag,
+                               abi_tag, dependencies, pkg_info, summary)
+
+        # Then
+        self.assertEqual(metadata._python, "2.7")
+        self.assertEqual(metadata.python_tag, "py2")
+        self.assertEqual(metadata.metadata_version_info, (1, 3))
+        self.assertMultiLineEqual(
+            metadata.spec_depend_string,
+            r_spec_depend_string,
+        )
+
+        # When/Then
+        with self.assertRaises(InvalidMetadata):
+            EggMetadata(name, version, platform, "py3", abi_tag,
+                        dependencies, pkg_info, summary)
 
 
 class TestEggInfo(unittest.TestCase):
