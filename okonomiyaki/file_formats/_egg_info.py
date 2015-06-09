@@ -103,7 +103,7 @@ def parse_rawspec(spec_string):
             res[key] = spec[key]
         except KeyError:
             msg = "Missing attribute {0!r} (metadata_version: {1!r})"
-            raise InvalidMetadata(msg.format(key, metadata_version), key)
+            raise InvalidMetadata(msg.format(key, metadata_version))
     return res
 
 
@@ -277,7 +277,7 @@ def _get_default_python_tag(python_tag, python):
         python_tag = _PYTHON_VERSION_TO_PYTHON_TAG.get(python, _UNSUPPORTED)
         if python_tag == _UNSUPPORTED:
             msg = "python_tag cannot be guessed for python = {0}"
-            raise InvalidMetadata(msg.format(python), _TAG_PYTHON_PEP425_TAG)
+            raise InvalidMetadata(msg.format(python))
 
     return python_tag
 

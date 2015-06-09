@@ -369,7 +369,6 @@ packages = [
         # When/Then
         with self.assertRaises(InvalidMetadata) as exc:
             LegacySpecDepend.from_string(r_depend)
-        self.assertEqual(exc.exception.attribute, "python_tag")
 
     def test_to_string(self):
         # Given
@@ -897,7 +896,6 @@ packages = [
         # When/Then
         with self.assertRaises(InvalidMetadata) as exc:
             parse_rawspec(spec_s)
-        self.assertEqual(exc.exception.attribute, "platform")
 
         # Given a spec_string without some other metadata in >= 1.2
         spec_s = """\
@@ -919,7 +917,6 @@ packages = [
         # When/Then
         with self.assertRaises(InvalidMetadata) as exc:
             parse_rawspec(spec_s)
-        self.assertEqual(exc.exception.attribute, "python_tag")
 
 
 class TestEggInfo(unittest.TestCase):

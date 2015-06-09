@@ -17,10 +17,9 @@ class InvalidEggName(InvalidPackageFormat):
 
 
 class InvalidMetadata(InvalidPackageFormat):
-    def __init__(self, message, attribute, *a, **kw):
+    def __init__(self, message, *a, **kw):
         self.message = message
-        self.attribute = attribute
-        super(InvalidMetadata, self).__init__(message, attribute, *a, **kw)
+        super(InvalidMetadata, self).__init__(message, *a, **kw)
 
     def __str__(self):
         return self.message
