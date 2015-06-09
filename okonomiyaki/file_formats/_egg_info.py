@@ -505,7 +505,7 @@ def _python_tag_to_python(python_tag):
         d = m.groupdict()
         version = d["version"]
         if len(version) == 1:
-            if version[0] == "2":
+            if version == "2":
                 return "2.7"
             else:
                 raise InvalidMetadata(generic_msg)
