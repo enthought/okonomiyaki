@@ -505,8 +505,10 @@ def _python_tag_to_python(python_tag):
         d = m.groupdict()
         version = d["version"]
         if len(version) == 1:
-            msg = "Version {0!r} not supported".format(version)
-            raise InvalidMetadata(msg)
+            if version[0] == "2":
+                return "2.7"
+            else:
+                raise InvalidMetadata(generic_msg)
         elif len(version) == 2:
             return "{0}.{1}".format(version[0], version[1])
         else:
