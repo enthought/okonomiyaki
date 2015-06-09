@@ -960,6 +960,11 @@ packages = [
             r_spec_depend_string,
         )
 
+        # When/Then
+        with self.assertRaises(InvalidMetadata):
+            EggMetadata(name, version, platform, "py3", abi_tag,
+                        dependencies, pkg_info, summary)
+
 
 class TestEggInfo(unittest.TestCase):
     def test_simple(self):
