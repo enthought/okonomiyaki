@@ -54,7 +54,7 @@ packages = []
 """
 
         spec_depend = LegacySpecDepend.from_string(r_spec_depend)
-        pkg_info = PackageInfo("1.2", "Qt_debug", "4.8.5")
+        pkg_info = PackageInfo("1.1", "Qt_debug", "4.8.5")
         metadata = EggMetadata._from_spec_depend(spec_depend, pkg_info, "")
 
         with EggBuilder(metadata, cwd=self.d) as fp:

@@ -58,6 +58,11 @@ class TestPackageInfo(unittest.TestCase):
         with self.assertRaises(OkonomiyakiError):
             PackageInfo.from_string(data)
 
+    def test_unsupported(self):
+        # When/Then
+        with self.assertRaises(OkonomiyakiError):
+            PackageInfo("1.2", "numpy", "1.9.2")
+
     def test_simple_from_egg(self):
         # Given
         egg = PIP_EGG

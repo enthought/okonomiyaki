@@ -43,9 +43,11 @@ HEADER_ATTRS_1_1 = HEADER_ATTRS_1_0 + (  # PEP 314
 )
 
 HEADER_ATTRS = {
-    '1.0': HEADER_ATTRS_1_0,
-    '1.1': HEADER_ATTRS_1_1,
+    (1, 0): HEADER_ATTRS_1_0,
+    (1, 1): HEADER_ATTRS_1_1,
 }
+
+MAX_SUPPORTED_VERSION = max(HEADER_ATTRS.keys())
 
 
 class PackageInfo(object):
@@ -88,8 +90,11 @@ class PackageInfo(object):
         else:
             metadata_version = "1.0"
 
-        for header_name, attr_name, multiple in \
-                _get_header_attributes(metadata_version):
+        _ensure_supported_version(metadata_version)
+        metadata_version_info = _string_to_version_info(metadata_version)
+        attributes = HEADER_ATTRS[metadata_version_info]
+
+        for header_name, attr_name, multiple in attributes:
             if attr_name == 'metadata_version':
                 continue
 
@@ -117,6 +122,8 @@ class PackageInfo(object):
                  keywords=None, home_page="", download_url="", author="",
                  author_email="", license="", classifiers=None,
                  requires=None, provides=None, obsoletes=None):
+        _ensure_supported_version(metadata_version)
+
         self.metadata_version = metadata_version
 
         # version 1.0
@@ -139,7 +146,7 @@ class PackageInfo(object):
         self.provides = provides or ()
         self.obsoletes = obsoletes or ()
 
-    def to_string(self, metadata_version_info=(1, 2)):
+    def to_string(self, metadata_version_info=MAX_SUPPORTED_VERSION):
         s = StringIO()
         self._write_field(s, 'Metadata-Version', self.metadata_version)
         self._write_field(s, 'Name', self.name)
@@ -183,14 +190,16 @@ class PackageInfo(object):
             self._write_field(s, name, value)
 
 
-def _get_header_attributes(metadata_version):
-    attributes = HEADER_ATTRS.get(metadata_version)
-    if attributes is None:
+def _string_to_version_info(metadata_version):
+    return tuple(int(i) for i in metadata_version.split("."))
+
+
+def _ensure_supported_version(metadata_version):
+    metadata_version_info = _string_to_version_info(metadata_version)
+    if metadata_version_info not in HEADER_ATTRS:
         msg = ("Unsupported PKG-INFO metadata format: {0!r}"
                .format(metadata_version))
         raise OkonomiyakiError(msg)
-    else:
-        return attributes
 
 
 def _parse(fp):
