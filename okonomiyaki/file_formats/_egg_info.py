@@ -16,7 +16,7 @@ from ..platforms.legacy import LegacyEPDPlatform
 from ..utils import parse_assignments
 from ..utils.traitlets import NoneOrInstance, NoneOrUnicode
 from ..versions import EnpkgVersion
-from ._package_info import PackageInfo
+from ._package_info import PackageInfo, _read_pkg_info
 
 
 _EGG_NAME_RE = re.compile("""
@@ -624,13 +624,18 @@ class EggMetadata(object):
             spec_depend = LegacySpecDepend.from_egg(path_or_file)
             with zipfile2.ZipFile(path_or_file) as fp:
                 summary = _read_summary(fp)
+                pkg_info_data = _read_pkg_info(fp)
         else:
             spec_depend_string = (path_or_file.read(_SPEC_DEPEND_LOCATION)
                                   .decode())
             spec_depend = LegacySpecDepend.from_string(spec_depend_string)
             summary = _read_summary(path_or_file)
+            pkg_info_data = _read_pkg_info(path_or_file)
 
-        pkg_info = PackageInfo.from_egg(path_or_file)
+        if pkg_info_data is None:
+            pkg_info = None
+        else:
+            pkg_info = PackageInfo.from_string(pkg_info_data)
 
         return cls._from_spec_depend(spec_depend, pkg_info, summary)
 
