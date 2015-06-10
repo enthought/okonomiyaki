@@ -70,8 +70,8 @@ class PackageInfo(object):
                 msg = "No PKG-INFO metadata found"
                 raise OkonomiyakiError(msg)
         else:
-            data = path_or_file.read(_PKG_INFO_LOCATION) \
-                    .decode(PKG_INFO_ENCODING)
+            data = path_or_file.read(_PKG_INFO_LOCATION)
+            data = data.decode(PKG_INFO_ENCODING)
         return cls.from_string(data)
 
     @classmethod
