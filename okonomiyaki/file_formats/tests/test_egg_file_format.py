@@ -24,7 +24,9 @@ from ...platforms import EPDPlatform
 from ...platforms.legacy import LegacyEPDPlatform
 from ...versions import EnpkgVersion
 
-from .common import DATA_DIR, ENSTALLER_EGG, ETS_EGG, MKL_EGG, PIP_PKG_INFO
+from .common import (
+    DATA_DIR, ENSTALLER_EGG, ETS_EGG, MKL_EGG, PIP_PKG_INFO, _OSX64APP_EGG
+)
 
 
 class TestEggBuilder(unittest.TestCase):
@@ -1124,3 +1126,22 @@ class TestEggInfo(unittest.TestCase):
             metadata.summary,
             "components to construct custom scientific applications\n"
         )
+
+    def test_no_pkg_info(self):
+        # Given
+        egg = _OSX64APP_EGG
+
+        # When
+        metadata = EggMetadata.from_egg(egg)
+
+        # Then
+        self.assertEqual(metadata.name, "_osx64app")
+        self.assertIsNone(metadata.pkg_info)
+
+        # When
+        with zipfile2.ZipFile(egg) as fp:
+            metadata = EggMetadata.from_egg(fp)
+
+        # Then
+        self.assertEqual(metadata.name, "_osx64app")
+        self.assertIsNone(metadata.pkg_info)
