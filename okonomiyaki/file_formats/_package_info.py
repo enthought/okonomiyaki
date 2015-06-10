@@ -65,18 +65,14 @@ class PackageInfo(object):
         """
         if isinstance(path_or_file, six.string_types):
             with zipfile2.ZipFile(path_or_file) as fp:
-                for candidate in _PKG_INFO_CANDIDATES:
-                    try:
-                        data = fp.read(candidate)
-                        break
-                    except KeyError:
-                        pass
-                else:
-                    msg = "No PKG-INFO metadata found"
-                    raise OkonomiyakiError(msg)
+                data = _read_pkg_info(fp)
+            if data is None:
+                msg = "No PKG-INFO metadata found"
+                raise OkonomiyakiError(msg)
         else:
-            data = path_or_file.read(_PKG_INFO_LOCATION)
-        return cls.from_string(data.decode(PKG_INFO_ENCODING))
+            data = path_or_file.read(_PKG_INFO_LOCATION) \
+                    .decode(PKG_INFO_ENCODING)
+        return cls.from_string(data)
 
     @classmethod
     def from_string(cls, s):
@@ -236,6 +232,20 @@ def _collapse_leading_ws(header, txt):
         return '\n'.join(lines)
     else:
         return ' '.join([x.strip() for x in txt.splitlines()])
+
+
+def _read_pkg_info(fp):
+    """ Read the PKG-INFO content in the possible locations, and return
+    the decoded content.
+
+    If no PKG-INFO is found, return None.
+    """
+    for candidate in _PKG_INFO_CANDIDATES:
+        try:
+            return fp.read(candidate).decode(PKG_INFO_ENCODING)
+        except KeyError:
+            pass
+    return None
 
 
 # Copied from distutils.util
