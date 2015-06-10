@@ -30,6 +30,40 @@ class TestEPDPlatform(unittest.TestCase):
         for epd_platform_string in EPD_PLATFORM_SHORT_NAMES:
             EPDPlatform.from_epd_string(epd_platform_string)
 
+    @mock_darwin
+    @mock_machine_x86_64
+    def test_from_running_python(self):
+        # When
+        with mock_architecture_32bit:
+            platform = EPDPlatform.from_running_python()
+
+        # Then
+        self.assertEqual(platform.short, "osx-32")
+
+        # When
+        with mock_architecture_64bit:
+            platform = EPDPlatform.from_running_python()
+
+        # Then
+        self.assertEqual(platform.short, "osx-64")
+
+    @mock_darwin
+    @mock_machine_x86_64
+    def test_from_running_system(self):
+        # When
+        with mock_architecture_32bit:
+            platform = EPDPlatform.from_running_system()
+
+        # Then
+        self.assertEqual(platform.short, "osx-64")
+
+        # When
+        with mock_architecture_64bit:
+            platform = EPDPlatform.from_running_system()
+
+        # Then
+        self.assertEqual(platform.short, "osx-64")
+
     def test_epd_platform_from_string_new_arch(self):
         def old_to_new_name(epd_platform_string):
             left, right = epd_platform_string.split("-")

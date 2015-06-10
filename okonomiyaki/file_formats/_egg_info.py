@@ -16,7 +16,7 @@ from ..platforms.legacy import LegacyEPDPlatform
 from ..utils import parse_assignments
 from ..utils.traitlets import NoneOrInstance, NoneOrUnicode
 from ..versions import EnpkgVersion
-from ._package_info import PackageInfo
+from ._package_info import PackageInfo, _read_pkg_info
 
 
 _EGG_NAME_RE = re.compile("""
@@ -103,7 +103,7 @@ def parse_rawspec(spec_string):
             res[key] = spec[key]
         except KeyError:
             msg = "Missing attribute {0!r} (metadata_version: {1!r})"
-            raise InvalidMetadata(msg.format(key, metadata_version), key)
+            raise InvalidMetadata(msg.format(key, metadata_version))
     return res
 
 
@@ -277,7 +277,7 @@ def _get_default_python_tag(python_tag, python):
         python_tag = _PYTHON_VERSION_TO_PYTHON_TAG.get(python, _UNSUPPORTED)
         if python_tag == _UNSUPPORTED:
             msg = "python_tag cannot be guessed for python = {0}"
-            raise InvalidMetadata(msg.format(python), _TAG_PYTHON_PEP425_TAG)
+            raise InvalidMetadata(msg.format(python))
 
     return python_tag
 
@@ -505,8 +505,10 @@ def _python_tag_to_python(python_tag):
         d = m.groupdict()
         version = d["version"]
         if len(version) == 1:
-            msg = "Version {0!r} not supported".format(version)
-            raise InvalidMetadata(msg)
+            if version == "2":
+                return "2.7"
+            else:
+                raise InvalidMetadata(generic_msg)
         elif len(version) == 2:
             return "{0}.{1}".format(version[0], version[1])
         else:
@@ -622,13 +624,18 @@ class EggMetadata(object):
             spec_depend = LegacySpecDepend.from_egg(path_or_file)
             with zipfile2.ZipFile(path_or_file) as fp:
                 summary = _read_summary(fp)
+                pkg_info_data = _read_pkg_info(fp)
         else:
             spec_depend_string = (path_or_file.read(_SPEC_DEPEND_LOCATION)
                                   .decode())
             spec_depend = LegacySpecDepend.from_string(spec_depend_string)
             summary = _read_summary(path_or_file)
+            pkg_info_data = _read_pkg_info(path_or_file)
 
-        pkg_info = PackageInfo.from_egg(path_or_file)
+        if pkg_info_data is None:
+            pkg_info = None
+        else:
+            pkg_info = PackageInfo.from_string(pkg_info_data)
 
         return cls._from_spec_depend(spec_depend, pkg_info, summary)
 
@@ -673,8 +680,8 @@ class EggMetadata(object):
             The 'raw' name, i.e. the name value in spec/depend.
         version: EnpkgVersion
             The full version
-        platform: Platform
-            An okonomyaki platform instance, or None for cross-platform eggs
+        platform: EPDPlatform
+            An EPDPlatform instance, or None for cross-platform eggs
         python_tag: str
             The python tag, e.g. 'cp27'. May be None.
         abi_tag: str
