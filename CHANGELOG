@@ -1,0 +1,12 @@
+0000-00-00   0.8.0:
+-------------------
+
+Improvements:
+
+  * add EPDPlatform.from_running_python ctor (#62)
+  * reject unsupported metadata version in PackageInfo (#63)
+  * add support for 'py2' python tag (#64)
+
+Bug fixes:
+
+  * handle Enthought eggs without PKG-INFO in EggMetadata (#65)
