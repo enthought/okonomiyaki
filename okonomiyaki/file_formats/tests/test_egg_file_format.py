@@ -367,17 +367,17 @@ class TestEggRewriter(unittest.TestCase):
             new_content = fp.read("EGG-INFO/pbr.json")
         self.assertEqual(new_content, r_new_content)
 
-    def test_filtre(self):
+    def test_accept(self):
         # Given
         egg = TRAITS_SETUPTOOLS_EGG
 
         r_spec_depend = self._spec_depend_string()
         metadata = self._create_metadata(r_spec_depend)
 
-        filtre = lambda path: False if path == "EGG-INFO/pbr.json" else True
+        accept = lambda path: False if path == "EGG-INFO/pbr.json" else True
 
         # When
-        with EggRewriter(metadata, egg, filtre=filtre,
+        with EggRewriter(metadata, egg, accept=accept,
                          cwd=self.prefix) as rewriter:
             pass
 
@@ -413,7 +413,7 @@ class TestEggRewriter(unittest.TestCase):
 
         self.assertEqual(content, r_content)
 
-    def test_filtre_and_rename(self):
+    def test_accept_and_rename(self):
         # Given
         egg = TRAITS_SETUPTOOLS_EGG
 
@@ -429,14 +429,14 @@ class TestEggRewriter(unittest.TestCase):
             else:
                 return arcname
 
-        def filtre(arcname):
+        def accept(arcname):
             if arcname == old_arcname:
                 return False
             else:
                 return True
 
         # When
-        with EggRewriter(metadata, egg, rename=rename, filtre=filtre,
+        with EggRewriter(metadata, egg, rename=rename, accept=accept,
                          cwd=self.prefix) as rewriter:
             pass
 
@@ -452,14 +452,14 @@ class TestEggRewriter(unittest.TestCase):
             else:
                 return arcname
 
-        def filtre(arcname):
+        def accept(arcname):
             if arcname == new_arcname:
                 return False
             else:
                 return True
 
         # When
-        with EggRewriter(metadata, egg, rename=rename, filtre=filtre,
+        with EggRewriter(metadata, egg, rename=rename, accept=accept,
                          cwd=self.prefix) as rewriter:
             pass
 

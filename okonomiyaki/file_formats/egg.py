@@ -125,7 +125,7 @@ def _no_rename(f):
     return f
 
 
-def _filtre_nothing(f):
+def _accept_nothing(f):
     return True
 
 
@@ -133,7 +133,7 @@ class EggRewriter(_EggBuilderNoPkgInfo):
     """ Class to create Enthought eggs from existing setuptools eggs.
     """
     def __init__(self, egg_metadata, egg, compress=True, cwd=None,
-                 rename=None, filtre=None, allow_overwrite=False):
+                 rename=None, accept=None, allow_overwrite=False):
         """ Create a new egg rewriter instance.
 
         Parameters
@@ -152,7 +152,7 @@ class EggRewriter(_EggBuilderNoPkgInfo):
             If defined, a callable of the form (archive_name, ) ->
             new_archive_name, to rename archive members from the original
             egg.
-        filtre: callable
+        accept: callable
             If defined, a callable of the form (archive_name, ) -> bool,
             returning for archives not to copy from the original egg.
         allow_overwrite: bool
@@ -162,14 +162,14 @@ class EggRewriter(_EggBuilderNoPkgInfo):
 
         Note
         ----
-        When both rename and filtre arguments are used, the filtre applies
+        When both rename and accept arguments are used, the filtre applies
         on the archive name *before* the renaming, i.e. on the archive
         name in the original egg.
         """
         super(EggRewriter, self).__init__(egg_metadata, compress, cwd)
         self._egg = egg
         self._rename = rename or _no_rename
-        self._filtre = filtre or _filtre_nothing
+        self._accept = accept or _accept_nothing
 
         self._allow_overwrite = allow_overwrite
 
@@ -188,7 +188,7 @@ class EggRewriter(_EggBuilderNoPkgInfo):
                         if arcname in self._fp._filenames_set:
                             continue
 
-                    if self._filtre(f):
+                    if self._accept(f):
                         source_path = source.extract(f, tempdir)
                         self.add_file_as(source_path, arcname)
             finally:
