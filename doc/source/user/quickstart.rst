@@ -44,6 +44,19 @@ EggBuilder class::
 This will create an egg with the given metadata, adding every file in
 "./usr" into the egg.
 
+Repackaging an existing setuptools egg
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you want to create an Enthought egg from an existing setuptools egg,
+you should use the EggRewriter class::
+
+    from okonomiyaki.file_formats import EggBuilder
+
+    # Create metadata using the EggMetadata class to add platform,
+    # dependencies information
+    with EggRewriter(metadata, "foo-2.3-py2.7.egg") as rewriter:
+        rewriter.add_file("dummy.txt", "EGG-INFO/dummy.txt")
+
 Platform representations
 ------------------------
 
