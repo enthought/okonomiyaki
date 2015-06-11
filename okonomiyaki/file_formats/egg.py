@@ -10,11 +10,7 @@ from ._egg_info import (
 from ._package_info import _PKG_INFO_LOCATION
 
 
-class EggBuilder(object):
-    """
-    Class to build eggs from an install tree. This is mostly useful to
-    build eggs from non-python packages.
-    """
+class _EggBuilderNoPkgInfo(object):
     def __init__(self, egg_metadata, compress=True, cwd=None):
         self.cwd = cwd or os.getcwd()
 
@@ -32,7 +28,9 @@ class EggBuilder(object):
         self._fp = zipfile2.ZipFile(self.path, "w", flag)
 
         # Write those now so that they are at the beginning of the file.
-        self._write_pkg_info()
+        self._write_metadata()
+
+    def _write_metadata(self):
         self._write_spec_summary()
         self._write_spec_depend()
 
@@ -106,3 +104,16 @@ class EggBuilder(object):
     def _write_pkg_info(self):
         data = self._egg_metadata.pkg_info.to_string()
         self._fp.writestr(_PKG_INFO_LOCATION, data)
+
+
+class EggBuilder(_EggBuilderNoPkgInfo):
+    """
+    Class to build eggs from an install tree. This is mostly useful to
+    build Enthought eggs for non-python packages (C/C++ libraries, etc...)
+    """
+    def __init__(self, egg_metadata, compress=True, cwd=None):
+        super(EggBuilder, self).__init__(egg_metadata, compress, cwd)
+
+    def _write_metadata(self):
+        super(EggBuilder, self)._write_metadata()
+        self._write_pkg_info()
