@@ -26,6 +26,9 @@ from .._package_info import PackageInfo
 from .common import PIP_PKG_INFO, TRAITS_SETUPTOOLS_EGG
 
 
+ZIP_SOFTLINK_ATTRIBUTE_MAGIC = 0xA1ED0000
+
+
 class TestEggBuilder(unittest.TestCase):
     def setUp(self):
         self.d = tempfile.mkdtemp()
@@ -259,10 +262,17 @@ class TestEggRewriter(unittest.TestCase):
             with zipfile2.ZipFile(second) as second_fp:
                 first_info = first_fp.getinfo(arcname)
                 second_info = second_fp.getinfo(arcname)
-                self.assertEqual(
-                    first_info.external_attr,
-                    second_info.external_attr
+
+                is_one_symlink = (
+                    first_info.external_attr == ZIP_SOFTLINK_ATTRIBUTE_MAGIC
+                    or
+                    second_info.external_attr == ZIP_SOFTLINK_ATTRIBUTE_MAGIC
                 )
+                if is_one_symlink:
+                    self.assertEqual(
+                        first_info.external_attr,
+                        second_info.external_attr
+                    )
 
                 self.assertEqual(
                     first_fp.read(first_info),
@@ -355,7 +365,6 @@ class TestEggRewriter(unittest.TestCase):
         with self.assertRaises(ValueError):
             with EggRewriter(metadata, egg, cwd=self.prefix) as rewriter:
                 rewriter.add_file_as(__file__, "EGG-INFO/pbr.json")
-
 
         # When
         with EggRewriter(metadata, egg, cwd=self.prefix,
