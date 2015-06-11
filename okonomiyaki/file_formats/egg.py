@@ -149,11 +149,22 @@ class EggRewriter(_EggBuilderNoPkgInfo):
             The directory where to write the generated egg. If not
             specified, defaults to os.getcwd()
         rename: callable
+            If defined, a callable of the form (archive_name, ) ->
+            new_archive_name, to rename archive members from the original
+            egg.
         filtre: callable
+            If defined, a callable of the form (archive_name, ) -> bool,
+            returning for archives not to copy from the original egg.
         allow_overwrite: bool
             By default, the egg creation will fail if one adds existing
             archives. If set to True, one can overwrite archive members
             already present in the source egg.
+
+        Note
+        ----
+        When both rename and filtre arguments are used, the filtre applies
+        on the archive name *before* the renaming, i.e. on the archive
+        name in the original egg.
         """
         super(EggRewriter, self).__init__(egg_metadata, compress, cwd)
         self._egg = egg

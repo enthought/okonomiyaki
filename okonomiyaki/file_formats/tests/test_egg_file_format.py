@@ -366,3 +366,104 @@ class TestEggRewriter(unittest.TestCase):
         with zipfile2.ZipFile(rewriter.path) as fp:
             new_content = fp.read("EGG-INFO/pbr.json")
         self.assertEqual(new_content, r_new_content)
+
+    def test_filtre(self):
+        # Given
+        egg = TRAITS_SETUPTOOLS_EGG
+
+        r_spec_depend = self._spec_depend_string()
+        metadata = self._create_metadata(r_spec_depend)
+
+        filtre = lambda path: False if path == "EGG-INFO/pbr.json" else True
+
+        # When
+        with EggRewriter(metadata, egg, filtre=filtre,
+                         cwd=self.prefix) as rewriter:
+            pass
+
+        # Then
+        with zipfile2.ZipFile(rewriter.path) as fp:
+            self.assertFalse("EGG-INFO/pbr.json" in fp._filenames_set)
+
+    def test_rename(self):
+        # Given
+        egg = TRAITS_SETUPTOOLS_EGG
+
+        r_spec_depend = self._spec_depend_string()
+        metadata = self._create_metadata(r_spec_depend)
+
+        def rename(arcname):
+            if arcname == "EGG-INFO/pbr.json":
+                return "EGG-INFO/pbr.json.bak"
+            else:
+                return arcname
+
+        # When
+        with EggRewriter(metadata, egg, rename=rename,
+                         cwd=self.prefix) as rewriter:
+            pass
+
+        # Then
+        with zipfile2.ZipFile(rewriter.path) as fp:
+            self.assertFalse("EGG-INFO/pbr.json" in fp._filenames_set)
+            content = fp.read("EGG-INFO/pbr.json.bak")
+
+        with zipfile2.ZipFile(egg) as fp:
+            r_content = fp.read("EGG-INFO/pbr.json")
+
+        self.assertEqual(content, r_content)
+
+    def test_filtre_and_rename(self):
+        # Given
+        egg = TRAITS_SETUPTOOLS_EGG
+
+        old_arcname = "EGG-INFO/pbr.json"
+        new_arcname = "EGG-INFO/pbr.json.bak"
+
+        r_spec_depend = self._spec_depend_string()
+        metadata = self._create_metadata(r_spec_depend)
+
+        def rename(arcname):
+            if arcname == old_arcname:
+                return new_arcname
+            else:
+                return arcname
+
+        def filtre(arcname):
+            if arcname == old_arcname:
+                return False
+            else:
+                return True
+
+        # When
+        with EggRewriter(metadata, egg, rename=rename, filtre=filtre,
+                         cwd=self.prefix) as rewriter:
+            pass
+
+        # Then
+        with zipfile2.ZipFile(rewriter.path) as fp:
+            self.assertFalse(old_arcname in fp._filenames_set)
+            self.assertFalse(new_arcname in fp._filenames_set)
+
+        # Given
+        def rename(arcname):
+            if arcname == old_arcname:
+                return new_arcname
+            else:
+                return arcname
+
+        def filtre(arcname):
+            if arcname == new_arcname:
+                return False
+            else:
+                return True
+
+        # When
+        with EggRewriter(metadata, egg, rename=rename, filtre=filtre,
+                         cwd=self.prefix) as rewriter:
+            pass
+
+        # Then
+        with zipfile2.ZipFile(rewriter.path) as fp:
+            self.assertFalse("EGG-INFO/pbr.json" in fp._filenames_set)
+            self.assertTrue("EGG-INFO/pbr.json.bak" in fp._filenames_set)
