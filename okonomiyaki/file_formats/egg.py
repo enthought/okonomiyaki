@@ -130,12 +130,37 @@ def _filtre_nothing(f):
 
 
 class EggRewriter(_EggBuilderNoPkgInfo):
+    """ Class to create Enthought eggs from existing setuptools eggs.
+    """
     def __init__(self, egg_metadata, egg, compress=True, cwd=None,
-                 rename=None, filtre=None):
+                 rename=None, filtre=None, allow_overwrite=False):
+        """ Create a new egg rewriter instance.
+
+        Parameters
+        ----------
+        egg_metadata: EggMetadata
+            The metadata to use to write Enthought metadata
+        egg: str
+            Path to the egg to start from. The path must be accessible for
+            read.
+        compress: bool
+            Whether to compress the zipfile
+        cwd: path
+            The directory where to write the generated egg. If not
+            specified, defaults to os.getcwd()
+        rename: callable
+        filtre: callable
+        allow_overwrite: bool
+            By default, the egg creation will fail if one adds existing
+            archives. If set to True, one can overwrite archive members
+            already present in the source egg.
+        """
         super(EggRewriter, self).__init__(egg_metadata, compress, cwd)
         self._egg = egg
         self._rename = rename or _no_rename
         self._filtre = filtre or _filtre_nothing
+
+        self._allow_overwrite = allow_overwrite
 
     def commit(self):
         self._copy_existing_content()
@@ -147,6 +172,10 @@ class EggRewriter(_EggBuilderNoPkgInfo):
             try:
                 for f in source.namelist():
                     arcname = self._rename(f)
+
+                    if self._allow_overwrite:
+                        if arcname in self._fp._filenames_set:
+                            continue
 
                     if self._filtre(f):
                         source_path = source.extract(f, tempdir)

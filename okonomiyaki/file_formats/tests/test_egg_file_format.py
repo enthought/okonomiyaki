@@ -16,6 +16,7 @@ import os.path as op
 import six
 
 from ...platforms import EPDPlatform
+from ...utils import compute_md5
 from ...versions import EnpkgVersion
 
 from ..egg import EggBuilder, EggRewriter
@@ -268,6 +269,39 @@ class TestEggRewriter(unittest.TestCase):
                     second_fp.read(second_info),
                 )
 
+    def assertFileContentEqual(self, first, second):
+        self.assertEqual(compute_md5(first), compute_md5(second))
+
+    def _spec_depend_string(self):
+        return textwrap.dedent("""\
+            metadata_version = '1.3'
+            name = 'traits'
+            version = '4.5.0'
+            build = 2
+
+            arch = 'x86'
+            platform = 'linux2'
+            osdist = 'RedHat_5'
+            python = '2.7'
+
+            python_tag = 'cp27'
+            abi_tag = 'cp27m'
+            platform_tag = 'linux_i686'
+
+            packages = []
+            """)
+
+    def _create_metadata(self, spec_depend_string):
+        spec_depend = LegacySpecDepend.from_string(spec_depend_string)
+        pkg_info = None
+        summary = ""
+        metadata = EggMetadata._from_spec_depend(
+            spec_depend, pkg_info,
+            summary
+        )
+
+        return metadata
+
     def test_simple(self):
         # Given
         egg = TRAITS_SETUPTOOLS_EGG
@@ -287,31 +321,8 @@ class TestEggRewriter(unittest.TestCase):
             "EGG-INFO/spec/summary",
         )
 
-        r_spec_depend = textwrap.dedent("""\
-            metadata_version = '1.3'
-            name = 'traits'
-            version = '4.5.0'
-            build = 2
-
-            arch = 'x86'
-            platform = 'linux2'
-            osdist = 'RedHat_5'
-            python = '2.7'
-
-            python_tag = 'cp27'
-            abi_tag = 'cp27m'
-            platform_tag = 'linux_i686'
-
-            packages = []
-            """)
-
-        spec_depend = LegacySpecDepend.from_string(r_spec_depend)
-        pkg_info = None
-        summary = ""
-        metadata = EggMetadata._from_spec_depend(
-            spec_depend, pkg_info,
-            summary
-        )
+        r_spec_depend = self._spec_depend_string()
+        metadata = self._create_metadata(r_spec_depend)
 
         # When
         with EggRewriter(metadata, egg, cwd=self.prefix) as rewriter:
@@ -329,3 +340,29 @@ class TestEggRewriter(unittest.TestCase):
         # Ensure we don't overwrite the existing PKG-INFO
         self.assertSameArchive(egg, target_egg, "EGG-INFO/PKG-INFO")
         self.assertMultiLineEqual(spec_depend, r_spec_depend)
+
+    def test_overwrite(self):
+        # Given
+        egg = TRAITS_SETUPTOOLS_EGG
+
+        r_spec_depend = self._spec_depend_string()
+        metadata = self._create_metadata(r_spec_depend)
+
+        with open(__file__, "rb") as fp:
+            r_new_content = fp.read()
+
+        # When/Then
+        with self.assertRaises(ValueError):
+            with EggRewriter(metadata, egg, cwd=self.prefix) as rewriter:
+                rewriter.add_file_as(__file__, "EGG-INFO/pbr.json")
+
+
+        # When
+        with EggRewriter(metadata, egg, cwd=self.prefix,
+                         allow_overwrite=True) as rewriter:
+            rewriter.add_file_as(__file__, "EGG-INFO/pbr.json")
+
+        # Then
+        with zipfile2.ZipFile(rewriter.path) as fp:
+            new_content = fp.read("EGG-INFO/pbr.json")
+        self.assertEqual(new_content, r_new_content)
