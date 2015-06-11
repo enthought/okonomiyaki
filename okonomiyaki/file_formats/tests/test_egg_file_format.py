@@ -3,6 +3,7 @@ import os.path
 import shutil
 import sys
 import tempfile
+import textwrap
 import zipfile2
 
 if sys.version_info[:2] < (2, 7):
@@ -12,14 +13,16 @@ else:
 
 import os.path as op
 
+import six
+
 from ...platforms import EPDPlatform
 from ...versions import EnpkgVersion
 
-from ..egg import EggBuilder
+from ..egg import EggBuilder, EggRewriter
 from .._egg_info import Dependencies, EggMetadata, LegacySpecDepend
 from .._package_info import PackageInfo
 
-from .common import PIP_PKG_INFO
+from .common import PIP_PKG_INFO, TRAITS_SETUPTOOLS_EGG
 
 
 class TestEggBuilder(unittest.TestCase):
@@ -235,3 +238,94 @@ packages = []
 
         with zipfile2.ZipFile(egg_path, "r") as fp:
             self.assertEqual(set(fp.namelist()), set(r_files))
+
+
+class TestEggRewriter(unittest.TestCase):
+    def setUp(self):
+        self.prefix = tempfile.mkdtemp()
+
+    def tearDown(self):
+        shutil.rmtree(self.prefix)
+
+    def assertCountEqual(self, first, second, msg=None):
+        if six.PY2:
+            return self.assertItemsEqual(first, second, msg)
+        else:
+            return unittest.TestCase.assertCountEqual(self, first, second, msg)
+
+    def assertSameArchive(self, first, second, arcname):
+        with zipfile2.ZipFile(first) as first_fp:
+            with zipfile2.ZipFile(second) as second_fp:
+                first_info = first_fp.getinfo(arcname)
+                second_info = second_fp.getinfo(arcname)
+                self.assertEqual(
+                    first_info.external_attr,
+                    second_info.external_attr
+                )
+
+                self.assertEqual(
+                    first_fp.read(first_info),
+                    second_fp.read(second_info),
+                )
+
+    def test_simple(self):
+        # Given
+        egg = TRAITS_SETUPTOOLS_EGG
+
+        original_members = (
+            "EGG-INFO/",
+            "EGG-INFO/dependency_links.txt",
+            "EGG-INFO/native_libs.txt",
+            "EGG-INFO/not-zip-safe",
+            "EGG-INFO/pbr.json",
+            "EGG-INFO/PKG-INFO",
+            "EGG-INFO/SOURCES.txt",
+            "EGG-INFO/top_level.txt"
+        )
+        r_namelist = original_members + (
+            "EGG-INFO/spec/depend",
+            "EGG-INFO/spec/summary",
+        )
+
+        r_spec_depend = textwrap.dedent("""\
+            metadata_version = '1.3'
+            name = 'traits'
+            version = '4.5.0'
+            build = 2
+
+            arch = 'x86'
+            platform = 'linux2'
+            osdist = 'RedHat_5'
+            python = '2.7'
+
+            python_tag = 'cp27'
+            abi_tag = 'cp27m'
+            platform_tag = 'linux_i686'
+
+            packages = []
+            """)
+
+        spec_depend = LegacySpecDepend.from_string(r_spec_depend)
+        pkg_info = None
+        summary = ""
+        metadata = EggMetadata._from_spec_depend(
+            spec_depend, pkg_info,
+            summary
+        )
+
+        # When
+        with EggRewriter(metadata, egg, cwd=self.prefix) as rewriter:
+            pass
+
+        # Then
+        target_egg = rewriter.path
+        self.assertTrue(os.path.exists(target_egg))
+
+        with zipfile2.ZipFile(target_egg) as fp:
+            namelist = fp.namelist()
+            spec_depend = fp.read("EGG-INFO/spec/depend").decode()
+
+        self.assertCountEqual(namelist, r_namelist)
+        # Ensure we don't overwrite the existing PKG-INFO
+        self.assertSameArchive(egg, target_egg, "EGG-INFO/PKG-INFO")
+        self.assertMultiLineEqual(spec_depend, r_spec_depend)

@@ -1,5 +1,7 @@
 import os
 import os.path
+import shutil
+import tempfile
 import zipfile
 
 import zipfile2
@@ -13,11 +15,6 @@ from ._package_info import _PKG_INFO_LOCATION
 class _EggBuilderNoPkgInfo(object):
     def __init__(self, egg_metadata, compress=True, cwd=None):
         self.cwd = cwd or os.getcwd()
-
-        if egg_metadata.pkg_info is None:
-            msg = ("EggBuilder does not accept EggMetadata instances with "
-                   "a None pkg_info attribute.")
-            raise ValueError(msg)
 
         if compress is True:
             flag = zipfile.ZIP_DEFLATED
@@ -112,8 +109,47 @@ class EggBuilder(_EggBuilderNoPkgInfo):
     build Enthought eggs for non-python packages (C/C++ libraries, etc...)
     """
     def __init__(self, egg_metadata, compress=True, cwd=None):
+        if egg_metadata.pkg_info is None:
+            msg = ("EggBuilder does not accept EggMetadata instances with "
+                   "a None pkg_info attribute.")
+            raise ValueError(msg)
+
         super(EggBuilder, self).__init__(egg_metadata, compress, cwd)
 
     def _write_metadata(self):
         super(EggBuilder, self)._write_metadata()
         self._write_pkg_info()
+
+
+def _no_rename(f):
+    return f
+
+
+def _filtre_nothing(f):
+    return True
+
+
+class EggRewriter(_EggBuilderNoPkgInfo):
+    def __init__(self, egg_metadata, egg, compress=True, cwd=None,
+                 rename=None, filtre=None):
+        super(EggRewriter, self).__init__(egg_metadata, compress, cwd)
+        self._egg = egg
+        self._rename = rename or _no_rename
+        self._filtre = filtre or _filtre_nothing
+
+    def commit(self):
+        self._copy_existing_content()
+        super(EggRewriter, self).commit()
+
+    def _copy_existing_content(self):
+        with zipfile2.ZipFile(self._egg) as source:
+            tempdir = tempfile.mkdtemp()
+            try:
+                for f in source.namelist():
+                    arcname = self._rename(f)
+
+                    if self._filtre(f):
+                        source_path = source.extract(f, tempdir)
+                        self.add_file_as(source_path, arcname)
+            finally:
+                shutil.rmtree(tempdir)
