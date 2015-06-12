@@ -8,7 +8,7 @@ else:
 from ...errors import OkonomiyakiError
 from ...platforms import EPDPlatform
 from ..setuptools_egg import SetuptoolsEggMetadata, parse_filename
-from .common import TRAITS_SETUPTOOLS_EGG
+from .common import PIP_SETUPTOOLS_EGG, TRAITS_SETUPTOOLS_EGG
 
 
 class TestParseFilename(unittest.TestCase):
@@ -62,6 +62,47 @@ class TestParseFilename(unittest.TestCase):
 
 class TestSetuptoolsEggMetadata(unittest.TestCase):
     def test_simple(self):
+        # Given
+        path = PIP_SETUPTOOLS_EGG
+
+        # When
+        metadata = SetuptoolsEggMetadata.from_egg(path)
+
+        # Then
+        self.assertEqual(metadata.name, "pip")
+        self.assertEqual(metadata.version, "7.0.3")
+        self.assertEqual(metadata.python_tag, "cp34")
+        self.assertIsNone(metadata.abi_tag)
+        self.assertIsNone(metadata.platform_tag)
+
+        # When
+        metadata = SetuptoolsEggMetadata.from_egg(path, abi_tag=None)
+
+        # Then
+        self.assertEqual(metadata.name, "pip")
+        self.assertEqual(metadata.version, "7.0.3")
+        self.assertEqual(metadata.python_tag, "cp34")
+        self.assertIsNone(metadata.abi_tag)
+        self.assertIsNone(metadata.platform_tag)
+
+        # Given
+        platform = EPDPlatform.from_epd_string("win-32")
+        python_tag = "cp34"
+        abi_tag = "cp34m"
+
+        # When
+        metadata = SetuptoolsEggMetadata.from_egg(
+            path, platform, python_tag="cp34", abi_tag="cp34m"
+        )
+
+        # Then
+        self.assertEqual(metadata.name, "pip")
+        self.assertEqual(metadata.version, "7.0.3")
+        self.assertEqual(metadata.python_tag, "cp34")
+        self.assertEqual(metadata.abi_tag, "cp34m")
+        self.assertEqual(metadata.platform_tag, "win32")
+
+    def test_platform_specific(self):
         # Given
         path = TRAITS_SETUPTOOLS_EGG
 
