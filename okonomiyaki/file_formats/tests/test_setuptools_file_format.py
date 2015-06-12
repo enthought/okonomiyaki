@@ -92,7 +92,7 @@ class TestSetuptoolsEggMetadata(unittest.TestCase):
 
         # When
         metadata = SetuptoolsEggMetadata.from_egg(
-            path, platform, python_tag="cp34", abi_tag="cp34m"
+            path, platform, python_tag, abi_tag,
         )
 
         # Then

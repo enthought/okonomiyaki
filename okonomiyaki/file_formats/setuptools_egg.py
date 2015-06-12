@@ -2,7 +2,7 @@ import os.path
 import re
 try:
     import sysconfig
-except ImportError:  # Pyton 2.6 support
+except ImportError:  # Python 2.6 support
     sysconfig = None
 import warnings
 
@@ -79,9 +79,7 @@ def _get_default_setuptools_abi(platform_string, pyver):
             raise ValueError(msg)
 
 
-class _UnspecifiedArg(object):
-    pass
-_UNSPECIFIED = _UnspecifiedArg()
+_UNSPECIFIED = object()
 
 
 def _guess_abi(platform):
@@ -93,7 +91,7 @@ def _guess_abi(platform):
     else:
         try:
             soabi = sysconfig.get_config_var('SOABI')
-        except IOError as e:  # Issue #1074
+        except IOError as e:  # pip issue #1074
             warnings.warn("{0}".format(e), RuntimeWarning)
             soabi = None
 
@@ -102,7 +100,7 @@ def _guess_abi(platform):
     else:
         msg = ("Could not guess ABI, you need to specify the abi_tag "
                "argument to from_egg, e.g. 'cp34m' for Enthought "
-               "cpython 3.4 runtimes")
+               "CPython 3.4 runtimes")
         raise OkonomiyakiError(msg)
 
 
@@ -134,10 +132,18 @@ class SetuptoolsEggMetadata(object):
         """
         Parameters
         ----------
-        name
-        version
+        name: str
+            Package name
+        version: str
+            Version string
         platform: EPDPlatform
             An EPDPlatform instance, or None for cross-platform eggs
+        python_tag: str
+            The PEP425 python tag, or None.
+        abi_tag: str
+            The PEP425 abi tag, or None.
+        pkg_info: PackageInfo
+            Instance representing the egg PKG-INFO.
         """
         self.name = name
         self.version = version
