@@ -6,6 +6,7 @@ else:
     import unittest
 
 from ...errors import OkonomiyakiError
+from ...platforms import EPDPlatform
 from ..setuptools_egg import SetuptoolsEggMetadata, parse_filename
 from .common import TRAITS_SETUPTOOLS_EGG
 
@@ -65,10 +66,19 @@ class TestSetuptoolsEggMetadata(unittest.TestCase):
         path = TRAITS_SETUPTOOLS_EGG
 
         # When
-        metadata = SetuptoolsEggMetadata.from_egg(path)
+        platform = EPDPlatform.from_epd_string("osx-64")
+        abi_tag = "cp27m"
+        metadata = SetuptoolsEggMetadata.from_egg(
+            path, platform, abi_tag=abi_tag
+        )
 
         # Then
         self.assertEqual(metadata.name, "traits")
         self.assertEqual(metadata.version, "4.6.0.dev235")
         self.assertEqual(metadata.python_tag, "cp27")
         self.assertEqual(metadata.abi_tag, "cp27m")
+        self.assertEqual(metadata.platform_tag, "macosx_10_6_x86_64")
+
+        # When/Then
+        with self.assertRaises(OkonomiyakiError):
+            SetuptoolsEggMetadata.from_egg(path)

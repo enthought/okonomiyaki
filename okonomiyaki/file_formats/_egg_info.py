@@ -27,6 +27,8 @@ _EGG_NAME_RE = re.compile("""
     (?P<build>\d+)
     \.egg$""", re.VERBOSE)
 
+_PYVER_RE = re.compile("(?P<major>\d+)\.(?P<minor>\d+)")
+
 EGG_INFO_PREFIX = "EGG-INFO"
 
 # Those may need to be public, depending on how well we can hide their
@@ -265,6 +267,10 @@ packages = {packages}
 
 
 def _guess_python_tag(pyver):
+    """ Guess python_tag from the given python string ("MAJOR.MINOR", e.g. "2.7").
+
+    None may be returned (for egg that don't depend on python)
+    """
     if pyver in (None, ""):
         return None
     else:
