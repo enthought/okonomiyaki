@@ -44,15 +44,6 @@ def parse_filename(path):
         raise OkonomiyakiError("Invalid egg name: {0}".format(path))
 
 
-# Implement the platform string "normalization" as done by
-# wheel/setuptools on the original platform string (as returned from
-# distutils.util.get_platform or similar)
-def _normalize_setuptools_platform_string(platform_string):
-    if platform_string is not None:
-        platform_string = platform_string.replace("-", "_").replace(".", "_")
-    return platform_string
-
-
 def _get_default_setuptools_abi(platform_string, pyver):
     """ Try to guess the ABI for setuptools eggs from the platform_string
     and pyver parts.
