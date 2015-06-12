@@ -38,16 +38,6 @@ _SPEC_LIB_DEPEND_LOCATION = posixpath.join(EGG_INFO_PREFIX, "spec",
 _SPEC_SUMMARY_LOCATION = posixpath.join(EGG_INFO_PREFIX, "spec", "summary")
 _USR_PREFIX_LOCATION = posixpath.join(EGG_INFO_PREFIX, "usr")
 
-# Kept for backward compatibility: python tag should be specified, we use this
-# table for eggs that do not define the python tag.
-_PYTHON_VERSION_TO_PYTHON_TAG = {
-    "2.7": "cp27",
-    "2.6": "cp26",
-    "2.5": "cp25",
-    "": None,
-    None: None,
-}
-
 _TAG_METADATA_VERSION = "metadata_version"
 _TAG_NAME = "name"
 _TAG_VERSION = "version"
@@ -74,6 +64,8 @@ _METADATA_VERSION_TO_KEYS["1.3"] = (
 )
 
 _UNSUPPORTED = "unsupported"
+
+_PYVER_RE = re.compile("(?P<major>\d).(?P<minor>\d)")
 
 
 def split_egg_name(s):
@@ -272,14 +264,19 @@ packages = {packages}
 }
 
 
-def _get_default_python_tag(python_tag, python):
-    if python_tag is None:
-        python_tag = _PYTHON_VERSION_TO_PYTHON_TAG.get(python, _UNSUPPORTED)
-        if python_tag == _UNSUPPORTED:
+def _guess_python_tag(pyver):
+    if pyver in (None, ""):
+        return None
+    else:
+        m = _PYVER_RE.search(pyver)
+        if m is None:
             msg = "python_tag cannot be guessed for python = {0}"
-            raise InvalidMetadata(msg.format(python))
+            raise InvalidMetadata(msg.format(pyver))
+        else:
+            major = m.groupdict()["major"]
+            minor = m.groupdict()["minor"]
 
-    return python_tag
+            return "cp" + major + minor
 
 
 _METADATA_DEFAULT_VERSION = "1.3"
@@ -562,9 +559,7 @@ def _normalized_info_from_string(spec_depend_string):
         data[_TAG_METADATA_VERSION]
     )
     if metadata_version_info[:2] < (1, 2):
-        data[_TAG_PYTHON_PEP425_TAG] = \
-            _get_default_python_tag(data.get(_TAG_PYTHON_PEP425_TAG),
-                                    raw_data[_TAG_PYTHON])
+        data[_TAG_PYTHON_PEP425_TAG] = _guess_python_tag(raw_data[_TAG_PYTHON])
     else:
         data[_TAG_PYTHON_PEP425_TAG] = raw_data[_TAG_PYTHON_PEP425_TAG]
 

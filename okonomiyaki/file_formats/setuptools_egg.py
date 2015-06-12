@@ -2,7 +2,7 @@ import os.path
 import re
 
 from ..errors import OkonomiyakiError
-from ._egg_info import _get_default_python_tag
+from ._egg_info import _guess_python_tag
 from ._package_info import PackageInfo
 
 
@@ -80,7 +80,7 @@ class SetuptoolsEggMetadata(object):
         filename = os.path.basename(path)
         name, version, pyver, platform = parse_filename(filename)
 
-        python_tag = _get_default_python_tag(None, pyver)
+        python_tag = _guess_python_tag(pyver)
 
         abi_tag = _get_default_setuptools_abi(platform, pyver)
 
