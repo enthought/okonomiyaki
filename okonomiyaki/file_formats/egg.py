@@ -1,5 +1,7 @@
 import os
 import os.path
+import shutil
+import tempfile
 import zipfile
 
 import zipfile2
@@ -10,18 +12,9 @@ from ._egg_info import (
 from ._package_info import _PKG_INFO_LOCATION
 
 
-class EggBuilder(object):
-    """
-    Class to build eggs from an install tree. This is mostly useful to
-    build eggs from non-python packages.
-    """
+class _EggBuilderNoPkgInfo(object):
     def __init__(self, egg_metadata, compress=True, cwd=None):
         self.cwd = cwd or os.getcwd()
-
-        if egg_metadata.pkg_info is None:
-            msg = ("EggBuilder does not accept EggMetadata instances with "
-                   "a None pkg_info attribute.")
-            raise ValueError(msg)
 
         if compress is True:
             flag = zipfile.ZIP_DEFLATED
@@ -32,7 +25,9 @@ class EggBuilder(object):
         self._fp = zipfile2.ZipFile(self.path, "w", flag)
 
         # Write those now so that they are at the beginning of the file.
-        self._write_pkg_info()
+        self._write_metadata()
+
+    def _write_metadata(self):
         self._write_spec_summary()
         self._write_spec_depend()
 
@@ -106,3 +101,95 @@ class EggBuilder(object):
     def _write_pkg_info(self):
         data = self._egg_metadata.pkg_info.to_string()
         self._fp.writestr(_PKG_INFO_LOCATION, data)
+
+
+class EggBuilder(_EggBuilderNoPkgInfo):
+    """
+    Class to build eggs from an install tree. This is mostly useful to
+    build Enthought eggs for non-python packages (C/C++ libraries, etc...)
+    """
+    def __init__(self, egg_metadata, compress=True, cwd=None):
+        if egg_metadata.pkg_info is None:
+            msg = ("EggBuilder does not accept EggMetadata instances with "
+                   "a None pkg_info attribute.")
+            raise ValueError(msg)
+
+        super(EggBuilder, self).__init__(egg_metadata, compress, cwd)
+
+    def _write_metadata(self):
+        super(EggBuilder, self)._write_metadata()
+        self._write_pkg_info()
+
+
+def _no_rename(f):
+    return f
+
+
+def _accept_nothing(f):
+    return True
+
+
+class EggRewriter(_EggBuilderNoPkgInfo):
+    """ Class to create Enthought eggs from existing setuptools eggs.
+    """
+    def __init__(self, egg_metadata, egg, compress=True, cwd=None,
+                 rename=None, accept=None, allow_overwrite=False):
+        """ Create a new egg rewriter instance.
+
+        Parameters
+        ----------
+        egg_metadata: EggMetadata
+            The metadata to use to write Enthought metadata
+        egg: str
+            Path to the egg to start from. The path must be accessible for
+            read.
+        compress: bool
+            Whether to compress the zipfile
+        cwd: path
+            The directory where to write the generated egg. If not
+            specified, defaults to os.getcwd()
+        rename: callable
+            If defined, a callable of the form (archive_name, ) ->
+            new_archive_name, to rename archive members from the original
+            egg.
+        accept: callable
+            If defined, a callable of the form (archive_name, ) -> bool,
+            returning for archives not to copy from the original egg.
+        allow_overwrite: bool
+            By default, the egg creation will fail if one adds existing
+            archives. If set to True, one can overwrite archive members
+            already present in the source egg.
+
+        Note
+        ----
+        When both rename and accept arguments are used, the filtre applies
+        on the archive name *before* the renaming, i.e. on the archive
+        name in the original egg.
+        """
+        super(EggRewriter, self).__init__(egg_metadata, compress, cwd)
+        self._egg = egg
+        self._rename = rename or _no_rename
+        self._accept = accept or _accept_nothing
+
+        self._allow_overwrite = allow_overwrite
+
+    def commit(self):
+        self._copy_existing_content()
+        super(EggRewriter, self).commit()
+
+    def _copy_existing_content(self):
+        with zipfile2.ZipFile(self._egg) as source:
+            tempdir = tempfile.mkdtemp()
+            try:
+                for f in source.namelist():
+                    arcname = self._rename(f)
+
+                    if self._allow_overwrite:
+                        if arcname in self._fp._filenames_set:
+                            continue
+
+                    if self._accept(f):
+                        source_path = source.extract(f, tempdir)
+                        self.add_file_as(source_path, arcname)
+            finally:
+                shutil.rmtree(tempdir)

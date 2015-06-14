@@ -1,6 +1,10 @@
 0000-00-00   0.8.0:
 -------------------
 
+New features:
+
+  * New EggRewriter class to create Enthought eggs from setuptools eggs.
+
 Improvements:
 
   * add EPDPlatform.from_running_python ctor (#62)

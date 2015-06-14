@@ -27,11 +27,20 @@ This models the metadata of an Enthought egg::
 EggBuilder class
 ----------------
 
-This is a class to build simple eggs from an existing LegacySpec (e.g. to
-build debug eggs).
+This is a class to build Enthought eggs from an install tree
 
 .. autoclass:: EggBuilder
     :members:
+    :inherited-members:
+
+EggBuilder class
+----------------
+
+This is a class to build Enthought eggs from an existing setuptools egg.
+
+.. autoclass:: EggRewriter
+    :members:
+    :inherited-members:
 
 Platforms representations
 =========================

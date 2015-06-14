@@ -10,4 +10,4 @@ from ._egg_info import (
     split_egg_name
 )
 from ._package_info import PackageInfo
-from .egg import EggBuilder
+from .egg import EggBuilder, EggRewriter
