@@ -331,3 +331,5 @@ Classifier: Programming Language :: Python :: Implementation :: PyPy
 TRAITS_SETUPTOOLS_EGG = os.path.join(
     DATA_DIR, "traits-4.6.0.dev235-py2.7-macosx-10.10-intel.egg"
 )
+
+PIP_SETUPTOOLS_EGG = os.path.join(DATA_DIR, "pip-7.0.3-py3.4.egg")

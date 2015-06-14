@@ -131,27 +131,6 @@ packages = [
         self.assertEqual(depend.packages,
                          [Requirement.from_spec_string("Qt 4.8.5")])
 
-    def test_from_string_no_python_tag_no_default(self):
-        # Given
-        r_depend = """\
-metadata_version = '1.1'
-name = 'Qt_debug'
-version = '4.8.5'
-build = 2
-
-arch = 'x86'
-platform = 'linux2'
-osdist = 'RedHat_5'
-python = '3.2'
-packages = [
-  'Qt 4.8.5',
-]
-"""
-
-        # When/Then
-        with self.assertRaises(InvalidMetadata):
-            LegacySpecDepend.from_string(r_depend)
-
     def test_to_string(self):
         # Given
         r_depend = """\

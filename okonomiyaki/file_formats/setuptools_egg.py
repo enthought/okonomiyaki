@@ -1,8 +1,13 @@
 import os.path
 import re
+try:
+    import sysconfig
+except ImportError:  # Python 2.6 support
+    sysconfig = None
+import warnings
 
 from ..errors import OkonomiyakiError
-from ._egg_info import _get_default_python_tag
+from ._egg_info import _guess_python_tag
 from ._package_info import PackageInfo
 
 
@@ -39,15 +44,6 @@ def parse_filename(path):
         raise OkonomiyakiError("Invalid egg name: {0}".format(path))
 
 
-# Implement the platform string "normalization" as done by
-# wheel/setuptools on the original platform string (as returned from
-# distutils.util.get_platform or similar)
-def _normalize_setuptools_platform_string(platform_string):
-    if platform_string is not None:
-        platform_string = platform_string.replace("-", "_").replace(".", "_")
-    return platform_string
-
-
 def _get_default_setuptools_abi(platform_string, pyver):
     """ Try to guess the ABI for setuptools eggs from the platform_string
     and pyver parts.
@@ -74,36 +70,89 @@ def _get_default_setuptools_abi(platform_string, pyver):
             raise ValueError(msg)
 
 
+_UNSPECIFIED = object()
+
+
+def _guess_abi(platform):
+    if platform is None:
+        return None
+
+    if sysconfig is None:
+        soabi = None
+    else:
+        try:
+            soabi = sysconfig.get_config_var('SOABI')
+        except IOError as e:  # pip issue #1074
+            warnings.warn("{0}".format(e), RuntimeWarning)
+            soabi = None
+
+    if soabi and soabi.startswith('cpython-'):
+        return 'cp' + soabi.split('-', 1)[-1]
+    else:
+        msg = ("Could not guess ABI, you need to specify the abi_tag "
+               "argument to from_egg, e.g. 'cp34m' for Enthought "
+               "CPython 3.4 runtimes")
+        raise OkonomiyakiError(msg)
+
+
 class SetuptoolsEggMetadata(object):
     @classmethod
-    def from_egg(cls, path):
+    def from_egg(cls, path, platform=None, python_tag=_UNSPECIFIED,
+                 abi_tag=_UNSPECIFIED):
         filename = os.path.basename(path)
-        name, version, pyver, platform = parse_filename(filename)
+        name, version, pyver, platform_string = parse_filename(filename)
 
-        python_tag = _get_default_python_tag(None, pyver)
+        if platform is None and platform_string is not None:
+            msg = ("Platform-specific egg detected: you need to specify a "
+                   "platform argument that is not None to from_egg")
+            raise OkonomiyakiError(msg)
 
-        abi_tag = _get_default_setuptools_abi(platform, pyver)
+        if python_tag is _UNSPECIFIED:
+            python_tag = _guess_python_tag(pyver)
 
-        if platform is not None:
-            platform_tag = _normalize_setuptools_platform_string(platform)
+        if abi_tag is _UNSPECIFIED:
+            abi_tag = _guess_abi(platform)
         else:
-            platform_tag = platform
+            abi_tag = abi_tag
 
         pkg_info = PackageInfo.from_egg(path)
 
-        return cls(name, version, python_tag, abi_tag, platform_tag,
-                   pkg_info)
+        return cls(name, version, platform, python_tag, abi_tag, pkg_info)
 
-    def __init__(self, name, version, python_tag, abi_tag, platform_tag,
-                 pkg_info):
+    def __init__(self, name, version, platform, python_tag, abi_tag, pkg_info):
+        """
+        Parameters
+        ----------
+        name: str
+            Package name
+        version: str
+            Version string
+        platform: EPDPlatform
+            An EPDPlatform instance, or None for cross-platform eggs
+        python_tag: str
+            The PEP425 python tag, or None.
+        abi_tag: str
+            The PEP425 abi tag, or None.
+        pkg_info: PackageInfo
+            Instance representing the egg PKG-INFO.
+        """
         self.name = name
         self.version = version
 
+        self.platform = platform
         self.python_tag = python_tag
         self.abi_tag = abi_tag
-        self.platform_tag = platform_tag
 
         self._pkg_info = pkg_info
+
+    @property
+    def platform_tag(self):
+        """ Platform tag following PEP425, except that no platform is
+        represented as None and not 'any'."""
+        if self.platform is None:
+            return None
+        else:
+            return self.platform.pep425_tag
 
     @property
     def summary(self):
