@@ -6,6 +6,7 @@ Improvements:
   * add EPDPlatform.from_running_python ctor (#62)
   * reject unsupported metadata version in PackageInfo (#63)
   * add support for 'py2' python tag (#64)
+  * add support for python 3 in SetuptoolsEggMetadata (#70)
 
 Bug fixes:
 

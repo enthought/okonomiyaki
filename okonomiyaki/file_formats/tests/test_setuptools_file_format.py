@@ -6,8 +6,9 @@ else:
     import unittest
 
 from ...errors import OkonomiyakiError
+from ...platforms import EPDPlatform
 from ..setuptools_egg import SetuptoolsEggMetadata, parse_filename
-from .common import TRAITS_SETUPTOOLS_EGG
+from .common import PIP_SETUPTOOLS_EGG, TRAITS_SETUPTOOLS_EGG
 
 
 class TestParseFilename(unittest.TestCase):
@@ -62,13 +63,63 @@ class TestParseFilename(unittest.TestCase):
 class TestSetuptoolsEggMetadata(unittest.TestCase):
     def test_simple(self):
         # Given
-        path = TRAITS_SETUPTOOLS_EGG
+        path = PIP_SETUPTOOLS_EGG
 
         # When
         metadata = SetuptoolsEggMetadata.from_egg(path)
+
+        # Then
+        self.assertEqual(metadata.name, "pip")
+        self.assertEqual(metadata.version, "7.0.3")
+        self.assertEqual(metadata.python_tag, "cp34")
+        self.assertIsNone(metadata.abi_tag)
+        self.assertIsNone(metadata.platform_tag)
+
+        # When
+        metadata = SetuptoolsEggMetadata.from_egg(path, abi_tag=None)
+
+        # Then
+        self.assertEqual(metadata.name, "pip")
+        self.assertEqual(metadata.version, "7.0.3")
+        self.assertEqual(metadata.python_tag, "cp34")
+        self.assertIsNone(metadata.abi_tag)
+        self.assertIsNone(metadata.platform_tag)
+
+        # Given
+        platform = EPDPlatform.from_epd_string("win-32")
+        python_tag = "cp34"
+        abi_tag = "cp34m"
+
+        # When
+        metadata = SetuptoolsEggMetadata.from_egg(
+            path, platform, python_tag, abi_tag,
+        )
+
+        # Then
+        self.assertEqual(metadata.name, "pip")
+        self.assertEqual(metadata.version, "7.0.3")
+        self.assertEqual(metadata.python_tag, "cp34")
+        self.assertEqual(metadata.abi_tag, "cp34m")
+        self.assertEqual(metadata.platform_tag, "win32")
+
+    def test_platform_specific(self):
+        # Given
+        path = TRAITS_SETUPTOOLS_EGG
+
+        # When
+        platform = EPDPlatform.from_epd_string("osx-64")
+        abi_tag = "cp27m"
+        metadata = SetuptoolsEggMetadata.from_egg(
+            path, platform, abi_tag=abi_tag
+        )
 
         # Then
         self.assertEqual(metadata.name, "traits")
         self.assertEqual(metadata.version, "4.6.0.dev235")
         self.assertEqual(metadata.python_tag, "cp27")
         self.assertEqual(metadata.abi_tag, "cp27m")
+        self.assertEqual(metadata.platform_tag, "macosx_10_6_x86_64")
+
+        # When/Then
+        with self.assertRaises(OkonomiyakiError):
+            SetuptoolsEggMetadata.from_egg(path)
