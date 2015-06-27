@@ -1,3 +1,4 @@
+# coding=utf-8
 import os
 import os.path
 import shutil
@@ -69,6 +70,49 @@ packages = []
             self.assertEqual(set(fp.namelist()), set(r_files))
             self.assertMultiLineEqual(fp.read("EGG-INFO/spec/depend").decode(),
                                       r_spec_depend)
+
+    def test_unicode_pkg_info(self):
+        r_files = [
+            "EGG-INFO/PKG-INFO",
+            "EGG-INFO/spec/depend",
+            "EGG-INFO/spec/summary",
+        ]
+        r_spec_depend = """\
+metadata_version = '1.1'
+name = 'Qt_debug'
+version = '4.8.5'
+build = 2
+
+arch = 'x86'
+platform = 'linux2'
+osdist = 'RedHat_5'
+python = '2.7'
+packages = []
+"""
+        r_description = r_summary = u"Un petit peu de français"
+
+        spec_depend = LegacySpecDepend.from_string(r_spec_depend)
+        pkg_info = PackageInfo("1.1", "Qt_debug", "4.8.5",
+                               description=r_description)
+        metadata = EggMetadata._from_spec_depend(spec_depend, pkg_info,
+                                                 r_summary)
+
+        with EggBuilder(metadata, cwd=self.d) as fp:
+            pass
+
+        egg_path = op.join(self.d, "Qt_debug-4.8.5-2.egg")
+        self.assertTrue(op.exists(egg_path))
+
+        with zipfile2.ZipFile(egg_path, "r") as fp:
+            self.assertEqual(set(fp.namelist()), set(r_files))
+            self.assertMultiLineEqual(fp.read("EGG-INFO/spec/depend").decode(),
+                                      r_spec_depend)
+
+        metadata = EggMetadata.from_egg(egg_path)
+        self.assertMultiLineEqual(metadata.summary, r_summary)
+
+        pkg_info = PackageInfo.from_egg(egg_path)
+        self.assertMultiLineEqual(pkg_info.description.rstrip(), r_description)
 
     def _create_fake_metadata(self):
         pkg_info = PackageInfo.from_string(PIP_PKG_INFO)

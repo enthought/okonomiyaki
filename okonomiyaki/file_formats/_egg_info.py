@@ -619,7 +619,7 @@ class EggMetadata(object):
                 # the summary file may not exist for eggs built with
                 # endist/repack
                 summary = b""
-            return summary.decode()
+            return summary.decode("utf8")
 
         if isinstance(path_or_file, six.string_types):
             spec_depend = LegacySpecDepend.from_egg(path_or_file)
