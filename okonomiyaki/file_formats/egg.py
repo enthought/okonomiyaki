@@ -93,7 +93,8 @@ class _EggBuilderNoPkgInfo(object):
 
     def _write_spec_depend(self):
         spec_depend_string = self._egg_metadata.spec_depend_string
-        self._fp.writestr(_SPEC_DEPEND_LOCATION, spec_depend_string.encode())
+        self._fp.writestr(_SPEC_DEPEND_LOCATION,
+                          spec_depend_string.encode("ascii"))
 
     def _write_spec_summary(self):
         self._fp.writestr(_SPEC_SUMMARY_LOCATION,
