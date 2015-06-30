@@ -15,3 +15,4 @@ Improvements:
 Bug fixes:
 
   * handle Enthought eggs without PKG-INFO in EggMetadata (#65)
+  * fix unicode handling of PKG-INFO and EGG-INFO/spec/summary (#72)
