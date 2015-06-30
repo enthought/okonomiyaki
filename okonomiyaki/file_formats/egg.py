@@ -93,14 +93,16 @@ class _EggBuilderNoPkgInfo(object):
 
     def _write_spec_depend(self):
         spec_depend_string = self._egg_metadata.spec_depend_string
-        self._fp.writestr(_SPEC_DEPEND_LOCATION, spec_depend_string)
+        self._fp.writestr(_SPEC_DEPEND_LOCATION,
+                          spec_depend_string.encode("ascii"))
 
     def _write_spec_summary(self):
-        self._fp.writestr(_SPEC_SUMMARY_LOCATION, self._egg_metadata.summary)
+        self._fp.writestr(_SPEC_SUMMARY_LOCATION,
+                          self._egg_metadata.summary.encode("utf8"))
 
     def _write_pkg_info(self):
         data = self._egg_metadata.pkg_info.to_string()
-        self._fp.writestr(_PKG_INFO_LOCATION, data)
+        self._fp.writestr(_PKG_INFO_LOCATION, data.encode("utf8"))
 
 
 class EggBuilder(_EggBuilderNoPkgInfo):
