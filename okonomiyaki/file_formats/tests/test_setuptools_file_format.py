@@ -108,10 +108,7 @@ class TestSetuptoolsEggMetadata(unittest.TestCase):
 
         # When
         platform = EPDPlatform.from_epd_string("osx-64")
-        abi_tag = "cp27m"
-        metadata = SetuptoolsEggMetadata.from_egg(
-            path, platform, abi_tag=abi_tag
-        )
+        metadata = SetuptoolsEggMetadata.from_egg(path, platform)
 
         # Then
         self.assertEqual(metadata.name, "traits")
