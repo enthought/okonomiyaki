@@ -16,6 +16,7 @@ from ..platforms.legacy import LegacyEPDPlatform
 from ..utils import parse_assignments
 from ..utils.traitlets import NoneOrInstance, NoneOrUnicode
 from ..versions import EnpkgVersion
+from .pep425 import PythonImplementation
 from ._package_info import PackageInfo, _read_pkg_info
 
 
@@ -668,7 +669,7 @@ class EggMetadata(object):
         return cls(raw_name, version, platform, python_tag, abi_tag,
                    dependencies, pkg_info, summary, metadata_version_info)
 
-    def __init__(self, raw_name, version, platform, python_tag, abi_tag,
+    def __init__(self, raw_name, version, platform, python, abi_tag,
                  dependencies, pkg_info, summary, metadata_version_info=None):
         """ EggMetadata instances encompass Enthought egg metadata.
 
@@ -683,8 +684,8 @@ class EggMetadata(object):
             The full version
         platform: EPDPlatform
             An EPDPlatform instance, or None for cross-platform eggs
-        python_tag: str
-            The python tag, e.g. 'cp27'. May be None.
+        python: Python
+            The python implementation
         abi_tag: str
             The ABI tag, e.g. 'cp27m'. May be None.
         dependencies: Dependencies
@@ -702,9 +703,10 @@ class EggMetadata(object):
         self.platform = platform
         """ The platform, as a Platform instance."""
 
-        self._python = _python_tag_to_python(python_tag)
-        self.python_tag = python_tag
-        """ The python tag, following the PEP425 format."""
+        if isinstance(python, six.string_types):
+            python = PythonImplementation.from_string(python)
+        self.python = python
+        """ The python implementation."""
 
         self.abi_tag = abi_tag
         """ The ABI tag, following the PEP425 format, except that no ABI
@@ -775,6 +777,13 @@ class EggMetadata(object):
             return self.platform_tag
 
     @property
+    def python_tag(self):
+        if self.python is None:
+            return None
+        else:
+            return self.python.pep425_tag
+
+    @property
     def python_tag_string(self):
         if self.python_tag is None:
             # an extension of PEP 425, to signify the egg will work on any
@@ -790,6 +799,13 @@ class EggMetadata(object):
     @property
     def upstream_version(self):
         return str(self.version.upstream)
+
+    @property
+    def _python(self):
+        if self.python is None:
+            return None
+        else:
+            return "{0}.{1}".format(self.python.major, self.python.minor)
 
     @property
     def _spec_depend(self):
