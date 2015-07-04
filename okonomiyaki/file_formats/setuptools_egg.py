@@ -85,10 +85,6 @@ def _guess_abi_from_python_tag(python_tag):
 
 
 def _guess_abi(platform, python_tag):
-    msg = ("Could not guess ABI, you need to specify the abi_tag "
-           "argument to from_egg, e.g. 'cp34m' for Enthought "
-           "CPython 3.4 runtimes")
-
     if platform is None:
         return None
 
