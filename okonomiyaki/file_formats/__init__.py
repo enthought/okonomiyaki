@@ -11,3 +11,4 @@ from ._egg_info import (
 )
 from ._package_info import PackageInfo
 from .egg import EggBuilder, EggRewriter
+from .pep425 import PythonImplementation
