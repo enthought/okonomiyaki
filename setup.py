@@ -38,9 +38,9 @@ def git_version():
 
     try:
         out = _minimal_ext_cmd(['git', 'rev-list', '--count', 'HEAD'])
-        git_count = out.strip().decode('ascii')
+        git_count = int(out.strip().decode('ascii'))
     except OSError:
-        git_count = '0'
+        git_count = 0
 
     return git_revision, git_count
 
@@ -53,8 +53,11 @@ full_version = '{full_version}'
 git_revision = '{git_revision}'
 is_released = {is_released}
 
-if not is_released:
+if is_released:
+    version_info = ({major}, {minor}, {micro}, 'final', 0)
+else:
     version = full_version
+    version_info = ({major}, {minor}, {micro}, 'dev', {dev_num})
 """
     # Adding the git rev number needs to be done inside write_version_py(),
     # otherwise the import of numpy.version messes up the build under Python 3.
@@ -73,21 +76,23 @@ if not is_released:
 
         match = re.match(r'.*?\.dev(?P<dev_num>\d+)', full_v)
         if match is None:
-            dev_num = '0'
+            dev_num = 0
         else:
-            dev_num = match.group('dev_num')
+            dev_num = int(match.group('dev_num'))
     else:
         git_rev = "Unknown"
-        dev_num = "0"
+        dev_num = 0
 
     if not IS_RELEASED:
-        fullversion += '.dev' + dev_num
+        fullversion += '.dev' + str(dev_num)
 
     with open(filename, "wt") as fp:
-        fp.write(template.format(version=VERSION,
-                                 full_version=fullversion,
-                                 git_revision=git_rev,
-                                 is_released=IS_RELEASED))
+        data = template.format(
+            version=VERSION, full_version=fullversion,
+            git_revision=git_rev, is_released=IS_RELEASED,
+            major=MAJOR, minor=MINOR, micro=MICRO, dev_num=dev_num
+        )
+        fp.write(data)
 
 
 def main():
