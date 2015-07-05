@@ -39,7 +39,7 @@ def parse_filename(path):
     platform : str or None
         the platform string, or None for platform-independent eggs.
     """
-    m = _R_EGG_NAME.search(path)
+    m = _R_EGG_NAME.search(os.path.basename(path))
     if m:
         platform = m.group("platform")
         return (m.group("name"), m.group("version"), m.group("pyver"),
