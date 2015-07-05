@@ -7,9 +7,12 @@ except ImportError:  # Python 2.6 support
     sysconfig = None
 import warnings
 
+import six
+
 from ..errors import OkonomiyakiError
 from ._egg_info import _guess_python_tag, _python_tag_to_python
 from ._package_info import PackageInfo
+from .pep425 import PythonImplementation
 
 
 _R_EGG_NAME = re.compile("""
@@ -115,7 +118,7 @@ def _guess_abi(platform, python_tag):
 
 class SetuptoolsEggMetadata(object):
     @classmethod
-    def from_egg(cls, path, platform=None, python_tag=_UNSPECIFIED,
+    def from_egg(cls, path, platform=None, python=_UNSPECIFIED,
                  abi_tag=_UNSPECIFIED):
         filename = os.path.basename(path)
         name, version, pyver, platform_string = parse_filename(filename)
@@ -125,8 +128,8 @@ class SetuptoolsEggMetadata(object):
                    "platform argument that is not None to from_egg")
             raise OkonomiyakiError(msg)
 
-        if python_tag is _UNSPECIFIED:
-            python_tag = _guess_python_tag(pyver)
+        if python is _UNSPECIFIED:
+            python = PythonImplementation.from_string(_guess_python_tag(pyver))
 
         if abi_tag is _UNSPECIFIED:
             abi_tag = _guess_abi(platform, python_tag)
@@ -135,9 +138,9 @@ class SetuptoolsEggMetadata(object):
 
         pkg_info = PackageInfo.from_egg(path)
 
-        return cls(name, version, platform, python_tag, abi_tag, pkg_info)
+        return cls(name, version, platform, python, abi_tag, pkg_info)
 
-    def __init__(self, name, version, platform, python_tag, abi_tag, pkg_info):
+    def __init__(self, name, version, platform, python, abi_tag, pkg_info):
         """
         Parameters
         ----------
@@ -147,7 +150,7 @@ class SetuptoolsEggMetadata(object):
             Version string
         platform: EPDPlatform
             An EPDPlatform instance, or None for cross-platform eggs
-        python_tag: str
+        python: PythonImplementation
             The PEP425 python tag, or None.
         abi_tag: str
             The PEP425 abi tag, or None.
@@ -158,7 +161,9 @@ class SetuptoolsEggMetadata(object):
         self.version = version
 
         self.platform = platform
-        self.python_tag = python_tag
+        if isinstance(python, six.string_types):
+            python = PythonImplementation.from_string(python)
+        self.python = python
         self.abi_tag = abi_tag
 
         self._pkg_info = pkg_info
@@ -171,6 +176,13 @@ class SetuptoolsEggMetadata(object):
             return None
         else:
             return self.platform.pep425_tag
+
+    @property
+    def python_tag(self):
+        if self.python is None:
+            return None
+        else:
+            return self.python.pep425_tag
 
     @property
     def summary(self):
