@@ -6,6 +6,7 @@ Improvements:
   * SetuptoolsEggMetadata now can guess ABI for legacy cases. (#74)
   * use PythonImplementation instances instead of strings to store python tag
     (#75).
+  * add okonomiyaki.__version_info__ for easy version comparison (#76).
 
 2015-06-30   0.8.0:
 -------------------
