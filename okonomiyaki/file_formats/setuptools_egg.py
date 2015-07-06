@@ -1,5 +1,6 @@
 import os.path
 import re
+import sys
 try:
     import sysconfig
 except ImportError:  # Python 2.6 support
@@ -9,7 +10,7 @@ import warnings
 import six
 
 from ..errors import OkonomiyakiError
-from ._egg_info import _guess_python_tag
+from ._egg_info import _guess_python_tag, _python_tag_to_python
 from ._package_info import PackageInfo
 from .pep425 import PythonImplementation
 
@@ -38,7 +39,7 @@ def parse_filename(path):
     platform : str or None
         the platform string, or None for platform-independent eggs.
     """
-    m = _R_EGG_NAME.search(path)
+    m = _R_EGG_NAME.search(os.path.basename(path))
     if m:
         platform = m.group("platform")
         return (m.group("name"), m.group("version"), m.group("pyver"),
@@ -76,10 +77,16 @@ def _get_default_setuptools_abi(platform_string, pyver):
 _UNSPECIFIED = object()
 
 
-def _guess_abi(platform):
-    if platform is None:
-        return None
+def _guess_abi_from_python(python):
+    # For legacy (aka legacy spec version info < 1.3), we know that pyver
+    # can only be one of "2.X" with X in (5, 6, 7).
+    #
+    # In those cases, the mapping (platform pyver) -> ABI is unambiguous,
+    # as we only ever used one ABI for a given python version/platform.
+    return "cp{0}{1}m".format(python.major, python.minor)
 
+
+def _guess_abi_from_running_python():
     if sysconfig is None:
         soabi = None
     else:
@@ -92,10 +99,28 @@ def _guess_abi(platform):
     if soabi and soabi.startswith('cpython-'):
         return 'cp' + soabi.split('-', 1)[-1]
     else:
-        msg = ("Could not guess ABI, you need to specify the abi_tag "
-               "argument to from_egg, e.g. 'cp34m' for Enthought "
-               "CPython 3.4 runtimes")
-        raise OkonomiyakiError(msg)
+        return None
+
+
+def _guess_abi(platform, python):
+    if platform is None:
+        return None
+
+    if python is not None:
+        if (python.major, python.minor) != sys.version_info[:2]:
+            return _guess_abi_from_python(python)
+
+    abi = _guess_abi_from_running_python()
+    if abi is None:
+        if python is not None:
+            return _guess_abi_from_python(python)
+        else:
+            msg = ("Could not guess ABI, you need to specify the abi_tag "
+                   "argument to from_egg, e.g. 'cp34m' for Enthought "
+                   "CPython 3.4 runtimes")
+            raise OkonomiyakiError(msg)
+    else:
+        return abi
 
 
 class SetuptoolsEggMetadata(object):
@@ -114,7 +139,7 @@ class SetuptoolsEggMetadata(object):
             python = PythonImplementation.from_string(_guess_python_tag(pyver))
 
         if abi_tag is _UNSPECIFIED:
-            abi_tag = _guess_abi(platform)
+            abi_tag = _guess_abi(platform, python)
         else:
             abi_tag = abi_tag
 
