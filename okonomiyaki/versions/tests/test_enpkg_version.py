@@ -1,6 +1,3 @@
-# side-effect import to get the unittest six moves registered
-from ...utils import _compat  # noqa
-
 from six.moves import unittest
 
 from ..enpkg import EnpkgVersion
@@ -54,14 +51,18 @@ class TestEnpkgVersionParsing(unittest.TestCase):
                          PEP386WorkaroundVersion.from_string("1.2.0"))
         self.assertEqual(version.build, 3)
 
-    def test_from_string_invalid(self):
         # Given
         s = "1.3.0"
 
-        # When/Then
-        with self.assertRaises(ValueError):
-            EnpkgVersion.from_string(s)
+        # When
+        version = EnpkgVersion.from_string(s)
 
+        # Then
+        self.assertEqual(version.build, 0)
+        self.assertEqual(version.upstream,
+                         PEP386WorkaroundVersion.from_string(s))
+
+    def test_from_string_invalid(self):
         # Given
         s = "1.3.0-a"
 

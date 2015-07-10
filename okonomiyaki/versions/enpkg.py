@@ -27,14 +27,16 @@ class EnpkgVersion(object):
             the version string.
         """
         parts = version_string.rsplit("-")
-        if len(parts) < 2:
+        if len(parts) == 1:
+            build = 0
+        elif len(parts) == 2:
+            try:
+                build = int(parts[1])
+            except ValueError:
+                raise ValueError("Invalid build number: {0!r}".format(parts[1]))
+        else:
             msg = "Invalid version format: {0!r}".format(version_string)
             raise ValueError(msg)
-
-        try:
-            build = int(parts[1])
-        except ValueError:
-            raise ValueError("Invalid build number: {0!r}".format(parts[1]))
 
         return cls.from_upstream_and_build(parts[0], build)
 
