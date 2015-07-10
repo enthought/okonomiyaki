@@ -1,6 +1,3 @@
-# side-effect import to get the unittest six moves registered
-from ...utils import _compat  # noqa
-
 from six.moves import unittest
 
 from ..pep386_workaround import PEP386WorkaroundVersion
@@ -100,7 +97,8 @@ class TestPEP386Workaround(unittest.TestCase):
     def test_correct_series(self):
         # Given
         version_strings = ("1.1.0", "1.2.0.dev1", "1.2.0a1", "1.2.0a2",
-                           "1.2.0b1", "1.2.0c1", "1.2.0rc2", "1.2.0")
+                           "1.2.0b1", "1.2.0c1",
+                           "1.2.0rc2", "1.2.0")
         versions = tuple(PEP386WorkaroundVersion.from_string(v) for v in
                          version_strings)
 
