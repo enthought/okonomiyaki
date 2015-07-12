@@ -64,7 +64,8 @@ try:
 except:
     ClassTypes = (type,)
 
-import six
+from ...utils import py3compat
+
 
 def import_item(name):
     """Import and return ``bar`` given the string ``foo.bar``.
@@ -97,7 +98,7 @@ def import_item(name):
         # called with un-dotted string
         return __import__(parts[0])
 
-if six.PY3:
+if py3compat.PY3:
     def isidentifier(s, dotted=False):
         if dotted:
             return all(isidentifier(a) for a in s.split("."))
@@ -137,7 +138,7 @@ def class_of ( object ):
     correct indefinite article ('a' or 'an') preceding it (e.g., 'an Image',
     'a PlotValue').
     """
-    if isinstance( object, six.string_types ):
+    if isinstance( object, py3compat.string_types ):
         return add_article( object )
 
     return add_article( object.__class__.__name__ )
@@ -158,7 +159,7 @@ def repr_type(obj):
     error messages.
     """
     the_type = type(obj)
-    if (not six.PY3) and the_type is InstanceType:
+    if (not py3compat.PY3) and the_type is InstanceType:
         # Old-style class.
         the_type = obj.__class__
     msg = '%r %r' % (obj, the_type)
@@ -416,7 +417,7 @@ class MetaHasTraits(type):
         # print "MetaHasTraitlets (mcls, name): ", mcls, name
         # print "MetaHasTraitlets (bases): ", bases
         # print "MetaHasTraitlets (classdict): ", classdict
-        for k,v in six.iteritems(classdict):
+        for k,v in py3compat.iteritems(classdict):
             if isinstance(v, TraitType):
                 v.name = k
             elif inspect.isclass(v):
@@ -432,12 +433,12 @@ class MetaHasTraits(type):
         This sets the :attr:`this_class` attribute of each TraitType in the
         class dict to the newly created class ``cls``.
         """
-        for k, v in six.iteritems(classdict):
+        for k, v in py3compat.iteritems(classdict):
             if isinstance(v, TraitType):
                 v.this_class = cls
         super(MetaHasTraits, cls).__init__(name, bases, classdict)
 
-class HasTraits(six.with_metaclass(MetaHasTraits, object)):
+class HasTraits(py3compat.with_metaclass(MetaHasTraits, object)):
 
     #__metaclass__ = MetaHasTraits
 
@@ -472,7 +473,7 @@ class HasTraits(six.with_metaclass(MetaHasTraits, object)):
         # Allow trait values to be set using keyword arguments.
         # We need to use setattr for this to trigger validation and
         # notifications.
-        for key, value in six.iteritems(kw):
+        for key, value in py3compat.iteritems(kw):
             setattr(self, key, value)
 
     def _notify_trait(self, name, old_value, new_value):
@@ -673,7 +674,7 @@ class ClassBasedTraitType(TraitType):
 
     def error(self, obj, value):
         kind = type(value)
-        if (not six.PY3) and kind is InstanceType:
+        if (not py3compat.PY3) and kind is InstanceType:
             msg = 'class %s' % value.__class__.__name__
         else:
             msg = '%s (i.e. %s)' % ( str( kind )[1:-1], repr( value ) )
@@ -723,7 +724,7 @@ class Type(ClassBasedTraitType):
         elif klass is None:
             klass = default_value
 
-        if not (inspect.isclass(klass) or isinstance(klass, six.string_types)):
+        if not (inspect.isclass(klass) or isinstance(klass, py3compat.string_types)):
             raise TraitError("A Type trait must specify a class.")
 
         self.klass       = klass
@@ -744,7 +745,7 @@ class Type(ClassBasedTraitType):
 
     def info(self):
         """ Returns a description of the trait."""
-        if isinstance(self.klass, six.string_types):
+        if isinstance(self.klass, py3compat.string_types):
             klass = self.klass
         else:
             klass = self.klass.__name__
@@ -758,9 +759,9 @@ class Type(ClassBasedTraitType):
         super(Type, self).instance_init(obj)
 
     def _resolve_classes(self):
-        if isinstance(self.klass, six.string_types):
+        if isinstance(self.klass, py3compat.string_types):
             self.klass = import_item(self.klass)
-        if isinstance(self.default_value, six.string_types):
+        if isinstance(self.default_value, py3compat.string_types):
             self.default_value = import_item(self.default_value)
 
     def get_default_value(self):
@@ -815,7 +816,7 @@ class Instance(ClassBasedTraitType):
 
         self._allow_none = allow_none
 
-        if (klass is None) or (not (inspect.isclass(klass) or isinstance(klass, six.string_types))):
+        if (klass is None) or (not (inspect.isclass(klass) or isinstance(klass, py3compat.string_types))):
             raise TraitError('The klass argument must be a class'
                                 ' you gave: %r' % klass)
         self.klass = klass
@@ -852,7 +853,7 @@ class Instance(ClassBasedTraitType):
             self.error(obj, value)
 
     def info(self):
-        if isinstance(self.klass, six.string_types):
+        if isinstance(self.klass, py3compat.string_types):
             klass = self.klass
         else:
             klass = self.klass.__name__
@@ -867,7 +868,7 @@ class Instance(ClassBasedTraitType):
         super(Instance, self).instance_init(obj)
 
     def _resolve_classes(self):
-        if isinstance(self.klass, six.string_types):
+        if isinstance(self.klass, py3compat.string_types):
             self.klass = import_item(self.klass)
 
     def get_default_value(self):
@@ -937,7 +938,7 @@ class CInt(Int):
         except:
             self.error(obj, value)
 
-if six.PY3:
+if py3compat.PY3:
     Long, CLong = Int, CInt
     Integer = Int
 else:
@@ -1061,13 +1062,13 @@ class CBytes(Bytes):
 class Unicode(TraitType):
     """A trait for unicode strings."""
 
-    default_value = six.u('')
+    default_value = py3compat.u('')
     info_text = 'a unicode string'
 
     def validate(self, obj, value):
-        if isinstance(value, six.text_type):
+        if isinstance(value, py3compat.text_type):
             return value
-        if isinstance(value, six.binary_type):
+        if isinstance(value, py3compat.binary_type):
             return unicode(value)
         self.error(obj, value)
 
@@ -1088,7 +1089,7 @@ class ObjectName(TraitType):
     This does not check that the name exists in any scope."""
     info_text = "a valid object identifier in Python"
 
-    if six.PY3:
+    if py3compat.PY3:
         # Python 3:
         coerce_str = staticmethod(lambda _,s: s)
 
@@ -1461,7 +1462,7 @@ class TCPAddress(TraitType):
     def validate(self, obj, value):
         if isinstance(value, tuple):
             if len(value) == 2:
-                if isinstance(value[0], six.string_types) and isinstance(value[1], int):
+                if isinstance(value[0], py3compat.string_types) and isinstance(value[1], int):
                     port = value[1]
                     if port >= 0 and port <= 65535:
                         return value

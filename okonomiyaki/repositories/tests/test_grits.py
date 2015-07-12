@@ -3,9 +3,7 @@ import unittest
 
 import os.path as op
 
-import six
-
-from ...utils.py3compat import long
+from ...utils import py3compat
 from ..grits import GritsEggEntry
 
 DATA_DIR = op.join(op.dirname(__file__), "data")
@@ -51,19 +49,19 @@ class TestGritsEggEntry(unittest.TestCase):
         self.assertEqual(entry.grits_tags, r_tags)
 
     def test_metadata(self):
-        r_metadata = {'build': long(1),
-                      'egg_basename': six.u('Cython'),
-                      'md5': six.u('fa334276ff97c721370516530a36c475'),
+        r_metadata = {'build': py3compat.long(1),
+                      'egg_basename': py3compat.u('Cython'),
+                      'md5': py3compat.u('fa334276ff97c721370516530a36c475'),
                       'mtime': CYTHON_MTIME,
-                      'name': six.u('cython'),
+                      'name': py3compat.u('cython'),
                       'packages': [],
                       'platform': 'rh5-32',
                       'product': 'commercial',
-                      'python': six.u('2.7'),
-                      'qa_level': six.u('stable'),
-                      'size': long(4766),
+                      'python': py3compat.u('2.7'),
+                      'qa_level': py3compat.u('stable'),
+                      'size': py3compat.long(4766),
                       'type': 'egg',
-                      'version': six.u('0.19.1'),
+                      'version': py3compat.u('0.19.1'),
                       'qa_level': 'stable'}
 
         path = op.join(DATA_DIR, "Cython-0.19.1-1.egg")

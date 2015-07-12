@@ -2,8 +2,6 @@ import posixpath
 import re
 import zipfile2
 
-import six
-
 from ..bundled.traitlets import (
     HasTraits, Enum, Instance, List, Long, Unicode
 )
@@ -14,6 +12,7 @@ from ..errors import (
 from ..platforms import EPDPlatform
 from ..platforms.legacy import LegacyEPDPlatform
 from ..utils import parse_assignments
+from ..utils.py3compat import StringIO, string_types
 from ..utils.traitlets import NoneOrInstance, NoneOrUnicode
 from ..versions import EnpkgVersion
 from .pep425 import PythonImplementation
@@ -81,7 +80,7 @@ def split_egg_name(s):
 
 
 def parse_rawspec(spec_string):
-    spec = parse_assignments(six.StringIO(spec_string.replace('\r', '')))
+    spec = parse_assignments(StringIO(spec_string.replace('\r', '')))
 
     metadata_version = spec.get(_TAG_METADATA_VERSION)
     if metadata_version is None \
@@ -454,7 +453,7 @@ class LegacySpecDepend(HasTraits):
 
         ret = {}
         for k, v in raw_data.items():
-            if isinstance(v, six.string_types):
+            if isinstance(v, string_types):
                 v = str(v)
             ret[k] = v
         return ret
@@ -622,7 +621,7 @@ class EggMetadata(object):
                 summary = b""
             return summary.decode("utf8")
 
-        if isinstance(path_or_file, six.string_types):
+        if isinstance(path_or_file, string_types):
             spec_depend = LegacySpecDepend.from_egg(path_or_file)
             with zipfile2.ZipFile(path_or_file) as fp:
                 summary = _read_summary(fp)
@@ -703,7 +702,7 @@ class EggMetadata(object):
         self.platform = platform
         """ The platform, as a Platform instance."""
 
-        if isinstance(python, six.string_types):
+        if isinstance(python, string_types):
             python = PythonImplementation.from_string(python)
         self.python = python
         """ The python implementation."""

@@ -1,12 +1,11 @@
 import json
 import os
-import six
 import unittest
 
 import os.path as op
 
 from ..enpkg import EnpkgS3IndexEntry
-from ...utils.py3compat import long
+from ...utils import py3compat
 
 DATA_DIR = op.join(op.dirname(__file__), "data")
 
@@ -31,11 +30,11 @@ class TestEnpkgS3IndexEntry(unittest.TestCase):
     def test_to_json(self):
         r_data = dict(
             available=False,
-            build=long(3),
-            md5=six.u("78ce2b9ebc88e3ed81cb9c0aa4eb8c87"),
+            build=py3compat.long(3),
+            md5=py3compat.u("78ce2b9ebc88e3ed81cb9c0aa4eb8c87"),
             mtime=ETS_MTIME,
-            egg_basename=six.u('ets'),
-            name=six.u('ets'),
+            egg_basename=py3compat.u('ets'),
+            name=py3compat.u('ets'),
             packages=[
                 'apptools 4.2.0-2',
                 'blockcanvas 4.0.3-1',
@@ -55,10 +54,10 @@ class TestEnpkgS3IndexEntry(unittest.TestCase):
                 'traits 4.3.0-2',
                 'traitsui 4.3.0-2'],
             product='commercial',
-            python=six.u('2.7'),
-            size=long(10027),
+            python=py3compat.u('2.7'),
+            size=py3compat.long(10027),
             type='egg',
-            version=six.u('4.3.0'))
+            version=py3compat.u('4.3.0'))
 
         path = op.join(DATA_DIR, "ets-4.3.0-3.egg")
 
@@ -85,14 +84,14 @@ class TestEnpkgS3IndexEntry(unittest.TestCase):
 """
         index_entry = EnpkgS3IndexEntry.from_data(json.loads(json_data))
 
-        self.assertEqual(index_entry.name, six.u("numpy"))
+        self.assertEqual(index_entry.name, py3compat.u("numpy"))
 
     def test_cased_egg_basename(self):
         path = op.join(DATA_DIR, "Cython-0.19.1-1.egg")
 
         index_entry = EnpkgS3IndexEntry.from_egg(path)
-        self.assertEqual(index_entry.name, six.u("cython"))
-        self.assertEqual(index_entry.egg_basename, six.u("Cython"))
+        self.assertEqual(index_entry.name, py3compat.u("cython"))
+        self.assertEqual(index_entry.egg_basename, py3compat.u("Cython"))
 
     def test_enpkg_s3index_key(self):
         path = op.join(DATA_DIR, "Cython-0.19.1-1.egg")

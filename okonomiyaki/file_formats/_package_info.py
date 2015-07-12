@@ -3,11 +3,9 @@ Most of the code below is adapted from pkg-info 1.2.1
 
 We support only 1.0 and 1.1, as 1.2 does not seem to be used anywhere ?
 """
-import six
 import zipfile2
 
-from six.moves import StringIO
-
+from ..utils import py3compat
 from ..errors import OkonomiyakiError
 
 
@@ -63,7 +61,7 @@ class PackageInfo(object):
             If a string, understood as the path to the egg. Otherwise,
             understood as a zipfile-like object.
         """
-        if isinstance(path_or_file, six.string_types):
+        if isinstance(path_or_file, py3compat.string_types):
             with zipfile2.ZipFile(path_or_file) as fp:
                 data = _read_pkg_info(fp)
             if data is None:
@@ -76,7 +74,7 @@ class PackageInfo(object):
 
     @classmethod
     def from_string(cls, s):
-        fp = StringIO(_must_decode(s))
+        fp = py3compat.StringIO(_must_decode(s))
         msg = _parse(fp)
 
         kw = {}
@@ -143,7 +141,7 @@ class PackageInfo(object):
         self.obsoletes = obsoletes or ()
 
     def to_string(self, metadata_version_info=MAX_SUPPORTED_VERSION):
-        s = StringIO()
+        s = py3compat.StringIO()
         self._write_field(s, 'Metadata-Version', self.metadata_version)
         self._write_field(s, 'Name', self.name)
         self._write_field(s, 'Version', self.version)
