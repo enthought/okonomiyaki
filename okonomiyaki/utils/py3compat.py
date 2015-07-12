@@ -40,7 +40,8 @@ if PY2:
     StringIO = BytesIO = StringIO.StringIO
 
 else:
-    exec_ = getattr(moves.builtins, "exec")
+    import builtins
+    exec_ = getattr(builtins, "exec")
 
     long = int
     string_types = str,
