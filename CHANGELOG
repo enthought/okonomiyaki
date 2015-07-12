@@ -6,6 +6,10 @@ Improvements:
   * EnpkgVersion.from_string now handles versions of the form `1.3.0`, with the
     build number being implicitly 0.
 
+Internals:
+
+  * Remove dependency on six
+
 2015-07-06   0.9.0:
 -------------------
 
