@@ -96,6 +96,9 @@ class EPDPlatform(HasTraits):
     def from_epd_string(cls, s):
         """
         Create a new instance from an epd platform string (e.g. 'win-32')
+
+        Note: new, more explicit architecture names are also supported, e.g.
+        'win-x86' or 'win-x86_64' are supported.
         """
         parts = s.split("-")
         if len(parts) != 2:
@@ -103,16 +106,13 @@ class EPDPlatform(HasTraits):
 
         platform_name, arch_bits = parts
         if arch_bits not in _ARCHBITS_TO_ARCH:
-            msg = ("Invalid epd string {0!r}: invalid arch {1!r}".
-                   format(s, arch_bits))
-            raise OkonomiyakiError(msg)
+            arch = machine = Arch(arch_bits)
         else:
             arch_name = _ARCHBITS_TO_ARCH[arch_bits]
-
             arch = machine = Arch(arch_name)
-            os, name, family, release = _epd_name_to_quadruplet(platform_name)
-            platform = Platform(os, name, family, arch, machine, release)
-            return cls(platform)
+        os, name, family, release = _epd_name_to_quadruplet(platform_name)
+        platform = Platform(os, name, family, arch, machine, release)
+        return cls(platform)
 
     @classmethod
     def _from_spec_depend_data(cls, platform, osdist, arch_name):

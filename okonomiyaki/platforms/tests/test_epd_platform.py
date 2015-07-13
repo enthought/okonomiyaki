@@ -30,6 +30,34 @@ class TestEPDPlatform(unittest.TestCase):
         for epd_platform_string in EPD_PLATFORM_SHORT_NAMES:
             EPDPlatform.from_epd_string(epd_platform_string)
 
+    def test_epd_platform_from_string_new_names(self):
+        """Ensure every epd short platform is understood by EPDPlatform."""
+        # Given
+        archs = ("i386", "x86", "i686")
+
+        # When
+        epd_platforms = tuple(
+            EPDPlatform.from_epd_string("rh5-" + arch)
+            for arch in archs
+        )
+
+        # Then
+        for epd_platform in epd_platforms:
+            self.assertEqual(epd_platform.arch_bits, "32")
+
+        # Given
+        archs = ("amd64", "x86_64", "AMD64")
+
+        # When
+        epd_platforms = tuple(
+            EPDPlatform.from_epd_string("rh5-" + arch)
+            for arch in archs
+        )
+
+        # Then
+        for epd_platform in epd_platforms:
+            self.assertEqual(epd_platform.arch_bits, "64")
+
     @mock_darwin
     @mock_machine_x86_64
     def test_from_running_python(self):
