@@ -1,13 +1,16 @@
 # coding: utf-8
 """Compatibility tricks for Python 3. Mainly to do with unicode."""
-import six
-
-from six.moves import  builtins
 import functools
 import sys
 import re
 import types
 
+if sys.version_info[0] == 2:
+    import __builtin__ as builtins
+else:
+    import builtins
+
+from ...utils import py3compat
 from .encoding import DEFAULT_ENCODING
 
 orig_open = open
@@ -71,7 +74,7 @@ def safe_unicode(e):
     except UnicodeError:
         pass
 
-    return six.u('Unrecoverably corrupt evalue')
+    return py3compat.u('Unrecoverably corrupt evalue')
 
 if sys.version_info[0] >= 3:
     PY3 = True
@@ -99,7 +102,7 @@ if sys.version_info[0] >= 3:
     def execfile(fname, glob, loc=None):
         loc = loc if (loc is not None) else glob
         with open(fname, 'rb') as f:
-            six.exec_(compile(f.read(), fname, 'exec'), glob, loc)
+            py3compat.exec_(compile(f.read(), fname, 'exec'), glob, loc)
     
     # Refactor print statements in doctests.
     _print_statement_re = re.compile(r"\bprint (?P<expr>.*)$", re.MULTILINE)
@@ -196,7 +199,7 @@ else:
                 filename = unicode_to_str(fname)
             else:
                 filename = fname
-            six.exec_(compile(scripttext, filename, 'exec'), glob, loc)
+            py3compat.exec_(compile(scripttext, filename, 'exec'), glob, loc)
     else:
         def execfile(fname, *where):
             if isinstance(fname, unicode):

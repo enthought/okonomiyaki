@@ -1,6 +1,6 @@
 import ast
 
-import six
+from .py3compat import string_types
 
 from ..errors import OkonomiyakiError
 
@@ -44,7 +44,7 @@ def parse_assignments(file_or_filename):
     file_or_filename: str, file object
         If a string, interpreted as a filename. File object otherwise.
     """
-    if isinstance(file_or_filename, six.string_types):
+    if isinstance(file_or_filename, string_types):
         with open(file_or_filename) as fp:
             return _AssignmentParser().parse(fp.read())
     else:

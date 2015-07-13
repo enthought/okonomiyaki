@@ -14,10 +14,9 @@ else:
 
 import os.path as op
 
-import six
-
 from ...platforms import EPDPlatform
 from ...utils import compute_md5
+from ...utils import py3compat
 from ...versions import EnpkgVersion
 
 from ..egg import EggBuilder, EggRewriter
@@ -296,7 +295,7 @@ class TestEggRewriter(unittest.TestCase):
         shutil.rmtree(self.prefix)
 
     def assertCountEqual(self, first, second, msg=None):
-        if six.PY2:
+        if py3compat.PY2:
             return self.assertItemsEqual(first, second, msg)
         else:
             return unittest.TestCase.assertCountEqual(self, first, second, msg)

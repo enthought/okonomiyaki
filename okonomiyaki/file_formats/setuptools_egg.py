@@ -7,9 +7,8 @@ except ImportError:  # Python 2.6 support
     sysconfig = None
 import warnings
 
-import six
-
 from ..errors import OkonomiyakiError
+from ..utils import py3compat
 from ._egg_info import _guess_python_tag, _python_tag_to_python
 from ._package_info import PackageInfo
 from .pep425 import PythonImplementation
@@ -168,7 +167,7 @@ class SetuptoolsEggMetadata(object):
         self.version = version
 
         self.platform = platform
-        if isinstance(python, six.string_types):
+        if isinstance(python, py3compat.string_types):
             python = PythonImplementation.from_string(python)
         self.python = python
         self.abi_tag = abi_tag

@@ -1,8 +1,10 @@
+import sys
 import zipfile
 
-import six
-
-six.add_move(six.MovedModule("unittest", "unittest2", "unittest"))
+if sys.version_info[0] == 2:
+    import unittest2 as unittest
+else:
+    import unittest
 
 
 class ZipFile(zipfile.ZipFile):

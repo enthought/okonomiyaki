@@ -1,5 +1,4 @@
-from six.moves import unittest
-
+from ...utils.py3compat import unittest
 from ..enpkg import EnpkgVersion
 from ..pep386_workaround import PEP386WorkaroundVersion
 
