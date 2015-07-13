@@ -33,7 +33,9 @@ class EnpkgVersion(object):
             try:
                 build = int(parts[1])
             except ValueError:
-                raise ValueError("Invalid build number: {0!r}".format(parts[1]))
+                raise ValueError(
+                    "Invalid build number: {0!r}".format(parts[1])
+                )
         else:
             msg = "Invalid version format: {0!r}".format(version_string)
             raise ValueError(msg)
