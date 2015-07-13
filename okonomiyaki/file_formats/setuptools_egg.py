@@ -9,7 +9,7 @@ import warnings
 
 from ..errors import OkonomiyakiError
 from ..utils import py3compat
-from ._egg_info import _guess_python_tag, _python_tag_to_python
+from ._egg_info import _guess_python_tag
 from ._package_info import PackageInfo
 from .pep425 import PythonImplementation
 

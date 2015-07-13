@@ -1,12 +1,11 @@
 from __future__ import absolute_import
 
-__all__ = ["ZipFile", "compute_md5", "parse_assignments"]
+__all__ = ["compute_md5", "parse_assignments"]
 
 import hashlib
 
 from .misc import parse_assignments
 from .py3compat import string_types
-from ._compat import ZipFile
 
 
 def compute_md5(path):
