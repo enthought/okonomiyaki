@@ -1,5 +1,7 @@
 from __future__ import absolute_import
 
+import re
+
 from ..bundled.traitlets import HasTraits, Instance
 from ..errors import OkonomiyakiError
 from ._arch import Arch, X86_64, X86
@@ -47,6 +49,13 @@ EPD_PLATFORM_SHORT_NAMES = [
 
 _X86 = Arch.from_name(X86)
 _X64_64 = Arch.from_name(X86_64)
+
+
+_EPD_PLATFORM_STRING_RE = re.compile("""
+    (?P<os>[^-_]+)
+    [_-]
+    (?P<arch>[^-]+)
+    """, flags=re.VERBOSE)
 
 
 class EPDPlatform(HasTraits):
@@ -100,19 +109,21 @@ class EPDPlatform(HasTraits):
         Note: new, more explicit architecture names are also supported, e.g.
         'win-x86' or 'win-x86_64' are supported.
         """
-        parts = s.split("-")
-        if len(parts) != 2:
+        m = _EPD_PLATFORM_STRING_RE.match(s)
+        if m is None:
             raise OkonomiyakiError("Invalid epd string: {0}".format(s))
-
-        platform_name, arch_bits = parts
-        if arch_bits not in _ARCHBITS_TO_ARCH:
-            arch = machine = Arch(arch_bits)
         else:
-            arch_name = _ARCHBITS_TO_ARCH[arch_bits]
-            arch = machine = Arch(arch_name)
-        os, name, family, release = _epd_name_to_quadruplet(platform_name)
-        platform = Platform(os, name, family, arch, machine, release)
-        return cls(platform)
+            d = m.groupdict()
+            platform_name = d["os"]
+            arch_bits = d["arch"]
+            if arch_bits not in _ARCHBITS_TO_ARCH:
+                arch = machine = Arch(arch_bits)
+            else:
+                arch_name = _ARCHBITS_TO_ARCH[arch_bits]
+                arch = machine = Arch(arch_name)
+            os, name, family, release = _epd_name_to_quadruplet(platform_name)
+            platform = Platform(os, name, family, arch, machine, release)
+            return cls(platform)
 
     @classmethod
     def _from_spec_depend_data(cls, platform, osdist, arch_name):
