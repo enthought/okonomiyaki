@@ -53,7 +53,7 @@ _X64_64 = Arch.from_name(X86_64)
 
 _EPD_PLATFORM_STRING_RE = re.compile("""
     (?P<os>[^-_]+)
-    [_-]{1}
+    [_-]
     (?P<arch>[^-]+)
     """, flags=re.VERBOSE)
 
