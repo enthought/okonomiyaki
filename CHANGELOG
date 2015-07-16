@@ -9,6 +9,9 @@ Improvements:
 Internals:
 
   * Remove dependency on six
+  * Add support for both '-' and '_' as separators between os and arch in
+    platform names for EPDPlatform, i.e. both from_epd_string("rh5-x86_64") and
+    from_epd_string("rh5_x86_64") work (#83).
 
 2015-07-06   0.9.0:
 -------------------
