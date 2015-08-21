@@ -1,4 +1,5 @@
 import re
+import sys
 
 from ..errors import InvalidMetadata
 
@@ -18,6 +19,11 @@ _TAG_RE = re.compile("""
 
 
 class PythonImplementation(object):
+    @classmethod
+    def from_running_python(cls):
+        s = _abbreviated_implementation() + _implementation_version()
+        return cls.from_string(s)
+
     @classmethod
     def from_string(cls, s):
         m = _TAG_RE.match(s)
@@ -55,3 +61,21 @@ class PythonImplementation(object):
 
     def __str__(self):
         return "{0.abbreviated_implementation}{0.major}{0.minor}".format(self)
+
+
+def _abbreviated_implementation():
+    """Return abbreviated implementation name."""
+    if sys.platform.startswith('java'):
+        pyimpl = 'jy'
+    elif sys.platform == 'cli':
+        pyimpl = 'ip'
+    elif hasattr(sys, 'pypy_version_info'):
+        pyimpl = 'pp'
+    else:
+        pyimpl = 'cp'
+    return pyimpl
+
+
+def _implementation_version():
+    """Return implementation version."""
+    return ''.join(map(str, sys.version_info[:2]))
