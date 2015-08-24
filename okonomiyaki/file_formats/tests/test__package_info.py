@@ -1,5 +1,5 @@
 import sys
-import zipfile
+import zipfile2
 
 import mock
 
@@ -151,7 +151,7 @@ class TestPackageInfo(unittest.TestCase):
             "okonomiyaki.file_formats._package_info.compute_sha256",
             return_value=mock_sha256
         ):
-            with zipfile.ZipFile(egg) as zp:
+            with zipfile2.ZipFile(egg) as zp:
                 pkg_info = PackageInfo.from_egg(zp)
 
         # Then
