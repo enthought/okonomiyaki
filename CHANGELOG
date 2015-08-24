@@ -1,3 +1,11 @@
+XXXXXXXXXXX  0.9.1:
+--------------------
+
+Improvements:
+
+  * EggMetadata.from_egg now handles eggs built for RedHat Enterprise
+    Linux 3 (#88).
+
 2015-07-06   0.9.0:
 -------------------
 

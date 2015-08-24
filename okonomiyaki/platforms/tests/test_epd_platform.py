@@ -254,6 +254,8 @@ class TestGuessEPDPlatform(unittest.TestCase):
         examples = (
             (("linux2", None, "x86"),
              EPDPlatform.from_epd_string("rh5-32"),),
+            (("linux2", "RedHat_3", "x86"),
+             EPDPlatform.from_epd_string("rh3-32"),),
             (("linux2", "RedHat_5", "x86"),
              EPDPlatform.from_epd_string("rh5-32"),),
             (("linux2", "RedHat_5", "amd64"),
