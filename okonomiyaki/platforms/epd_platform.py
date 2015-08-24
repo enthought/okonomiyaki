@@ -136,7 +136,9 @@ class EPDPlatform(HasTraits):
         elif platform == "win32":
             epd_name = "win"
         elif platform.startswith("linux"):
-            if osdist in (None, "RedHat_5"):
+            if osdist == "RedHat_3":
+                epd_name = "rh3"
+            elif osdist in (None, "RedHat_5"):
                 epd_name = "rh5"
             elif osdist == "RedHat_6":
                 epd_name = "rh6"
