@@ -31,7 +31,6 @@ class TestSha256(unittest.TestCase):
         # Given
         data = b"asd" * 2 ** 16
         path = os.path.join(self.tempdir, "foo.bin")
-        print(path)
 
         with open(path, "wb") as fp:
             fp.write(data)
