@@ -8,7 +8,8 @@ from haas.loader import Loader
 from haas.testing import unittest
 from haas.result import ResultCollecter
 from haas.plugins.result_handler import (
-    StandardTestResultHandler, VerboseTestResultHandler)
+    StandardTestResultHandler as BaseStandardTestResultHandler,
+    VerboseTestResultHandler)
 from haas.plugins.runner import BaseTestRunner
 
 from okonomiyaki.file_formats import EggMetadata
@@ -18,6 +19,15 @@ ARTEFACT_TYPE_EGG = "egg"
 DIRECTORY_TO_TYPE = {
     "eggs": ARTEFACT_TYPE_EGG,
 }
+
+
+class StandardTestResultHandler(BaseStandardTestResultHandler):
+
+    def __call__(self, result):
+        super(StandardTestResultHandler, self).__call__(result)
+        if self.tests_run % 120 == 0:
+            self.stream.write('\n')
+            self.stream.flush()
 
 
 def path_to_triple(path, root):
