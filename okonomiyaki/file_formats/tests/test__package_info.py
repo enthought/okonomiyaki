@@ -83,6 +83,19 @@ class TestPackageInfo(unittest.TestCase):
             "The PyPA recommended tool for installing Python packages."
         )
 
+        # When
+        with zipfile2.ZipFile(egg) as zp:
+            pkg_info = PackageInfo.from_egg(zp)
+
+        # Then
+        self.assertEqual(pkg_info.metadata_version, "1.1")
+        self.assertEqual(pkg_info.name, "pip")
+        self.assertEqual(pkg_info.version, "6.0.8")
+        self.assertEqual(
+            pkg_info.summary,
+            "The PyPA recommended tool for installing Python packages."
+        )
+
     def test_to_string(self):
         # Given
         egg = PIP_EGG
