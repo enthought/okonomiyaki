@@ -179,9 +179,27 @@ class Requirement(HasTraits):
         if len(parts) == 1:
             name = parts[0]
             if "-" in name:
-                raise InvalidRequirementString(name)
-            return cls(name=name)
-        elif len(parts) == 2:
+                parts = name.split('-', 1)
+                _, version_test = parts
+                if '-' in version_test:
+                    if len(version_test.split('-')) != 2:
+                        raise InvalidRequirementString(name)
+                    from okonomiyaki.versions import EnpkgVersion
+                    try:
+                        enpkg_version = EnpkgVersion.from_string(version_test)
+                    except ValueError:
+                        raise InvalidRequirementString(name)
+                    else:
+                        workaround_version = enpkg_version.upstream
+                else:
+                    from okonomiyaki.versions import PEP386WorkaroundVersion
+                    workaround_version = PEP386WorkaroundVersion.from_string(
+                        version_test)
+                if workaround_version.is_worked_around:
+                    raise InvalidRequirementString(name)
+            else:
+                return cls(name=name)
+        if len(parts) == 2:
             name, version = parts
             parts = version.split("-")
             if len(parts) == 2:

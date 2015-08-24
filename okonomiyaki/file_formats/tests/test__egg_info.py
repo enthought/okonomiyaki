@@ -9,7 +9,9 @@ if sys.version_info[:2] < (2, 7):
 else:
     import unittest
 
-from ...errors import InvalidEggName, InvalidMetadata, UnsupportedMetadata
+from ...errors import (
+    InvalidEggName, InvalidMetadata, InvalidRequirementString,
+    UnsupportedMetadata)
 from ...platforms import EPDPlatform
 from ...platforms.legacy import LegacyEPDPlatform
 from ...versions import EnpkgVersion
@@ -86,6 +88,31 @@ class TestRequirement(unittest.TestCase):
                           Requirement.from_string("numpy"))
         self.assertRaises(InvalidEggName, lambda:
                           Requirement.from_string("numpy 1.7.1"))
+
+    def test_from_existing_invalid_spec_string(self):
+        dependency = Requirement.from_spec_string('numpy-1.7.1')
+        self.assertEqual(dependency.name, "numpy")
+        self.assertEqual(dependency.version_string, "1.7.1")
+        self.assertEqual(dependency.build_number, -1)
+        self.assertEqual(dependency.strictness, 2)
+
+        dependency = Requirement.from_spec_string('numpy-1.7.1-2')
+        self.assertEqual(dependency.name, "numpy")
+        self.assertEqual(dependency.version_string, "1.7.1")
+        self.assertEqual(dependency.build_number, 2)
+        self.assertEqual(dependency.strictness, 3)
+
+        with self.assertRaises(InvalidRequirementString):
+            dependency = Requirement.from_spec_string('numpy-pandas')
+
+        with self.assertRaises(InvalidRequirementString):
+            dependency = Requirement.from_spec_string('numpy-pandas-1')
+
+        with self.assertRaises(InvalidRequirementString):
+            dependency = Requirement.from_spec_string('numpy-1.7.1-2-1')
+
+        with self.assertRaises(InvalidRequirementString):
+            dependency = Requirement.from_spec_string('numpy-1.7.1-pandas')
 
 
 class TestLegacySpecDepend(unittest.TestCase):
