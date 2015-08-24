@@ -114,6 +114,7 @@ def main():
                     "okonomiyaki.bundled.traitlets",
                     "okonomiyaki.file_formats",
                     "okonomiyaki.file_formats.tests",
+                    "okonomiyaki.file_formats._blacklist",
                     "okonomiyaki.platforms",
                     "okonomiyaki.platforms.tests",
                     "okonomiyaki.repositories",
