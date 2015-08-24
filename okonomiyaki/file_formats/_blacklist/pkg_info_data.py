@@ -1,4 +1,4 @@
-# coding=utf8
+# coding=utf-8
 
 PYSIDE_1_0_7_PKG_INFO = u"""\
 Metadata-Version: 1.0
@@ -804,17 +804,5 @@ EGG_PKG_INFO_BLACK_LIST = {
     "8d880887fb8155329888decdd8fc1fdbce1a214da9a98206a64f0ee57b554279":
         PYSIDE_1_0_9_PKG_INFO,
     "5eff70cfb464c2d531e6f93f7601e8ef8255b3a1ab4dd533826cfdcd5b962b60":
-        PYSIDE_1_1_0_PKG_INFO,
-}
-
-# Original EGG-INFO/PKG-INFO sha256 to correctly decoded PKG_INFO content
-CONTENT_PKG_INFO_BLACK_LIST = {
-    "65fe78a209fa420db4ab6755d3f275b06909c00b9f94cca8b6ca2109272bd079":
-        PYSIDE_1_0_7_PKG_INFO,
-    "7f0a9ed0fe990000bbb26207ae7bbe9fed1646eef5aff38295940500ffd2a041":
-        PYSIDE_1_0_8_PKG_INFO,
-    "94929568ed0d8809b2c6bc6c43649611b3b92e9a0c07f114f6cd9759211b9bef":
-        PYSIDE_1_0_9_PKG_INFO,
-    "04b4eb631c78172786dd758c91234bcf1db7f0b5a698b8f9f32fdfec1d4d6964":
         PYSIDE_1_1_0_PKG_INFO,
 }
