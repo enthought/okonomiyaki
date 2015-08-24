@@ -1,4 +1,7 @@
 import sys
+import zipfile2
+
+import mock
 
 from .._package_info import PackageInfo
 
@@ -11,7 +14,8 @@ from ...errors import OkonomiyakiError
 from .common import (
     BROKEN_MCCABE_EGG, PIP_EGG, PKG_INFO_ENSTALLER_1_0_DESCRIPTION,
     PIP_PKG_INFO, PKG_INFO_ENSTALLER_1_0, UNICODE_DESCRIPTION_EGG,
-    UNICODE_DESCRIPTION_TEXT
+    UNICODE_DESCRIPTION_TEXT, FAKE_PYSIDE_1_1_0_EGG,
+    FAKE_PYSIDE_1_1_0_EGG_PKG_INFO
 )
 
 
@@ -120,4 +124,39 @@ class TestPackageInfo(unittest.TestCase):
         self.assertMultiLineEqual(
             pkg_info.description,
             UNICODE_DESCRIPTION_TEXT
+        )
+
+    def test_blacklisted_egg(self):
+        # Given
+        egg = FAKE_PYSIDE_1_1_0_EGG
+        mock_sha256 = ("5eff70cfb464c2d531e6f93f7601e8ef8255b3a1ab4"
+                       "dd533826cfdcd5b962b60")
+
+        # When
+        with mock.patch(
+            "okonomiyaki.file_formats._package_info.compute_sha256",
+            return_value=mock_sha256
+        ):
+            pkg_info = PackageInfo.from_egg(egg)
+
+        # Then
+        self.assertEqual(pkg_info.metadata_version, "1.0")
+        self.assertEqual(pkg_info.name, "PySide")
+        self.assertMultiLineEqual(
+            pkg_info.description, FAKE_PYSIDE_1_1_0_EGG_PKG_INFO
+        )
+
+        # When
+        with mock.patch(
+            "okonomiyaki.file_formats._package_info.compute_sha256",
+            return_value=mock_sha256
+        ):
+            with zipfile2.ZipFile(egg) as zp:
+                pkg_info = PackageInfo.from_egg(zp)
+
+        # Then
+        self.assertEqual(pkg_info.metadata_version, "1.0")
+        self.assertEqual(pkg_info.name, "PySide")
+        self.assertMultiLineEqual(
+            pkg_info.description, FAKE_PYSIDE_1_1_0_EGG_PKG_INFO
         )

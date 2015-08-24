@@ -3,10 +3,14 @@ Most of the code below is adapted from pkg-info 1.2.1
 
 We support only 1.0 and 1.1, as 1.2 does not seem to be used anywhere ?
 """
+import contextlib
+
 import zipfile2
 
-from ..utils import py3compat
+from ..utils import py3compat, compute_sha256
 from ..errors import OkonomiyakiError
+
+from ._blacklist import EGG_PKG_INFO_BLACK_LIST
 
 
 _PKG_INFO_LOCATION = "EGG-INFO/PKG-INFO"
@@ -62,6 +66,7 @@ class PackageInfo(object):
             understood as a zipfile-like object.
         """
         if isinstance(path_or_file, py3compat.string_types):
+            sha256 = compute_sha256(path_or_file)
             with zipfile2.ZipFile(path_or_file) as fp:
                 data = _read_pkg_info(fp)
             if data is None:
@@ -69,7 +74,10 @@ class PackageInfo(object):
                 raise OkonomiyakiError(msg)
         else:
             data = path_or_file.read(_PKG_INFO_LOCATION)
-            data = data.decode(PKG_INFO_ENCODING)
+            with _keep_position(path_or_file.fp):
+                sha256 = compute_sha256(path_or_file.fp)
+
+        data = _convert_if_needed(data, sha256)
         return cls.from_string(data)
 
     @classmethod
@@ -232,6 +240,14 @@ def _collapse_leading_ws(header, txt):
         return ' '.join([x.strip() for x in txt.splitlines()])
 
 
+def _convert_if_needed(data, sha256):
+    decoded_data = EGG_PKG_INFO_BLACK_LIST.get(sha256)
+    if decoded_data is None:
+        return data.decode(PKG_INFO_ENCODING)
+    else:
+        return decoded_data
+
+
 def _read_pkg_info(fp):
     """ Read the PKG-INFO content in the possible locations, and return
     the decoded content.
@@ -240,10 +256,20 @@ def _read_pkg_info(fp):
     """
     for candidate in _PKG_INFO_CANDIDATES:
         try:
-            return fp.read(candidate).decode(PKG_INFO_ENCODING)
+            return fp.read(candidate)
         except KeyError:
             pass
     return None
+
+
+@contextlib.contextmanager
+def _keep_position(fp):
+    pos = fp.tell()
+    try:
+        fp.seek(0)
+        yield
+    finally:
+        fp.seek(pos)
 
 
 # Copied from distutils.util
