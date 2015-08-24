@@ -106,6 +106,40 @@ class TestLegacySpecDepend(unittest.TestCase):
         self.maxDiff = 4096
         self.assertMultiLineEqual(spec_depend.to_string(), r_spec_depend)
 
+    def test_from_string_missing_arch(self):
+        # Given
+        r_depend = """\
+metadata_version = '1.1'
+name = 'cmake'
+version = '3.3.0'
+build = 2
+
+arch = None
+platform = 'win32'
+osdist = None
+python = None
+packages = []
+"""
+        expected = """\
+metadata_version = '1.1'
+name = 'cmake'
+version = '3.3.0'
+build = 2
+
+arch = 'x86'
+platform = 'win32'
+osdist = None
+python = None
+packages = []
+"""
+
+        # When
+        depend = LegacySpecDepend.from_string(r_depend)
+
+        # Then
+        self.assertMultiLineEqual(depend.to_string(), expected)
+        self.assertEqual(depend.packages, [])
+
     def test_from_string(self):
         # Given
         r_depend = """\

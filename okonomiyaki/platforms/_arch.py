@@ -22,6 +22,7 @@ _ARCH_NAME_TO_NORMALIZED = {
     "x86": X86,
     "i386": X86,
     "i686": X86,
+    None: X86,
 }
 
 
