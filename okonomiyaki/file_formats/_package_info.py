@@ -75,7 +75,7 @@ class PackageInfo(object):
         else:
             data = path_or_file.read(_PKG_INFO_LOCATION)
             with _keep_position(path_or_file.fp):
-                sha256 = compute_sha256(_keep_position(path_or_file.fp))
+                sha256 = compute_sha256(path_or_file.fp)
 
         data = _convert_if_needed(data, sha256)
         return cls.from_string(data)
