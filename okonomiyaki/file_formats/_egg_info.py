@@ -632,7 +632,7 @@ class EggMetadata(object):
     """ Enthought egg metadata for format 1.x.
     """
     @classmethod
-    def from_egg(cls, path_or_file):
+    def from_egg(cls, path_or_file, strict=True):
         """ Create a EggMetadata instance from an existing Enthought egg.
 
         Parameters
@@ -640,6 +640,10 @@ class EggMetadata(object):
         path: str or file-like object.
             If a string, understood as the path to the egg. Otherwise,
             understood as a zipfile-like object.
+        strict: bool
+            If True, will fail if metadata cannot be decoded correctly (e.g.
+            unicode errors in EGG-INFO/PKG-INFO). If false, will ignore those
+            errors, at the risk of data loss.
         """
         sha256 = None
         if isinstance(path_or_file, string_types):
@@ -651,10 +655,10 @@ class EggMetadata(object):
         else:
             with _keep_position(path_or_file.fp):
                 sha256 = compute_sha256(path_or_file.fp)
-        return cls._from_egg(path_or_file, sha256)
+        return cls._from_egg(path_or_file, sha256, strict)
 
     @classmethod
-    def _from_egg(cls, path_or_file, sha256):
+    def _from_egg(cls, path_or_file, sha256, strict=True):
         def _read_summary(fp):
             summary_arcname = "EGG-INFO/spec/summary"
             try:
@@ -678,7 +682,7 @@ class EggMetadata(object):
         if pkg_info_data is None:
             pkg_info = None
         else:
-            pkg_info = PackageInfo._from_egg(path_or_file, sha256)
+            pkg_info = PackageInfo._from_egg(path_or_file, sha256, strict)
 
         return cls._from_spec_depend(spec_depend, pkg_info, summary)
 

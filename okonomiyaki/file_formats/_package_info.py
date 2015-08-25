@@ -56,7 +56,7 @@ class PackageInfo(object):
     """ Class modeling the PKG-INFO content.
     """
     @classmethod
-    def from_egg(cls, path_or_file):
+    def from_egg(cls, path_or_file, strict=True):
         """ Create a PackageInfo instance from an existing egg.
 
         Parameters
@@ -72,10 +72,10 @@ class PackageInfo(object):
         else:
             with _keep_position(path_or_file.fp):
                 sha256 = compute_sha256(path_or_file.fp)
-        return cls._from_egg(path_or_file, sha256)
+        return cls._from_egg(path_or_file, sha256, strict)
 
     @classmethod
-    def _from_egg(cls, path_or_file, sha256):
+    def _from_egg(cls, path_or_file, sha256, strict=True):
         if isinstance(path_or_file, py3compat.string_types):
             with zipfile2.ZipFile(path_or_file) as fp:
                 data = _read_pkg_info(fp)
@@ -85,7 +85,7 @@ class PackageInfo(object):
         else:
             data = path_or_file.read(_PKG_INFO_LOCATION)
 
-        data = _convert_if_needed(data, sha256)
+        data = _convert_if_needed(data, sha256, strict)
         return cls.from_string(data)
 
     @classmethod
@@ -250,13 +250,16 @@ def _collapse_leading_ws(header, txt):
         return ' '.join([x.strip() for x in txt.splitlines()])
 
 
-def _convert_if_needed(data, sha256):
+def _convert_if_needed(data, sha256, strict):
     """ sha256 may be None, in which case it is assumed no special handling
     through black list is needed.
     """
     decoded_data = EGG_PKG_INFO_BLACK_LIST.get(sha256)
     if decoded_data is None:
-        return data.decode(PKG_INFO_ENCODING)
+        if strict:
+            return data.decode(PKG_INFO_ENCODING)
+        else:
+            return data.decode(PKG_INFO_ENCODING, 'replace')
     else:
         return decoded_data
 
