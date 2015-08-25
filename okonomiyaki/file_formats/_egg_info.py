@@ -16,7 +16,10 @@ from ..utils.py3compat import StringIO, string_types
 from ..utils.traitlets import NoneOrInstance, NoneOrUnicode
 from ..versions import EnpkgVersion
 from .pep425 import PythonImplementation
-from ._blacklist import EGG_PLATFORM_BLACK_LIST, may_be_in_platform_blacklist
+from ._blacklist import (
+    EGG_PLATFORM_BLACK_LIST, may_be_in_platform_blacklist,
+    may_be_in_pkg_info_blacklist
+)
 from ._package_info import PackageInfo, _keep_position, _read_pkg_info
 
 
@@ -638,6 +641,20 @@ class EggMetadata(object):
             If a string, understood as the path to the egg. Otherwise,
             understood as a zipfile-like object.
         """
+        sha256 = None
+        if isinstance(path_or_file, string_types):
+            if (
+                may_be_in_platform_blacklist(path_or_file)
+                or may_be_in_pkg_info_blacklist(path_or_file)
+            ):
+                sha256 = compute_sha256(path_or_file)
+        else:
+            with _keep_position(path_or_file.fp):
+                sha256 = compute_sha256(path_or_file.fp)
+        return cls._from_egg(path_or_file, sha256)
+
+    @classmethod
+    def _from_egg(cls, path_or_file, sha256):
         def _read_summary(fp):
             summary_arcname = "EGG-INFO/spec/summary"
             try:
@@ -648,7 +665,7 @@ class EggMetadata(object):
                 summary = b""
             return summary.decode("utf8")
 
-        spec_depend = LegacySpecDepend.from_egg(path_or_file)
+        spec_depend = LegacySpecDepend._from_egg(path_or_file, sha256)
 
         if isinstance(path_or_file, string_types):
             with zipfile2.ZipFile(path_or_file) as fp:
@@ -661,7 +678,7 @@ class EggMetadata(object):
         if pkg_info_data is None:
             pkg_info = None
         else:
-            pkg_info = PackageInfo.from_egg(path_or_file)
+            pkg_info = PackageInfo._from_egg(path_or_file, sha256)
 
         return cls._from_spec_depend(spec_depend, pkg_info, summary)
 

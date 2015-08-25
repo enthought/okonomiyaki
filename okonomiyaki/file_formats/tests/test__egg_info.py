@@ -22,8 +22,8 @@ from .._egg_info import (
 )
 
 from .common import (
-    BROKEN_MCCABE_EGG, DATA_DIR, ENSTALLER_EGG, ETS_EGG, MKL_EGG,
-    _OSX64APP_EGG, XZ_5_2_0_EGG
+    BROKEN_MCCABE_EGG, DATA_DIR, ENSTALLER_EGG, ETS_EGG, FAKE_PYSIDE_1_1_0_EGG,
+    FAKE_PYSIDE_1_1_0_EGG_PKG_INFO, MKL_EGG, _OSX64APP_EGG, XZ_5_2_0_EGG
 )
 
 
@@ -923,6 +923,56 @@ class TestEggInfo(unittest.TestCase):
             "okonomiyaki.file_formats._egg_info.compute_sha256",
         ) as mocked_compute_sha256:
             metadata = EggMetadata.from_egg(egg)
+
+        # Then
+        self.assertFalse(mocked_compute_sha256.called)
+
+    def test_blacklisted_pkg_info(self):
+        # Given
+        egg = FAKE_PYSIDE_1_1_0_EGG
+        mock_sha256 = ("5eff70cfb464c2d531e6f93f7601e8ef8255b3a1ab4"
+                       "dd533826cfdcd5b962b60")
+
+        # When
+        with mock.patch(
+            "okonomiyaki.file_formats._egg_info.compute_sha256",
+            return_value=mock_sha256
+        ):
+            metadata = EggMetadata.from_egg(egg)
+
+        # Then
+        pkg_info = metadata.pkg_info
+        self.assertEqual(pkg_info.metadata_version, "1.0")
+        self.assertEqual(pkg_info.name, "PySide")
+        self.assertMultiLineEqual(
+            pkg_info.description, FAKE_PYSIDE_1_1_0_EGG_PKG_INFO
+        )
+
+        # When
+        with mock.patch(
+            "okonomiyaki.file_formats._egg_info.compute_sha256",
+            return_value=mock_sha256
+        ):
+            with zipfile2.ZipFile(egg) as zp:
+                metadata = EggMetadata.from_egg(zp)
+
+        # Then
+        pkg_info = metadata.pkg_info
+        self.assertEqual(pkg_info.metadata_version, "1.0")
+        self.assertEqual(pkg_info.name, "PySide")
+        self.assertMultiLineEqual(
+            pkg_info.description, FAKE_PYSIDE_1_1_0_EGG_PKG_INFO
+        )
+
+        # Given
+        # An egg not in the blacklist
+        egg = BROKEN_MCCABE_EGG
+
+        # When
+        with mock.patch(
+            "okonomiyaki.file_formats._egg_info.compute_sha256",
+        ) as mocked_compute_sha256:
+            EggMetadata.from_egg(egg)
 
         # Then
         self.assertFalse(mocked_compute_sha256.called)

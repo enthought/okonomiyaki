@@ -5,7 +5,6 @@ We support only 1.0 and 1.1, as 1.2 does not seem to be used anywhere ?
 """
 import contextlib
 
-import six
 import zipfile2
 
 from ..utils import py3compat, compute_sha256
@@ -91,7 +90,7 @@ class PackageInfo(object):
 
     @classmethod
     def from_string(cls, s):
-        if not isinstance(s, six.text_type):
+        if not isinstance(s, py3compat.text_type):
             raise ValueError("Expected text value, got {0!r}".format(type(s)))
         fp = py3compat.StringIO(s)
         msg = _parse(fp)
