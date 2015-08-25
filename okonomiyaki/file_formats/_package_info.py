@@ -259,7 +259,7 @@ def _convert_if_needed(data, sha256, strict):
         if strict:
             return data.decode(PKG_INFO_ENCODING)
         else:
-            return data.decode(PKG_INFO_ENCODING, errors='replace')
+            return data.decode(PKG_INFO_ENCODING, 'replace')
     else:
         return decoded_data
 
