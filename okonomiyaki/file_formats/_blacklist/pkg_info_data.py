@@ -802,17 +802,27 @@ _EGG_PKG_INFO_BLACK_LIST = {
     "PySide-1.0.7-1.egg": {
         "ca0903cc398aa69da1939be22bac52941ac2d8dd0a197eb2c449fdddd6339f80":
             PYSIDE_1_0_7_PKG_INFO,
+        "946211c1f20f01bb5a29ec8783acd74a5ed234b3ced88a5256861077b2f1c34d":
+            PYSIDE_1_0_7_PKG_INFO,
     },
     "PySide-1.0.8-1.egg": {
         "79174bb334fddb06a970e8e61f78c94d90259ca10dd85f88516c02bf4f135f45":
             PYSIDE_1_0_8_PKG_INFO,
     },
-    "PySide-1.0.8-1.egg": {
+    "PySide-1.0.9-1.egg": {
         "8d880887fb8155329888decdd8fc1fdbce1a214da9a98206a64f0ee57b554279":
             PYSIDE_1_0_9_PKG_INFO,
+        "8d1ff3f8713c84cc8aa36cbac49051b094ecb2863b8dfa1b5ccd737ae82c14a8":
+            PYSIDE_1_0_9_PKG_INFO,
+    },
+    "PySide-1.1.0-2.egg": {
+        "c0a73ef8843e0934287e57d0812b2b9024587bb034f6146ce0999207366edc4d":
+            PYSIDE_1_1_0_PKG_INFO,
     },
     "PySide-1.1.0-3.egg": {
         "5eff70cfb464c2d531e6f93f7601e8ef8255b3a1ab4dd533826cfdcd5b962b60":
+            PYSIDE_1_1_0_PKG_INFO,
+        "afb7402aa38ccef4ed5d0233807bb6611b59e24106fc27f6d271b11cf9562454":
             PYSIDE_1_1_0_PKG_INFO,
     }
 }
