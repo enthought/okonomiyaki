@@ -22,7 +22,8 @@ from .._egg_info import (
 )
 
 from .common import (
-    DATA_DIR, ENSTALLER_EGG, ETS_EGG, MKL_EGG, _OSX64APP_EGG, XZ_5_2_0_EGG
+    BROKEN_MCCABE_EGG, DATA_DIR, ENSTALLER_EGG, ETS_EGG, MKL_EGG,
+    _OSX64APP_EGG, XZ_5_2_0_EGG
 )
 
 
@@ -913,3 +914,15 @@ class TestEggInfo(unittest.TestCase):
 
         # Then
         self.assertEqual(metadata.platform_tag, "win32")
+
+        # Given
+        egg = BROKEN_MCCABE_EGG
+
+        # When
+        with mock.patch(
+            "okonomiyaki.file_formats._egg_info.compute_sha256",
+        ) as mocked_compute_sha256:
+            metadata = EggMetadata.from_egg(egg)
+
+        # Then
+        self.assertFalse(mocked_compute_sha256.called)

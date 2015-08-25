@@ -16,7 +16,7 @@ from ..utils.py3compat import StringIO, string_types
 from ..utils.traitlets import NoneOrInstance, NoneOrUnicode
 from ..versions import EnpkgVersion
 from .pep425 import PythonImplementation
-from ._blacklist import EGG_PLATFORM_BLACK_LIST
+from ._blacklist import EGG_PLATFORM_BLACK_LIST, may_be_in_platform_blacklist
 from ._package_info import PackageInfo, _keep_position, _read_pkg_info
 
 
@@ -375,10 +375,18 @@ class LegacySpecDepend(HasTraits):
 
     @classmethod
     def from_egg(cls, path_or_file):
-        def _create_spec_depend(zp):
-            with _keep_position(zp.fp):
-                sha256 = compute_sha256(zp.fp)
+        sha256 = None
+        if isinstance(path_or_file, string_types):
+            if may_be_in_platform_blacklist(path_or_file):
+                sha256 = compute_sha256(path_or_file)
+        else:
+            with _keep_position(path_or_file.fp):
+                sha256 = compute_sha256(path_or_file.fp)
+        return cls._from_egg(path_or_file, sha256)
 
+    @classmethod
+    def _from_egg(cls, path_or_file, sha256):
+        def _create_spec_depend(zp):
             epd_platform_string = EGG_PLATFORM_BLACK_LIST.get(sha256)
             if epd_platform_string is None:
                 epd_platform = None
