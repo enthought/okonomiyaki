@@ -56,7 +56,7 @@ class TestPackageInfo(unittest.TestCase):
 
     def test_from_string_unsupported(self):
         # Given
-        data = "Metadata-Version: 1.2"
+        data = u"Metadata-Version: 1.2"
 
         # When/Then
         with self.assertRaises(OkonomiyakiError):
