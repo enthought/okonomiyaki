@@ -60,12 +60,18 @@ _EGG_PLATFORM_BLACK_LIST = {
     },
 }
 
+
 # (egg sha256) -> (epd platform string) mapping
-EGG_PLATFORM_BLACK_LIST = {
-    checksum: platform_string
-    for egg in _EGG_PLATFORM_BLACK_LIST.values()
-    for checksum, platform_string in egg.items()
-}
+def _compute_egg_platform_black_list():
+    ret = {}
+    for egg in _EGG_PLATFORM_BLACK_LIST.values():
+        for checksum, platform_string in egg.items():
+            ret[checksum] = platform_string
+    return ret
+
+
+EGG_PLATFORM_BLACK_LIST = _compute_egg_platform_black_list()
+del _compute_egg_platform_black_list
 
 __all__ = [
     "CONTENT_SPEC_DEPEND_PLATFORM_BLACK_LIST",
