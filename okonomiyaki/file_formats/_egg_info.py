@@ -11,12 +11,13 @@ from ..errors import (
 )
 from ..platforms import EPDPlatform
 from ..platforms.legacy import LegacyEPDPlatform
-from ..utils import parse_assignments
+from ..utils import compute_sha256, parse_assignments
 from ..utils.py3compat import StringIO, string_types
 from ..utils.traitlets import NoneOrInstance, NoneOrUnicode
 from ..versions import EnpkgVersion
 from .pep425 import PythonImplementation
-from ._package_info import PackageInfo, _read_pkg_info
+from ._blacklist import EGG_PLATFORM_BLACK_LIST
+from ._package_info import PackageInfo, _keep_position, _read_pkg_info
 
 
 _EGG_NAME_RE = re.compile("""
@@ -373,16 +374,34 @@ class LegacySpecDepend(HasTraits):
         return cls(**args)
 
     @classmethod
-    def from_egg(cls, egg):
-        with zipfile2.ZipFile(egg) as fp:
+    def from_egg(cls, path_or_file):
+        def _create_spec_depend(zp):
+            with _keep_position(zp.fp):
+                sha256 = compute_sha256(zp.fp)
+
+            epd_platform_string = EGG_PLATFORM_BLACK_LIST.get(sha256)
+            if epd_platform_string is None:
+                epd_platform = None
+            else:
+                epd_platform = EPDPlatform.from_epd_string(epd_platform_string)
+
             try:
-                spec_depend_string = fp.read(_SPEC_DEPEND_LOCATION).decode()
+                spec_depend_string = zp.read(_SPEC_DEPEND_LOCATION).decode()
             except KeyError:
                 msg = ("File {0!r} is not an Enthought egg (is missing {1})"
-                       .format(egg, _SPEC_DEPEND_LOCATION))
+                       .format(path_or_file, _SPEC_DEPEND_LOCATION))
                 raise InvalidMetadata(msg)
             else:
-                return cls.from_string(spec_depend_string)
+                data, epd_platform = _normalized_info_from_string(
+                    spec_depend_string, epd_platform
+                )
+                return cls._from_data(data, epd_platform)
+
+        if isinstance(path_or_file, string_types):
+            with zipfile2.ZipFile(path_or_file) as zp:
+                return _create_spec_depend(zp)
+        else:
+            return _create_spec_depend(path_or_file)
 
     @classmethod
     def from_string(cls, spec_depend_string):
@@ -542,7 +561,7 @@ def _guess_platform_tag(platform):
     return platform.pep425_tag
 
 
-def _normalized_info_from_string(spec_depend_string):
+def _normalized_info_from_string(spec_depend_string, epd_platform=None):
     """ Return a 'normalized' dictionary from the given spec/depend string.
 
     Note: the name value is NOT lower-cased, so that the egg filename may
@@ -557,7 +576,7 @@ def _normalized_info_from_string(spec_depend_string):
               _TAG_PYTHON, _TAG_PACKAGES):
         data[k] = raw_data[k]
 
-    epd_platform = _epd_platform_from_raw_spec(data)
+    epd_platform = epd_platform or _epd_platform_from_raw_spec(data)
     for k in (_TAG_ARCH, _TAG_PLATFORM, _TAG_OSDIST):
         data.pop(k)
 
@@ -621,15 +640,13 @@ class EggMetadata(object):
                 summary = b""
             return summary.decode("utf8")
 
+        spec_depend = LegacySpecDepend.from_egg(path_or_file)
+
         if isinstance(path_or_file, string_types):
-            spec_depend = LegacySpecDepend.from_egg(path_or_file)
             with zipfile2.ZipFile(path_or_file) as fp:
                 summary = _read_summary(fp)
                 pkg_info_data = _read_pkg_info(fp)
         else:
-            spec_depend_string = (path_or_file.read(_SPEC_DEPEND_LOCATION)
-                                  .decode())
-            spec_depend = LegacySpecDepend.from_string(spec_depend_string)
             summary = _read_summary(path_or_file)
             pkg_info_data = _read_pkg_info(path_or_file)
 

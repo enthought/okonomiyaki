@@ -4,6 +4,8 @@ import sys
 import textwrap
 import zipfile2
 
+import mock
+
 if sys.version_info[:2] < (2, 7):
     import unittest2 as unittest
 else:
@@ -20,7 +22,7 @@ from .._egg_info import (
 )
 
 from .common import (
-    DATA_DIR, ENSTALLER_EGG, ETS_EGG, MKL_EGG, _OSX64APP_EGG
+    DATA_DIR, ENSTALLER_EGG, ETS_EGG, MKL_EGG, _OSX64APP_EGG, XZ_5_2_0_EGG
 )
 
 
@@ -232,6 +234,33 @@ packages = []
         # When/Then
         with self.assertRaises(UnsupportedMetadata):
             LegacySpecDepend.from_string(s)
+
+    def test_blacklisted_platform(self):
+        # Given
+        egg = XZ_5_2_0_EGG
+        sha256sum = ("ca5f2c417dd9f6354db3c2999edb441382ed11c7a034"
+                     "ade1839d1871a78ab2e8")
+
+        # When
+        with mock.patch(
+            "okonomiyaki.file_formats._egg_info.compute_sha256",
+            return_value=sha256sum
+        ):
+            spec_depend = LegacySpecDepend.from_egg(egg)
+
+        # Then
+        self.assertEqual(str(spec_depend._epd_legacy_platform), "win-32")
+
+        # When
+        with mock.patch(
+            "okonomiyaki.file_formats._egg_info.compute_sha256",
+            return_value=sha256sum
+        ):
+            with zipfile2.ZipFile(egg) as zp:
+                spec_depend = LegacySpecDepend.from_egg(zp)
+
+        # Then
+        self.assertEqual(str(spec_depend._epd_legacy_platform), "win-32")
 
 
 class TestLegacySpecDependAbi(unittest.TestCase):
@@ -857,3 +886,30 @@ class TestEggInfo(unittest.TestCase):
         # Then
         self.assertEqual(metadata.name, "_osx64app")
         self.assertIsNone(metadata.pkg_info)
+
+    def test_blacklisted_platform(self):
+        # Given
+        egg = XZ_5_2_0_EGG
+        sha256sum = ("ca5f2c417dd9f6354db3c2999edb441382ed11c7a034"
+                     "ade1839d1871a78ab2e8")
+
+        # When
+        with mock.patch(
+            "okonomiyaki.file_formats._egg_info.compute_sha256",
+            return_value=sha256sum
+        ):
+            metadata = EggMetadata.from_egg(egg)
+
+        # Then
+        self.assertEqual(metadata.platform_tag, "win32")
+
+        # When
+        with mock.patch(
+            "okonomiyaki.file_formats._egg_info.compute_sha256",
+            return_value=sha256sum
+        ):
+            with zipfile2.ZipFile(egg) as zp:
+                metadata = EggMetadata.from_egg(zp)
+
+        # Then
+        self.assertEqual(metadata.platform_tag, "win32")
