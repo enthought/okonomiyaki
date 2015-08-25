@@ -27,7 +27,7 @@ with open(os.path.join(DATA_DIR, "pymongo_description.txt"), "rb") as fp:
     UNICODE_DESCRIPTION_TEXT = fp.read().decode("utf8")
 
 # flake8: noqa
-PKG_INFO_ENSTALLER_1_0 = """\
+PKG_INFO_ENSTALLER_1_0 = u"""\
 Metadata-Version: 1.0
 Name: enstaller
 Version: 4.5.0
@@ -164,7 +164,7 @@ Classifier: Topic :: System :: Software Distribution
 Classifier: Topic :: System :: Systems Administration
 """
 
-PKG_INFO_ENSTALLER_1_0_DESCRIPTION = """\
+PKG_INFO_ENSTALLER_1_0_DESCRIPTION = u"""\
 The Enstaller (version 4) project is a managing and install tool
 for egg-based Python distributions.
 
@@ -283,7 +283,7 @@ all EPD installers already include Enstaller.
 """
 
 # flake8: noqa
-PIP_PKG_INFO = """\
+PIP_PKG_INFO = u"""\
 Metadata-Version: 1.1
 Name: pip
 Version: 6.0.8

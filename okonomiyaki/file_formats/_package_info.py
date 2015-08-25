@@ -10,7 +10,7 @@ import zipfile2
 from ..utils import py3compat, compute_sha256
 from ..errors import OkonomiyakiError
 
-from ._blacklist import EGG_PKG_INFO_BLACK_LIST
+from ._blacklist import EGG_PKG_INFO_BLACK_LIST, may_be_in_pkg_info_blacklist
 
 
 _PKG_INFO_LOCATION = "EGG-INFO/PKG-INFO"
@@ -65,8 +65,18 @@ class PackageInfo(object):
             If a string, understood as the path to the egg. Otherwise,
             understood as a zipfile-like object.
         """
+        sha256 = None
         if isinstance(path_or_file, py3compat.string_types):
-            sha256 = compute_sha256(path_or_file)
+            if may_be_in_pkg_info_blacklist(path_or_file):
+                sha256 = compute_sha256(path_or_file)
+        else:
+            with _keep_position(path_or_file.fp):
+                sha256 = compute_sha256(path_or_file.fp)
+        return cls._from_egg(path_or_file, sha256)
+
+    @classmethod
+    def _from_egg(cls, path_or_file, sha256):
+        if isinstance(path_or_file, py3compat.string_types):
             with zipfile2.ZipFile(path_or_file) as fp:
                 data = _read_pkg_info(fp)
             if data is None:
@@ -74,15 +84,15 @@ class PackageInfo(object):
                 raise OkonomiyakiError(msg)
         else:
             data = path_or_file.read(_PKG_INFO_LOCATION)
-            with _keep_position(path_or_file.fp):
-                sha256 = compute_sha256(path_or_file.fp)
 
         data = _convert_if_needed(data, sha256)
         return cls.from_string(data)
 
     @classmethod
     def from_string(cls, s):
-        fp = py3compat.StringIO(_must_decode(s))
+        if not isinstance(s, py3compat.text_type):
+            raise ValueError("Expected text value, got {0!r}".format(type(s)))
+        fp = py3compat.StringIO(s)
         msg = _parse(fp)
 
         kw = {}
@@ -241,6 +251,9 @@ def _collapse_leading_ws(header, txt):
 
 
 def _convert_if_needed(data, sha256):
+    """ sha256 may be None, in which case it is assumed no special handling
+    through black list is needed.
+    """
     decoded_data = EGG_PKG_INFO_BLACK_LIST.get(sha256)
     if decoded_data is None:
         return data.decode(PKG_INFO_ENCODING)
