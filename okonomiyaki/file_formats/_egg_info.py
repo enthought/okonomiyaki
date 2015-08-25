@@ -653,7 +653,7 @@ class EggMetadata(object):
         if pkg_info_data is None:
             pkg_info = None
         else:
-            pkg_info = PackageInfo.from_string(pkg_info_data)
+            pkg_info = PackageInfo.from_egg(path_or_file)
 
         return cls._from_spec_depend(spec_depend, pkg_info, summary)
 
