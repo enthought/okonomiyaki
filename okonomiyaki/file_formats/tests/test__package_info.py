@@ -173,3 +173,16 @@ class TestPackageInfo(unittest.TestCase):
         self.assertMultiLineEqual(
             pkg_info.description, FAKE_PYSIDE_1_1_0_EGG_PKG_INFO
         )
+
+        # Given
+        # An egg not in the blacklist
+        egg = BROKEN_MCCABE_EGG
+
+        # When
+        with mock.patch(
+            "okonomiyaki.file_formats._package_info.compute_sha256",
+        ) as mocked_compute_sha256:
+            pkg_info = PackageInfo.from_egg(egg)
+
+        # Then
+        self.assertFalse(mocked_compute_sha256.called)

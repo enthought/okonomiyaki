@@ -1,4 +1,6 @@
 # coding=utf-8
+import os.path
+
 
 PYSIDE_1_0_7_PKG_INFO = u"""\
 Metadata-Version: 1.0
@@ -796,13 +798,33 @@ Classifier: Topic :: Software Development :: Widget Sets
 
 
 # egg's sha256 to correcty decoded PKG_INFO content
-EGG_PKG_INFO_BLACK_LIST = {
-    "ca0903cc398aa69da1939be22bac52941ac2d8dd0a197eb2c449fdddd6339f80":
-        PYSIDE_1_0_7_PKG_INFO,
-    "79174bb334fddb06a970e8e61f78c94d90259ca10dd85f88516c02bf4f135f45":
-        PYSIDE_1_0_8_PKG_INFO,
-    "8d880887fb8155329888decdd8fc1fdbce1a214da9a98206a64f0ee57b554279":
-        PYSIDE_1_0_9_PKG_INFO,
-    "5eff70cfb464c2d531e6f93f7601e8ef8255b3a1ab4dd533826cfdcd5b962b60":
-        PYSIDE_1_1_0_PKG_INFO,
+_EGG_PKG_INFO_BLACK_LIST = {
+    "PySide-1.0.7-1.egg": {
+        "ca0903cc398aa69da1939be22bac52941ac2d8dd0a197eb2c449fdddd6339f80":
+            PYSIDE_1_0_7_PKG_INFO,
+    },
+    "PySide-1.0.8-1.egg": {
+        "79174bb334fddb06a970e8e61f78c94d90259ca10dd85f88516c02bf4f135f45":
+            PYSIDE_1_0_8_PKG_INFO,
+    },
+    "PySide-1.0.8-1.egg": {
+        "8d880887fb8155329888decdd8fc1fdbce1a214da9a98206a64f0ee57b554279":
+            PYSIDE_1_0_9_PKG_INFO,
+    },
+    "PySide-1.1.0-3.egg": {
+        "5eff70cfb464c2d531e6f93f7601e8ef8255b3a1ab4dd533826cfdcd5b962b60":
+            PYSIDE_1_1_0_PKG_INFO,
+    }
 }
+
+EGG_PKG_INFO_BLACK_LIST = {
+    checksum: pkg_info_data
+    for egg in _EGG_PKG_INFO_BLACK_LIST.values()
+    for checksum, pkg_info_data in egg.items()
+}
+
+
+def may_be_in_pkg_info_blacklist(path):
+    """ Returns True if the given egg path may be in the PKG INFO blacklist.
+    """
+    return os.path.basename(path) in _EGG_PKG_INFO_BLACK_LIST

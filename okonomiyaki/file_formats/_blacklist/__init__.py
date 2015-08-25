@@ -1,6 +1,8 @@
 from __future__ import absolute_import
 
-from .pkg_info_data import EGG_PKG_INFO_BLACK_LIST
+from .pkg_info_data import (
+    EGG_PKG_INFO_BLACK_LIST, may_be_in_pkg_info_blacklist
+)
 
 
 _EGG_PLATFORM_BLACK_LIST = {
@@ -73,7 +75,8 @@ def _compute_egg_platform_black_list():
 EGG_PLATFORM_BLACK_LIST = _compute_egg_platform_black_list()
 del _compute_egg_platform_black_list
 
+
 __all__ = [
-    "CONTENT_SPEC_DEPEND_PLATFORM_BLACK_LIST",
-    "EGG_PKG_INFO_BLACK_LIST"
+    "CONTENT_SPEC_DEPEND_PLATFORM_BLACK_LIST", "EGG_PKG_INFO_BLACK_LIST",
+    "may_be_in_pkg_info_blacklist",
 ]
