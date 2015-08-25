@@ -23,8 +23,8 @@ from .._egg_info import (
 
 from .common import (
     BROKEN_MCCABE_EGG, DATA_DIR, ENSTALLER_EGG, ETS_EGG, FAKE_PYSIDE_1_1_0_EGG,
-    FAKE_PYSIDE_1_1_0_EGG_PKG_INFO, MKL_EGG, NUMEXPR_2_2_2_EGG, _OSX64APP_EGG,
-    XZ_5_2_0_EGG
+    FAKE_PYSIDE_1_1_0_EGG_PKG_INFO, MKL_EGG, NUMEXPR_2_2_2_EGG,
+    PYMULTINEST_EGG, _OSX64APP_EGG, XZ_5_2_0_EGG
 )
 
 
@@ -989,4 +989,21 @@ class TestEggInfo(unittest.TestCase):
         self.assertEqual(
             tuple(str(r) for r in metadata.runtime_dependencies),
             ("MKL 10.3", "numpy 1.8.0")
+        )
+
+    def test_strictness(self):
+        # Given
+        egg = PYMULTINEST_EGG
+
+        # When/Then
+        with self.assertRaises(UnicodeDecodeError):
+            EggMetadata.from_egg(egg)
+
+        # When
+        metadata = EggMetadata.from_egg(egg, strict=False)
+
+        # Then
+        self.assertEqual(
+            metadata.pkg_info.author_email,
+            u"johannes.buchner.acad [\ufffdt] gmx.com",
         )
