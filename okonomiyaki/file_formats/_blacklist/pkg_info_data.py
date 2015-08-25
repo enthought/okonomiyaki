@@ -817,11 +817,11 @@ _EGG_PKG_INFO_BLACK_LIST = {
     }
 }
 
-EGG_PKG_INFO_BLACK_LIST = {
-    checksum: pkg_info_data
+EGG_PKG_INFO_BLACK_LIST = dict(
+    (checksum, pkg_info_data)
     for egg in _EGG_PKG_INFO_BLACK_LIST.values()
     for checksum, pkg_info_data in egg.items()
-}
+)
 
 
 def may_be_in_pkg_info_blacklist(path):
