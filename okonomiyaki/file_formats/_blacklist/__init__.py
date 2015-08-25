@@ -32,7 +32,7 @@ _EGG_PLATFORM_BLACK_LIST = {
         "7b89c3b6d2878ff3be36131525a9bb616c4f54c6d71d9125cd3612a6fd403c9f":
             "win-32",
     },
-    "_registry_path-1.0.0-1.egg": {
+    "_registry_path-1.0-1.egg": {
         "9f040cbe901c0f827e5993a8476e768c40a399d69edde567610d59a3848530aa":
             "win-64",
         "21e03dd728f91b4bd59ad80e73ada7d5c5cea6acf2a7f7e3d25a92ba9992f07c":
