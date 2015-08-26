@@ -121,6 +121,15 @@ def is_egg_name_valid(s):
     return _EGG_NAME_RE.match(s) is not None
 
 
+_INVALID_REQUIREMENTS = {
+    "numpy-1.8.0": "numpy 1.8.0",
+}
+
+
+def _translate_invalid_requirement(s):
+    return _INVALID_REQUIREMENTS.get(s, s)
+
+
 class Requirement(HasTraits):
     """
     Model for entries in the package metadata inside EGG-INFO/spec/depend
@@ -178,6 +187,7 @@ class Requirement(HasTraits):
         Create a Requirement from a spec string (as used in
         EGG-INFO/spec/depend).
         """
+        s = _translate_invalid_requirement(s)
         parts = s.split()
         if len(parts) == 1:
             name = parts[0]
