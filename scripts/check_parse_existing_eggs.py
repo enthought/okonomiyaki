@@ -1,36 +1,34 @@
-from __future__ import print_function
-
-from argparse import ArgumentParser
+import hashlib
 import os
-import sys
+
+import click
 
 from haas.loader import Loader
 from haas.testing import unittest
 from haas.result import ResultCollecter
 from haas.plugins.result_handler import (
-    StandardTestResultHandler as BaseStandardTestResultHandler,
-    VerboseTestResultHandler)
+    StandardTestResultHandler, VerboseTestResultHandler)
 from haas.plugins.runner import BaseTestRunner
 
+from hatcher.api import BroodClient, BroodBearerTokenAuth
 from okonomiyaki.file_formats import EggMetadata
 
 
-ARTEFACT_TYPE_EGG = "egg"
-DIRECTORY_TO_TYPE = {
-    "eggs": ARTEFACT_TYPE_EGG,
-}
+CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 
-class StandardTestResultHandler(BaseStandardTestResultHandler):
+def compute_md5(filename, block_size=16384):
+    hasher = hashlib.md5()
+    with open(filename, "rb") as fp:
+        while True:
+            data = fp.read(block_size)
+            if data == b"":
+                break
+            hasher.update(data)
+    return hasher.hexdigest()
 
-    def __call__(self, result):
-        super(StandardTestResultHandler, self).__call__(result)
-        if self.tests_run % 120 == 0:
-            self.stream.write('\n')
-            self.stream.flush()
 
-
-def path_to_triple(path, root):
+def path_to_quadruplet(path, root):
     """Given a full path, returns a quadruplet (organization, repository,
     platform)
 
@@ -48,7 +46,9 @@ def path_to_triple(path, root):
     repository : str
         The repository name
     platform : str
-        The platform (e.g. 'rh5-32')
+        The platform (e.g. 'rh5-x86_64')
+    python_tag : str
+        The PEP425 Python Tag
 
     """
     relpath = os.path.relpath(path, root)
@@ -56,31 +56,31 @@ def path_to_triple(path, root):
     if len(parts) < 4:
         raise ValueError(
             "Import directory should follow "
-            "$organization/$repository/$platform/$artefact_type/**/* "
+            "$organization/$repository/$platform/$python_tag/**/* "
             "structure: {}".format(path))
     else:
-        organization, repository, platform, artefact_dir = parts[:4]
-        return organization, repository, platform
+        organization, repository, platform, python_tag = parts[:4]
+        return organization, repository, platform, python_tag
 
 
 def artefact_generator(import_dir):
     for root, dirs, files in os.walk(import_dir, followlinks=True):
         if len(files) > 0:
             path = os.path.join(root, files[0])
-            organization, repository, platform = path_to_triple(
+            organization, repository, platform, python_tag = path_to_quadruplet(  # noqa
                 path, import_dir)
             for f in files:
                 if f.lower().endswith('.egg'):
-                    yield organization, repository, platform, os.path.join(
-                        root, f)
+                    yield (organization, repository, platform, python_tag,
+                           os.path.join(root, f))
 
 
-def make_test(organization, repository, platform, path):
+def make_test(organization, repository, platform, python_tag, path):
     filename = os.path.basename(path)
     eggname, _ = os.path.splitext(filename)
     name, version, build = eggname.split('-')
-    test_name = 'test_{}_{}_{}_{}_v{}_build{}'.format(
-        organization, repository, platform, name, version, build,
+    test_name = 'test_{}_{}_{}_{}_{}_v{}_build{}'.format(
+        organization, repository, platform, python_tag, name, version, build,
     ).replace(
         '-', '_',
     ).replace(
@@ -93,23 +93,21 @@ def make_test(organization, repository, platform, path):
     return test_name, test
 
 
-def generate_tests(import_dirs):
-    print('Generating test cases...')
-    for import_dir in import_dirs:
-        cls_dict = {}
-        for organization, repository, platform, path in artefact_generator(
-                import_dir):
-            test_name, test_case = make_test(
-                organization, repository, platform, path)
-            cls_dict[test_name] = test_case
-        yield type('TestParsingEggs', (unittest.TestCase,), cls_dict)
+def generate_tests(import_dir):
+    click.echo('Generating test cases...')
+    cls_dict = {}
+    for organization, repository, platform, python_tag, path in artefact_generator(  # noqa
+            import_dir):
+        test_name, test_case = make_test(
+            organization, repository, platform, python_tag, path)
+        cls_dict[test_name] = test_case
+    return type('TestParsingEggs', (unittest.TestCase,), cls_dict)
 
 
-def main(import_dirs, verbose):
+def run_test(import_dir, verbose):
     loader = Loader()
-    test_suites = [loader.load_case(test_case)
-                   for test_case in generate_tests(import_dirs)]
-    suite = loader.create_suite(test_suites)
+    test_case = loader.load_case(generate_tests(import_dir))
+    suite = loader.create_suite((test_case,))
     test_count = suite.countTestCases()
 
     result_collector = ResultCollecter(buffer=False, failfast=False)
@@ -126,11 +124,60 @@ def main(import_dirs, verbose):
     return not result.wasSuccessful()
 
 
+def update_eggs_for_repository(platform_repo, target_directory, org_name,
+                               repo_name, platform, index):
+    if len(index) == 0:
+        return
+    repo_path = os.path.join(target_directory, org_name, repo_name, platform)
+    if not os.path.exists(repo_path):
+        os.makedirs(repo_path)
+    for egg_name, index_entry in index.items():
+        python_tag = str(index_entry['python_tag']).lower()
+        python_tag_dir = os.path.join(repo_path, python_tag)
+        if not os.path.exists(python_tag_dir):
+            os.makedirs(python_tag_dir)
+        egg_path = os.path.join(python_tag_dir, egg_name)
+        if os.path.exists(egg_path):
+            md5 = compute_md5(egg_path)
+            if md5 != index_entry['md5']:
+                os.unlink(egg_path)
+        if not os.path.exists(egg_path):
+            name = index_entry['name']
+            version = index_entry['full_version']
+            repo_full = '{}/{}'.format(org_name, repo_name)
+            click.echo('Downloading {!r} {!r} {!r} {!r}'.format(
+                repo_full, platform, python_tag, egg_name))
+            platform_repo.download_egg(
+                python_tag, name, version, python_tag_dir)
+
+
+def update_test_data(target_directory, repositories, token):
+    python_tag = 'cp27'
+    auth = BroodBearerTokenAuth(token)
+    client = BroodClient.from_url('https://packages.enthought.com', auth=auth)
+
+    platforms = client.list_platforms()
+
+    for repository in repositories:
+        org_name, repo_name = repository.split('/')
+        repo = client.organization(org_name).repository(repo_name)
+        for platform in platforms:
+            platform_repo = repo.platform(platform)
+            index = platform_repo.egg_index(python_tag)
+            update_eggs_for_repository(
+                platform_repo, target_directory, org_name, repo_name, platform,
+                index)
+
+
+@click.command(context_settings=CONTEXT_SETTINGS)
+@click.argument('target_directory', nargs=1)
+@click.argument('repositories', nargs=-1)
+@click.option('-t', '--token', envvar='HATCHER_TOKEN')
+@click.option('-v', '--verbose', default=False, is_flag=True)
+def main(target_directory, repositories, token, verbose):
+    update_test_data(target_directory, repositories, token)
+    run_test(target_directory, verbose)
+
+
 if __name__ == '__main__':
-    parser = ArgumentParser()
-    parser.add_argument('directories', metavar='DIRECTORY', nargs='+')
-    parser.add_argument('-v', '--verbose', action='store_true')
-
-    ns = parser.parse_args(sys.argv[1:])
-
-    sys.exit(main(ns.directories, ns.verbose))
+    main()
