@@ -124,6 +124,12 @@ def run_test(import_dir, verbose):
     return not result.wasSuccessful()
 
 
+def existing_egg_names(repo_platform_path):
+    for root, dirs, files in os.walk(repo_platform_path, followlinks=True):
+        for filename in files:
+            yield filename, os.path.join(root, filename)
+
+
 def update_eggs_for_repository(platform_repo, target_directory, org_name,
                                repo_name, platform, index):
     if len(index) == 0:
@@ -131,6 +137,15 @@ def update_eggs_for_repository(platform_repo, target_directory, org_name,
     repo_path = os.path.join(target_directory, org_name, repo_name, platform)
     if not os.path.exists(repo_path):
         os.makedirs(repo_path)
+
+    repo_full = '{}/{}'.format(org_name, repo_name)
+
+    existing_eggs = dict(existing_egg_names(repo_path))
+    extra_eggs = set(existing_eggs) - set(index)
+    for egg_name in extra_eggs:
+        click.echo('Removing {!r} {!r} {!r}'.format(
+            repo_full, platform, egg_name))
+        os.unlink(existing_eggs[egg_name])
     for egg_name, index_entry in index.items():
         python_tag = str(index_entry['python_tag']).lower()
         python_tag_dir = os.path.join(repo_path, python_tag)
@@ -144,7 +159,6 @@ def update_eggs_for_repository(platform_repo, target_directory, org_name,
         if not os.path.exists(egg_path):
             name = index_entry['name']
             version = index_entry['full_version']
-            repo_full = '{}/{}'.format(org_name, repo_name)
             click.echo('Downloading {!r} {!r} {!r} {!r}'.format(
                 repo_full, platform, python_tag, egg_name))
             platform_repo.download_egg(
