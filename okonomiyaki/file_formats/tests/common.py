@@ -1,4 +1,5 @@
 # coding=utf-8
+import io
 import os.path
 
 from ... import repositories
@@ -25,8 +26,11 @@ BROKEN_MCCABE_EGG = os.path.join(DATA_DIR, "broken_legacy_eggs",
                                  "mccabe-0.2.1-2.egg")
 
 UNICODE_DESCRIPTION_EGG = os.path.join(DATA_DIR, "pymongo-2.8-1.egg")
-with open(os.path.join(DATA_DIR, "pymongo_description.txt"), "rb") as fp:
-    UNICODE_DESCRIPTION_TEXT = fp.read().decode("utf8")
+with io.open(
+    os.path.join(DATA_DIR, "pymongo_description.txt"),
+    "r", encoding="utf8"
+) as fp:
+    UNICODE_DESCRIPTION_TEXT = fp.read()
 
 # flake8: noqa
 PKG_INFO_ENSTALLER_1_0 = u"""\
