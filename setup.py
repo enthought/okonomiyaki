@@ -124,7 +124,7 @@ def main():
                     "okonomiyaki.utils",
                     ],
           package_data=package_data,
-          install_requires=["zipfile2 >= 0.0.8"],
+          install_requires=["zipfile2 >= 0.0.10"],
           license="BSD",
           version=__version__)
 
