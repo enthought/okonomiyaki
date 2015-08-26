@@ -311,12 +311,9 @@ class TestGuessEPDPlatform(unittest.TestCase):
             self.assertEqual(epd_platform.short, "rh6-64")
 
     def test_guess_linux2_unsupported(self):
-        with mock_linux:
+        with mock_ubuntu_raring:
             with self.assertRaises(OkonomiyakiError):
                 _guess_epd_platform()
-
-        with mock_ubuntu_raring:
-            self.assertRaises(OkonomiyakiError, _guess_epd_platform)
 
     @mock_solaris
     def test_guess_solaris_unsupported(self):
