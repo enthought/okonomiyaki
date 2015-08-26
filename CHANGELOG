@@ -1,4 +1,4 @@
-XXXXXXXXXXX  0.10.0:
+2015-00-01   0.10.0:
 --------------------
 
 Improvements:
@@ -21,7 +21,6 @@ Internals:
   * Black list mechanism to handle platform-specific, any-arch eggs
   * Add special 'private' API for brood to bypass checksum computation in
     EggMetadata and PackageInfo
-
 
 2015-07-06   0.9.0:
 -------------------
