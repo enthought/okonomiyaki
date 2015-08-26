@@ -1,10 +1,9 @@
 import textwrap
 import unittest
 
-from six import StringIO
-
 from ...errors import OkonomiyakiError
 from ..misc import parse_assignments
+from ..py3compat import StringIO
 
 
 class TestParseAssignments(unittest.TestCase):
