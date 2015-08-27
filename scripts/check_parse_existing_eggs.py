@@ -112,33 +112,38 @@ def make_test(organization, repository, platform, python_tag, path, strict):
     return test_name, test
 
 
-def generate_tests(import_dir, strict):
-    click.echo('Generating test cases...')
+def generate_tests(import_dir, repository_spec, strict):
     cls_dict = {}
+    filter_org, filter_repo = repository_spec.split('/')
     for organization, repository, platform, python_tag, path in artefact_generator(  # noqa
             import_dir):
-        test_name, test_case = make_test(
-            organization, repository, platform, python_tag, path, strict)
-        cls_dict[test_name] = test_case
+        if organization == filter_org and repository == filter_repo:
+            test_name, test_case = make_test(
+                organization, repository, platform, python_tag, path, strict)
+            cls_dict[test_name] = test_case
+    class_name = 'TestParsingEggs_{}_{}'.format(filter_org, filter_repo)
+    return type(class_name, (unittest.TestCase,), cls_dict)
 
+
+def run_test(import_dir, repositories, verbose, strict):
+    loader = Loader()
+
+    click.echo('Generating test cases...')
+
+    test_cases = [
+        loader.load_case(generate_tests(import_dir, repository, strict))
+        for repository in repositories
+    ]
+    suite = loader.create_suite(test_cases)
     click.echo('Done.')
 
-    return type('TestParsingEggs', (unittest.TestCase,), cls_dict)
-
-
-def run_test(import_dir, verbose, strict):
-    loader = Loader()
-    test_case = loader.load_case(generate_tests(import_dir, strict))
-    suite = loader.create_suite((test_case,))
     test_count = suite.countTestCases()
-
-    result_collector = ResultCollecter(buffer=False, failfast=False)
-
     if verbose:
         result_handler = VerboseTestResultHandler(test_count=test_count)
     else:
         result_handler = StandardTestResultHandler(test_count=test_count)
 
+    result_collector = ResultCollecter(buffer=False, failfast=False)
     result_collector.add_result_handler(result_handler)
 
     runner = BaseTestRunner()
@@ -234,7 +239,7 @@ def update_test_data(target_directory, repositories, token, use_md5):
 @click.option('--use-md5/--no-use-md5', default=True)
 def main(target_directory, repositories, token, verbose, strict, use_md5):
     update_test_data(target_directory, repositories, token, use_md5)
-    return run_test(target_directory, verbose, strict)
+    return run_test(target_directory, repositories, verbose, strict)
 
 
 if __name__ == '__main__':
