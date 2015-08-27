@@ -76,12 +76,13 @@ def artefact_generator(import_dir):
                            os.path.join(root, f))
 
 
-def make_test(organization, repository, platform, python_tag, path):
+def make_test(organization, repository, platform, python_tag, path, strict):
     filename = os.path.basename(path)
     eggname, _ = os.path.splitext(filename)
     name, version, build = eggname.split('-')
-    test_name = 'test_{}_{}_{}_{}_{}_v{}_build{}'.format(
-        organization, repository, platform, python_tag, name, version, build,
+    strictness = '' if strict else '_relaxed_unicode'
+    test_name = 'test_{}_{}_{}_{}_{}_v{}_build{}{}'.format(
+        organization, repository, platform, python_tag, name, version, build, strictness,
     ).replace(
         '-', '_',
     ).replace(
@@ -89,18 +90,18 @@ def make_test(organization, repository, platform, python_tag, path):
     )
 
     def test(self):
-        EggMetadata.from_egg(path)
+        EggMetadata.from_egg(path, strict=strict)
 
     return test_name, test
 
 
-def generate_tests(import_dir):
+def generate_tests(import_dir, strict):
     click.echo('Generating test cases...')
     cls_dict = {}
     for organization, repository, platform, python_tag, path in artefact_generator(  # noqa
             import_dir):
         test_name, test_case = make_test(
-            organization, repository, platform, python_tag, path)
+            organization, repository, platform, python_tag, path, strict)
         cls_dict[test_name] = test_case
     return type('TestParsingEggs', (unittest.TestCase,), cls_dict)
 
@@ -189,9 +190,10 @@ def update_test_data(target_directory, repositories, token):
 @click.argument('repositories', nargs=-1)
 @click.option('-t', '--token', envvar='HATCHER_TOKEN')
 @click.option('-v', '--verbose', default=False, is_flag=True)
-def main(target_directory, repositories, token, verbose):
+@click.option('--strict/--no-strict', default=True)
+def main(target_directory, repositories, token, verbose, strict):
     update_test_data(target_directory, repositories, token)
-    return run_test(target_directory, verbose)
+    return run_test(target_directory, verbose, strict)
 
 
 if __name__ == '__main__':
