@@ -148,7 +148,7 @@ def run_test(import_dir, repositories, verbose, strict):
 
     runner = BaseTestRunner()
     result = runner.run(result_collector, suite)
-    return not result.wasSuccessful()
+    return result.wasSuccessful()
 
 
 def existing_egg_names(repo_platform_path):
@@ -237,10 +237,13 @@ def update_test_data(target_directory, repositories, token, use_md5):
 @click.option('-v', '--verbose', default=False, is_flag=True)
 @click.option('--strict/--no-strict', default=True)
 @click.option('--use-md5/--no-use-md5', default=True)
-def main(target_directory, repositories, token, verbose, strict, use_md5):
+@click.pass_context
+def main(ctx, target_directory, repositories, token, verbose, strict, use_md5):
     update_test_data(target_directory, repositories, token, use_md5)
-    return run_test(target_directory, repositories, verbose, strict)
+    successful = run_test(target_directory, repositories, verbose, strict)
+    returncode = 0 if successful else 1
+    ctx.exit(returncode)
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    main()
