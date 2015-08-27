@@ -13,7 +13,7 @@ else:
 from ...errors import OkonomiyakiError
 from .common import (
     BROKEN_MCCABE_EGG, PIP_EGG, PKG_INFO_ENSTALLER_1_0_DESCRIPTION,
-    PIP_PKG_INFO, PKG_INFO_ENSTALLER_1_0, PYMULTINEST_EGG,
+    PIP_PKG_INFO, PKG_INFO_ENSTALLER_1_0, PYMULTINEST_EGG, SUPERVISOR_EGG,
     UNICODE_DESCRIPTION_EGG, UNICODE_DESCRIPTION_TEXT, FAKE_PYSIDE_1_1_0_EGG,
     FAKE_PYSIDE_1_1_0_EGG_PKG_INFO
 )
@@ -95,6 +95,27 @@ class TestPackageInfo(unittest.TestCase):
             pkg_info.summary,
             "The PyPA recommended tool for installing Python packages."
         )
+
+    def test_egg_with_pkg_info_bak(self):
+        # Given
+        egg = SUPERVISOR_EGG
+
+        # When
+        pkg_info = PackageInfo.from_egg(egg)
+
+        # Then
+        self.assertEqual(pkg_info.metadata_version, "1.1")
+        self.assertEqual(pkg_info.name, "supervisor")
+        self.assertEqual(pkg_info.version, "3.0")
+
+        # When
+        with zipfile2.ZipFile(egg) as zp:
+            pkg_info = PackageInfo.from_egg(zp)
+
+        # Then
+        self.assertEqual(pkg_info.metadata_version, "1.1")
+        self.assertEqual(pkg_info.name, "supervisor")
+        self.assertEqual(pkg_info.version, "3.0")
 
     def test_to_string(self):
         # Given
