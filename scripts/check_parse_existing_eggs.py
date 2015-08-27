@@ -82,7 +82,8 @@ def make_test(organization, repository, platform, python_tag, path, strict):
     name, version, build = eggname.split('-')
     strictness = '' if strict else '_relaxed_unicode'
     test_name = 'test_{}_{}_{}_{}_{}_v{}_build{}{}'.format(
-        organization, repository, platform, python_tag, name, version, build, strictness,
+        organization, repository, platform, python_tag,
+        name, version, build, strictness,
     ).replace(
         '-', '_',
     ).replace(
@@ -103,12 +104,15 @@ def generate_tests(import_dir, strict):
         test_name, test_case = make_test(
             organization, repository, platform, python_tag, path, strict)
         cls_dict[test_name] = test_case
+
+    click.echo('Done.')
+
     return type('TestParsingEggs', (unittest.TestCase,), cls_dict)
 
 
-def run_test(import_dir, verbose):
+def run_test(import_dir, verbose, strict):
     loader = Loader()
-    test_case = loader.load_case(generate_tests(import_dir))
+    test_case = loader.load_case(generate_tests(import_dir, strict))
     suite = loader.create_suite((test_case,))
     test_count = suite.countTestCases()
 
@@ -198,6 +202,8 @@ def update_test_data(target_directory, repositories, token, use_md5):
         for platform in platforms:
             platform_repo = repo.platform(platform)
             index = platform_repo.egg_index(python_tag)
+            click.echo('Updating repository {!r} for platform {!r}'.format(
+                repository, platform))
             update_eggs_for_repository(
                 platform_repo, target_directory, org_name, repo_name, platform,
                 index, use_md5)
