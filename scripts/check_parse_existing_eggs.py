@@ -132,8 +132,23 @@ def existing_egg_names(repo_platform_path):
             yield filename, os.path.join(root, filename)
 
 
+def _stat_size(path):
+    st = os.stat(path)
+    return st.st_size
+
+
+def _egg_valid_by_size(egg_path, index_entry):
+    filesize = _stat_size(egg_path)
+    return filesize == index_entry['size']
+
+
+def _egg_valid_by_md5(egg_path, index_entry):
+    md5 = compute_md5(egg_path)
+    return md5 == index_entry['md5']
+
+
 def update_eggs_for_repository(platform_repo, target_directory, org_name,
-                               repo_name, platform, index):
+                               repo_name, platform, index, use_md5):
     if len(index) == 0:
         return
     repo_path = os.path.join(target_directory, org_name, repo_name, platform)
@@ -155,8 +170,11 @@ def update_eggs_for_repository(platform_repo, target_directory, org_name,
             os.makedirs(python_tag_dir)
         egg_path = os.path.join(python_tag_dir, egg_name)
         if os.path.exists(egg_path):
-            md5 = compute_md5(egg_path)
-            if md5 != index_entry['md5']:
+            if use_md5:
+                egg_valid = _egg_valid_by_md5(egg_path, index_entry)
+            else:
+                egg_valid = _egg_valid_by_size(egg_path, index_entry)
+            if not egg_valid:
                 os.unlink(egg_path)
         if not os.path.exists(egg_path):
             name = index_entry['name']
@@ -167,7 +185,7 @@ def update_eggs_for_repository(platform_repo, target_directory, org_name,
                 python_tag, name, version, python_tag_dir)
 
 
-def update_test_data(target_directory, repositories, token):
+def update_test_data(target_directory, repositories, token, use_md5):
     python_tag = 'cp27'
     auth = BroodBearerTokenAuth(token)
     client = BroodClient.from_url('https://packages.enthought.com', auth=auth)
@@ -182,7 +200,7 @@ def update_test_data(target_directory, repositories, token):
             index = platform_repo.egg_index(python_tag)
             update_eggs_for_repository(
                 platform_repo, target_directory, org_name, repo_name, platform,
-                index)
+                index, use_md5)
 
 
 @click.command(context_settings=CONTEXT_SETTINGS)
@@ -191,8 +209,9 @@ def update_test_data(target_directory, repositories, token):
 @click.option('-t', '--token', envvar='HATCHER_TOKEN')
 @click.option('-v', '--verbose', default=False, is_flag=True)
 @click.option('--strict/--no-strict', default=True)
-def main(target_directory, repositories, token, verbose, strict):
-    update_test_data(target_directory, repositories, token)
+@click.option('--use-md5/--no-use-md5', default=True)
+def main(target_directory, repositories, token, verbose, strict, use_md5):
+    update_test_data(target_directory, repositories, token, use_md5)
     return run_test(target_directory, verbose, strict)
 
 
