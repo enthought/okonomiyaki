@@ -1,5 +1,6 @@
 import hashlib
 import os
+import sys
 
 import click
 
@@ -190,8 +191,8 @@ def update_test_data(target_directory, repositories, token):
 @click.option('-v', '--verbose', default=False, is_flag=True)
 def main(target_directory, repositories, token, verbose):
     update_test_data(target_directory, repositories, token)
-    run_test(target_directory, verbose)
+    return run_test(target_directory, verbose)
 
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())
