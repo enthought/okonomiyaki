@@ -8,11 +8,21 @@ from haas.loader import Loader
 from haas.testing import unittest
 from haas.result import ResultCollecter
 from haas.plugins.result_handler import (
-    StandardTestResultHandler, VerboseTestResultHandler)
+    StandardTestResultHandler as BaseStandardTestResultHandler,
+    VerboseTestResultHandler)
 from haas.plugins.runner import BaseTestRunner
 
 from hatcher.api import BroodClient, BroodBearerTokenAuth
 from okonomiyaki.file_formats import EggMetadata
+
+
+class StandardTestResultHandler(BaseStandardTestResultHandler):
+
+    def __call__(self, result):
+        super(StandardTestResultHandler, self).__call__(result)
+        if self.tests_run % 120 == 0:
+            self.stream.write('\n')
+            self.stream.flush()
 
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
