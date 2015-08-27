@@ -21,7 +21,13 @@ class StandardTestResultHandler(BaseStandardTestResultHandler):
     def __call__(self, result):
         super(StandardTestResultHandler, self).__call__(result)
         if self.tests_run % 120 == 0:
-            self.stream.write('\n')
+            padding = len(str(self._test_count))
+            newline = ' ({run: >{padding}d}/{total:d})\n'.format(
+                run=self.tests_run,
+                padding=padding,
+                total=self._test_count,
+            )
+            self.stream.write(newline)
             self.stream.flush()
 
 
