@@ -79,11 +79,12 @@ class PackageInfo(object):
         if isinstance(path_or_file, py3compat.string_types):
             with zipfile2.ZipFile(path_or_file) as fp:
                 data = _read_pkg_info(fp)
-            if data is None:
-                msg = "No PKG-INFO metadata found"
-                raise OkonomiyakiError(msg)
         else:
-            data = path_or_file.read(_PKG_INFO_LOCATION)
+            data = _read_pkg_info(path_or_file)
+
+        if data is None:
+            msg = "No PKG-INFO metadata found"
+            raise OkonomiyakiError(msg)
 
         data = _convert_if_needed(data, sha256, strict)
         return cls.from_string(data)
