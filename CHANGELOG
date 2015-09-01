@@ -7,6 +7,9 @@ Improvements:
     build number being implicitly 0.
   * EggMetadata.from_egg now handles eggs built for RedHat Enterprise
     Linux 3 (#88).
+  * Fix decoding errors when parsing PKG-INFO (#86)
+  * Fix parsing of spec/depend for RedHat 3 eggs (#88)
+  * Special case invalid requirement 'numpy-1.8.0'
 
 Internals:
 
@@ -14,6 +17,11 @@ Internals:
   * Add support for both '-' and '_' as separators between os and arch in
     platform names for EPDPlatform, i.e. both from_epd_string("rh5-x86_64") and
     from_epd_string("rh5_x86_64") work (#83).
+  * Black list mechanism to fix invalid PKG-INFO
+  * Black list mechanism to handle platform-specific, any-arch eggs
+  * Add special 'private' API for brood to bypass checksum computation in
+    EggMetadata and PackageInfo
+
 
 2015-07-06   0.9.0:
 -------------------
