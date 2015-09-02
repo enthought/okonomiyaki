@@ -78,6 +78,10 @@ class _PrereleaseParts(object):
 
 
 class SemanticVersion(object):
+    """ 'Semver' 2.0 implementation.
+
+    This class takes care of parsing and comparing semver objects.
+    """
     @classmethod
     def from_string(cls, s):
         m = _SEMVER_R.match(s)
