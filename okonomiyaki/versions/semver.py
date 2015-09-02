@@ -22,7 +22,9 @@ def _ensure_no_leading_zero(value, name):
 
 def _parse_pre_release(s):
     if s is not None:
-        return tuple(part for part in s[1:].split("."))
+        # Remove `-` or `+`
+        without_prefix_s = s[1:]
+        return tuple(part for part in without_prefix_s.split("."))
     else:
         return None
 
