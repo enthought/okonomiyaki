@@ -121,8 +121,8 @@ class SemanticVersion(object):
             build = _parse_build(m.group(5))
 
             _ensure_no_leading_zero(major, "Major")
-            _ensure_no_leading_zero(minor, "minor")
-            _ensure_no_leading_zero(patch, "patch")
+            _ensure_no_leading_zero(minor, "Minor")
+            _ensure_no_leading_zero(patch, "Patch")
 
             return cls(int(major), int(minor), int(patch), pre_release, build)
 

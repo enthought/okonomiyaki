@@ -1,3 +1,4 @@
+import re
 import unittest
 
 from ..enpkg import EnpkgVersion
@@ -169,10 +170,18 @@ class TestSemanticVersion(unittest.TestCase):
             '1.2.3-alpha.01+4+5',
         )
 
-        # When
+        # When/Then
         for v in invalid_strings:
             with self.assertRaises(ValueError):
                 SemanticVersion.from_string(v)
+
+        # Given
+        version_string = "1.2.03"
+        r_output = re.compile("Patch number cannot have leading 0: '03'$")
+
+        # When/Then
+        with self.assertRaisesRegexp(ValueError, r_output):
+            SemanticVersion.from_string(version_string)
 
     def test_other_object(self):
         # Given
