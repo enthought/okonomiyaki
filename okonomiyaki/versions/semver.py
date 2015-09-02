@@ -135,10 +135,19 @@ class SemanticVersion(object):
         self.pre_release = pre_release or tuple()
         self.build = build or tuple()
 
-        self._comparable_parts = (
-            major, minor, patch,
-            _PrereleaseParts(self.pre_release),
-        )
+        # We cache _comparable_parts to avoid paying the relatively high cost
+        # of parsing the pre release parts for versions objects that won't be
+        # compared.
+        self._comparable_parts_value = None
+
+    @property
+    def _comparable_parts(self):
+        if self._comparable_parts_value is None:
+            self._comparable_parts_value = (
+                self.major, self.minor, self.patch,
+                _PrereleaseParts(self.pre_release),
+            )
+        return self._comparable_parts_value
 
     def __hash__(self):
         return hash(self._comparable_parts)
