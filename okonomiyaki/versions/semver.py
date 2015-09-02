@@ -4,9 +4,13 @@ from ..utils.py3compat import long
 
 
 _SEMVER_R = re.compile("""\
-    (\d+)\.(\d+)\.(\d+)   # main part
-    (-[0-9a-zA-Z-\.]+)?
-    (\+[0-9a-zA-Z-\.]+)?
+    (?P<major>\d+)
+    \.
+    (?P<minor>\d+)
+    \.
+    (?P<patch>\d+)
+    (?P<pre_release>-[0-9a-zA-Z-\.]+)?
+    (?P<build>\+[0-9a-zA-Z-\.]+)?
     $
 """, flags=re.VERBOSE)
 
@@ -114,13 +118,15 @@ class SemanticVersion(object):
         if m is None:
             raise ValueError("Invalid semver: {0!r}".format(s))
         else:
-            major = m.group(1)
-            minor = m.group(2)
-            patch = m.group(3)
+            d = m.groupdict()
 
-            pre_release = _parse_pre_release(m.group(4))
+            major = d["major"]
+            minor = d["minor"]
+            patch = d["patch"]
 
-            build = _parse_build(m.group(5))
+            pre_release = _parse_pre_release(d["pre_release"])
+
+            build = _parse_build(d["build"])
 
             _ensure_no_leading_zero(major, "Major")
             _ensure_no_leading_zero(minor, "Minor")
