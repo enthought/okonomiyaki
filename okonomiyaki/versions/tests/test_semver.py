@@ -210,7 +210,55 @@ class TestSemanticVersion(unittest.TestCase):
         with self.assertRaises(TypeError):
             v > other
 
-    def test_pre_release_parts(self):
+
+class Test_PreReleaseParts(unittest.TestCase):
+    def test_empty_takes_precedence(self):
+        # Given
+        parts1 = _PrereleaseParts(tuple())
+        parts2 = _PrereleaseParts(("alpha", "1"))
+
+        # Then
+        self.assertFalse(parts1 < parts2)
+        self.assertFalse(parts1 <= parts2)
+        self.assertTrue(parts1 >= parts2)
+        self.assertTrue(parts1 > parts2)
+        self.assertFalse(parts1 == parts2)
+        self.assertTrue(parts1 != parts2)
+
+    def test_numerical_vs_string(self):
+        # Given
+        parts1 = _PrereleaseParts(("alpha", "beta"))
+        parts2 = _PrereleaseParts(("alpha", "1"))
+
+        # Then
+        self.assertFalse(parts1 < parts2)
+        self.assertFalse(parts1 <= parts2)
+        self.assertTrue(parts1 >= parts2)
+        self.assertTrue(parts1 > parts2)
+        self.assertFalse(parts1 == parts2)
+        self.assertTrue(parts1 != parts2)
+
+        # Given
+        parts = [
+            ("0", "3", "7"), ("alpha",), ("alpha", "1"), ("alpha", "2"),
+            # Note the 2 digits, to ensure we compare correctly purely
+            # numerical part
+            ("alpha", "10"),
+            ("beta",), ("rc",), ("rc", "1"), tuple()
+        ]
+
+        # Then
+        for left, right in zip(parts[:-1], parts[1:]):
+            left_parts = _PrereleaseParts(left)
+            right_parts = _PrereleaseParts(right)
+            self.assertTrue(left_parts < right_parts)
+            self.assertTrue(left_parts <= right_parts)
+            self.assertFalse(left_parts >= right_parts)
+            self.assertFalse(left_parts > right_parts)
+            self.assertFalse(left_parts == right_parts)
+            self.assertTrue(left_parts != right_parts)
+
+    def test_numerical_parts(self):
         # Given
         parts1 = _PrereleaseParts(("0", "3", "7"))
         parts2 = _PrereleaseParts(("0", "3", "7"))

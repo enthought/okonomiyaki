@@ -1,5 +1,7 @@
 import re
 
+from ..utils.py3compat import long
+
 
 _SEMVER_R = re.compile("""\
     (\d+)\.(\d+)\.(\d+)   # main part
@@ -46,6 +48,25 @@ class _PrereleaseParts(object):
     def __init__(self, parts):
         self._comparable_parts = tuple(_convert_pre_release(p) for p in parts)
 
+    def _compare_parts(self, left_parts, right_parts):
+        for left, right in zip(left_parts, right_parts):
+            if left == right:
+                continue
+            else:
+                is_left_int = isinstance(left, (long, int))
+                is_right_int = isinstance(right, (long, int))
+                if is_left_int:
+                    if is_right_int:
+                        return left < right
+                    else:
+                        return True
+                else:
+                    if is_right_int:
+                        return False
+                    else:
+                        return left < right
+        return len(left_parts) < len(right_parts)
+
     def __hash__(self):
         return hash(self._comparable_parts)
 
@@ -65,7 +86,9 @@ class _PrereleaseParts(object):
         elif len(other._comparable_parts) == 0:
             return True
         else:
-            return self._comparable_parts < other._comparable_parts
+            return self._compare_parts(
+                self._comparable_parts, other._comparable_parts
+            )
 
     def __le__(self, other):
         return self == other or self < other
