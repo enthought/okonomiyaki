@@ -8,10 +8,23 @@ started with okonomiyaki.
 
 Let's get started with some simple examples.
 
-Egg-related features
---------------------
+Querying a jaguar runtime
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. module:: okonomiyaki.file_formats
+
+Begin by importing the :func:`runtime_metadata_factory
+<okonomiyaki.file_formats.runtime_metadata_factory>` function::
+
+    >>> from okonomiyaki.file_formats import runtime_metadata_factory
+
+To query metadata of an existing runtime::
+
+    >>> metadata = runtime_metadata_factory("python-cpython-2.7.10-1-rh5_x86_64.runtime")
+    >>> print(metadata.implementation)
+
+Every metadata instance share the attributes of the class RuntimeMetadataV1,
+but each instance may have additional attributes depending on the language.
 
 Querying an Enthought egg metadata
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

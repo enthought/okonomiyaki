@@ -42,6 +42,14 @@ This is a class to build Enthought eggs from an existing setuptools egg.
     :members:
     :inherited-members:
 
+Runtime metadata factory
+------------------------
+
+This function is the easiest way to create a metadata instance given a path to
+a runtime file.
+
+.. autofunction:: runtime_metadata_factory
+
 Platforms representations
 =========================
 
