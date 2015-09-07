@@ -12,6 +12,12 @@ IS_RELEASED = False
 
 VERSION = '%d.%d.%d' % (MAJOR, MINOR, MICRO)
 
+INSTALL_REQUIRES = [
+    "attrs >= 15.1.0",
+    "six >= 1.9.0",
+    "zipfile2 >= 0.0.10",
+]
+
 
 # Return the git revision as a string
 def git_version():
@@ -104,6 +110,9 @@ def main():
         "okonomiyaki.repositories.tests": [
             "data/*egg", "data/broken_legacy_eggs/*egg", "data/*.txt",
         ],
+        "okonomiyaki.utils.test_data": [
+            "*.runtime",
+        ],
     }
 
     setup(name="okonomiyaki",
@@ -122,9 +131,10 @@ def main():
                     "okonomiyaki.versions",
                     "okonomiyaki.versions.tests",
                     "okonomiyaki.utils",
+                    "okonomiyaki.utils.test_data",
                     ],
           package_data=package_data,
-          install_requires=["zipfile2 >= 0.0.10"],
+          install_requires=INSTALL_REQUIRES,
           license="BSD",
           version=__version__)
 

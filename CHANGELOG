@@ -4,6 +4,8 @@ XXXXXXXXXX   0.11.0:
 Improvements:
 
   * SemanticVersion class added
+  * MetadataVersion class added to easily manipulate metadata versions.
+  * runtime_metadata_factory function to parse and validate runtime packages.
 
 2015-00-01   0.10.0:
 --------------------

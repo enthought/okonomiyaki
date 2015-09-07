@@ -1,4 +1,7 @@
 import ast
+import contextlib
+import shutil
+import tempfile
 
 from .py3compat import string_types
 
@@ -49,3 +52,12 @@ def parse_assignments(file_or_filename):
             return _AssignmentParser().parse(fp.read())
     else:
         return _AssignmentParser().parse(file_or_filename.read())
+
+
+@contextlib.contextmanager
+def tempdir():
+    d = tempfile.mkdtemp()
+    try:
+        yield d
+    finally:
+        shutil.rmtree(d)
