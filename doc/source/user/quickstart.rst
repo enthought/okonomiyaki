@@ -23,7 +23,7 @@ To query metadata of an existing runtime::
     >>> metadata = runtime_metadata_factory("python-cpython-2.7.10-1-rh5_x86_64.runtime")
     >>> print(metadata.implementation)
 
-Every metadata instance share the attributes of the class RuntimeMetadataV1,
+Every metadata instance shares the attributes of the class RuntimeMetadataV1,
 but each instance may have additional attributes depending on the language.
 
 Querying an Enthought egg metadata
