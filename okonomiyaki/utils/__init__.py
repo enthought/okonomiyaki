@@ -1,10 +1,10 @@
 from __future__ import absolute_import
 
-__all__ = ["compute_md5", "parse_assignments"]
+__all__ = ["compute_md5", "parse_assignments", "tempdir"]
 
 import hashlib
 
-from .misc import parse_assignments
+from .misc import parse_assignments, tempdir
 from .py3compat import string_types
 
 
