@@ -1,12 +1,14 @@
 import os.path
+import shutil
 import unittest
 
 import zipfile2
 
-from okonomiyaki.errors import InvalidMetadata
+from okonomiyaki.errors import InvalidMetadata, UnsupportedMetadata
 from okonomiyaki.utils import tempdir
 from okonomiyaki.utils.test_data import (
-    JULIA_DEFAULT_0_3_11_RH5_64, PYTHON_CPYTHON_2_7_10_RH5_64
+    JULIA_DEFAULT_0_3_11_RH5_64, PYTHON_CPYTHON_2_7_10_RH5_64,
+    PYTHON_CPYTHON_2_7_10_RH5_64_INVALID, R_DEFAULT_3_0_0_RH5_64
 )
 
 from ..runtime import (
@@ -24,7 +26,7 @@ class TestPythonMetadataV1(unittest.TestCase):
         metadata = PythonRuntimeMetadataV1.from_path(path)
 
         # Then
-        self.assertTrue(metadata.language, "python")
+        self.assertTrue(is_runtime_path_valid(path))
         self.assertEqual(metadata.filename, os.path.basename(path))
 
         self.assertEqual(metadata.language, "python")
@@ -135,3 +137,34 @@ class TestRuntimeMetadataFactory(unittest.TestCase):
 
         # Then
         self.assertIsInstance(metadata, JuliaRuntimeMetadataV1)
+
+        # Given
+        path = JULIA_DEFAULT_0_3_11_RH5_64
+
+        # When
+        with zipfile2.ZipFile(path) as zp:
+            metadata = runtime_metadata_factory(zp)
+
+        # Then
+        self.assertIsInstance(metadata, JuliaRuntimeMetadataV1)
+
+    def test_invalid(self):
+        # Given
+        path = R_DEFAULT_3_0_0_RH5_64
+
+        # When/Then
+        with self.assertRaises(UnsupportedMetadata):
+            runtime_metadata_factory(path)
+
+        # Given
+        path = PYTHON_CPYTHON_2_7_10_RH5_64_INVALID
+
+        # When/Then
+        with tempdir() as d:
+            target = os.path.join(
+                d, os.path.basename(path).replace(".invalid", "")
+            )
+            shutil.copy(path, target)
+
+            with self.assertRaises(InvalidMetadata):
+                runtime_metadata_factory(target)
