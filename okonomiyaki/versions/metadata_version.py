@@ -45,3 +45,6 @@ class MetadataVersion(object):
 
     def __hash__(self):
         return hash(self._key)
+
+    def __str__(self):
+        return "{0}.{1}".format(self.major, self.minor)

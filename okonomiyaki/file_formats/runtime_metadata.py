@@ -13,12 +13,11 @@ from attr.validators import instance_of
 
 from okonomiyaki.errors import InvalidMetadata, UnsupportedMetadata
 from okonomiyaki.platforms import EPDPlatform, Platform
-from okonomiyaki.versions import MetadataVersion, SemanticVersion
+from okonomiyaki.versions import MetadataVersion
 
+from ._runtime_common import RuntimeVersion, _platform_string
 from .runtime_schemas import _JULIA_V1, _PYTHON_V1
 
-
-RuntimeVersion = SemanticVersion
 
 _METADATA_ARCNAME = "metadata/runtime.json"
 
@@ -28,6 +27,8 @@ class IRuntimeMetadataV1(six.with_metaclass(abc.ABCMeta)):
     """ The metadata of a runtime package (i.e. the actual zipfile containing
     the runtime code).
     """
+    # Note: the attributes in IRuntimeMetadataV1 need to be synchronized with
+    # IRuntimeInfoV1
     language = attr(validator=instance_of(six.text_type))
     "The language (e.g. 'python')"
 
@@ -106,10 +107,9 @@ class IRuntimeMetadataV1(six.with_metaclass(abc.ABCMeta)):
 
     @property
     def filename(self):
-        disp_platform = EPDPlatform(self.platform).platform_name
-        disp_platform += "_" + str(self.platform.arch)
-        template = "{0.language}-{0.implementation}-{0.version}-{1}"
-        return template.format(self, disp_platform) + ".runtime"
+        template = ("{0.language}-{0.implementation}-{0.version}-{1}"
+                    ".runtime")
+        return template.format(self, _platform_string(self.platform))
 
 
 class JuliaRuntimeMetadataV1(IRuntimeMetadataV1):
