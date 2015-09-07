@@ -133,6 +133,7 @@ def main():
                     "okonomiyaki.versions.tests",
                     "okonomiyaki.utils",
                     "okonomiyaki.utils.test_data",
+                    "okonomiyaki.utils.tests",
                     ],
           package_data=package_data,
           install_requires=INSTALL_REQUIRES,
