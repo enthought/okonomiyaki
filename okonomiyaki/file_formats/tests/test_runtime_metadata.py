@@ -11,7 +11,7 @@ from okonomiyaki.utils.test_data import (
     PYTHON_CPYTHON_2_7_10_RH5_64_INVALID, R_DEFAULT_3_0_0_RH5_64
 )
 
-from ..runtime import (
+from ..runtime_metadata import (
     JuliaRuntimeMetadataV1, PythonRuntimeMetadataV1, RuntimeVersion,
     is_runtime_path_valid, runtime_metadata_factory
 )
