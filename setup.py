@@ -112,7 +112,7 @@ def main():
             "data/*egg", "data/broken_legacy_eggs/*egg", "data/*.txt",
         ],
         "okonomiyaki.utils.test_data": [
-            "*.runtime",
+            "*.runtime", "*.runtime.invalid"
         ],
     }
 

@@ -44,7 +44,18 @@ _JULIA_V1 = {
             "type": "array",
             "items": {"type": "string"},
         },
-    }
+    },
+    "required": [
+        "metadata_version",
+        "language",
+        "implementation",
+        "version",
+        "platform",
+        "build_revision",
+        "executable",
+        "paths",
+        "post_install",
+    ]
 }
 
 _PYTHON_V1 = {
@@ -101,5 +112,18 @@ _PYTHON_V1 = {
             "description": "The full path to the python site packages.",
             "type": "string",
         },
-    }
+    },
+    "required": [
+        "metadata_version",
+        "language",
+        "implementation",
+        "version",
+        "platform",
+        "build_revision",
+        "executable",
+        "paths",
+        "post_install",
+        "scriptsdir",
+        "site_packages",
+    ]
 }
