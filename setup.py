@@ -14,6 +14,7 @@ VERSION = '%d.%d.%d' % (MAJOR, MINOR, MICRO)
 
 INSTALL_REQUIRES = [
     "attrs >= 15.1.0",
+    "jsonschema",
     "six >= 1.9.0",
     "zipfile2 >= 0.0.10",
 ]

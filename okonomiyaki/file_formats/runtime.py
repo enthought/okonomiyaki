@@ -1,6 +1,10 @@
+from __future__ import absolute_import
+
+import abc
 import os.path
 import json
 
+import jsonschema
 import six
 import zipfile2
 
@@ -11,6 +15,8 @@ from okonomiyaki.errors import InvalidMetadata, UnsupportedMetadata
 from okonomiyaki.platforms import EPDPlatform, Platform
 from okonomiyaki.versions import MetadataVersion, SemanticVersion
 
+from .runtime_schemas import _JULIA_V1, _PYTHON_V1
+
 
 RuntimeVersion = SemanticVersion
 
@@ -18,11 +24,9 @@ _METADATA_ARCNAME = "metadata/runtime.json"
 
 
 @attributes
-class RuntimeMetadataV1(object):
+class IRuntimeMetadataV1(six.with_metaclass(abc.ABCMeta)):
     """ The metadata of a runtime package (i.e. the actual zipfile containing
     the runtime code).
-
-    This is a base class, do not instantiate directly.
     """
     language = attr(validator=instance_of(six.text_type))
     "The language (e.g. 'python')"
@@ -50,6 +54,8 @@ class RuntimeMetadataV1(object):
     post_install = attr(validator=instance_of(tuple))
     """Command to execute as part of post installation."""
 
+    _json_schema = None
+
     @classmethod
     def from_path(cls, path_or_file):
         if isinstance(path_or_file, six.string_types):
@@ -62,6 +68,11 @@ class RuntimeMetadataV1(object):
             metadata_s = _read_runtime_metadata_json(path_or_file)
 
         metadata_dict = json.loads(metadata_s)
+        try:
+            jsonschema.validate(metadata_dict, cls._json_schema)
+        except jsonschema.ValidationError as e:
+            msg = "Invalid metadata: {0!r}".format(e.message)
+            raise InvalidMetadata(msg)
 
         metadata_version = metadata_dict["metadata_version"]
         if metadata_version != "1.0":
@@ -101,17 +112,20 @@ class RuntimeMetadataV1(object):
         return template.format(self, disp_platform) + ".runtime"
 
 
-class JuliaRuntimeMetadataV1(RuntimeMetadataV1):
+class JuliaRuntimeMetadataV1(IRuntimeMetadataV1):
     """ Class representing the metadata of a julia runtime package.
     """
+    _json_schema = _JULIA_V1
 
 
 @attributes
-class PythonRuntimeMetadataV1(RuntimeMetadataV1):
+class PythonRuntimeMetadataV1(IRuntimeMetadataV1):
     """ Class representing the metadata of a python runtime package.
     """
     scriptsdir = attr(validator=instance_of(six.text_type))
     site_packages = attr(validator=instance_of(six.text_type))
+
+    _json_schema = _PYTHON_V1
 
     @classmethod
     def _from_json_dict(cls, data):
