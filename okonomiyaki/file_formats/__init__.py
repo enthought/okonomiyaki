@@ -10,5 +10,8 @@ from ._egg_info import (
     split_egg_name
 )
 from ._package_info import PackageInfo
+from .runtime import (
+    RuntimeVersion, is_runtime_path_valid, runtime_metadata_factory
+)
 from .egg import EggBuilder, EggRewriter
 from .pep425 import PythonImplementation
