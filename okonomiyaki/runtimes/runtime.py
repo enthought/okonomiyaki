@@ -70,7 +70,10 @@ class PythonRuntime(Runtime):
             scriptsdir = bindir = posixpath.join(prefix, "bin")
             paths = (bindir, )
 
-        executable = u"python" + str(version.major)
+        if version.major == 3:
+            executable = u"python3"
+        else:
+            executable = u"python2"
 
         major_minor = "{0}.{1}".format(version.major, version.minor)
 

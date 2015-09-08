@@ -22,7 +22,10 @@ class TestPythonRuntime(unittest.TestCase):
 
         # Then
         self.assertEqual(runtime_info.prefix, NORM_EXEC_PREFIX)
-        self.assertEqual(runtime_info.executable, NORM_EXECUTABLE)
+        self.assertEqual(
+            os.path.realpath(runtime_info.executable),
+            os.path.realpath(NORM_EXECUTABLE)
+        )
 
     def test_from_prefix_and_platform(self):
         # Given
