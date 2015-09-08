@@ -1,6 +1,7 @@
 import ast
 import contextlib
 import shutil
+import string
 import tempfile
 
 from .py3compat import string_types
@@ -61,3 +62,36 @@ def tempdir():
         yield d
     finally:
         shutil.rmtree(d)
+
+
+def substitute_variables(d, local_vars):
+    """Perform shell/Perl-style variable substitution.
+
+    Every occurrence of '${name}' name is considered a variable, and variable
+    is substituted by the value found in the `local_vars' dictionary.  Raise
+    ValueError for any variables not found in `local_vars'.
+
+    '$' may be escaped by using '$$'
+
+    Parameters
+    ----------
+    d: dict
+        (str: str) mapping, where each value will be substituted.
+    local_vars: dict
+        dict of variables
+    """
+    def _resolve(d):
+        ret = {}
+        for k, v in d.items():
+            ret[k] = substitute_variable(v, local_vars)
+        return ret
+
+    ret = _resolve(d)
+    while not ret == d:
+        d = ret
+        ret = _resolve(d)
+    return ret
+
+
+def substitute_variable(v, local_vars):
+    return string.Template(v).substitute(local_vars)
