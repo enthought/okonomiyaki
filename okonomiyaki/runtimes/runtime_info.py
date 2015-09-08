@@ -12,7 +12,7 @@ from okonomiyaki.platforms import Platform
 from okonomiyaki.utils import substitute_variable, substitute_variables
 from okonomiyaki.versions import MetadataVersion
 
-from ._runtime_common import RuntimeVersion, _platform_string
+from .common import RuntimeVersion, _platform_string
 from .runtime_metadata import JuliaRuntimeMetadataV1, PythonRuntimeMetadataV1
 
 

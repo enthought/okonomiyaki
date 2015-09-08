@@ -129,6 +129,8 @@ def main():
                     "okonomiyaki.platforms.tests",
                     "okonomiyaki.repositories",
                     "okonomiyaki.repositories.tests",
+                    "okonomiyaki.runtimes",
+                    "okonomiyaki.runtimes.tests",
                     "okonomiyaki.versions",
                     "okonomiyaki.versions.tests",
                     "okonomiyaki.utils",

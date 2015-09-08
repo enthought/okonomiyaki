@@ -15,7 +15,7 @@ from okonomiyaki.errors import InvalidMetadata, UnsupportedMetadata
 from okonomiyaki.platforms import EPDPlatform, Platform
 from okonomiyaki.versions import MetadataVersion
 
-from ._runtime_common import RuntimeVersion, _platform_string
+from .common import RuntimeVersion, _platform_string
 from .runtime_schemas import _JULIA_V1, _PYTHON_V1
 
 
