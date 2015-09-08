@@ -73,7 +73,7 @@ class PythonRuntime(Runtime):
         if version.major == 3:
             executable = u"python3"
         else:
-            executable = u"python2"
+            executable = u"python"
 
         major_minor = "{0}.{1}".format(version.major, version.minor)
 
@@ -147,7 +147,8 @@ class PythonRuntime(Runtime):
             paths = (
                 self._runtime_info.executable,
                 ntpath.join(
-                    self.scriptsdir, ntpath.basename(self._executable_value)
+                    self.scriptsdir,
+                    ntpath.basename(self._runtime_info.executable)
                 )
             )
             for path in paths:

@@ -22,10 +22,18 @@ class TestPythonRuntime(unittest.TestCase):
 
         # Then
         self.assertEqual(runtime_info.prefix, NORM_EXEC_PREFIX)
-        self.assertEqual(
-            os.path.realpath(runtime_info.executable),
-            os.path.realpath(NORM_EXECUTABLE)
-        )
+        if sys.platform == "win32":
+            # XXX: we can't easily check whether two paths are the same file on
+            # windows on python 2, as os.path.samefile is not available there
+            self.assertEqual(
+                os.path.realpath(runtime_info.executable).lower(),
+                os.path.realpath(NORM_EXECUTABLE).lower()
+            )
+        else:
+            self.assertEqual(
+                os.path.realpath(runtime_info.executable),
+                os.path.realpath(NORM_EXECUTABLE)
+            )
 
     def test_from_prefix_and_platform(self):
         # Given
