@@ -6,6 +6,8 @@ Improvements:
   * SemanticVersion class added
   * MetadataVersion class added to easily manipulate metadata versions.
   * runtime_metadata_factory function to parse and validate runtime packages.
+  * __str__ is now implemented for EPDPlatform. The implementation support
+    EPDPlatform.from_epd_string(str(epd_platform)) == epd_platform (#117)
 
 2015-00-01   0.10.0:
 --------------------
