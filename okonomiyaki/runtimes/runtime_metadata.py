@@ -27,6 +27,8 @@ class IRuntimeMetadataV1(six.with_metaclass(abc.ABCMeta)):
     """ The metadata of a runtime package (i.e. the actual zipfile containing
     the runtime code).
     """
+    metadata_version = attr(validator=instance_of(MetadataVersion))
+
     # Note: the attributes in IRuntimeMetadataV1 need to be synchronized with
     # IRuntimeInfoV1
     language = attr(validator=instance_of(six.text_type))
@@ -89,6 +91,9 @@ class IRuntimeMetadataV1(six.with_metaclass(abc.ABCMeta)):
 
     @classmethod
     def _from_json_dict(cls, data):
+        metadata_version = MetadataVersion.from_string(
+            data["metadata_version"]
+        )
         language = data["language"]
         implementation = data["implementation"]
         version = RuntimeVersion.from_string(data["version"])
@@ -101,8 +106,8 @@ class IRuntimeMetadataV1(six.with_metaclass(abc.ABCMeta)):
         post_install = tuple(data["post_install"])
 
         return (
-            language, implementation, version, platform, build_revision,
-            executable, paths, post_install
+            metadata_version, language, implementation, version, platform,
+            build_revision, executable, paths, post_install
         )
 
     @property
