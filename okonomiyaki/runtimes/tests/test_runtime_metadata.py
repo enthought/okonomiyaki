@@ -10,6 +10,7 @@ from okonomiyaki.utils.test_data import (
     JULIA_DEFAULT_0_3_11_RH5_64, PYTHON_CPYTHON_2_7_10_RH5_64,
     PYTHON_CPYTHON_2_7_10_RH5_64_INVALID, R_DEFAULT_3_0_0_RH5_64
 )
+from okonomiyaki.versions import MetadataVersion
 
 from ..runtime_metadata import (
     JuliaRuntimeMetadataV1, PythonRuntimeMetadataV1, RuntimeVersion,
@@ -29,6 +30,10 @@ class TestPythonMetadataV1(unittest.TestCase):
         self.assertTrue(is_runtime_path_valid(path))
         self.assertEqual(metadata.filename, os.path.basename(path))
 
+        self.assertEqual(
+            metadata.metadata_version,
+            MetadataVersion.from_string("1.0")
+        )
         self.assertEqual(metadata.language, "python")
         self.assertEqual(metadata.implementation, "cpython")
         self.assertEqual(
@@ -103,6 +108,10 @@ class TestJuliaRuntimeMetadataV1(unittest.TestCase):
         metadata = JuliaRuntimeMetadataV1.from_path(path)
 
         # Then
+        self.assertEqual(
+            metadata.metadata_version,
+            MetadataVersion.from_string("1.0")
+        )
         self.assertTrue(metadata.language, "julia")
         self.assertEqual(metadata.filename, os.path.basename(path))
 
