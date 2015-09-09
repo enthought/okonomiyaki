@@ -252,6 +252,9 @@ class EPDPlatform(HasTraits):
     def short(self):
         return "{0}-{1}".format(self.platform_name, self.arch_bits)
 
+    def __str__(self):
+        return "{0.platform_name}_{0.arch}".format(self)
+
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
             return False

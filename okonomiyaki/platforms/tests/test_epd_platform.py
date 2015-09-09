@@ -161,6 +161,28 @@ class TestEPDPlatform(unittest.TestCase):
             epd_platform = EPDPlatform.from_running_system("amd64")
             self.assertEqual(epd_platform.short, "rh5-64")
 
+    def test_str(self):
+        # Given
+        epd_platform = EPDPlatform.from_epd_string("rh5-64")
+
+        # When/Then
+        self.assertEqual(str(epd_platform), "rh5_x86_64")
+
+        # Given
+        epd_platform = EPDPlatform.from_epd_string("osx-32")
+
+        # When/Then
+        self.assertEqual(str(epd_platform), "osx_x86")
+
+        # Given
+        s = "osx_x86"
+
+        # When
+        epd_platform = EPDPlatform.from_epd_string(s)
+
+        # Then
+        self.assertEqual(str(epd_platform), s)
+
 
 class TestEPDPlatformApplies(unittest.TestCase):
     @mock_centos_5_8
