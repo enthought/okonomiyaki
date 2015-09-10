@@ -129,11 +129,17 @@ class PEP440Version(object):
 
         self._parts = (epoch, nums, pre, post, dev, local)
 
+        # Caching of the corresponnding properties
+        self._normalized_string = None
+        self._string = None
+
     @property
     def normalized_string(self):
         """ 'normalized' string, i.e. 0 in the numerical part are stripped.
         """
-        return self._compute_string(*self._parts)
+        if self._normalized_string is None:
+            self._normalized_string = self._compute_string(*self._parts)
+        return self._normalized_string
 
     def __hash__(self):
         return hash(self._parts)
@@ -185,9 +191,13 @@ class PEP440Version(object):
         return "{0}('{1}')".format(self.__class__.__name__, str(self))
 
     def __str__(self):
-        nums = self._release_clause
-        epoch, _, pre, post, dev, local = self._parts
-        return self._compute_string(epoch, nums, pre, post, dev, local)
+        if self._string is None:
+            nums = self._release_clause
+            epoch, _, pre, post, dev, local = self._parts
+            self._string = self._compute_string(
+                epoch, nums, pre, post, dev, local
+            )
+        return self._string
 
 
 def _strip_trailing_zeros(nums):
