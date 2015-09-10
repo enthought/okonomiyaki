@@ -37,7 +37,7 @@ class TestPEP440Version(unittest.TestCase):
         )
 
         self.assertTrue(
-            V('1.0.post456.dev623') < V('1.0.post456')  < V('1.0.post1234')
+            V('1.0.post456.dev623') < V('1.0.post456') < V('1.0.post1234')
         )
 
         self.assertTrue(
@@ -69,7 +69,7 @@ class TestPEP440Version(unittest.TestCase):
             < V('1.0.post456+1')
             < V('1.0.post456+1.1')
         )
-        
+
         self.assertLessEqual(V('1.2.0rc1'), V('1.2.0'))
         self.assertGreater(V('1.0'), V('1.0rc2'))
         self.assertGreater(V('1.0'), V('1.0rc2'))
