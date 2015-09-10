@@ -23,8 +23,8 @@ method, this part of the documentation is for you.
 File formats
 ------------
 
-If you are looking for information about a specif file format, like our egg or
-runtime packaging format, this part of the documentation is for you.
+If you are looking for information about a specific file format, like our egg
+or runtime packaging format, this part of the documentation is for you.
 
 .. toctree::
    :maxdepth: 2

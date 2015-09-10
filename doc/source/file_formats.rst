@@ -7,7 +7,7 @@ Conceptually, runtimes are packages that contain a specific language
 interpreter/compiler. For example, Enthought may provide a python 2.7.10
 runtime, or a pypy-based runtime.
 
-Concretelly, runtimes are simple zipfiles containing the files required for the
+Concretely, runtimes are simple zipfiles containing the files required for the
 interpreter to work, its standard library, etc... It generally is fairly close
 to the upstream distribution of the interpreter, e.g. a python runtime on
 windows will be fairly close to a python installed from the python.org msi
@@ -18,9 +18,9 @@ The format is as follows::
     <runtime_file>/enthought/runtime.json
     <runtime_file>/...
 
-where ``enthought/runtime.json`` directory contains some metadata for Enthought
-tools to understand the runtime. Every other file is simply unpacked as is in a
-given directory.
+where the ``enthought/runtime.json`` file contains some metadata for Enthought
+tools to understand the runtime. Every other file is simply unpacked as is in
+the installation prefix.
 
 The ``enthought/runtime.json`` MUST follow the json schemas as defined in
 okonomiyaki.runtimes.runtime_schema. Each language has a common set of
@@ -44,3 +44,6 @@ look as follows::
         "paths": ["${prefix}\\bin"],
         "post_install": []
     }
+
+When installed, jaguar will automatically fillup the ``${}`` variables from the
+installation prefix.

@@ -163,13 +163,6 @@ class PythonRuntimeInfoV1(IRuntimeInfoV1):
 
         return args + (scriptsdir, site_packages, python_tag)
 
-    def to_json_dict(self):
-        json_dict = super(PythonRuntimeInfoV1, self).to_json_dict()
-        for k in ("scriptsdir", "site_packages", "python_tag"):
-            json_dict[k] = json_dict[k]
-
-        return json_dict
-
 
 _RUNTIME_INFO_JSON_FACTORY = {
     (MetadataVersion.from_string("1.0"), "python"): PythonRuntimeInfoV1,
