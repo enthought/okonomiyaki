@@ -9,8 +9,7 @@ from attr.validators import instance_of
 
 from okonomiyaki.platforms import Platform
 from okonomiyaki.platforms.platform import WINDOWS
-from okonomiyaki.runtimes import RuntimeVersion
-from okonomiyaki.versions import MetadataVersion
+from okonomiyaki.versions import MetadataVersion, RuntimeVersion
 
 from .runtime_info import IRuntimeInfoV1, PythonRuntimeInfoV1
 
@@ -44,7 +43,8 @@ class PythonRuntime(Runtime):
     _executable = attr(validator=instance_of(six.text_type))
 
     @classmethod
-    def from_prefix_and_platform(cls, prefix, platform=None, version=None):
+    def from_prefix_and_platform(cls, prefix, platform=None, version=None,
+                                 python_tag=None):
         """ Use this to build a runtime for an arbitrary platform.
 
         Calling this with an incompatible platform (e.g. windows on linux) is
@@ -58,11 +58,16 @@ class PythonRuntime(Runtime):
             <prefix> is the prefix.
         platform: Platform
             An okonomiyaki Platform class (the vendorized one).
-        version: SemanticVersion
-            The runtime's version. Default to a version representing
-            sys.version_info if not specified
+        implementation_version: RuntimeVersion
+            The runtime's implementation version. Default to a version
+            representing sys.version_info if not specified
         """
         version = version or _version_info_to_version()
+        language_version = RuntimeVersion.from_string(version.numpart)
+
+        python_tag = (
+            python_tag or u"cp{0}{1}".format(version.major, version.minor)
+        )
 
         if six.PY2:
             prefix = prefix.decode(sys.getfilesystemencoding())
@@ -99,8 +104,9 @@ class PythonRuntime(Runtime):
 
         runtime_info = PythonRuntimeInfoV1(
             MetadataVersion.from_string("1.0"), language, implementation,
-            version, platform, build_revision, executable, paths, post_install,
-            prefix, name, scriptsdir, site_packages,
+            version, language_version, platform, build_revision,
+            executable, paths, post_install, prefix, name, scriptsdir,
+            site_packages, python_tag,
 
         )
         return cls(runtime_info, u"")
@@ -175,5 +181,5 @@ def _compute_site_packages(prefix, platform, major_minor):
 def _version_info_to_version(version_info=None):
     version_info = version_info or sys.version_info
     version_string = ".".join(str(part) for part in version_info[:3])
-    version_string += "-{0}.{1}".format(*version_info[-2:])
+    version_string += "+{0}.{1}".format(*version_info[-2:])
     return RuntimeVersion.from_string(version_string)

@@ -25,7 +25,7 @@ class TestPythonMetadataV1(unittest.TestCase):
         path = PYTHON_CPYTHON_2_7_10_RH5_64
 
         # When
-        metadata = PythonRuntimeMetadataV1.from_path(path)
+        metadata = PythonRuntimeMetadataV1._from_path(path)
 
         # Then
         self.assertTrue(is_runtime_path_valid(path))
@@ -39,7 +39,11 @@ class TestPythonMetadataV1(unittest.TestCase):
         self.assertEqual(metadata.implementation, "cpython")
         self.assertEqual(
             metadata.version,
-            RuntimeVersion.from_string("2.7.10-1")
+            RuntimeVersion.from_string("2.7.10+1")
+        )
+        self.assertEqual(
+            metadata.language_version,
+            RuntimeVersion.from_string("2.7.10")
         )
         self.assertEqual(metadata.build_revision, "2.1.0-dev570")
         self.assertEqual(metadata.executable, "${prefix}/bin/python")
@@ -54,13 +58,14 @@ class TestPythonMetadataV1(unittest.TestCase):
             metadata.site_packages,
             "${prefix}/lib/python2.7/site-packages"
         )
+        self.assertEqual(metadata.python_tag, "cp27")
 
     def test_simple_pypy(self):
         # Given
         path = PYTHON_PYPY_2_6_0_RH5_64
 
         # When
-        metadata = PythonRuntimeMetadataV1.from_path(path)
+        metadata = PythonRuntimeMetadataV1._from_path(path)
 
         # Then
         self.assertTrue(is_runtime_path_valid(path))
@@ -74,7 +79,11 @@ class TestPythonMetadataV1(unittest.TestCase):
         self.assertEqual(metadata.implementation, "pypy")
         self.assertEqual(
             metadata.version,
-            RuntimeVersion.from_string("2.6.0-1")
+            RuntimeVersion.from_string("2.6.0+1")
+        )
+        self.assertEqual(
+            metadata.language_version,
+            RuntimeVersion.from_string("2.7.9")
         )
         self.assertEqual(metadata.build_revision, "")
         self.assertEqual(metadata.executable, "${prefix}/bin/pypy")
@@ -82,6 +91,7 @@ class TestPythonMetadataV1(unittest.TestCase):
         self.assertEqual(metadata.post_install, tuple())
         self.assertEqual(metadata.scriptsdir, "${prefix}/bin")
         self.assertEqual(metadata.site_packages, "${prefix}/site-packages")
+        self.assertEqual(metadata.python_tag, "pp27")
 
     def test_invalid(self):
         # Given
@@ -89,7 +99,7 @@ class TestPythonMetadataV1(unittest.TestCase):
 
         # When/Then
         with self.assertRaises(InvalidMetadata):
-            PythonRuntimeMetadataV1.from_path(path)
+            PythonRuntimeMetadataV1._from_path(path)
 
         # Then
         self.assertFalse(is_runtime_path_valid(path))
@@ -99,7 +109,7 @@ class TestPythonMetadataV1(unittest.TestCase):
 
         # When/Then
         with self.assertRaises(InvalidMetadata):
-            PythonRuntimeMetadataV1.from_path(path)
+            PythonRuntimeMetadataV1._from_path(path)
 
         # Then
         self.assertFalse(is_runtime_path_valid(path))
@@ -109,7 +119,7 @@ class TestPythonMetadataV1(unittest.TestCase):
 
         # When/Then
         with self.assertRaises(InvalidMetadata):
-            PythonRuntimeMetadataV1.from_path(path)
+            PythonRuntimeMetadataV1._from_path(path)
 
         # Then
         self.assertFalse(is_runtime_path_valid(path))
@@ -121,11 +131,11 @@ class TestPythonMetadataV1(unittest.TestCase):
                 pass
 
             with self.assertRaises(InvalidMetadata):
-                PythonRuntimeMetadataV1.from_path(path)
+                PythonRuntimeMetadataV1._from_path(path)
 
             with zipfile2.ZipFile(path, "w") as zp:
                 with self.assertRaises(InvalidMetadata):
-                    PythonRuntimeMetadataV1.from_path(zp)
+                    PythonRuntimeMetadataV1._from_path(zp)
 
 
 class TestJuliaRuntimeMetadataV1(unittest.TestCase):
@@ -134,7 +144,7 @@ class TestJuliaRuntimeMetadataV1(unittest.TestCase):
         path = JULIA_DEFAULT_0_3_11_RH5_64
 
         # When
-        metadata = JuliaRuntimeMetadataV1.from_path(path)
+        metadata = JuliaRuntimeMetadataV1._from_path(path)
 
         # Then
         self.assertEqual(
@@ -148,7 +158,11 @@ class TestJuliaRuntimeMetadataV1(unittest.TestCase):
         self.assertEqual(metadata.implementation, "default")
         self.assertEqual(
             metadata.version,
-            RuntimeVersion.from_string("0.3.11-1")
+            RuntimeVersion.from_string("0.3.11+1")
+        )
+        self.assertEqual(
+            metadata.language_version,
+            RuntimeVersion.from_string("0.3.11")
         )
         self.assertEqual(metadata.build_revision, "483dbf5279")
         self.assertEqual(metadata.executable, "${prefix}/bin/julia")

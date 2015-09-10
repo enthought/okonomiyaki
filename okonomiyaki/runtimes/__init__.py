@@ -1,4 +1,2 @@
 # flake8: noqa
-from .runtime_metadata import (
-    RuntimeVersion, is_runtime_path_valid, runtime_metadata_factory
-)
+from .runtime_metadata import IRuntimeMetadata, is_runtime_path_valid

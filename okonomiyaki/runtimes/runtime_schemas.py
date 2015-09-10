@@ -1,3 +1,4 @@
+# flake8: noqa
 _JULIA_V1 = {
     "$schema": "http://json-schema.org/draft-04/schema#",
     "title": "PythonRuntimeMetadata v1.0",
@@ -17,7 +18,11 @@ _JULIA_V1 = {
             "type": "string"
         },
         "version": {
-            "description": "The full version (upstream + build)",
+            "description": "The implementation version, e.g.  pypy 2.6.1 would report 2.6.1 as the 'upstream' part.",
+            "type": "string"
+        },
+        "language_version": {
+            "description": "This is the 'language' version, e.g.  pypy 2.6.1 would report 2.7.10 here.",
             "type": "string"
         },
         "platform": {
@@ -50,6 +55,7 @@ _JULIA_V1 = {
         "language",
         "implementation",
         "version",
+        "language_version",
         "platform",
         "build_revision",
         "executable",
@@ -77,7 +83,11 @@ _PYTHON_V1 = {
             "type": "string"
         },
         "version": {
-            "description": "The full version (upstream + build)",
+            "description": "The implementation version, e.g.  pypy 2.6.1 would report 2.6.1 as the 'upstream' part.",
+            "type": "string"
+        },
+        "language_version": {
+            "description": "This is the 'language' version, e.g.  pypy 2.6.1 would report 2.7.10 here.",
             "type": "string"
         },
         "platform": {
@@ -112,12 +122,17 @@ _PYTHON_V1 = {
             "description": "The full path to the python site packages.",
             "type": "string",
         },
+        "python_tag": {
+            "description": "The python tag, as defined in PEP 425.",
+            "type": "string",
+        },
     },
     "required": [
         "metadata_version",
         "language",
         "implementation",
         "version",
+        "language_version",
         "platform",
         "build_revision",
         "executable",
@@ -125,5 +140,6 @@ _PYTHON_V1 = {
         "post_install",
         "scriptsdir",
         "site_packages",
+        "python_tag",
     ]
 }

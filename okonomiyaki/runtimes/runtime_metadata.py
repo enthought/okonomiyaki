@@ -13,22 +13,50 @@ from attr.validators import instance_of
 
 from okonomiyaki.errors import InvalidMetadata, UnsupportedMetadata
 from okonomiyaki.platforms import EPDPlatform, Platform
-from okonomiyaki.versions import MetadataVersion
+from okonomiyaki.versions import MetadataVersion, RuntimeVersion
 
-from .common import RuntimeVersion, _platform_string
+from .common import _platform_string
 from .runtime_schemas import _JULIA_V1, _PYTHON_V1
 
 
-_METADATA_ARCNAME = "metadata/runtime.json"
+_METADATA_ARCNAME = "enthought/runtime.json"
 
 
 @attributes
-class IRuntimeMetadataV1(six.with_metaclass(abc.ABCMeta)):
+class IRuntimeMetadata(six.with_metaclass(abc.ABCMeta)):
     """ The metadata of a runtime package (i.e. the actual zipfile containing
     the runtime code).
     """
     metadata_version = attr(validator=instance_of(MetadataVersion))
 
+    @classmethod
+    def factory_from_path(cls, path):
+        """ Creates a metadata instance from the given path.
+
+        The created instance's class will be detected dynamically from the
+        metadata file content.
+        """
+        return runtime_metadata_factory(path)
+
+    @classmethod
+    @abc.abstractmethod
+    def _from_path(cls, path):
+        """Create an instance of the given runtime metadata class from a
+        path.
+
+        Users of the metadata classes should not use this method directly, but
+        use the factory class method instead."""
+
+    @abc.abstractproperty
+    def filename(self):
+        """The filename a runtime with this set of metadata."""
+
+
+@attributes
+class IRuntimeMetadataV1(IRuntimeMetadata):
+    """ The metadata of a runtime package (i.e. the actual zipfile containing
+    the runtime code).
+    """
     # Note: the attributes in IRuntimeMetadataV1 need to be synchronized with
     # IRuntimeInfoV1
     language = attr(validator=instance_of(six.text_type))
@@ -38,13 +66,18 @@ class IRuntimeMetadataV1(six.with_metaclass(abc.ABCMeta)):
     "The implementation (e.g. 'cpython')"
 
     version = attr(validator=instance_of(RuntimeVersion))
-    "The full version (upstream + build)"
+    """The implementation version, e.g. pypy 2.6.1 would report 2.6.1 as the
+    'upstream' part."""
+
+    language_version = attr(validator=instance_of(RuntimeVersion))
+    """This is the 'language' version, e.g.  pypy 2.6.1 would report 2.7.10
+    here."""
 
     platform = attr(validator=instance_of(Platform))
     "The platform on which this runtime may run."
 
     build_revision = attr(validator=instance_of(six.text_type))
-    """The internal version. Informative only, has no semantices and my be
+    """The internal version. Informative only, has no semantices and may be
     empty."""
 
     executable = attr(validator=instance_of(six.text_type))
@@ -60,7 +93,7 @@ class IRuntimeMetadataV1(six.with_metaclass(abc.ABCMeta)):
     _json_schema = None
 
     @classmethod
-    def from_path(cls, path_or_file):
+    def _from_path(cls, path_or_file):
         if isinstance(path_or_file, six.string_types):
             # We don't use the parsed metadata here, but that allows us to
             # sanity check against old runtimes
@@ -82,21 +115,22 @@ class IRuntimeMetadataV1(six.with_metaclass(abc.ABCMeta)):
             msg = "Unsupported metadata version: {0!r}"
             raise UnsupportedMetadata(msg.format(metadata_version))
 
-        return cls.from_json_dict(metadata_dict)
-
-    @classmethod
-    def from_json_dict(cls, data):
-        args = cls._from_json_dict(data)
-        return cls(*args)
+        return cls._from_json_dict(metadata_dict)
 
     @classmethod
     def _from_json_dict(cls, data):
+        args = cls._from_json_dict_impl(data)
+        return cls(*args)
+
+    @classmethod
+    def _from_json_dict_impl(cls, data):
         metadata_version = MetadataVersion.from_string(
             data["metadata_version"]
         )
         language = data["language"]
         implementation = data["implementation"]
         version = RuntimeVersion.from_string(data["version"])
+        language_version = RuntimeVersion.from_string(data["language_version"])
         platform = EPDPlatform.from_epd_string(data["platform"]).platform
 
         build_revision = data["build_revision"]
@@ -106,14 +140,14 @@ class IRuntimeMetadataV1(six.with_metaclass(abc.ABCMeta)):
         post_install = tuple(data["post_install"])
 
         return (
-            metadata_version, language, implementation, version, platform,
-            build_revision, executable, paths, post_install
+            metadata_version, language, implementation, version,
+            language_version, platform, build_revision, executable, paths,
+            post_install
         )
 
     @property
     def filename(self):
-        template = ("{0.language}-{0.implementation}-{0.version}-{1}"
-                    ".runtime")
+        template = "{0.language}-{0.implementation}-{0.version}-{1}.runtime"
         return template.format(self, _platform_string(self.platform))
 
 
@@ -129,15 +163,17 @@ class PythonRuntimeMetadataV1(IRuntimeMetadataV1):
     """
     scriptsdir = attr(validator=instance_of(six.text_type))
     site_packages = attr(validator=instance_of(six.text_type))
+    python_tag = attr(validator=instance_of(six.text_type))
 
     _json_schema = _PYTHON_V1
 
     @classmethod
-    def _from_json_dict(cls, data):
-        args = super(PythonRuntimeMetadataV1, cls)._from_json_dict(data)
+    def _from_json_dict_impl(cls, data):
+        args = super(PythonRuntimeMetadataV1, cls)._from_json_dict_impl(data)
         scriptsdir = data["scriptsdir"]
         site_packages = data["site_packages"]
-        return args + (scriptsdir, site_packages)
+        python_tag = data["python_tag"]
+        return args + (scriptsdir, site_packages, python_tag)
 
 
 _METADATA_KLASS_FACTORY = {
@@ -173,7 +209,7 @@ def runtime_metadata_factory(path_or_file):
         msg = "No support for {0!r} combination".format(key)
         raise UnsupportedMetadata(msg)
     else:
-        return klass.from_path(path_or_file)
+        return klass._from_path(path_or_file)
 
 
 def is_runtime_path_valid(path):
