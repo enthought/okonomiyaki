@@ -129,12 +129,33 @@ class PEP440Version(object):
 
         self._parts = (epoch, nums, pre, post, dev, local)
 
+    @property
+    def normalized_string(self):
+        """ 'normalized' string, i.e. 0 in the numerical part are stripped.
+        """
+        return self._compute_string(*self._parts)
+
     def __hash__(self):
         return hash(self._parts)
 
     def _ensure_compatible(self, other):
         if type(self) != type(other):
             raise TypeError('cannot compare %r and %r' % (self, other))
+
+    def _compute_string(self, epoch, nums, pre, post, dev, local):
+        s = ""
+        if epoch:
+            s += str(epoch) + "!"
+        s += ".".join(str(i) for i in nums)
+        if pre and pre[0] not in (_MIN, _MAX):
+            s += pre[0] + str(pre[1])
+        if post and post[0] not in (_MIN, _MAX):
+            s += ".post" + str(post[1])
+        if dev and dev[0] not in (_MIN, _MAX):
+            s += ".dev" + str(dev[1])
+        if local:
+            s += "+" + ".".join(str(part[1]) for part in local)
+        return s
 
     def __eq__(self, other):
         self._ensure_compatible(other)
@@ -164,22 +185,9 @@ class PEP440Version(object):
         return "{0}('{1}')".format(self.__class__.__name__, str(self))
 
     def __str__(self):
-        s = ""
         nums = self._release_clause
         epoch, _, pre, post, dev, local = self._parts
-        if epoch:
-            s += str(epoch) + "!"
-        if nums:
-            s += ".".join(str(i) for i in nums)
-        if pre and pre[0] not in (_MIN, _MAX):
-            s += pre[0] + str(pre[1])
-        if post and post[0] not in (_MIN, _MAX):
-            s += ".post" + str(post[1])
-        if dev and dev[0] not in (_MIN, _MAX):
-            s += ".dev" + str(dev[1])
-        if local:
-            s += "+" + ".".join(str(part[1]) for part in local)
-        return s
+        return self._compute_string(epoch, nums, pre, post, dev, local)
 
 
 def _strip_trailing_zeros(nums):

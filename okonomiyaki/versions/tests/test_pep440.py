@@ -71,6 +71,21 @@ class TestMinMax(unittest.TestCase):
 
 
 class TestPEP440Version(unittest.TestCase):
+    def test_normalized_string(self):
+        # Given
+        version_strings = (
+            ("1.0.0", "1"),
+            ("1!1.0.0", "1!1"),
+            ("1.0.0.dev1", "1.dev1"),
+            ("2!1.0.0rc2.post2.dev1", "2!1rc2.post2.dev1"),
+            ("2!1.0.0rc2.post2.dev1+1.2a", "2!1rc2.post2.dev1+1.2a"),
+        )
+
+        # When/Then
+        for version_string, normalized in version_strings:
+            version = V(version_string)
+            self.assertEqual(version.normalized_string, normalized)
+
     def test_string(self):
         # Given
         version_strings = (
