@@ -38,13 +38,18 @@ class IRuntimeMetadataV1(six.with_metaclass(abc.ABCMeta)):
     "The implementation (e.g. 'cpython')"
 
     version = attr(validator=instance_of(RuntimeVersion))
-    "The full version (upstream + build)"
+    """The implementation version, e.g. pypy 2.6.1 would report 2.6.1 as the
+    'upstream' part."""
+
+    language_version = attr(validator=instance_of(RuntimeVersion))
+    """This is the 'language' version, e.g.  pypy 2.6.1 would report 2.7.10
+    here."""
 
     platform = attr(validator=instance_of(Platform))
     "The platform on which this runtime may run."
 
     build_revision = attr(validator=instance_of(six.text_type))
-    """The internal version. Informative only, has no semantices and my be
+    """The internal version. Informative only, has no semantices and may be
     empty."""
 
     executable = attr(validator=instance_of(six.text_type))
@@ -97,6 +102,7 @@ class IRuntimeMetadataV1(six.with_metaclass(abc.ABCMeta)):
         language = data["language"]
         implementation = data["implementation"]
         version = RuntimeVersion.from_string(data["version"])
+        language_version = RuntimeVersion.from_string(data["language_version"])
         platform = EPDPlatform.from_epd_string(data["platform"]).platform
 
         build_revision = data["build_revision"]
@@ -106,14 +112,14 @@ class IRuntimeMetadataV1(six.with_metaclass(abc.ABCMeta)):
         post_install = tuple(data["post_install"])
 
         return (
-            metadata_version, language, implementation, version, platform,
-            build_revision, executable, paths, post_install
+            metadata_version, language, implementation, version,
+            language_version, platform, build_revision, executable, paths,
+            post_install
         )
 
     @property
     def filename(self):
-        template = ("{0.language}-{0.implementation}-{0.version}-{1}"
-                    ".runtime")
+        template = "{0.language}-{0.implementation}-{0.version}-{1}.runtime"
         return template.format(self, _platform_string(self.platform))
 
 

@@ -41,6 +41,10 @@ class TestPythonMetadataV1(unittest.TestCase):
             metadata.version,
             RuntimeVersion.from_string("2.7.10-1")
         )
+        self.assertEqual(
+            metadata.language_version,
+            RuntimeVersion.from_string("2.7.10")
+        )
         self.assertEqual(metadata.build_revision, "2.1.0-dev570")
         self.assertEqual(metadata.executable, "${prefix}/bin/python")
         self.assertEqual(metadata.paths, ("${prefix}/bin",))
@@ -75,6 +79,10 @@ class TestPythonMetadataV1(unittest.TestCase):
         self.assertEqual(
             metadata.version,
             RuntimeVersion.from_string("2.6.0-1")
+        )
+        self.assertEqual(
+            metadata.language_version,
+            RuntimeVersion.from_string("2.7.9")
         )
         self.assertEqual(metadata.build_revision, "")
         self.assertEqual(metadata.executable, "${prefix}/bin/pypy")
@@ -149,6 +157,10 @@ class TestJuliaRuntimeMetadataV1(unittest.TestCase):
         self.assertEqual(
             metadata.version,
             RuntimeVersion.from_string("0.3.11-1")
+        )
+        self.assertEqual(
+            metadata.language_version,
+            RuntimeVersion.from_string("0.3.11")
         )
         self.assertEqual(metadata.build_revision, "483dbf5279")
         self.assertEqual(metadata.executable, "${prefix}/bin/julia")

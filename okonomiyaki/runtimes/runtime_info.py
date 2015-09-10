@@ -29,7 +29,12 @@ class IRuntimeInfoV1(six.with_metaclass(abc.ABCMeta)):
     "The implementation (e.g. 'cpython')"
 
     version = attr(validator=instance_of(RuntimeVersion))
-    "The full version (upstream + build)"
+    """The implementation version, e.g. pypy 2.6.1 would report 2.6.1 as the
+    'upstream' part."""
+
+    language_version = attr(validator=instance_of(RuntimeVersion))
+    """This is the 'language' version, e.g.  pypy 2.6.1 would report 2.7.10
+    here."""
 
     platform = attr(validator=instance_of(Platform))
     "The platform on which this runtime may run."
@@ -71,6 +76,7 @@ class IRuntimeInfoV1(six.with_metaclass(abc.ABCMeta)):
         language = metadata.language
         implementation = metadata.implementation
         version = metadata.version
+        language_version = metadata.language_version
         platform = metadata.platform
         build_revision = metadata.build_revision
 
@@ -88,13 +94,13 @@ class IRuntimeInfoV1(six.with_metaclass(abc.ABCMeta)):
 
         return (
             MetadataVersion.from_string("1.0"), language, implementation,
-            version, platform, build_revision, executable, paths, post_install,
-            prefix, name
+            version, language_version, platform, build_revision,
+            executable, paths, post_install, prefix, name
         )
 
     def to_json_dict(self):
         data_dict = asdict(self)
-        for k in ("version", "metadata_version"):
+        for k in ("version", "metadata_version", "language_version"):
             data_dict[k] = str(data_dict[k])
         data_dict["platform"] = _platform_string(self.platform)
 

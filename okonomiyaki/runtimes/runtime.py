@@ -44,7 +44,8 @@ class PythonRuntime(Runtime):
     _executable = attr(validator=instance_of(six.text_type))
 
     @classmethod
-    def from_prefix_and_platform(cls, prefix, platform=None, version=None):
+    def from_prefix_and_platform(cls, prefix, platform=None,
+                                 implementation_version=None):
         """ Use this to build a runtime for an arbitrary platform.
 
         Calling this with an incompatible platform (e.g. windows on linux) is
@@ -58,11 +59,20 @@ class PythonRuntime(Runtime):
             <prefix> is the prefix.
         platform: Platform
             An okonomiyaki Platform class (the vendorized one).
-        version: SemanticVersion
-            The runtime's version. Default to a version representing
-            sys.version_info if not specified
+        implementation_version: RuntimeVersion
+            The runtime's implementation version. Default to a version
+            representing sys.version_info if not specified
         """
-        version = version or _version_info_to_version()
+        implementation_version = (
+            implementation_version or _version_info_to_version()
+        )
+        version = RuntimeVersion.from_string(
+            "{0}.{1}.{2}".format(
+                implementation_version.major,
+                implementation_version.minor,
+                implementation_version.patch
+            )
+        )
 
         if six.PY2:
             prefix = prefix.decode(sys.getfilesystemencoding())
@@ -99,8 +109,9 @@ class PythonRuntime(Runtime):
 
         runtime_info = PythonRuntimeInfoV1(
             MetadataVersion.from_string("1.0"), language, implementation,
-            version, platform, build_revision, executable, paths, post_install,
-            prefix, name, scriptsdir, site_packages,
+            version, implementation_version, platform, build_revision,
+            executable, paths, post_install, prefix, name, scriptsdir,
+            site_packages,
 
         )
         return cls(runtime_info, u"")
