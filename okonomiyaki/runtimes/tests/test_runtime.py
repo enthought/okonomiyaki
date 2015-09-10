@@ -3,7 +3,7 @@ import sys
 import unittest
 
 from okonomiyaki.platforms import EPDPlatform
-from okonomiyaki.runtimes import RuntimeVersion
+from okonomiyaki.versions import RuntimeVersion
 
 from ..runtime import PythonRuntime
 
@@ -39,7 +39,7 @@ class TestPythonRuntime(unittest.TestCase):
         # Given
         prefix = u"/usr/local"
         platform = EPDPlatform.from_epd_string("rh5-64").platform
-        version = RuntimeVersion.from_string("3.4.3-final.0")
+        version = RuntimeVersion.from_string("3.4.3+final.0")
 
         # When
         runtime_info = PythonRuntime.from_prefix_and_platform(
@@ -57,7 +57,7 @@ class TestPythonRuntime(unittest.TestCase):
         # Given
         prefix = u"/usr/local"
         platform = EPDPlatform.from_epd_string("osx-64").platform
-        version = RuntimeVersion.from_string("2.7.9-final.0")
+        version = RuntimeVersion.from_string("2.7.9+final.0")
 
         # When
         runtime_info = PythonRuntime.from_prefix_and_platform(
@@ -74,7 +74,7 @@ class TestPythonRuntime(unittest.TestCase):
         # Given
         prefix = u"C:\\Python34"
         platform = EPDPlatform.from_epd_string("win-64").platform
-        version = RuntimeVersion.from_string("3.4.3-final.0")
+        version = RuntimeVersion.from_string("3.4.3+final.0")
 
         # When
         runtime_info = PythonRuntime.from_prefix_and_platform(
@@ -92,7 +92,7 @@ class TestPythonRuntime(unittest.TestCase):
         prefix = u"/usr/local/bin/.."
         norm_prefix = u"/usr/local"
         platform = EPDPlatform.from_epd_string("osx-64").platform
-        version = RuntimeVersion.from_string("2.7.9-final.0")
+        version = RuntimeVersion.from_string("2.7.9+final.0")
 
         # When
         runtime_info = PythonRuntime.from_prefix_and_platform(

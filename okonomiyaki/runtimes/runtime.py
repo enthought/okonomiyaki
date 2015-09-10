@@ -9,8 +9,7 @@ from attr.validators import instance_of
 
 from okonomiyaki.platforms import Platform
 from okonomiyaki.platforms.platform import WINDOWS
-from okonomiyaki.runtimes import RuntimeVersion
-from okonomiyaki.versions import MetadataVersion
+from okonomiyaki.versions import MetadataVersion, RuntimeVersion
 
 from .runtime_info import IRuntimeInfoV1, PythonRuntimeInfoV1
 
@@ -70,7 +69,7 @@ class PythonRuntime(Runtime):
             "{0}.{1}.{2}".format(
                 implementation_version.major,
                 implementation_version.minor,
-                implementation_version.patch
+                implementation_version.micro
             )
         )
         python_tag = (
@@ -193,5 +192,5 @@ def _compute_site_packages(prefix, platform, major_minor):
 def _version_info_to_version(version_info=None):
     version_info = version_info or sys.version_info
     version_string = ".".join(str(part) for part in version_info[:3])
-    version_string += "-{0}.{1}".format(*version_info[-2:])
+    version_string += "+{0}.{1}".format(*version_info[-2:])
     return RuntimeVersion.from_string(version_string)

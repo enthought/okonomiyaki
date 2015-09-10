@@ -13,9 +13,9 @@ from attr.validators import instance_of
 
 from okonomiyaki.errors import InvalidMetadata, UnsupportedMetadata
 from okonomiyaki.platforms import EPDPlatform, Platform
-from okonomiyaki.versions import MetadataVersion
+from okonomiyaki.versions import MetadataVersion, RuntimeVersion
 
-from .common import RuntimeVersion, _platform_string
+from .common import _platform_string
 from .runtime_schemas import _JULIA_V1, _PYTHON_V1
 
 

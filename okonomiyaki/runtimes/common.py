@@ -1,8 +1,4 @@
 from okonomiyaki.platforms import EPDPlatform
-from okonomiyaki.versions import SemanticVersion
-
-
-RuntimeVersion = SemanticVersion
 
 
 def _platform_string(platform):

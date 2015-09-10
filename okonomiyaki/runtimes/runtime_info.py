@@ -10,9 +10,9 @@ from attr.validators import instance_of
 from okonomiyaki.errors import UnsupportedMetadata
 from okonomiyaki.platforms import Platform
 from okonomiyaki.utils import substitute_variable, substitute_variables
-from okonomiyaki.versions import MetadataVersion
+from okonomiyaki.versions import MetadataVersion, RuntimeVersion
 
-from .common import RuntimeVersion, _platform_string
+from .common import _platform_string
 from .runtime_metadata import JuliaRuntimeMetadataV1, PythonRuntimeMetadataV1
 
 
