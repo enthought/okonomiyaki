@@ -159,6 +159,7 @@ class TestPEP440Version(unittest.TestCase):
             < V('1.0.post456.dev623+1')
             < V('1.0.post456.dev623+1.1')
             < V('1.0.post456')
+            < V('1.0.post456+a.1')
             < V('1.0.post456+1')
             < V('1.0.post456+1.1')
         )

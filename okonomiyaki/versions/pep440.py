@@ -1,6 +1,6 @@
 """ Implementation of a subset of PEP440.
 
-Implementation adapted by the distlib.version package
+Implementation adapted from the distlib.version package
 """
 import re
 
@@ -129,7 +129,7 @@ class PEP440Version(object):
 
         self._parts = (epoch, nums, pre, post, dev, local)
 
-        # Caching of the corresponnding properties
+        # Caching of the corresponding properties
         self._normalized_string = None
         self._string = None
 
