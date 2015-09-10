@@ -23,12 +23,40 @@ _METADATA_ARCNAME = "enthought/runtime.json"
 
 
 @attributes
-class IRuntimeMetadataV1(six.with_metaclass(abc.ABCMeta)):
+class IRuntimeMetadata(six.with_metaclass(abc.ABCMeta)):
     """ The metadata of a runtime package (i.e. the actual zipfile containing
     the runtime code).
     """
     metadata_version = attr(validator=instance_of(MetadataVersion))
 
+    @classmethod
+    def factory_from_path(cls, path):
+        """ Creates a metadata instance from the given path.
+
+        The created instance's class will be detected dynamically from the
+        metadata file content.
+        """
+        return runtime_metadata_factory(path)
+
+    @classmethod
+    @abc.abstractmethod
+    def _from_path(cls, path):
+        """Create an instance of the given runtime metadata class from a
+        path.
+
+        Users of the metadata classes should not use this method directly, but
+        use the factory class method instead."""
+
+    @abc.abstractproperty
+    def filename(self):
+        """The filename a runtime with this set of metadata."""
+
+
+@attributes
+class IRuntimeMetadataV1(IRuntimeMetadata):
+    """ The metadata of a runtime package (i.e. the actual zipfile containing
+    the runtime code).
+    """
     # Note: the attributes in IRuntimeMetadataV1 need to be synchronized with
     # IRuntimeInfoV1
     language = attr(validator=instance_of(six.text_type))
@@ -65,7 +93,7 @@ class IRuntimeMetadataV1(six.with_metaclass(abc.ABCMeta)):
     _json_schema = None
 
     @classmethod
-    def from_path(cls, path_or_file):
+    def _from_path(cls, path_or_file):
         if isinstance(path_or_file, six.string_types):
             # We don't use the parsed metadata here, but that allows us to
             # sanity check against old runtimes
@@ -87,15 +115,15 @@ class IRuntimeMetadataV1(six.with_metaclass(abc.ABCMeta)):
             msg = "Unsupported metadata version: {0!r}"
             raise UnsupportedMetadata(msg.format(metadata_version))
 
-        return cls.from_json_dict(metadata_dict)
-
-    @classmethod
-    def from_json_dict(cls, data):
-        args = cls._from_json_dict(data)
-        return cls(*args)
+        return cls._from_json_dict(metadata_dict)
 
     @classmethod
     def _from_json_dict(cls, data):
+        args = cls._from_json_dict_impl(data)
+        return cls(*args)
+
+    @classmethod
+    def _from_json_dict_impl(cls, data):
         metadata_version = MetadataVersion.from_string(
             data["metadata_version"]
         )
@@ -140,8 +168,8 @@ class PythonRuntimeMetadataV1(IRuntimeMetadataV1):
     _json_schema = _PYTHON_V1
 
     @classmethod
-    def _from_json_dict(cls, data):
-        args = super(PythonRuntimeMetadataV1, cls)._from_json_dict(data)
+    def _from_json_dict_impl(cls, data):
+        args = super(PythonRuntimeMetadataV1, cls)._from_json_dict_impl(data)
         scriptsdir = data["scriptsdir"]
         site_packages = data["site_packages"]
         python_tag = data["python_tag"]
@@ -181,7 +209,7 @@ def runtime_metadata_factory(path_or_file):
         msg = "No support for {0!r} combination".format(key)
         raise UnsupportedMetadata(msg)
     else:
-        return klass.from_path(path_or_file)
+        return klass._from_path(path_or_file)
 
 
 def is_runtime_path_valid(path):

@@ -6,8 +6,8 @@ from okonomiyaki.utils.test_data import (
     JULIA_DEFAULT_0_3_11_RH5_64, JULIA_DEFAULT_0_3_11_WIN_64,
     PYTHON_CPYTHON_2_7_10_RH5_64, PYTHON_CPYTHON_2_7_10_WIN_64
 )
-from ..runtime_metadata import runtime_metadata_factory
-from ..runtime_info import runtime_info_from_metadata, runtime_info_from_json
+from ..runtime_metadata import IRuntimeMetadata
+from ..runtime_info import IRuntimeInfo
 
 
 class TestPythonRuntimeInfoV1(unittest.TestCase):
@@ -23,10 +23,12 @@ class TestPythonRuntimeInfoV1(unittest.TestCase):
             path = PYTHON_CPYTHON_2_7_10_RH5_64
             r_executable = os.path.join(prefix, "bin", "python")
 
-        metadata = runtime_metadata_factory(path)
+        metadata = IRuntimeMetadata.factory_from_path(path)
 
         # When
-        runtime_info = runtime_info_from_metadata(metadata, prefix, name)
+        runtime_info = IRuntimeInfo.factory_from_metadata(
+            metadata, prefix, name
+        )
 
         # Then
         self.assertEqual(runtime_info.prefix, prefix)
@@ -36,14 +38,18 @@ class TestPythonRuntimeInfoV1(unittest.TestCase):
     def test_json_round_trip(self):
         # Given
         path = PYTHON_CPYTHON_2_7_10_RH5_64
-        metadata = runtime_metadata_factory(path)
+        metadata = IRuntimeMetadata.factory_from_path(path)
         name = u"test"
         prefix = os.path.abspath(os.path.join(u"foo", u"bar"))
 
-        r_runtime_info = runtime_info_from_metadata(metadata, prefix, name)
+        r_runtime_info = IRuntimeInfo.factory_from_metadata(
+            metadata, prefix, name
+        )
 
         # When
-        runtime_info = runtime_info_from_json(r_runtime_info.to_json_dict())
+        runtime_info = IRuntimeInfo.factory_from_json_dict(
+            r_runtime_info.to_json_dict()
+        )
 
         # Then
         self.assertEqual(runtime_info, r_runtime_info)
@@ -62,10 +68,12 @@ class TestJuliaRuntimeInfoV1(unittest.TestCase):
             path = JULIA_DEFAULT_0_3_11_RH5_64
             r_executable = os.path.join(prefix, "bin", "julia")
 
-        metadata = runtime_metadata_factory(path)
+        metadata = IRuntimeMetadata.factory_from_path(path)
 
         # When
-        runtime_info = runtime_info_from_metadata(metadata, prefix, name)
+        runtime_info = IRuntimeInfo.factory_from_metadata(
+            metadata, prefix, name
+        )
 
         # Then
         self.assertEqual(runtime_info.prefix, prefix)
@@ -75,14 +83,18 @@ class TestJuliaRuntimeInfoV1(unittest.TestCase):
     def test_json_round_trip(self):
         # Given
         path = JULIA_DEFAULT_0_3_11_RH5_64
-        metadata = runtime_metadata_factory(path)
+        metadata = IRuntimeMetadata.factory_from_path(path)
         name = u"test"
         prefix = os.path.abspath(os.path.join(u"foo", u"bar"))
 
-        r_runtime_info = runtime_info_from_metadata(metadata, prefix, name)
+        r_runtime_info = IRuntimeInfo.factory_from_metadata(
+            metadata, prefix, name
+        )
 
         # When
-        runtime_info = runtime_info_from_json(r_runtime_info.to_json_dict())
+        runtime_info = IRuntimeInfo.factory_from_json_dict(
+            r_runtime_info.to_json_dict()
+        )
 
         # Then
         self.assertEqual(runtime_info, r_runtime_info)

@@ -25,7 +25,7 @@ class TestPythonMetadataV1(unittest.TestCase):
         path = PYTHON_CPYTHON_2_7_10_RH5_64
 
         # When
-        metadata = PythonRuntimeMetadataV1.from_path(path)
+        metadata = PythonRuntimeMetadataV1._from_path(path)
 
         # Then
         self.assertTrue(is_runtime_path_valid(path))
@@ -65,7 +65,7 @@ class TestPythonMetadataV1(unittest.TestCase):
         path = PYTHON_PYPY_2_6_0_RH5_64
 
         # When
-        metadata = PythonRuntimeMetadataV1.from_path(path)
+        metadata = PythonRuntimeMetadataV1._from_path(path)
 
         # Then
         self.assertTrue(is_runtime_path_valid(path))
@@ -99,7 +99,7 @@ class TestPythonMetadataV1(unittest.TestCase):
 
         # When/Then
         with self.assertRaises(InvalidMetadata):
-            PythonRuntimeMetadataV1.from_path(path)
+            PythonRuntimeMetadataV1._from_path(path)
 
         # Then
         self.assertFalse(is_runtime_path_valid(path))
@@ -109,7 +109,7 @@ class TestPythonMetadataV1(unittest.TestCase):
 
         # When/Then
         with self.assertRaises(InvalidMetadata):
-            PythonRuntimeMetadataV1.from_path(path)
+            PythonRuntimeMetadataV1._from_path(path)
 
         # Then
         self.assertFalse(is_runtime_path_valid(path))
@@ -119,7 +119,7 @@ class TestPythonMetadataV1(unittest.TestCase):
 
         # When/Then
         with self.assertRaises(InvalidMetadata):
-            PythonRuntimeMetadataV1.from_path(path)
+            PythonRuntimeMetadataV1._from_path(path)
 
         # Then
         self.assertFalse(is_runtime_path_valid(path))
@@ -131,11 +131,11 @@ class TestPythonMetadataV1(unittest.TestCase):
                 pass
 
             with self.assertRaises(InvalidMetadata):
-                PythonRuntimeMetadataV1.from_path(path)
+                PythonRuntimeMetadataV1._from_path(path)
 
             with zipfile2.ZipFile(path, "w") as zp:
                 with self.assertRaises(InvalidMetadata):
-                    PythonRuntimeMetadataV1.from_path(zp)
+                    PythonRuntimeMetadataV1._from_path(zp)
 
 
 class TestJuliaRuntimeMetadataV1(unittest.TestCase):
@@ -144,7 +144,7 @@ class TestJuliaRuntimeMetadataV1(unittest.TestCase):
         path = JULIA_DEFAULT_0_3_11_RH5_64
 
         # When
-        metadata = JuliaRuntimeMetadataV1.from_path(path)
+        metadata = JuliaRuntimeMetadataV1._from_path(path)
 
         # Then
         self.assertEqual(

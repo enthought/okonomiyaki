@@ -17,9 +17,37 @@ from .runtime_metadata import JuliaRuntimeMetadataV1, PythonRuntimeMetadataV1
 
 
 @attributes
-class IRuntimeInfoV1(six.with_metaclass(abc.ABCMeta)):
+class IRuntimeInfo(six.with_metaclass(abc.ABCMeta)):
+    """ The metadata of a runtime package (i.e. the actual zipfile containing
+    the runtime code).
+    """
     metadata_version = attr(validator=instance_of(MetadataVersion))
 
+    @classmethod
+    def factory_from_metadata(cls, metadata, prefix, name):
+        """ Creates a runtime info object of the appropriate class.
+
+        The class is selected dynamically from the given metadata.
+        """
+        return runtime_info_from_metadata(metadata, prefix, name)
+
+    @classmethod
+    def factory_from_json_dict(cls, json_dict):
+        """ Creates a runtime info object of the appropriate class.
+
+        The class is selected dynamically from the given json dict.
+        """
+        return runtime_info_from_json(json_dict)
+
+    @abc.abstractmethod
+    def to_json_dict(self):
+        """ Returns a json dict that can easily be serialized back into a
+        file or buffer.
+        """
+
+
+@attributes
+class IRuntimeInfoV1(IRuntimeInfo):
     # Note: the attributes in IRuntimeInfoV1 need to be synchronized with
     # IRuntimeMetadataV1
     language = attr(validator=instance_of(six.text_type))
@@ -61,18 +89,18 @@ class IRuntimeInfoV1(six.with_metaclass(abc.ABCMeta)):
     _metadata_klass = None
 
     @classmethod
-    def from_json_dict(cls, data):
-        metadata = cls._metadata_klass.from_json_dict(data)
-        return cls.from_metadata(
+    def _from_json_dict(cls, data):
+        metadata = cls._metadata_klass._from_json_dict(data)
+        return cls._from_metadata(
             metadata, data["prefix"], data["name"]
         )
 
     @classmethod
-    def from_metadata(cls, metadata, prefix, name):
-        return cls(*cls._from_metadata(metadata, prefix, name))
+    def _from_metadata(cls, metadata, prefix, name):
+        return cls(*cls._from_metadata_impl(metadata, prefix, name))
 
     @classmethod
-    def _from_metadata(cls, metadata, prefix, name):
+    def _from_metadata_impl(cls, metadata, prefix, name):
         language = metadata.language
         implementation = metadata.implementation
         version = metadata.version
@@ -124,8 +152,8 @@ class PythonRuntimeInfoV1(IRuntimeInfoV1):
     _metadata_klass = PythonRuntimeMetadataV1
 
     @classmethod
-    def _from_metadata(cls, metadata, prefix, name):
-        args = super(PythonRuntimeInfoV1, cls)._from_metadata(
+    def _from_metadata_impl(cls, metadata, prefix, name):
+        args = super(PythonRuntimeInfoV1, cls)._from_metadata_impl(
             metadata, prefix, name
         )
         variables = _compute_variables(metadata, prefix, name)
@@ -162,7 +190,7 @@ def runtime_info_from_json(json_data):
         msg = "Combination {0!r} is not supported".format(key)
         raise UnsupportedMetadata(msg)
     else:
-        return klass.from_json_dict(json_data)
+        return klass._from_json_dict(json_data)
 
 
 _RUNTIME_INFO_FACTORY = {}
@@ -176,7 +204,7 @@ def runtime_info_from_metadata(metadata, prefix, name):
     """
     klass = _RUNTIME_INFO_FACTORY.get(type(metadata))
     assert klass is not None
-    return klass.from_metadata(metadata, prefix, name)
+    return klass._from_metadata(metadata, prefix, name)
 
 
 def _compute_variables(metadata, prefix, name):
