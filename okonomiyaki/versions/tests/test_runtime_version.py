@@ -18,6 +18,7 @@ class TestRuntimeVersion(unittest.TestCase):
 
         # Then
         self.assertEqual((v.major, v.minor, v.micro), (1, 2, 1))
+        self.assertEqual(v.numpart, "1.2.1")
 
         # Given
         s = "1.2.0"
@@ -27,6 +28,7 @@ class TestRuntimeVersion(unittest.TestCase):
 
         # Then
         self.assertEqual((v.major, v.minor, v.micro), (1, 2, 0))
+        self.assertEqual(v.numpart, "1.2.0")
 
         # Given
         s = "1.0.0"
@@ -36,6 +38,7 @@ class TestRuntimeVersion(unittest.TestCase):
 
         # Then
         self.assertEqual((v.major, v.minor, v.micro), (1, 0, 0))
+        self.assertEqual(v.numpart, "1.0.0")
 
     def test_hashing(self):
         v1 = V("1.2.0")

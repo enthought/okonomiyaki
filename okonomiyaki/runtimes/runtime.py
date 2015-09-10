@@ -43,8 +43,8 @@ class PythonRuntime(Runtime):
     _executable = attr(validator=instance_of(six.text_type))
 
     @classmethod
-    def from_prefix_and_platform(cls, prefix, platform=None,
-                                 implementation_version=None, python_tag=None):
+    def from_prefix_and_platform(cls, prefix, platform=None, version=None,
+                                 python_tag=None):
         """ Use this to build a runtime for an arbitrary platform.
 
         Calling this with an incompatible platform (e.g. windows on linux) is
@@ -62,20 +62,11 @@ class PythonRuntime(Runtime):
             The runtime's implementation version. Default to a version
             representing sys.version_info if not specified
         """
-        version = (
-            implementation_version or _version_info_to_version()
-        )
-        language_version = RuntimeVersion.from_string(
-            "{0}.{1}.{2}".format(
-                version.major, version.minor, version.micro
-            )
-        )
+        version = version or _version_info_to_version()
+        language_version = RuntimeVersion.from_string(version.numpart)
+
         python_tag = (
-            python_tag
-            or u"cp{0}{1}".format(
-                implementation_version.major,
-                implementation_version.minor
-            )
+            python_tag or u"cp{0}{1}".format(version.major, version.minor)
         )
 
         if six.PY2:

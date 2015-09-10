@@ -28,6 +28,11 @@ class RuntimeVersion(object):
             return self._nums[2]
 
     @property
+    def numpart(self):
+        """Major.Minor.Micro as a string."""
+        return "{0.major}.{0.minor}.{0.micro}".format(self)
+
+    @property
     def normalized_string(self):
         return self._pep440_version.normalized_string
 
