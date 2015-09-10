@@ -1,12 +1,90 @@
 import unittest
 
-from ..pep440 import PEP440Version
+from ..pep440 import _MIN, _MAX, PEP440Version
 
 
 V = PEP440Version.from_string
 
 
+class TestMinMax(unittest.TestCase):
+    def test_min(self):
+        self.assertFalse(_MIN == 1)
+        self.assertFalse(_MIN == _MAX)
+        self.assertFalse(_MIN == "0")
+        self.assertTrue(_MIN == _MIN)
+
+        self.assertTrue(_MIN != 1)
+        self.assertTrue(_MIN != _MAX)
+        self.assertTrue(_MIN != "0")
+        self.assertFalse(_MIN != _MIN)
+
+        self.assertTrue(_MIN < 1)
+        self.assertTrue(_MIN < _MAX)
+        self.assertTrue(_MIN < "0")
+        self.assertFalse(_MIN < _MIN)
+
+        self.assertTrue(_MIN <= 1)
+        self.assertTrue(_MIN <= _MAX)
+        self.assertTrue(_MIN <= "0")
+        self.assertTrue(_MIN <= _MIN)
+
+        self.assertFalse(_MIN >= 1)
+        self.assertFalse(_MIN >= _MAX)
+        self.assertFalse(_MIN >= "0")
+        self.assertTrue(_MIN >= _MIN)
+
+        self.assertFalse(_MIN > 1)
+        self.assertFalse(_MIN > _MAX)
+        self.assertFalse(_MIN > "0")
+        self.assertFalse(_MIN > _MIN)
+
+    def test_max(self):
+        self.assertFalse(_MAX == _MIN)
+        self.assertFalse(_MAX == 1)
+        self.assertFalse(_MAX == "0")
+        self.assertTrue(_MAX == _MAX)
+
+        self.assertTrue(_MAX != _MIN)
+        self.assertTrue(_MAX != 1)
+        self.assertTrue(_MAX != "0")
+        self.assertFalse(_MAX != _MAX)
+
+        self.assertFalse(_MAX < 1)
+        self.assertFalse(_MAX < _MIN)
+        self.assertFalse(_MAX < "0")
+        self.assertFalse(_MAX < _MAX)
+
+        self.assertFalse(_MAX <= 1)
+        self.assertFalse(_MAX <= _MIN)
+        self.assertFalse(_MAX <= "0")
+        self.assertTrue(_MAX <= _MAX)
+
+        self.assertTrue(_MAX >= 1)
+        self.assertTrue(_MAX >= _MIN)
+        self.assertTrue(_MAX >= "0")
+        self.assertTrue(_MAX >= _MAX)
+
+        self.assertTrue(_MAX > 1)
+        self.assertTrue(_MAX > _MIN)
+        self.assertTrue(_MAX > "0")
+        self.assertFalse(_MAX > _MAX)
+
+
 class TestPEP440Version(unittest.TestCase):
+    def test_string(self):
+        # Given
+        version_strings = (
+            "1.0.0",
+            "1!1.0.0",
+            "1.0.0.dev1",
+            "2!1.0.0rc2.post2.dev1",
+            "2!1.0.0rc2.post2.dev1+1.2a",
+        )
+
+        # When/Then
+        for version_string in version_strings:
+            self.assertEqual(str(V(version_string)), version_string)
+
     def test_comparison(self):
         self.assertTrue(V("1.2.0") == V("1.2"))
         self.assertFalse(V("1.2.0") == V("1.2.3"))

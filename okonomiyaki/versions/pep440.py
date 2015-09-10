@@ -10,6 +10,56 @@ PEP440_VERSION_RE = re.compile(r'^v?(\d+!)?(\d+(\.\d+)*)((a|b|rc)(\d+))?'
                                r'(\+([a-zA-Z\d]+(\.[a-zA-Z\d]+)?))?$')
 
 
+class _Min(object):
+    def __hash__(self):
+        return hash(self.__class__)
+
+    def __eq__(self, other):
+        return other.__class__ == self.__class__
+
+    def __ne__(self, other):
+        return other.__class__ != self.__class__
+
+    def __lt__(self, other):
+        return other.__class__ != self.__class__
+
+    def __le__(self, other):
+        return True
+
+    def __ge__(self, other):
+        return other.__class__ == self.__class__
+
+    def __gt__(self, other):
+        return False
+
+
+class _Max(object):
+    def __hash__(self):
+        return hash(self.__class__)
+
+    def __eq__(self, other):
+        return other.__class__ == self.__class__
+
+    def __ne__(self, other):
+        return other.__class__ != self.__class__
+
+    def __lt__(self, other):
+        return False
+
+    def __le__(self, other):
+        return other.__class__ == self.__class__
+
+    def __ge__(self, other):
+        return True
+
+    def __gt__(self, other):
+        return other.__class__ != self.__class__
+
+
+_MIN = _Min()
+_MAX = _Max()
+
+
 class PEP440Version(object):
     """ A PEP440-compliant version object.
 
@@ -26,7 +76,7 @@ class PEP440Version(object):
         if not groups[0]:
             epoch = 0
         else:
-            epoch = int(groups[0])
+            epoch = int(groups[0][:-1])
         pre = groups[4:6]
         post = groups[7:9]
         dev = groups[10:12]
@@ -57,18 +107,18 @@ class PEP440Version(object):
                     part = (0, part)
                 parts.append(part)
             local = tuple(parts)
+
         if not pre:
-            # either before pre-release, or final release and after
             if not post and dev:
                 # before pre-release
-                pre = ('a', -1)     # to sort before a0
+                pre = (_MIN,)
             else:
-                pre = ('z',)        # to sort after all pre-releases
-        # now look at the state of post and dev.
+                pre = (_MAX,)
+
         if not post:
-            post = ('_',)   # sort before 'a'
+            post = (_MIN,)
         if not dev:
-            dev = ('final',)
+            dev = (_MAX,)
 
         return cls(epoch, nums, pre, post, dev, local)
 
@@ -109,6 +159,27 @@ class PEP440Version(object):
     def __gt__(self, other):
         self._ensure_compatible(other)
         return self._parts > other._parts
+
+    def __repr__(self):
+        return "{0}('{1}')".format(self.__class__.__name__, str(self))
+
+    def __str__(self):
+        s = ""
+        nums = self._release_clause
+        epoch, _, pre, post, dev, local = self._parts
+        if epoch:
+            s += str(epoch) + "!"
+        if nums:
+            s += ".".join(str(i) for i in nums)
+        if pre and pre[0] not in (_MIN, _MAX):
+            s += pre[0] + str(pre[1])
+        if post and post[0] not in (_MIN, _MAX):
+            s += ".post" + str(post[1])
+        if dev and dev[0] not in (_MIN, _MAX):
+            s += ".dev" + str(dev[1])
+        if local:
+            s += "+" + ".".join(str(part[1]) for part in local)
+        return s
 
 
 def _strip_trailing_zeros(nums):
