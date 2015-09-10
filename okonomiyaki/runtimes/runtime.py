@@ -62,14 +62,12 @@ class PythonRuntime(Runtime):
             The runtime's implementation version. Default to a version
             representing sys.version_info if not specified
         """
-        implementation_version = (
+        version = (
             implementation_version or _version_info_to_version()
         )
-        version = RuntimeVersion.from_string(
+        language_version = RuntimeVersion.from_string(
             "{0}.{1}.{2}".format(
-                implementation_version.major,
-                implementation_version.minor,
-                implementation_version.micro
+                version.major, version.minor, version.micro
             )
         )
         python_tag = (
@@ -115,7 +113,7 @@ class PythonRuntime(Runtime):
 
         runtime_info = PythonRuntimeInfoV1(
             MetadataVersion.from_string("1.0"), language, implementation,
-            version, implementation_version, platform, build_revision,
+            version, language_version, platform, build_revision,
             executable, paths, post_install, prefix, name, scriptsdir,
             site_packages, python_tag,
 

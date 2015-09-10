@@ -42,17 +42,21 @@ class TestPythonRuntime(unittest.TestCase):
         version = RuntimeVersion.from_string("3.4.3+final.0")
 
         # When
-        runtime_info = PythonRuntime.from_prefix_and_platform(
+        runtime = PythonRuntime.from_prefix_and_platform(
             prefix, platform, version
         )
+        runtime_info = runtime._runtime_info
 
         # Then
-        self.assertEqual(runtime_info.executable, prefix + "/bin/python3")
-        self.assertEqual(runtime_info.prefix, prefix)
-        self.assertEqual(runtime_info.scriptsdir, prefix + "/bin")
+        self.assertEqual(runtime.executable, prefix + "/bin/python3")
+        self.assertEqual(runtime.prefix, prefix)
+        self.assertEqual(runtime.scriptsdir, prefix + "/bin")
         self.assertEqual(
-            runtime_info.site_packages,
+            runtime.site_packages,
             prefix + "/lib/python3.4/site-packages")
+
+        self.assertEqual(str(runtime_info.version), "3.4.3+final.0")
+        self.assertEqual(str(runtime_info.language_version), "3.4.3")
 
         # Given
         prefix = u"/usr/local"
@@ -60,15 +64,15 @@ class TestPythonRuntime(unittest.TestCase):
         version = RuntimeVersion.from_string("2.7.9+final.0")
 
         # When
-        runtime_info = PythonRuntime.from_prefix_and_platform(
+        runtime = PythonRuntime.from_prefix_and_platform(
             prefix, platform, version
         )
 
         # Then
-        self.assertEqual(runtime_info.prefix, prefix)
-        self.assertEqual(runtime_info.scriptsdir, prefix + "/bin")
+        self.assertEqual(runtime.prefix, prefix)
+        self.assertEqual(runtime.scriptsdir, prefix + "/bin")
         self.assertEqual(
-            runtime_info.site_packages,
+            runtime.site_packages,
             prefix + "/lib/python2.7/site-packages")
 
         # Given
@@ -77,15 +81,15 @@ class TestPythonRuntime(unittest.TestCase):
         version = RuntimeVersion.from_string("3.4.3+final.0")
 
         # When
-        runtime_info = PythonRuntime.from_prefix_and_platform(
+        runtime = PythonRuntime.from_prefix_and_platform(
             prefix, platform, version
         )
 
         # Then
-        self.assertEqual(runtime_info.prefix, prefix)
-        self.assertEqual(runtime_info.scriptsdir, prefix + "\\Scripts")
+        self.assertEqual(runtime.prefix, prefix)
+        self.assertEqual(runtime.scriptsdir, prefix + "\\Scripts")
         self.assertEqual(
-            runtime_info.site_packages, prefix + "\\Lib\\site-packages")
+            runtime.site_packages, prefix + "\\Lib\\site-packages")
 
     def test_normalization(self):
         # Given
