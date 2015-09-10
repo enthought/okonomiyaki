@@ -58,6 +58,7 @@ class TestPythonMetadataV1(unittest.TestCase):
             metadata.site_packages,
             "${prefix}/lib/python2.7/site-packages"
         )
+        self.assertEqual(metadata.python_tag, "cp27")
 
     def test_simple_pypy(self):
         # Given
@@ -90,6 +91,7 @@ class TestPythonMetadataV1(unittest.TestCase):
         self.assertEqual(metadata.post_install, tuple())
         self.assertEqual(metadata.scriptsdir, "${prefix}/bin")
         self.assertEqual(metadata.site_packages, "${prefix}/site-packages")
+        self.assertEqual(metadata.python_tag, "pp27")
 
     def test_invalid(self):
         # Given

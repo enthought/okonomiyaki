@@ -119,6 +119,7 @@ class PythonRuntimeInfoV1(IRuntimeInfoV1):
     """
     scriptsdir = attr(validator=instance_of(six.text_type))
     site_packages = attr(validator=instance_of(six.text_type))
+    python_tag = attr(validator=instance_of(six.text_type))
 
     _metadata_klass = PythonRuntimeMetadataV1
 
@@ -130,12 +131,13 @@ class PythonRuntimeInfoV1(IRuntimeInfoV1):
         variables = _compute_variables(metadata, prefix, name)
         scriptsdir = substitute_variable(metadata.scriptsdir, variables)
         site_packages = substitute_variable(metadata.site_packages, variables)
+        python_tag = substitute_variable(metadata.python_tag, variables)
 
-        return args + (scriptsdir, site_packages)
+        return args + (scriptsdir, site_packages, python_tag)
 
     def to_json_dict(self):
         json_dict = super(PythonRuntimeInfoV1, self).to_json_dict()
-        for k in ("scriptsdir", "site_packages"):
+        for k in ("scriptsdir", "site_packages", "python_tag"):
             json_dict[k] = json_dict[k]
 
         return json_dict

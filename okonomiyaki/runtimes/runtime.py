@@ -45,7 +45,7 @@ class PythonRuntime(Runtime):
 
     @classmethod
     def from_prefix_and_platform(cls, prefix, platform=None,
-                                 implementation_version=None):
+                                 implementation_version=None, python_tag=None):
         """ Use this to build a runtime for an arbitrary platform.
 
         Calling this with an incompatible platform (e.g. windows on linux) is
@@ -71,6 +71,13 @@ class PythonRuntime(Runtime):
                 implementation_version.major,
                 implementation_version.minor,
                 implementation_version.patch
+            )
+        )
+        python_tag = (
+            python_tag
+            or u"cp{0}{1}".format(
+                implementation_version.major,
+                implementation_version.minor
             )
         )
 
@@ -111,7 +118,7 @@ class PythonRuntime(Runtime):
             MetadataVersion.from_string("1.0"), language, implementation,
             version, implementation_version, platform, build_revision,
             executable, paths, post_install, prefix, name, scriptsdir,
-            site_packages,
+            site_packages, python_tag,
 
         )
         return cls(runtime_info, u"")

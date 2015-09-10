@@ -135,6 +135,7 @@ class PythonRuntimeMetadataV1(IRuntimeMetadataV1):
     """
     scriptsdir = attr(validator=instance_of(six.text_type))
     site_packages = attr(validator=instance_of(six.text_type))
+    python_tag = attr(validator=instance_of(six.text_type))
 
     _json_schema = _PYTHON_V1
 
@@ -143,7 +144,8 @@ class PythonRuntimeMetadataV1(IRuntimeMetadataV1):
         args = super(PythonRuntimeMetadataV1, cls)._from_json_dict(data)
         scriptsdir = data["scriptsdir"]
         site_packages = data["site_packages"]
-        return args + (scriptsdir, site_packages)
+        python_tag = data["python_tag"]
+        return args + (scriptsdir, site_packages, python_tag)
 
 
 _METADATA_KLASS_FACTORY = {

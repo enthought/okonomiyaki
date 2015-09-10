@@ -122,6 +122,10 @@ _PYTHON_V1 = {
             "description": "The full path to the python site packages.",
             "type": "string",
         },
+        "python_tag": {
+            "description": "The python tag, as defined in PEP 425.",
+            "type": "string",
+        },
     },
     "required": [
         "metadata_version",
@@ -136,5 +140,6 @@ _PYTHON_V1 = {
         "post_install",
         "scriptsdir",
         "site_packages",
+        "python_tag",
     ]
 }
