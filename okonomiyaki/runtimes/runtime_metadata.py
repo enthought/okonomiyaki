@@ -19,7 +19,7 @@ from .common import RuntimeVersion, _platform_string
 from .runtime_schemas import _JULIA_V1, _PYTHON_V1
 
 
-_METADATA_ARCNAME = "metadata/runtime.json"
+_METADATA_ARCNAME = "enthought/runtime.json"
 
 
 @attributes
