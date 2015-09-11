@@ -7,9 +7,9 @@ import zipfile2
 from okonomiyaki.errors import InvalidMetadata, UnsupportedMetadata
 from okonomiyaki.utils import tempdir
 from okonomiyaki.utils.test_data import (
-    JULIA_DEFAULT_0_3_11_RH5_64, PYTHON_CPYTHON_2_7_10_RH5_64,
-    PYTHON_CPYTHON_2_7_10_RH5_64_INVALID, PYTHON_PYPY_2_6_0_RH5_64,
-    R_DEFAULT_3_0_0_RH5_64
+    JULIA_DEFAULT_0_3_11_RH5_X86_64, PYTHON_CPYTHON_2_7_10_RH5_X86_64,
+    PYTHON_CPYTHON_2_7_10_RH5_X86_64_INVALID, PYTHON_PYPY_2_6_0_RH5_X86_64,
+    R_DEFAULT_3_0_0_RH5_X86_64
 )
 from okonomiyaki.versions import MetadataVersion
 
@@ -22,7 +22,7 @@ from ..runtime_metadata import (
 class TestPythonMetadataV1(unittest.TestCase):
     def test_simple(self):
         # Given
-        path = PYTHON_CPYTHON_2_7_10_RH5_64
+        path = PYTHON_CPYTHON_2_7_10_RH5_X86_64
 
         # When
         metadata = PythonRuntimeMetadataV1._from_path(path)
@@ -62,7 +62,7 @@ class TestPythonMetadataV1(unittest.TestCase):
 
     def test_simple_pypy(self):
         # Given
-        path = PYTHON_PYPY_2_6_0_RH5_64
+        path = PYTHON_PYPY_2_6_0_RH5_X86_64
 
         # When
         metadata = PythonRuntimeMetadataV1._from_path(path)
@@ -141,7 +141,7 @@ class TestPythonMetadataV1(unittest.TestCase):
 class TestJuliaRuntimeMetadataV1(unittest.TestCase):
     def test_simple(self):
         # Given
-        path = JULIA_DEFAULT_0_3_11_RH5_64
+        path = JULIA_DEFAULT_0_3_11_RH5_X86_64
 
         # When
         metadata = JuliaRuntimeMetadataV1._from_path(path)
@@ -173,7 +173,7 @@ class TestJuliaRuntimeMetadataV1(unittest.TestCase):
 class TestRuntimeMetadataFactory(unittest.TestCase):
     def test_simple(self):
         # Given
-        path = PYTHON_CPYTHON_2_7_10_RH5_64
+        path = PYTHON_CPYTHON_2_7_10_RH5_X86_64
 
         # When
         metadata = runtime_metadata_factory(path)
@@ -182,7 +182,7 @@ class TestRuntimeMetadataFactory(unittest.TestCase):
         self.assertIsInstance(metadata, PythonRuntimeMetadataV1)
 
         # Given
-        path = JULIA_DEFAULT_0_3_11_RH5_64
+        path = JULIA_DEFAULT_0_3_11_RH5_X86_64
 
         # When
         metadata = runtime_metadata_factory(path)
@@ -191,7 +191,7 @@ class TestRuntimeMetadataFactory(unittest.TestCase):
         self.assertIsInstance(metadata, JuliaRuntimeMetadataV1)
 
         # Given
-        path = JULIA_DEFAULT_0_3_11_RH5_64
+        path = JULIA_DEFAULT_0_3_11_RH5_X86_64
 
         # When
         with zipfile2.ZipFile(path) as zp:
@@ -202,14 +202,14 @@ class TestRuntimeMetadataFactory(unittest.TestCase):
 
     def test_invalid(self):
         # Given
-        path = R_DEFAULT_3_0_0_RH5_64
+        path = R_DEFAULT_3_0_0_RH5_X86_64
 
         # When/Then
         with self.assertRaises(UnsupportedMetadata):
             runtime_metadata_factory(path)
 
         # Given
-        path = PYTHON_CPYTHON_2_7_10_RH5_64_INVALID
+        path = PYTHON_CPYTHON_2_7_10_RH5_X86_64_INVALID
 
         # When/Then
         with tempdir() as d:
