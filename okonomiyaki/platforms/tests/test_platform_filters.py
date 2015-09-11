@@ -19,9 +19,9 @@ def _platform_from_epd_string(s):
 
 
 RH5_32 = _platform_from_epd_string("rh5-32")
-RH5_64 = _platform_from_epd_string("rh5-64")
+RH5_X86_64 = _platform_from_epd_string("rh5-64")
 OSX_32 = _platform_from_epd_string("osx-32")
-WIN_64 = _platform_from_epd_string("win-64")
+WIN_X86_64 = _platform_from_epd_string("win-64")
 
 UBUNTU_12_10_X32 = Platform("linux", "ubuntu", "debian", Arch.from_name("x86"),
                             release="12.10")
@@ -38,9 +38,9 @@ class TestPlatformLabel(unittest.TestCase):
 
         # When/Then
         self.assertTrue(label.matches(RH5_32))
-        self.assertFalse(label.matches(RH5_64))
+        self.assertFalse(label.matches(RH5_X86_64))
         self.assertTrue(label.matches(OSX_32))
-        self.assertFalse(label.matches(WIN_64))
+        self.assertFalse(label.matches(WIN_X86_64))
 
     def test_os(self):
         # Given
@@ -48,9 +48,9 @@ class TestPlatformLabel(unittest.TestCase):
 
         # When/Then
         self.assertFalse(label.matches(RH5_32))
-        self.assertFalse(label.matches(RH5_64))
+        self.assertFalse(label.matches(RH5_X86_64))
         self.assertFalse(label.matches(OSX_32))
-        self.assertTrue(label.matches(WIN_64))
+        self.assertTrue(label.matches(WIN_X86_64))
 
     def test_name(self):
         # Given
@@ -58,9 +58,9 @@ class TestPlatformLabel(unittest.TestCase):
 
         # When/Then
         self.assertFalse(label.matches(RH5_32))
-        self.assertFalse(label.matches(RH5_64))
+        self.assertFalse(label.matches(RH5_X86_64))
         self.assertFalse(label.matches(OSX_32))
-        self.assertFalse(label.matches(WIN_64))
+        self.assertFalse(label.matches(WIN_X86_64))
 
     def test_specific(self):
         # Given
@@ -69,9 +69,9 @@ class TestPlatformLabel(unittest.TestCase):
 
         # When/Then
         self.assertFalse(label.matches(RH5_32))
-        self.assertFalse(label.matches(RH5_64))
+        self.assertFalse(label.matches(RH5_X86_64))
         self.assertFalse(label.matches(OSX_32))
-        self.assertFalse(label.matches(WIN_64))
+        self.assertFalse(label.matches(WIN_X86_64))
         self.assertFalse(label.matches(UBUNTU_12_10_X32))
         self.assertTrue(label.matches(UBUNTU_14_04_X32))
         self.assertFalse(label.matches(UBUNTU_14_04_X64))
@@ -82,9 +82,9 @@ class TestPlatformLabel(unittest.TestCase):
 
         # When/Then
         self.assertTrue(label.matches(RH5_32))
-        self.assertTrue(label.matches(RH5_64))
+        self.assertTrue(label.matches(RH5_X86_64))
         self.assertFalse(label.matches(OSX_32))
-        self.assertFalse(label.matches(WIN_64))
+        self.assertFalse(label.matches(WIN_X86_64))
         self.assertFalse(label.matches(UBUNTU_12_10_X32))
         self.assertFalse(label.matches(UBUNTU_14_04_X32))
         self.assertFalse(label.matches(UBUNTU_14_04_X64))
@@ -94,9 +94,9 @@ class TestPlatformLabel(unittest.TestCase):
 
         # When/Then
         self.assertFalse(label.matches(RH5_32))
-        self.assertFalse(label.matches(RH5_64))
+        self.assertFalse(label.matches(RH5_X86_64))
         self.assertFalse(label.matches(OSX_32))
-        self.assertFalse(label.matches(WIN_64))
+        self.assertFalse(label.matches(WIN_X86_64))
         self.assertFalse(label.matches(UBUNTU_12_10_X32))
         self.assertFalse(label.matches(UBUNTU_14_04_X32))
         self.assertFalse(label.matches(UBUNTU_14_04_X64))
@@ -106,9 +106,9 @@ class TestPlatformLabel(unittest.TestCase):
 
         # When/Then
         self.assertFalse(label.matches(RH5_32))
-        self.assertFalse(label.matches(RH5_64))
+        self.assertFalse(label.matches(RH5_X86_64))
         self.assertFalse(label.matches(OSX_32))
-        self.assertTrue(label.matches(WIN_64))
+        self.assertTrue(label.matches(WIN_X86_64))
         self.assertFalse(label.matches(UBUNTU_12_10_X32))
         self.assertFalse(label.matches(UBUNTU_14_04_X32))
         self.assertFalse(label.matches(UBUNTU_14_04_X64))
@@ -118,9 +118,9 @@ class TestPlatformLabel(unittest.TestCase):
 
         # When/Then
         self.assertFalse(label.matches(RH5_32))
-        self.assertTrue(label.matches(RH5_64))
+        self.assertTrue(label.matches(RH5_X86_64))
         self.assertFalse(label.matches(OSX_32))
-        self.assertTrue(label.matches(WIN_64))
+        self.assertTrue(label.matches(WIN_X86_64))
         self.assertFalse(label.matches(UBUNTU_12_10_X32))
         self.assertFalse(label.matches(UBUNTU_14_04_X32))
         self.assertTrue(label.matches(UBUNTU_14_04_X64))
@@ -130,9 +130,9 @@ class TestPlatformLabel(unittest.TestCase):
 
         # When/Then
         self.assertTrue(label.matches(RH5_32))
-        self.assertTrue(label.matches(RH5_64))
+        self.assertTrue(label.matches(RH5_X86_64))
         self.assertTrue(label.matches(OSX_32))
-        self.assertTrue(label.matches(WIN_64))
+        self.assertTrue(label.matches(WIN_X86_64))
         self.assertTrue(label.matches(UBUNTU_12_10_X32))
         self.assertTrue(label.matches(UBUNTU_14_04_X32))
         self.assertTrue(label.matches(UBUNTU_14_04_X64))
@@ -148,7 +148,7 @@ class TestPlatformFilter(unittest.TestCase):
         filtre = PlatformFilter(literals)
 
         # Then
-        self.assertTrue(filtre.matches(RH5_64))
+        self.assertTrue(filtre.matches(RH5_X86_64))
 
     def test_from_pisi_string_simple(self):
         # Given
@@ -159,9 +159,9 @@ class TestPlatformFilter(unittest.TestCase):
 
         # Then
         self.assertTrue(filtre.matches(RH5_32))
-        self.assertTrue(filtre.matches(RH5_64))
+        self.assertTrue(filtre.matches(RH5_X86_64))
         self.assertTrue(filtre.matches(OSX_32))
-        self.assertTrue(filtre.matches(WIN_64))
+        self.assertTrue(filtre.matches(WIN_X86_64))
         self.assertTrue(filtre.matches(UBUNTU_12_10_X32))
         self.assertTrue(filtre.matches(UBUNTU_14_04_X32))
         self.assertTrue(filtre.matches(UBUNTU_14_04_X64))
@@ -174,9 +174,9 @@ class TestPlatformFilter(unittest.TestCase):
 
         # Then
         self.assertFalse(filtre.matches(RH5_32))
-        self.assertFalse(filtre.matches(RH5_64))
+        self.assertFalse(filtre.matches(RH5_X86_64))
         self.assertFalse(filtre.matches(OSX_32))
-        self.assertFalse(filtre.matches(WIN_64))
+        self.assertFalse(filtre.matches(WIN_X86_64))
         self.assertFalse(filtre.matches(UBUNTU_12_10_X32))
         self.assertFalse(filtre.matches(UBUNTU_14_04_X32))
         self.assertFalse(filtre.matches(UBUNTU_14_04_X64))
@@ -189,9 +189,9 @@ class TestPlatformFilter(unittest.TestCase):
 
         # Then
         self.assertFalse(filtre.matches(RH5_32))
-        self.assertFalse(filtre.matches(RH5_64))
+        self.assertFalse(filtre.matches(RH5_X86_64))
         self.assertFalse(filtre.matches(OSX_32))
-        self.assertTrue(filtre.matches(WIN_64))
+        self.assertTrue(filtre.matches(WIN_X86_64))
         self.assertFalse(filtre.matches(UBUNTU_12_10_X32))
         self.assertFalse(filtre.matches(UBUNTU_14_04_X32))
 
@@ -204,9 +204,9 @@ class TestPlatformFilter(unittest.TestCase):
 
         # Then
         self.assertTrue(filtre.matches(RH5_32))
-        self.assertTrue(filtre.matches(RH5_64))
+        self.assertTrue(filtre.matches(RH5_X86_64))
         self.assertFalse(filtre.matches(OSX_32))
-        self.assertFalse(filtre.matches(WIN_64))
+        self.assertFalse(filtre.matches(WIN_X86_64))
         self.assertTrue(filtre.matches(UBUNTU_12_10_X32))
         self.assertTrue(filtre.matches(UBUNTU_14_04_X32))
         self.assertTrue(filtre.matches(UBUNTU_14_04_X64))
