@@ -37,3 +37,22 @@ JULIA_DEFAULT_0_3_11_WIN_X86_64 = os.path.join(
 R_DEFAULT_3_0_0_RH5_X86_64 = os.path.join(
     _HERE, "r-default-3.0.0+1-rh5_x86_64.runtime",
 )
+
+# Dummmy eggs for testing
+_RH5_X86_64 = os.path.join(_HERE, "eggs", "rh5_x86_64")
+
+NOSE_1_3_4_RH5_X86_64 = os.path.join(_RH5_X86_64, "nose-1.3.4-1.egg")
+MKL_10_3_RH5_X86_64 = os.path.join(_RH5_X86_64, "MKL-10.3-1.egg")
+NUMPY_1_9_2_RH5_X86_64 = os.path.join(_RH5_X86_64, "numpy-1.9.2-1.egg")
+
+_WIN_X86_64 = os.path.join(_HERE, "eggs", "rh5_x86_64")
+
+NOSE_1_3_4_WIN_X86_64 = os.path.join(_WIN_X86_64, "nose-1.3.4-1.egg")
+MKL_10_3_WIN_X86_64 = os.path.join(_WIN_X86_64, "MKL-10.3-1.egg")
+NUMPY_1_9_2_WIN_X86_64 = os.path.join(_WIN_X86_64, "numpy-1.9.2-1.egg")
+
+_OSX_X86_64 = os.path.join(_HERE, "eggs", "rh5_x86_64")
+
+NOSE_1_3_4_OSX_X86_64 = os.path.join(_OSX_X86_64, "nose-1.3.4-1.egg")
+MKL_10_3_OSX_X86_64 = os.path.join(_OSX_X86_64, "MKL-10.3-1.egg")
+NUMPY_1_9_2_OSX_X86_64 = os.path.join(_OSX_X86_64, "numpy-1.9.2-1.egg")
