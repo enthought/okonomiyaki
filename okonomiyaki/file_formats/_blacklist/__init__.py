@@ -5,6 +5,9 @@ import os.path
 from .pkg_info_data import (
     EGG_PKG_INFO_BLACK_LIST, may_be_in_pkg_info_blacklist
 )
+from .python_tag import (
+    EGG_PYTHON_TAG_BLACK_LIST, may_be_in_python_tag_blacklist
+)
 
 
 _EGG_PLATFORM_BLACK_LIST = {
@@ -81,5 +84,6 @@ def may_be_in_platform_blacklist(path):
 
 __all__ = [
     "CONTENT_SPEC_DEPEND_PLATFORM_BLACK_LIST", "EGG_PKG_INFO_BLACK_LIST",
-    "may_be_in_pkg_info_blacklist",
+    "EGG_PYTHON_BLACK_LIST", "may_be_in_pkg_info_blacklist",
+    "may_be_in_python_tag_blacklist",
 ]

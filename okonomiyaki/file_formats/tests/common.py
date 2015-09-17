@@ -16,6 +16,7 @@ PIP_EGG = os.path.join(DATA_DIR, "pip-6.0.8-1.egg")
 PYMULTINEST_EGG = os.path.join(DATA_DIR, "pymultinest-0.1-1.egg")
 SUPERVISOR_EGG = os.path.join(DATA_DIR, "supervisor-3.0-1.egg")
 XZ_5_2_0_EGG = os.path.join(DATA_DIR, "xz-5.2.0-1.egg")
+PYSIDE_1_0_3_EGG = os.path.join(DATA_DIR, "PySide-1.0.3-1.egg")
 _OSX64APP_EGG = os.path.join(DATA_DIR, "_osx64app-1.0-1.egg")
 
 # Some eggs are for some reason built without EGG-INFO/PKG-INFO. A few
