@@ -426,7 +426,8 @@ class TestEggRewriter(unittest.TestCase):
         r_spec_depend = self._spec_depend_string()
         metadata = self._create_metadata(r_spec_depend)
 
-        accept = lambda path: False if path == "EGG-INFO/pbr.json" else True
+        def accept(path, nameset):
+            return path != "EGG-INFO/pbr.json"
 
         # When
         with EggRewriter(metadata, egg, accept=accept,
@@ -481,7 +482,7 @@ class TestEggRewriter(unittest.TestCase):
             else:
                 return arcname
 
-        def accept(arcname):
+        def accept(arcname, nameset):
             if arcname == old_arcname:
                 return False
             else:
@@ -504,7 +505,7 @@ class TestEggRewriter(unittest.TestCase):
             else:
                 return arcname
 
-        def accept(arcname):
+        def accept(arcname, nameset):
             if arcname == new_arcname:
                 return False
             else:

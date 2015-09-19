@@ -127,7 +127,7 @@ def _no_rename(f):
     return f
 
 
-def _accept_nothing(f):
+def _accept_anything(f, namelist):
     return True
 
 
@@ -155,8 +155,9 @@ class EggRewriter(_EggBuilderNoPkgInfo):
             new_archive_name, to rename archive members from the original
             egg.
         accept: callable
-            If defined, a callable of the form (archive_name, ) -> bool,
-            returning for archives not to copy from the original egg.
+            If defined, a callable of the form (archive_name, namelist) ->
+            bool, returning True for archives to copy from the original
+            egg. Namelist is a set of all the archives in the existing egg
         allow_overwrite: bool
             By default, the egg creation will fail if one adds existing
             archives. If set to True, one can overwrite archive members
@@ -171,7 +172,7 @@ class EggRewriter(_EggBuilderNoPkgInfo):
         super(EggRewriter, self).__init__(egg_metadata, compress, cwd)
         self._egg = egg
         self._rename = rename or _no_rename
-        self._accept = accept or _accept_nothing
+        self._accept = accept or _accept_anything
 
         self._allow_overwrite = allow_overwrite
 
@@ -183,6 +184,7 @@ class EggRewriter(_EggBuilderNoPkgInfo):
         with zipfile2.ZipFile(self._egg) as source:
             tempdir = tempfile.mkdtemp()
             try:
+                nameset = set(source.namelist())
                 for f in source.namelist():
                     arcname = self._rename(f)
 
@@ -190,7 +192,7 @@ class EggRewriter(_EggBuilderNoPkgInfo):
                         if arcname in self._fp._filenames_set:
                             continue
 
-                    if self._accept(f):
+                    if self._accept(f, nameset):
                         source_path = source.extract(f, tempdir)
                         self.add_file_as(source_path, arcname)
             finally:
