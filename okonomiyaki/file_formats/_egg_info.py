@@ -17,8 +17,8 @@ from ..utils.traitlets import NoneOrInstance, NoneOrUnicode
 from ..versions import EnpkgVersion
 from .pep425 import PythonImplementation
 from ._blacklist import (
-    EGG_PLATFORM_BLACK_LIST, may_be_in_platform_blacklist,
-    may_be_in_pkg_info_blacklist
+    EGG_PLATFORM_BLACK_LIST, EGG_PYTHON_TAG_BLACK_LIST,
+    may_be_in_platform_blacklist, may_be_in_python_tag_blacklist
 )
 from ._package_info import PackageInfo, _keep_position, _read_pkg_info
 
@@ -390,7 +390,10 @@ class LegacySpecDepend(HasTraits):
     def from_egg(cls, path_or_file):
         sha256 = None
         if isinstance(path_or_file, string_types):
-            if may_be_in_platform_blacklist(path_or_file):
+            if (
+                may_be_in_platform_blacklist(path_or_file)
+                or may_be_in_python_tag_blacklist(path_or_file)
+            ):
                 sha256 = compute_sha256(path_or_file)
         else:
             with _keep_position(path_or_file.fp):
@@ -414,8 +417,11 @@ class LegacySpecDepend(HasTraits):
                 raise InvalidMetadata(msg)
             else:
                 data, epd_platform = _normalized_info_from_string(
-                    spec_depend_string, epd_platform
+                    spec_depend_string, epd_platform,
                 )
+                python_tag = EGG_PYTHON_TAG_BLACK_LIST.get(sha256)
+                if python_tag:
+                    data[_TAG_PYTHON_PEP425_TAG] = python_tag
                 return cls._from_data(data, epd_platform)
 
         if isinstance(path_or_file, string_types):
@@ -659,7 +665,7 @@ class EggMetadata(object):
         if isinstance(path_or_file, string_types):
             if (
                 may_be_in_platform_blacklist(path_or_file)
-                or may_be_in_pkg_info_blacklist(path_or_file)
+                or may_be_in_python_tag_blacklist(path_or_file)
             ):
                 sha256 = compute_sha256(path_or_file)
         else:

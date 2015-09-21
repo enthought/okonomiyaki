@@ -24,7 +24,7 @@ from .._egg_info import (
 from .common import (
     BROKEN_MCCABE_EGG, DATA_DIR, ENSTALLER_EGG, ETS_EGG, FAKE_PYSIDE_1_1_0_EGG,
     FAKE_PYSIDE_1_1_0_EGG_PKG_INFO, MKL_EGG, NUMEXPR_2_2_2_EGG,
-    PYMULTINEST_EGG, _OSX64APP_EGG, XZ_5_2_0_EGG
+    PYMULTINEST_EGG, _OSX64APP_EGG, PYSIDE_1_0_3_EGG, XZ_5_2_0_EGG
 )
 
 
@@ -888,6 +888,32 @@ class TestEggInfo(unittest.TestCase):
         # Then
         self.assertEqual(metadata.name, "_osx64app")
         self.assertIsNone(metadata.pkg_info)
+
+    def test_blacklisted_python_tag(self):
+        # Given
+        egg = PYSIDE_1_0_3_EGG
+        sha256sum = ("5af973a78c53bfa4fe843992bc86207d5c945b06f7df576e64"
+                     "463a743a558fb1")
+        # When
+        with mock.patch(
+            "okonomiyaki.file_formats._egg_info.compute_sha256",
+            return_value=sha256sum
+        ):
+            metadata = EggMetadata.from_egg(egg)
+
+        # Then
+        self.assertEqual(metadata.python_tag, "py27")
+
+        # When
+        with mock.patch(
+            "okonomiyaki.file_formats._egg_info.compute_sha256",
+            return_value=sha256sum
+        ):
+            with zipfile2.ZipFile(egg) as zp:
+                metadata = EggMetadata.from_egg(zp)
+
+        # Then
+        self.assertEqual(metadata.python_tag, "py27")
 
     def test_blacklisted_platform(self):
         # Given
