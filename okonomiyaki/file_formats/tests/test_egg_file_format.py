@@ -419,6 +419,31 @@ class TestEggRewriter(unittest.TestCase):
             new_content = fp.read("EGG-INFO/pbr.json")
         self.assertEqual(new_content, r_new_content)
 
+    def test_accept_remove_py(self):
+        # Given
+        path = TRAITS_SETUPTOOLS_EGG
+        egg = os.path.join(self.prefix, os.path.basename(path))
+        shutil.copy(path, egg)
+
+        with zipfile2.ZipFile(egg, "a") as zp:
+            zp.writestr("traits/_ctraits.py", b"")
+            zp.writestr("traits/_ctraits.so", b"")
+
+        r_spec_depend = self._spec_depend_string()
+        metadata = self._create_metadata(r_spec_depend)
+
+        def accept(path, nameset):
+            return path != "EGG-INFO/pbr.json"
+
+        # When
+        with EggRewriter(metadata, egg, accept=accept,
+                         cwd=self.prefix) as rewriter:
+            pass
+
+        # Then
+        with zipfile2.ZipFile(rewriter.path) as fp:
+            self.assertFalse("EGG-INFO/pbr.json" in fp._filenames_set)
+
     def test_accept(self):
         # Given
         egg = TRAITS_SETUPTOOLS_EGG
