@@ -1,4 +1,4 @@
-from okonomiyaki.platforms import EPDPlatform
+from ..platforms import EPDPlatform
 
 
 def _platform_string(platform):

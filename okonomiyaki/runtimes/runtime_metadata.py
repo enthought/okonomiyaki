@@ -11,9 +11,9 @@ import zipfile2
 from attr import attr, attributes
 from attr.validators import instance_of
 
-from okonomiyaki.errors import InvalidMetadata, UnsupportedMetadata
-from okonomiyaki.platforms import EPDPlatform, Platform
-from okonomiyaki.versions import MetadataVersion, RuntimeVersion
+from ..errors import InvalidMetadata, UnsupportedMetadata
+from ..platforms import EPDPlatform, Platform
+from ..versions import MetadataVersion, RuntimeVersion
 
 from .common import _platform_string
 from .runtime_schemas import _JULIA_V1, _PYTHON_V1
