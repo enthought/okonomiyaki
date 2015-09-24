@@ -7,9 +7,9 @@ import six
 from attr import attr, attributes
 from attr.validators import instance_of
 
-from okonomiyaki.platforms import Platform
-from okonomiyaki.platforms.platform import WINDOWS
-from okonomiyaki.versions import MetadataVersion, RuntimeVersion
+from ..platforms import Platform
+from ..platforms.platform import WINDOWS
+from ..versions import MetadataVersion, RuntimeVersion
 
 from .runtime_info import IRuntimeInfoV1, PythonRuntimeInfoV1
 
