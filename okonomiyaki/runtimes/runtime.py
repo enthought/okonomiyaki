@@ -7,6 +7,7 @@ import six
 from attr import attr, attributes
 from attr.validators import instance_of
 
+from ..errors import InvalidMetadata
 from ..platforms import Platform
 from ..platforms.platform import WINDOWS
 from ..versions import MetadataVersion, RuntimeVersion
@@ -91,8 +92,16 @@ class PythonRuntime(Runtime):
         if platform.os == WINDOWS:
             executable += ".exe"
             executable = ntpath.join(prefix, executable)
+            if version.major == 2:
+                abi = u"msvc2008"
+            elif version.major == 3 and version.minor <= 4:
+                abi = u"msvc2010"
+            else:
+                msg = "Unsupported implicit abi for python {0}"
+                raise InvalidMetadata(msg.format(version))
         else:
             executable = posixpath.join(scriptsdir, executable)
+            abi = None
 
         site_packages = _compute_site_packages(prefix, platform, major_minor)
 
@@ -104,7 +113,7 @@ class PythonRuntime(Runtime):
 
         runtime_info = PythonRuntimeInfoV1(
             MetadataVersion.from_string("1.0"), language, implementation,
-            version, language_version, platform, build_revision,
+            version, language_version, platform, abi, build_revision,
             executable, paths, post_install, prefix, name, scriptsdir,
             site_packages, python_tag,
 

@@ -5,7 +5,7 @@ import abc
 import six
 
 from attr import asdict, attr, attributes
-from attr.validators import instance_of
+from attr.validators import instance_of, optional
 
 from ..errors import UnsupportedMetadata
 from ..platforms import Platform
@@ -67,6 +67,9 @@ class IRuntimeInfoV1(IRuntimeInfo):
     platform = attr(validator=instance_of(Platform))
     "The platform on which this runtime may run."
 
+    abi = attr(validator=optional(instance_of(six.text_type)))
+    "The ABI of this runtime. May be None for the 'default' ABI."
+
     build_revision = attr(validator=instance_of(six.text_type))
     """The internal version. Informative only, has no semantices and my be
     empty."""
@@ -106,6 +109,7 @@ class IRuntimeInfoV1(IRuntimeInfo):
         version = metadata.version
         language_version = metadata.language_version
         platform = metadata.platform
+        abi = metadata.abi
         build_revision = metadata.build_revision
 
         variables = _compute_variables(metadata, prefix, name)
@@ -122,7 +126,7 @@ class IRuntimeInfoV1(IRuntimeInfo):
 
         return (
             MetadataVersion.from_string("1.0"), language, implementation,
-            version, language_version, platform, build_revision,
+            version, language_version, platform, abi, build_revision,
             executable, paths, post_install, prefix, name
         )
 

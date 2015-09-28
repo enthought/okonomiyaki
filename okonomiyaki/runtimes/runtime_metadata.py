@@ -9,7 +9,7 @@ import six
 import zipfile2
 
 from attr import attr, attributes
-from attr.validators import instance_of
+from attr.validators import instance_of, optional
 
 from ..errors import InvalidMetadata, UnsupportedMetadata
 from ..platforms import EPDPlatform, Platform
@@ -76,6 +76,9 @@ class IRuntimeMetadataV1(IRuntimeMetadata):
     platform = attr(validator=instance_of(Platform))
     "The platform on which this runtime may run."
 
+    abi = attr(validator=optional(instance_of(six.text_type)))
+    "The ABI of this runtime. May be None for the 'default' ABI."
+
     build_revision = attr(validator=instance_of(six.text_type))
     """The internal version. Informative only, has no semantices and may be
     empty."""
@@ -132,6 +135,7 @@ class IRuntimeMetadataV1(IRuntimeMetadata):
         version = RuntimeVersion.from_string(data["version"])
         language_version = RuntimeVersion.from_string(data["language_version"])
         platform = EPDPlatform.from_epd_string(data["platform"]).platform
+        abi = data["abi"]
 
         build_revision = data["build_revision"]
 
@@ -141,14 +145,17 @@ class IRuntimeMetadataV1(IRuntimeMetadata):
 
         return (
             metadata_version, language, implementation, version,
-            language_version, platform, build_revision, executable, paths,
+            language_version, platform, abi, build_revision, executable, paths,
             post_install
         )
 
     @property
     def filename(self):
-        template = "{0.language}-{0.implementation}-{0.version}-{1}.runtime"
-        return template.format(self, _platform_string(self.platform))
+        template = (
+            "{0.language}-{0.implementation}-{0.version}-{1}-{2}.runtime"
+        )
+        str_abi = self.abi or "none"
+        return template.format(self, _platform_string(self.platform), str_abi)
 
 
 class JuliaRuntimeMetadataV1(IRuntimeMetadataV1):
@@ -235,17 +242,21 @@ def _parse_from_path(path):
         raise InvalidMetadata("Invalid format: {0!r}".format(filename))
 
     language, implementation, remain = parts
-    subparts = remain.rsplit("-", 1)
+    subparts = remain.rsplit("-", 2)
 
-    if len(subparts) != 2:
+    if len(subparts) != 3:
         raise InvalidMetadata("Invalid format: {0!r}".format(filename))
 
-    version_string, platform_string = subparts
+    version_string, platform_string, abi_string = subparts
+    if abi_string == "none":
+        abi = None
+    else:
+        abi = abi_string
 
     version = RuntimeVersion.from_string(version_string)
     epd_platform = EPDPlatform.from_epd_string(platform_string)
 
-    return language, implementation, version, epd_platform.platform
+    return language, implementation, version, epd_platform.platform, abi
 
 
 def _read_runtime_metadata_json(zp):
