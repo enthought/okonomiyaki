@@ -1,3 +1,12 @@
+2015-09-28   0.12.0:
+--------------------
+
+Improvements:
+
+  * blacklist mechanism for invalid python tag of existing eggs (#127)
+  * accept filtre function in egg builders now take two arguments to allow
+    filtering on the full content of the archive (#128)
+
 2015-09-14   0.11.0:
 --------------------
 
