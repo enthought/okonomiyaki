@@ -4,6 +4,7 @@ import subprocess
 
 from setuptools import setup
 
+
 MAJOR = 0
 MINOR = 13
 MICRO = 0
@@ -112,7 +113,9 @@ def main():
             "data/*egg", "data/broken_legacy_eggs/*egg", "data/*.txt",
         ],
         "okonomiyaki.utils.test_data": [
-            "*.runtime", "*.runtime.invalid"
+            "*.runtime", "*.runtime.invalid",
+            "eggs/osx_x86_64/*.egg",
+            "eggs/rh5_x86_64/*.egg", "eggs/win_x86_64/*.egg",
         ],
     }
 
