@@ -9,10 +9,6 @@ _JULIA_V1 = {
             "description": "The metadata version.",
             "type": "string"
         },
-        "language": {
-            "description": "The language (e.g. python, julia)",
-            "type": "string"
-        },
         "implementation": {
             "description": "The implementation (e.g. cpython)",
             "type": "string"
@@ -52,7 +48,6 @@ _JULIA_V1 = {
     },
     "required": [
         "metadata_version",
-        "language",
         "implementation",
         "version",
         "language_version",
@@ -72,10 +67,6 @@ _PYTHON_V1 = {
     "properties": {
         "metadata_version": {
             "description": "The metadata version.",
-            "type": "string"
-        },
-        "language": {
-            "description": "The language (e.g. python, julia)",
             "type": "string"
         },
         "implementation": {
@@ -129,7 +120,6 @@ _PYTHON_V1 = {
     },
     "required": [
         "metadata_version",
-        "language",
         "implementation",
         "version",
         "language_version",

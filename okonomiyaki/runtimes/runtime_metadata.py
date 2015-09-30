@@ -59,9 +59,6 @@ class IRuntimeMetadataV1(IRuntimeMetadata):
     """
     # Note: the attributes in IRuntimeMetadataV1 need to be synchronized with
     # IRuntimeInfoV1
-    language = attr(validator=instance_of(six.text_type))
-    "The language (e.g. 'python')"
-
     implementation = attr(validator=instance_of(six.text_type))
     "The implementation (e.g. 'cpython')"
 
@@ -130,7 +127,6 @@ class IRuntimeMetadataV1(IRuntimeMetadata):
         metadata_version = MetadataVersion.from_string(
             data["metadata_version"]
         )
-        language = data["language"]
         implementation = data["implementation"]
         version = RuntimeVersion.from_string(data["version"])
         language_version = RuntimeVersion.from_string(data["language_version"])
@@ -144,7 +140,7 @@ class IRuntimeMetadataV1(IRuntimeMetadata):
         post_install = tuple(data["post_install"])
 
         return (
-            metadata_version, language, implementation, version,
+            metadata_version, implementation, version,
             language_version, platform, abi, build_revision, executable, paths,
             post_install
         )
@@ -152,7 +148,7 @@ class IRuntimeMetadataV1(IRuntimeMetadata):
     @property
     def filename(self):
         template = (
-            "{0.language}-{0.implementation}-{0.version}-{1}-{2}.runtime"
+            "{0.implementation}-{0.version}-{1}-{2}.runtime"
         )
         str_abi = self.abi or "none"
         return template.format(self, _platform_string(self.platform), str_abi)
@@ -184,7 +180,8 @@ class PythonRuntimeMetadataV1(IRuntimeMetadataV1):
 
 
 _METADATA_KLASS_FACTORY = {
-    (MetadataVersion.from_string("1.0"), "python"): PythonRuntimeMetadataV1,
+    (MetadataVersion.from_string("1.0"), "cpython"): PythonRuntimeMetadataV1,
+    (MetadataVersion.from_string("1.0"), "pypy"): PythonRuntimeMetadataV1,
     (MetadataVersion.from_string("1.0"), "julia"): JuliaRuntimeMetadataV1,
 }
 
@@ -200,7 +197,7 @@ def runtime_metadata_factory(path_or_file):
     def _factory_key_from_metadata(json_dict):
         return (
             MetadataVersion.from_string(json_dict["metadata_version"]),
-            json_dict["language"]
+            json_dict["implementation"]
         )
 
     if isinstance(path_or_file, six.string_types):
@@ -237,11 +234,11 @@ def _parse_from_path(path):
     if not ext == ".runtime":
         raise InvalidMetadata("Invalid extension: {0!r}".format(ext))
 
-    parts = base.split("-", 2)
-    if len(parts) != 3:
+    parts = base.split("-", 1)
+    if len(parts) != 2:
         raise InvalidMetadata("Invalid format: {0!r}".format(filename))
 
-    language, implementation, remain = parts
+    implementation, remain = parts
     subparts = remain.rsplit("-", 2)
 
     if len(subparts) != 3:
@@ -256,7 +253,7 @@ def _parse_from_path(path):
     version = RuntimeVersion.from_string(version_string)
     epd_platform = EPDPlatform.from_epd_string(platform_string)
 
-    return language, implementation, version, epd_platform.platform, abi
+    return implementation, version, epd_platform.platform, abi
 
 
 def _read_runtime_metadata_json(zp):

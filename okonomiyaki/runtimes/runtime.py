@@ -105,14 +105,13 @@ class PythonRuntime(Runtime):
 
         site_packages = _compute_site_packages(prefix, platform, major_minor)
 
-        language = u"python"
         implementation = u"cpython"
         build_revision = u""
         name = u"<dummy>"
         post_install = tuple()
 
         runtime_info = PythonRuntimeInfoV1(
-            MetadataVersion.from_string("1.0"), language, implementation,
+            MetadataVersion.from_string("1.0"), implementation,
             version, language_version, platform, abi, build_revision,
             executable, paths, post_install, prefix, name, scriptsdir,
             site_packages, python_tag,
