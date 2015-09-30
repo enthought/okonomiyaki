@@ -183,6 +183,8 @@ class NormalizedVersion(object):
         if postdev and postdev is not FINAL_MARKER:
             if postdev[0] == 'f':
                 postdev = postdev[1:]
+            if postdev[-1] == 'f':
+                postdev = postdev[:-1]
             i = 0
             while i < len(postdev):
                 if i % 2 == 0:
