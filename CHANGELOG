@@ -1,3 +1,10 @@
+xxxxxxxxxx   0.13.0:
+--------------------
+
+Backward incompatible changes:
+
+  * `language` attribute from runtime removed, added abi (#134(
+
 2015-09-28   0.12.0:
 --------------------
 
