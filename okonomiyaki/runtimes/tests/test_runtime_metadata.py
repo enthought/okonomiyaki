@@ -35,7 +35,6 @@ class TestPythonMetadataV1(unittest.TestCase):
             metadata.metadata_version,
             MetadataVersion.from_string("1.0")
         )
-        self.assertEqual(metadata.language, "python")
         self.assertEqual(metadata.implementation, "cpython")
         self.assertEqual(
             metadata.version,
@@ -75,7 +74,6 @@ class TestPythonMetadataV1(unittest.TestCase):
             metadata.metadata_version,
             MetadataVersion.from_string("1.0")
         )
-        self.assertEqual(metadata.language, "python")
         self.assertEqual(metadata.implementation, "pypy")
         self.assertEqual(
             metadata.version,
@@ -151,11 +149,8 @@ class TestJuliaRuntimeMetadataV1(unittest.TestCase):
             metadata.metadata_version,
             MetadataVersion.from_string("1.0")
         )
-        self.assertTrue(metadata.language, "julia")
         self.assertEqual(metadata.filename, os.path.basename(path))
-
-        self.assertEqual(metadata.language, "julia")
-        self.assertEqual(metadata.implementation, "default")
+        self.assertEqual(metadata.implementation, "julia")
         self.assertEqual(
             metadata.version,
             RuntimeVersion.from_string("0.3.11+1")

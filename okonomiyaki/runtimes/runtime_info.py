@@ -50,9 +50,6 @@ class IRuntimeInfo(six.with_metaclass(abc.ABCMeta)):
 class IRuntimeInfoV1(IRuntimeInfo):
     # Note: the attributes in IRuntimeInfoV1 need to be synchronized with
     # IRuntimeMetadataV1
-    language = attr(validator=instance_of(six.text_type))
-    "The language (e.g. 'python')"
-
     implementation = attr(validator=instance_of(six.text_type))
     "The implementation (e.g. 'cpython')"
 
@@ -104,7 +101,6 @@ class IRuntimeInfoV1(IRuntimeInfo):
 
     @classmethod
     def _from_metadata_impl(cls, metadata, prefix, name):
-        language = metadata.language
         implementation = metadata.implementation
         version = metadata.version
         language_version = metadata.language_version
@@ -125,7 +121,7 @@ class IRuntimeInfoV1(IRuntimeInfo):
         )
 
         return (
-            MetadataVersion.from_string("1.0"), language, implementation,
+            MetadataVersion.from_string("1.0"), implementation,
             version, language_version, platform, abi, build_revision,
             executable, paths, post_install, prefix, name
         )
@@ -169,7 +165,8 @@ class PythonRuntimeInfoV1(IRuntimeInfoV1):
 
 
 _RUNTIME_INFO_JSON_FACTORY = {
-    (MetadataVersion.from_string("1.0"), "python"): PythonRuntimeInfoV1,
+    (MetadataVersion.from_string("1.0"), "pypy"): PythonRuntimeInfoV1,
+    (MetadataVersion.from_string("1.0"), "cpython"): PythonRuntimeInfoV1,
     (MetadataVersion.from_string("1.0"), "julia"): JuliaRuntimeInfoV1,
 }
 
@@ -180,8 +177,8 @@ def runtime_info_from_json(json_data):
     metadata_version = MetadataVersion.from_string(
         json_data["metadata_version"]
     )
-    language = json_data["language"]
-    key = (metadata_version, language)
+    implementation = json_data["implementation"]
+    key = (metadata_version, implementation)
     klass = _RUNTIME_INFO_JSON_FACTORY.get(key)
     if klass is None:
         msg = "Combination {0!r} is not supported".format(key)
