@@ -3,7 +3,12 @@ xxxxxxxxxx   0.13.0:
 
 Backward incompatible changes:
 
-  * `language` attribute from runtime removed, added abi (#134(
+  * `language` attribute from runtime removed, added abi (#134)
+
+Bug fixes:
+
+  * fix round-tripping for PEP386 versions with post part without a dev part
+  (#136).
 
 2015-09-28   0.12.0:
 --------------------
