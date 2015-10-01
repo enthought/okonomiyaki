@@ -9,7 +9,7 @@ import six
 import zipfile2
 
 from attr import attr, attributes
-from attr.validators import instance_of, optional
+from attr.validators import instance_of
 
 from ..errors import InvalidMetadata, UnsupportedMetadata
 from ..platforms import EPDPlatform, Platform
@@ -73,8 +73,8 @@ class IRuntimeMetadataV1(IRuntimeMetadata):
     platform = attr(validator=instance_of(Platform))
     "The platform on which this runtime may run."
 
-    abi = attr(validator=optional(instance_of(six.text_type)))
-    "The ABI of this runtime. May be None for the 'default' ABI."
+    abi = attr(validator=instance_of(six.text_type))
+    "The ABI of this runtime."
 
     build_revision = attr(validator=instance_of(six.text_type))
     """The internal version. Informative only, has no semantices and may be

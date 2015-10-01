@@ -7,8 +7,7 @@ import six
 from attr import attr, attributes
 from attr.validators import instance_of
 
-from ..errors import InvalidMetadata
-from ..platforms import Platform
+from ..platforms import Platform, default_abi
 from ..platforms.platform import WINDOWS
 from ..versions import MetadataVersion, RuntimeVersion
 
@@ -44,7 +43,7 @@ class PythonRuntime(Runtime):
     _executable = attr(validator=instance_of(six.text_type))
 
     @classmethod
-    def from_prefix_and_platform(cls, prefix, platform=None, version=None,
+    def from_prefix_and_platform(cls, prefix, platform, version=None,
                                  python_tag=None):
         """ Use this to build a runtime for an arbitrary platform.
 
@@ -69,6 +68,7 @@ class PythonRuntime(Runtime):
         python_tag = (
             python_tag or u"cp{0}{1}".format(version.major, version.minor)
         )
+        abi = default_abi(platform, python_tag)
 
         if six.PY2:
             prefix = prefix.decode(sys.getfilesystemencoding())
@@ -92,16 +92,8 @@ class PythonRuntime(Runtime):
         if platform.os == WINDOWS:
             executable += ".exe"
             executable = ntpath.join(prefix, executable)
-            if version.major == 2:
-                abi = u"msvc2008"
-            elif version.major == 3 and version.minor <= 4:
-                abi = u"msvc2010"
-            else:
-                msg = "Unsupported implicit abi for python {0}"
-                raise InvalidMetadata(msg.format(version))
         else:
             executable = posixpath.join(scriptsdir, executable)
-            abi = None
 
         site_packages = _compute_site_packages(prefix, platform, major_minor)
 

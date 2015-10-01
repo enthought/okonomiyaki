@@ -3,9 +3,13 @@ from __future__ import absolute_import
 import platform
 import sys
 
+import six
+
 from ..bundled.traitlets import HasTraits, Enum, Instance, Unicode
 from ..errors import OkonomiyakiError
+
 from ._arch import Arch
+from .python_implementation import PythonImplementation
 
 
 DARWIN = "darwin"
@@ -34,6 +38,49 @@ _DIST_NAME_TO_NAME = {
     "ubuntu": UBUNTU,
     "debian": DEBIAN,
 }
+
+
+def default_abi(platform, python_implementation):
+    """ Returns the default abi for the given platform and python
+    implementation.
+
+    Parameters
+    ----------
+    platform : Platform
+        The platform to get the default abi for
+    python_implementation : str or PythonImplementation
+        If a string (e.g. 'cp27'), will be converted into a
+        PythonImplementation.
+    """
+    if isinstance(python_implementation, six.text_type):
+        python_implementation = PythonImplementation.from_string(
+            python_implementation
+        )
+
+    msg = (
+        "Unsupported platform/python implementation combo: {0!r}/{1!r}".
+        format(platform, python_implementation)
+    )
+
+    if platform.os == DARWIN:
+        return u"darwin"
+    elif platform.os == LINUX:
+        return u"gnu"
+    elif platform.os == WINDOWS:
+        abi = None
+        if python_implementation.major == 2:
+            abi = u"msvc2008"
+        elif python_implementation.major == 3:
+            if python_implementation.minor <= 4:
+                abi = u"msvc2010"
+            elif python_implementation.minor == 5:
+                abi = u"msvc2015"
+        if abi is None:
+            raise OkonomiyakiError(msg)
+
+        return abi
+    else:
+        raise OkonomiyakiError(msg)
 
 
 class Platform(HasTraits):

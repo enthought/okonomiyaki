@@ -5,7 +5,7 @@ _HERE = os.path.dirname(__file__)
 
 # Dummy runtimes for testing
 PYTHON_CPYTHON_2_7_9_RH5_X86_64 = os.path.join(
-    _HERE, "cpython-2.7.9+1-rh5_x86_64-none.runtime",
+    _HERE, "cpython-2.7.9+1-rh5_x86_64-gnu.runtime",
 )
 PYTHON_CPYTHON_2_7_9_WIN_X86 = os.path.join(
     _HERE, "cpython-2.7.9+1-win_x86-msvc2008.runtime",
@@ -14,7 +14,7 @@ PYTHON_CPYTHON_2_7_9_WIN_X86_64 = os.path.join(
     _HERE, "cpython-2.7.9+1-win_x86_64-msvc2008.runtime",
 )
 PYTHON_CPYTHON_2_7_10_RH5_X86_64 = os.path.join(
-    _HERE, "cpython-2.7.10+1-rh5_x86_64-none.runtime",
+    _HERE, "cpython-2.7.10+1-rh5_x86_64-gnu.runtime",
 )
 PYTHON_CPYTHON_2_7_10_WIN_X86 = os.path.join(
     _HERE, "cpython-2.7.10+1-win_x86-msvc2008.runtime",
@@ -23,19 +23,19 @@ PYTHON_CPYTHON_2_7_10_WIN_X86_64 = os.path.join(
     _HERE, "cpython-2.7.10+1-win_x86_64-msvc2008.runtime",
 )
 PYTHON_CPYTHON_2_7_10_RH5_X86_64_INVALID = os.path.join(
-    _HERE, "cpython-2.7.10+1-rh5_x86_64-none.runtime.invalid",
+    _HERE, "cpython-2.7.10+1-rh5_x86_64-gnu.runtime.invalid",
 )
 PYTHON_PYPY_2_6_0_RH5_X86_64 = os.path.join(
-    _HERE, "pypy-2.6.0+1-rh5_x86_64-none.runtime",
+    _HERE, "pypy-2.6.0+1-rh5_x86_64-gnu.runtime",
 )
 JULIA_DEFAULT_0_3_11_RH5_X86_64 = os.path.join(
-    _HERE, "julia-0.3.11+1-rh5_x86_64-none.runtime",
+    _HERE, "julia-0.3.11+1-rh5_x86_64-gnu.runtime",
 )
 JULIA_DEFAULT_0_3_11_WIN_X86_64 = os.path.join(
     _HERE, "julia-0.3.11+1-win_x86_64-mingw.runtime",
 )
 R_DEFAULT_3_0_0_RH5_X86_64 = os.path.join(
-    _HERE, "r-3.0.0+1-rh5_x86_64-none.runtime",
+    _HERE, "r-3.0.0+1-rh5_x86_64-gnu.runtime",
 )
 
 # Dummmy eggs for testing
