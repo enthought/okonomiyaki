@@ -179,24 +179,25 @@ class TestPEP386Workaround(unittest.TestCase):
 
     def test_roundtrip_workedaround(self):
         # Given
-        version_string = "2011g"
+        version_strings = (
+            ("2011g", True),
+            ("0.9.0rc2", False),
+            ("1.0b1.post10", False),
+            ("1.0b1.post10.f", True),
+            ("1.0b1.post10.dev1", False),
+            ("0.1.post1", False),
+            ("0.1.post10", False),
+        )
 
-        # When
-        version = PEP386WorkaroundVersion.from_string(version_string)
+        # When/Then
+        for r_version_string, r_is_worked_around in version_strings:
+            version = PEP386WorkaroundVersion.from_string(r_version_string)
 
-        # Then
-        self.assertTrue(version._is_worked_around)
-        self.assertEqual(str(version), version_string)
-
-        # Given
-        version_string = "0.9.0rc2"
-
-        # When
-        version = PEP386WorkaroundVersion.from_string(version_string)
-
-        # Then
-        self.assertFalse(version._is_worked_around)
-        self.assertEqual(str(version), version_string)
+            if r_is_worked_around:
+                self.assertTrue(version._is_worked_around)
+            else:
+                self.assertFalse(version._is_worked_around)
+            self.assertEqual(str(version), r_version_string)
 
 
 class TestTrailingZeros(unittest.TestCase):
