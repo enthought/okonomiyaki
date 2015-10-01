@@ -20,6 +20,7 @@ class TestArch(unittest.TestCase):
         self.assertEqual(arch.name, name)
         self.assertEqual(arch.bits, bits)
         self.assertEqual(str(arch), arch.name)
+        self.assertEqual(repr(arch), "Arch('x86')")
 
     def test_hashing(self):
         # Given

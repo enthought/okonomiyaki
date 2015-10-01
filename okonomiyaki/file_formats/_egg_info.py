@@ -9,13 +9,12 @@ from ..errors import (
     InvalidRequirementString, InvalidEggName, InvalidMetadata,
     UnsupportedMetadata
 )
-from ..platforms import EPDPlatform
+from ..platforms import EPDPlatform, PythonImplementation
 from ..platforms.legacy import LegacyEPDPlatform
 from ..utils import compute_sha256, parse_assignments
 from ..utils.py3compat import StringIO, string_types
 from ..utils.traitlets import NoneOrInstance, NoneOrUnicode
 from ..versions import EnpkgVersion
-from .pep425 import PythonImplementation
 from ._blacklist import (
     EGG_PLATFORM_BLACK_LIST, EGG_PYTHON_TAG_BLACK_LIST,
     may_be_in_platform_blacklist, may_be_in_python_tag_blacklist
