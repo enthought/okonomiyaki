@@ -17,6 +17,10 @@ _JULIA_V1 = {
             "description": "The implementation version, e.g.  pypy 2.6.1 would report 2.6.1 as the 'upstream' part.",
             "type": "string"
         },
+        "abi": {
+            "description": "The runtime's ABI, e.g. 'msvc2008' or 'gnu'.",
+            "type": "string"
+        },
         "language_version": {
             "description": "This is the 'language' version, e.g.  pypy 2.6.1 would report 2.7.10 here.",
             "type": "string"
@@ -50,6 +54,7 @@ _JULIA_V1 = {
         "metadata_version",
         "implementation",
         "version",
+        "abi",
         "language_version",
         "platform",
         "build_revision",
@@ -75,6 +80,10 @@ _PYTHON_V1 = {
         },
         "version": {
             "description": "The implementation version, e.g.  pypy 2.6.1 would report 2.6.1 as the 'upstream' part.",
+            "type": "string"
+        },
+        "abi": {
+            "description": "The runtime's ABI, e.g. 'msvc2008' or 'gnu'.",
             "type": "string"
         },
         "language_version": {
@@ -122,6 +131,7 @@ _PYTHON_V1 = {
         "metadata_version",
         "implementation",
         "version",
+        "abi",
         "language_version",
         "platform",
         "build_revision",
