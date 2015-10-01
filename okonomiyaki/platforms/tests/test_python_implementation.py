@@ -2,7 +2,7 @@ import unittest
 
 import mock
 
-from ..pep425 import PythonImplementation
+from ..python_implementation import PythonImplementation
 from ...errors import InvalidMetadata
 
 
@@ -10,7 +10,8 @@ class TestPythonImplementation(unittest.TestCase):
     def test_from_running_python(self):
         # When
         with mock.patch(
-            "okonomiyaki.file_formats.pep425._abbreviated_implementation",
+            "okonomiyaki.platforms.python_implementation."
+            "_abbreviated_implementation",
             return_value="cp"
         ):
             with mock.patch("sys.version_info", (2, 7, 9, 'final', 0)):

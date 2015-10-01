@@ -8,10 +8,10 @@ except ImportError:  # Python 2.6 support
 import warnings
 
 from ..errors import OkonomiyakiError
+from ..platforms import PythonImplementation
 from ..utils import py3compat
 from ._egg_info import _guess_python_tag
 from ._package_info import PackageInfo
-from .pep425 import PythonImplementation
 
 
 _R_EGG_NAME = re.compile("""
