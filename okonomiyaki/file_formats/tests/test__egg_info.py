@@ -22,9 +22,10 @@ from .._egg_info import (
 )
 
 from .common import (
-    BROKEN_MCCABE_EGG, DATA_DIR, ENSTALLER_EGG, ETS_EGG, FAKE_PYSIDE_1_1_0_EGG,
-    FAKE_PYSIDE_1_1_0_EGG_PKG_INFO, MKL_EGG, NUMEXPR_2_2_2_EGG,
-    PYMULTINEST_EGG, _OSX64APP_EGG, PYSIDE_1_0_3_EGG, XZ_5_2_0_EGG
+    BROKEN_MCCABE_EGG, DATA_DIR, ENSTALLER_EGG, ETS_EGG,
+    FAKE_MEDIALOG_BOARDFILE_1_6_1_EGG, FAKE_MEDIALOG_BOARDFILE_1_6_1_PKG_INFO,
+    MKL_EGG, NUMEXPR_2_2_2_EGG, PYMULTINEST_EGG, _OSX64APP_EGG,
+    PYSIDE_1_0_3_EGG, XZ_5_2_0_EGG
 )
 
 
@@ -956,9 +957,9 @@ class TestEggInfo(unittest.TestCase):
 
     def test_blacklisted_pkg_info(self):
         # Given
-        egg = FAKE_PYSIDE_1_1_0_EGG
-        mock_sha256 = ("5eff70cfb464c2d531e6f93f7601e8ef8255b3a1ab4"
-                       "dd533826cfdcd5b962b60")
+        egg = FAKE_MEDIALOG_BOARDFILE_1_6_1_EGG
+        mock_sha256 = ("ab9e029caf273e4a251d3686425cd4225e1b97682749acc7a82d"
+                       "c1fd15dbd060")
 
         # When
         with mock.patch(
@@ -968,11 +969,12 @@ class TestEggInfo(unittest.TestCase):
             metadata = EggMetadata.from_egg(egg)
 
         # Then
+        self.maxDiff = None
         pkg_info = metadata.pkg_info
         self.assertEqual(pkg_info.metadata_version, "1.0")
-        self.assertEqual(pkg_info.name, "PySide")
+        self.assertEqual(pkg_info.name, "medialog.boardfile")
         self.assertMultiLineEqual(
-            pkg_info.description, FAKE_PYSIDE_1_1_0_EGG_PKG_INFO
+            pkg_info.description, FAKE_MEDIALOG_BOARDFILE_1_6_1_PKG_INFO
         )
 
         # When
@@ -986,9 +988,9 @@ class TestEggInfo(unittest.TestCase):
         # Then
         pkg_info = metadata.pkg_info
         self.assertEqual(pkg_info.metadata_version, "1.0")
-        self.assertEqual(pkg_info.name, "PySide")
+        self.assertEqual(pkg_info.name, "medialog.boardfile")
         self.assertMultiLineEqual(
-            pkg_info.description, FAKE_PYSIDE_1_1_0_EGG_PKG_INFO
+            pkg_info.description, FAKE_MEDIALOG_BOARDFILE_1_6_1_PKG_INFO
         )
 
         # Given

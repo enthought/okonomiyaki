@@ -17,7 +17,8 @@ from ..utils.traitlets import NoneOrInstance, NoneOrUnicode
 from ..versions import EnpkgVersion
 from ._blacklist import (
     EGG_PLATFORM_BLACK_LIST, EGG_PYTHON_TAG_BLACK_LIST,
-    may_be_in_platform_blacklist, may_be_in_python_tag_blacklist
+    may_be_in_platform_blacklist, may_be_in_python_tag_blacklist,
+    may_be_in_pkg_info_blacklist
 )
 from ._package_info import PackageInfo, _keep_position, _read_pkg_info
 
@@ -664,6 +665,7 @@ class EggMetadata(object):
         if isinstance(path_or_file, string_types):
             if (
                 may_be_in_platform_blacklist(path_or_file)
+                or may_be_in_pkg_info_blacklist(path_or_file)
                 or may_be_in_python_tag_blacklist(path_or_file)
             ):
                 sha256 = compute_sha256(path_or_file)
