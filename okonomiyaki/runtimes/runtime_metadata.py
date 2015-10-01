@@ -74,7 +74,7 @@ class IRuntimeMetadataV1(IRuntimeMetadata):
     "The platform on which this runtime may run."
 
     abi = attr(validator=instance_of(six.text_type))
-    "The ABI of this runtime. May be None for the 'default' ABI."
+    "The ABI of this runtime."
 
     build_revision = attr(validator=instance_of(six.text_type))
     """The internal version. Informative only, has no semantices and may be
