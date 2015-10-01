@@ -1,6 +1,4 @@
-import hashlib
 import os
-import sys
 
 import click
 
@@ -14,6 +12,7 @@ from haas.plugins.runner import BaseTestRunner
 
 from hatcher.api import BroodClient, BroodBearerTokenAuth
 from okonomiyaki.file_formats import EggMetadata
+from okonomiyaki.utils import compute_md5
 
 
 class StandardTestResultHandler(BaseStandardTestResultHandler):
@@ -32,17 +31,6 @@ class StandardTestResultHandler(BaseStandardTestResultHandler):
 
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
-
-
-def compute_md5(filename, block_size=16384):
-    hasher = hashlib.md5()
-    with open(filename, "rb") as fp:
-        while True:
-            data = fp.read(block_size)
-            if data == b"":
-                break
-            hasher.update(data)
-    return hasher.hexdigest()
 
 
 def path_to_quadruplet(path, root):
