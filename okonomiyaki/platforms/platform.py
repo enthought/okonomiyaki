@@ -98,6 +98,12 @@ class Platform(HasTraits):
         if machine is None:
             self.machine = self.arch
 
+    def __repr__(self):
+        return (
+            "Platform(os={0.os!r}, name={0.name!r}, family={0.family!r}, "
+            "arch='{0.arch}', machine='{0.machine}')".format(self)
+        )
+
     def __str__(self):
         return "{0} {1.release} on {1.machine}".format(
             NAME_TO_PRETTY_NAMES[self.name],

@@ -24,6 +24,11 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(platform.family, "rhel")
         self.assertEqual(platform.release, "5.8")
         self.assertEqual(str(platform), "CentOS 5.8 on x86")
+        self.assertEqual(
+            repr(platform),
+            "Platform(os='linux', name='centos', family='rhel', arch='x86', "
+            "machine='x86')"
+        )
 
     @mock_ubuntu_raring
     @mock_x86
@@ -36,6 +41,11 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(platform.name, "ubuntu")
         self.assertEqual(platform.family, "debian")
         self.assertEqual(str(platform), "Ubuntu 13.04 on x86")
+        self.assertEqual(
+            repr(platform),
+            "Platform(os='linux', name='ubuntu', family='debian', arch='x86', "
+            "machine='x86')"
+        )
 
         with self.assertRaises(OkonomiyakiError):
             EPDPlatform(platform)
