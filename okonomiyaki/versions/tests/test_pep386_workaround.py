@@ -183,6 +183,7 @@ class TestPEP386Workaround(unittest.TestCase):
             ("2011g", True),
             ("0.9.0rc2", False),
             ("1.0b1.post10", False),
+            ("1.0b1.post10.f", True),
             ("1.0b1.post10.dev1", False),
             ("0.1.post1", False),
             ("0.1.post10", False),
