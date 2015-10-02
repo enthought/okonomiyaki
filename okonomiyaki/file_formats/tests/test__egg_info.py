@@ -29,6 +29,9 @@ from .common import (
 )
 
 
+M = MetadataVersion.from_string
+
+
 class TestRequirement(unittest.TestCase):
     def test_str(self):
         dependency = Requirement(name="numpy")
@@ -207,7 +210,7 @@ packages = [
         depend = LegacySpecDepend.from_string(r_depend)
 
         # Then
-        self.assertEqual(depend._metadata_version, "1.3")
+        self.assertEqual(depend._metadata_version, M("1.3"))
         self.assertEqual(depend.python_tag, "cp27")
         self.assertEqual(depend.abi_tag, "cp27m")
         self.assertEqual(depend.platform_tag, "win32")
@@ -392,7 +395,7 @@ packages = []
         spec_depend = LegacySpecDepend.from_string(spec_depend_string)
         # A bit of an hack, but this is the only way to force a specific
         # metadata version for to_string for now
-        spec_depend._metadata_version = "1.3"
+        spec_depend._metadata_version = M("1.3")
         spec_depend_string = spec_depend.to_string()
 
         # Then
@@ -733,7 +736,7 @@ class TestEggInfo(unittest.TestCase):
             metadata.metadata_version,
             MetadataVersion.from_string("1.1")
         )
-        self.assertEqual(metadata.metadata_version_info, (1, 1))
+        self.assertEqual(metadata.metadata_version, M("1.1"))
         self.assertEqual(metadata.abi_tag, None)
         self.assertEqual(metadata.abi_tag_string, 'none')
         self.assertEqual(metadata.platform_tag, None)
@@ -752,7 +755,7 @@ class TestEggInfo(unittest.TestCase):
         self.assertEqual(metadata.egg_basename, "MKL")
         self.assertEqual(metadata.name, "mkl")
 
-        self.assertEqual(metadata.metadata_version_info, (1, 1))
+        self.assertEqual(metadata.metadata_version, M("1.1"))
         self.assertEqual(metadata.abi_tag, None)
         self.assertEqual(metadata.abi_tag_string, 'none')
         self.assertEqual(metadata.platform_tag, 'macosx_10_6_x86_64')
@@ -776,7 +779,7 @@ class TestEggInfo(unittest.TestCase):
         self.assertEqual(metadata.build, 1)
         self.assertEqual(metadata.upstream_version, "4.5.0")
         self.assertIsNone(metadata.python_tag)
-        self.assertEqual(metadata.metadata_version_info, (1, 1))
+        self.assertEqual(metadata.metadata_version, M("1.1"))
 
     def test_from_platform_egg(self):
         # Given
@@ -813,7 +816,7 @@ class TestEggInfo(unittest.TestCase):
         )
         self.assertEqual(metadata.build, 3)
         self.assertEqual(metadata.upstream_version, "4.3.0")
-        self.assertEqual(metadata.metadata_version_info, (1, 1))
+        self.assertEqual(metadata.metadata_version, M("1.1"))
         self.assertEqual(
             metadata.platform, EPDPlatform.from_epd_string("rh5-32")
         )

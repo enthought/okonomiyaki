@@ -3,7 +3,7 @@ import re
 import zipfile2
 
 from ..bundled.traitlets import (
-    HasTraits, Enum, Instance, List, Long, Unicode
+    HasTraits, Instance, List, Long, Unicode
 )
 from ..errors import (
     InvalidRequirementString, InvalidEggName, InvalidMetadata,
@@ -57,15 +57,19 @@ _TAG_ABI_PEP425_TAG = "abi_tag"
 _TAG_PLATFORM_PEP425_TAG = "platform_tag"
 _TAG_PACKAGES = "packages"
 
-_METADATA_VERSION_TO_KEYS = {
-    "1.1": (_TAG_METADATA_VERSION, _TAG_NAME, _TAG_VERSION, _TAG_BUILD,
-            _TAG_ARCH, _TAG_PLATFORM, _TAG_OSDIST, _TAG_PYTHON, _TAG_PACKAGES),
-}
-_METADATA_VERSION_TO_KEYS["1.2"] = \
-    _METADATA_VERSION_TO_KEYS["1.1"] + (_TAG_PYTHON_PEP425_TAG, )
+M = MetadataVersion.from_string
 
-_METADATA_VERSION_TO_KEYS["1.3"] = (
-    _METADATA_VERSION_TO_KEYS["1.2"] +
+_METADATA_VERSION_TO_KEYS = {
+    M("1.1"): (
+        _TAG_METADATA_VERSION, _TAG_NAME, _TAG_VERSION, _TAG_BUILD, _TAG_ARCH,
+        _TAG_PLATFORM, _TAG_OSDIST, _TAG_PYTHON, _TAG_PACKAGES
+    ),
+}
+_METADATA_VERSION_TO_KEYS[M("1.2")] = \
+    _METADATA_VERSION_TO_KEYS[M("1.1")] + (_TAG_PYTHON_PEP425_TAG, )
+
+_METADATA_VERSION_TO_KEYS[M("1.3")] = (
+    _METADATA_VERSION_TO_KEYS[M("1.2")] +
     (_TAG_ABI_PEP425_TAG, _TAG_PLATFORM_PEP425_TAG)
 )
 
@@ -86,9 +90,16 @@ def split_egg_name(s):
 def parse_rawspec(spec_string):
     spec = parse_assignments(StringIO(spec_string.replace('\r', '')))
 
-    metadata_version = spec.get(_TAG_METADATA_VERSION)
-    if metadata_version is None \
-            or metadata_version not in _METADATA_VERSION_TO_KEYS:
+    metadata_version_string = spec.get(_TAG_METADATA_VERSION)
+    if metadata_version_string is not None:
+        metadata_version = MetadataVersion.from_string(metadata_version_string)
+    else:
+        metadata_version = None
+
+    if (
+        metadata_version is None
+        or metadata_version not in _METADATA_VERSION_TO_KEYS
+    ):
         msg = ("Invalid metadata version: {0!r}. You may need to update to a "
                "more recent okonomiyaki version".format(metadata_version))
         raise UnsupportedMetadata(msg)
@@ -235,7 +246,7 @@ class Requirement(HasTraits):
 
 
 _METADATA_TEMPLATES = {
-    "1.1": """\
+    M("1.1"): """\
 metadata_version = '1.1'
 name = {name!r}
 version = {version!r}
@@ -247,7 +258,7 @@ osdist = {osdist!r}
 python = {python!r}
 packages = {packages}
 """,
-    "1.2": """\
+    M("1.2"): """\
 metadata_version = '1.2'
 name = {name!r}
 version = {version!r}
@@ -260,7 +271,7 @@ python = {python!r}
 python_tag = {python_tag!r}
 packages = {packages}
 """,
-    "1.3": """\
+    M("1.3"): """\
 metadata_version = '1.3'
 name = {name!r}
 version = {version!r}
@@ -299,7 +310,8 @@ def _guess_python_tag(pyver):
             return "cp" + major + minor
 
 
-_METADATA_DEFAULT_VERSION = "1.3"
+_METADATA_DEFAULT_VERSION_STRING = "1.3"
+_METADATA_DEFAULT_VERSION = M(_METADATA_DEFAULT_VERSION_STRING)
 
 
 def _epd_platform_from_raw_spec(raw_spec):
@@ -365,13 +377,14 @@ class LegacySpecDepend(HasTraits):
 
     _epd_legacy_platform = NoneOrInstance(LegacyEPDPlatform)
 
-    _metadata_version = Enum(["1.1", "1.2", "1.3"], _METADATA_DEFAULT_VERSION)
+    _metadata_version = Instance(MetadataVersion)
 
     @classmethod
     def _from_data(cls, data, epd_platform):
         args = data.copy()
-        args[_TAG_METADATA_VERSION] = args.get(_TAG_METADATA_VERSION,
-                                               _METADATA_DEFAULT_VERSION)
+        args[_TAG_METADATA_VERSION] = M(
+            args.get(_TAG_METADATA_VERSION, _METADATA_DEFAULT_VERSION_STRING)
+        )
 
         if epd_platform is None:
             _epd_legacy_platform = None
@@ -476,10 +489,6 @@ class LegacySpecDepend(HasTraits):
     @metadata_version.setter
     def metadata_version(self, value):
         self._metadata_version = value
-
-    @property
-    def metadata_version_info(self):
-        return _metadata_version_to_tuple(self._metadata_version)
 
     def _to_dict(self):
         raw_data = {
@@ -607,15 +616,14 @@ def _normalized_info_from_string(spec_depend_string, epd_platform=None):
     for k in (_TAG_ARCH, _TAG_PLATFORM, _TAG_OSDIST):
         data.pop(k)
 
-    metadata_version_info = _metadata_version_to_tuple(
-        data[_TAG_METADATA_VERSION]
-    )
-    if metadata_version_info[:2] < (1, 2):
+    metadata_version = MetadataVersion.from_string(data[_TAG_METADATA_VERSION])
+
+    if metadata_version < M("1.2"):
         data[_TAG_PYTHON_PEP425_TAG] = _guess_python_tag(raw_data[_TAG_PYTHON])
     else:
         data[_TAG_PYTHON_PEP425_TAG] = raw_data[_TAG_PYTHON_PEP425_TAG]
 
-    if metadata_version_info[:2] < (1, 3):
+    if metadata_version < M("1.3"):
         python_tag = data[_TAG_PYTHON_PEP425_TAG]
 
         if python_tag is None:
@@ -632,7 +640,7 @@ def _normalized_info_from_string(spec_depend_string, epd_platform=None):
     else:
         data[_TAG_ABI_PEP425_TAG] = raw_data[_TAG_ABI_PEP425_TAG]
 
-    if metadata_version_info[:2] < (1, 3):
+    if metadata_version < M("1.3"):
         if epd_platform is None:
             platform_tag = None
         else:
@@ -705,7 +713,7 @@ class EggMetadata(object):
 
     @classmethod
     def _from_spec_depend(cls, spec_depend, pkg_info, summary,
-                          metadata_version_info=None):
+                          metadata_version=None):
         raw_name = spec_depend.name
 
         version = EnpkgVersion.from_upstream_and_build(spec_depend.version,
@@ -724,15 +732,13 @@ class EggMetadata(object):
             tuple(dep for dep in spec_depend.packages)
         )
 
-        metadata_version_info = (
-            metadata_version_info or spec_depend.metadata_version_info
-        )
+        metadata_version = metadata_version or spec_depend.metadata_version
 
         return cls(raw_name, version, platform, python_tag, abi_tag,
-                   dependencies, pkg_info, summary, metadata_version_info)
+                   dependencies, pkg_info, summary, metadata_version)
 
     def __init__(self, raw_name, version, platform, python, abi_tag,
-                 dependencies, pkg_info, summary, metadata_version_info=None):
+                 dependencies, pkg_info, summary, metadata_version=None):
         """ EggMetadata instances encompass Enthought egg metadata.
 
         Note: the constructor is considered private, please use one of the
@@ -777,16 +783,7 @@ class EggMetadata(object):
         self.runtime_dependencies = tuple(dependencies.runtime)
         """ List of runtime dependencies (as strings)."""
 
-        if metadata_version_info is None:
-            metadata_version_info = _metadata_version_to_tuple(
-                _METADATA_DEFAULT_VERSION
-            )
-        self.metadata_version_info = metadata_version_info
-        """ The version format of the underlying metadata (as a tuple)."""
-
-        self.metadata_version = MetadataVersion.from_string(
-            ".".join(str(i) for i in metadata_version_info)
-        )
+        self.metadata_version = metadata_version or _METADATA_DEFAULT_VERSION
         """ The version format of the underlying metadata."""
 
         self.pkg_info = pkg_info
@@ -891,8 +888,6 @@ class EggMetadata(object):
             "platform_tag": self.platform_tag,
             "packages": [p for p in self.runtime_dependencies],
             "_epd_legacy_platform": _epd_legacy_platform,
-            "_metadata_version": ".".join(
-                str(i) for i in self.metadata_version_info
-            ),
+            "_metadata_version": self.metadata_version,
         }
         return LegacySpecDepend(**args)
