@@ -43,6 +43,30 @@ class MetadataVersion(object):
     def __ne__(self, other):
         return not self == other
 
+    def __lt__(self, other):
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        else:
+            return self._key < other._key
+
+    def __le__(self, other):
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        else:
+            return self._key <= other._key
+
+    def __ge__(self, other):
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        else:
+            return self._key >= other._key
+
+    def __gt__(self, other):
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        else:
+            return self._key > other._key
+
     def __hash__(self):
         return hash(self._key)
 

@@ -15,6 +15,20 @@ class TestMetadataVersion(unittest.TestCase):
         self.assertEqual(v.major, 1)
         self.assertEqual(v.minor, 0)
 
+    def test_comparison(self):
+        # Given
+        version_strings = ("0.4", "0.7", "1.0", "1.2", "2.0")
+        versions = tuple(
+            MetadataVersion.from_string(s) for s in version_strings
+        )
+
+        # When/Then
+        for left, right in zip(versions[:-1], versions[1:]):
+            self.assertTrue(left < right)
+            self.assertTrue(left <= right)
+            self.assertFalse(left > right)
+            self.assertFalse(left >= right)
+
     def test_equal_hash(self):
         # Given
         s = "1.0"
