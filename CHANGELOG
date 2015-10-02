@@ -1,12 +1,22 @@
-xxxxxxxxxx   0.13.0:
+2015-10-02   0.13.0:
 --------------------
+
+Enhancements:
+
+  * `abi` attribute for runtime (#134)
+  * `metadata_version` attribute for runtime added (#143)
 
 Backward incompatible changes:
 
-  * `language` attribute from runtime removed, added abi (#134)
+  * `language` attribute from runtime removed (#134)
+  * `metadata_version_info` attribute from EggMetadata removed (#143)
 
 Bug fixes:
 
+  * update PKG-INFO blacklist to handle every pypi egg (#141)
+  * update platform blacklist to handle wrong metadata for windows eggs w/ C
+    extensions and no platform set up (#142)
+  (#136).
   * fix round-tripping for PEP386 versions with post part without a dev part
   (#136).
 
