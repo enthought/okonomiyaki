@@ -14,7 +14,7 @@ from ..platforms.legacy import LegacyEPDPlatform
 from ..utils import compute_sha256, parse_assignments
 from ..utils.py3compat import StringIO, string_types
 from ..utils.traitlets import NoneOrInstance, NoneOrUnicode
-from ..versions import EnpkgVersion
+from ..versions import EnpkgVersion, MetadataVersion
 from ._blacklist import (
     EGG_PLATFORM_BLACK_LIST, EGG_PYTHON_TAG_BLACK_LIST,
     may_be_in_platform_blacklist, may_be_in_python_tag_blacklist,
@@ -782,6 +782,11 @@ class EggMetadata(object):
                 _METADATA_DEFAULT_VERSION
             )
         self.metadata_version_info = metadata_version_info
+        """ The version format of the underlying metadata (as a tuple)."""
+
+        self.metadata_version = MetadataVersion.from_string(
+            ".".join(str(i) for i in metadata_version_info)
+        )
         """ The version format of the underlying metadata."""
 
         self.pkg_info = pkg_info

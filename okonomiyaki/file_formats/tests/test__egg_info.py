@@ -14,7 +14,7 @@ else:
 from ...errors import InvalidEggName, InvalidMetadata, UnsupportedMetadata
 from ...platforms import EPDPlatform
 from ...platforms.legacy import LegacyEPDPlatform
-from ...versions import EnpkgVersion
+from ...versions import EnpkgVersion, MetadataVersion
 
 from .._egg_info import (
     Requirement, EggMetadata, LegacySpecDepend, parse_rawspec,
@@ -729,6 +729,10 @@ class TestEggInfo(unittest.TestCase):
 
         # Then
         self.assertEqual(metadata.name, "enstaller")
+        self.assertEqual(
+            metadata.metadata_version,
+            MetadataVersion.from_string("1.1")
+        )
         self.assertEqual(metadata.metadata_version_info, (1, 1))
         self.assertEqual(metadata.abi_tag, None)
         self.assertEqual(metadata.abi_tag_string, 'none')
