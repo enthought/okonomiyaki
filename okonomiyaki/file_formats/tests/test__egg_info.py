@@ -910,7 +910,8 @@ class TestEggInfo(unittest.TestCase):
             metadata = EggMetadata.from_egg(egg)
 
         # Then
-        self.assertEqual(metadata.python_tag, "py27")
+        self.assertEqual(metadata.python_tag, "cp27")
+        self.assertEqual(metadata.abi_tag, "cp27m")
 
         # When
         with mock.patch(
@@ -921,7 +922,7 @@ class TestEggInfo(unittest.TestCase):
                 metadata = EggMetadata.from_egg(zp)
 
         # Then
-        self.assertEqual(metadata.python_tag, "py27")
+        self.assertEqual(metadata.python_tag, "cp27")
 
     def test_blacklisted_platform(self):
         # Given

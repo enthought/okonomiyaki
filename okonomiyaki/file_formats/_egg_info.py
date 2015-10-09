@@ -430,11 +430,8 @@ class LegacySpecDepend(HasTraits):
                 raise InvalidMetadata(msg)
             else:
                 data, epd_platform = _normalized_info_from_string(
-                    spec_depend_string, epd_platform,
+                    spec_depend_string, epd_platform, sha256
                 )
-                python_tag = EGG_PYTHON_TAG_BLACK_LIST.get(sha256)
-                if python_tag:
-                    data[_TAG_PYTHON_PEP425_TAG] = python_tag
                 return cls._from_data(data, epd_platform)
 
         if isinstance(path_or_file, string_types):
@@ -597,7 +594,8 @@ def _guess_platform_tag(platform):
     return platform.pep425_tag
 
 
-def _normalized_info_from_string(spec_depend_string, epd_platform=None):
+def _normalized_info_from_string(spec_depend_string, epd_platform=None,
+                                 sha256=None):
     """ Return a 'normalized' dictionary from the given spec/depend string.
 
     Note: the name value is NOT lower-cased, so that the egg filename may
@@ -618,10 +616,16 @@ def _normalized_info_from_string(spec_depend_string, epd_platform=None):
 
     metadata_version = MetadataVersion.from_string(data[_TAG_METADATA_VERSION])
 
-    if metadata_version < M("1.2"):
-        data[_TAG_PYTHON_PEP425_TAG] = _guess_python_tag(raw_data[_TAG_PYTHON])
+    python_tag = EGG_PYTHON_TAG_BLACK_LIST.get(sha256)
+    if python_tag:
+        data[_TAG_PYTHON_PEP425_TAG] = python_tag
     else:
-        data[_TAG_PYTHON_PEP425_TAG] = raw_data[_TAG_PYTHON_PEP425_TAG]
+        if metadata_version < M("1.2"):
+            data[_TAG_PYTHON_PEP425_TAG] = _guess_python_tag(
+                raw_data[_TAG_PYTHON]
+            )
+        else:
+            data[_TAG_PYTHON_PEP425_TAG] = raw_data[_TAG_PYTHON_PEP425_TAG]
 
     if metadata_version < M("1.3"):
         python_tag = data[_TAG_PYTHON_PEP425_TAG]
