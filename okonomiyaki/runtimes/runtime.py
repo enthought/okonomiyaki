@@ -65,10 +65,27 @@ class PythonRuntime(Runtime):
         version = version or _version_info_to_version()
         language_version = RuntimeVersion.from_string(version.numpart)
 
+        if hasattr(sys, 'pypy_version_info'):
+            implementation = "pypy"
+            python_tag_prefix = "pp"
+            implementation_version = RuntimeVersion.from_string(
+                "{0}+1".format(
+                    ".".join(
+                        str(i) for i in sys.pypy_version_info[:3]
+                    )
+                )
+            )
+        else:
+            implementation = "cpython"
+            python_tag_prefix = "cp"
+            implementation_version = version
+
         python_tag = (
-            python_tag or u"cp{0}{1}".format(version.major, version.minor)
+            python_tag or u"{0}{1}{2}".format(
+                python_tag_prefix, version.major, version.minor
+            )
         )
-        abi = default_abi(platform, python_tag)
+        abi = default_abi(platform, implementation, implementation_version)
 
         if six.PY2:
             prefix = prefix.decode(sys.getfilesystemencoding())
