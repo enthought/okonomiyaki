@@ -59,14 +59,14 @@ def default_abi(platform, implementation, implementation_version):
         )
 
     msg = "Unsupported platform/version combo for {0!r}: {1!r}/{2!r}".format(
-        implementation, platform, implementation_version
+        implementation, platform, str(implementation_version)
     )
 
     if implementation == "cpython":
         return _default_cpython_abi(platform, implementation_version)
     elif implementation == "pypy":
         if platform.os == WINDOWS:
-            if implementation_version < RuntimeVersion.from_string("2.7"):
+            if implementation_version <= RuntimeVersion.from_string("4.1"):
                 return u"msvc2008"
             else:
                 raise OkonomiyakiError(msg)

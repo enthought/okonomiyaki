@@ -1,6 +1,8 @@
 import os
 import os.path as op
+import shutil
 import sys
+import tempfile
 import textwrap
 import zipfile2
 
@@ -12,6 +14,7 @@ else:
     import unittest
 
 from ...errors import InvalidEggName, InvalidMetadata, UnsupportedMetadata
+from ...utils.test_data import NOSE_1_3_4_OSX_X86_64
 from ...platforms import EPDPlatform
 from ...platforms.legacy import LegacyEPDPlatform
 from ...versions import EnpkgVersion, MetadataVersion
@@ -217,25 +220,28 @@ packages = [
 
     def test_unsupported_metadata_version(self):
         # Given
-        s = """\
-metadata_version = "1.4"
+        unsupported = MetadataVersion(
+            EggMetadata.HIGHEST_SUPPORTED_METADATA_VERSION.major + 1, 0
+        )
 
-name = "foo"
-version = "1.0"
-build = 1
+        s = textwrap.dedent("""\
+            metadata_version = "{0}"
 
-arch = "amd64"
-platform = "darwin"
-osdist = None
+            name = "foo"
+            version = "1.0"
+            build = 1
 
-python = "2.7"
+            arch = "amd64"
+            platform = "darwin"
+            osdist = None
 
-abi_tag = "none"
-platform_tag = "macosx_10_6_i386"
-python_tag = "cp27"
+            python = "2.7"
 
-packages = []
-"""
+            abi_tag = "none"
+            platform_tag = "macosx_10_6_i386"
+            python_tag = "cp27"
+
+            packages = []""".format(str(unsupported)))
 
         # When/Then
         with self.assertRaises(UnsupportedMetadata):
@@ -537,7 +543,7 @@ class TestParseRawspec(unittest.TestCase):
         spec_string = "metadata_version = '1.0'"
 
         # When/Then
-        with self.assertRaises(UnsupportedMetadata):
+        with self.assertRaises(InvalidMetadata):
             parse_rawspec(spec_string)
 
     def test_simple_1_2(self):
@@ -670,7 +676,7 @@ packages = [
 """
 
         # When/Then
-        with self.assertRaises(UnsupportedMetadata):
+        with self.assertRaises(InvalidMetadata):
             parse_rawspec(spec_s)
 
         # Given a spec_string without some other metadata in >= 1.1
@@ -716,6 +722,12 @@ packages = [
 
 
 class TestEggInfo(unittest.TestCase):
+    def setUp(self):
+        self.tempdir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        shutil.rmtree(self.tempdir)
+
     def test_simple(self):
         # Given
         egg = ENSTALLER_EGG
@@ -763,6 +775,84 @@ class TestEggInfo(unittest.TestCase):
         self.assertEqual(metadata.python_tag, None)
         self.assertEqual(metadata.python_tag_string, 'none')
         self.assertEqual(metadata.runtime_dependencies, tuple())
+
+    def _override_spec_depend(self, egg, spec_depend_string):
+        new_egg = os.path.join(self.tempdir, os.path.basename(egg))
+        with zipfile2.ZipFile(egg) as zi:
+            to_copy = set(zi.namelist()) - set(("EGG-INFO/spec/depend",))
+            with zipfile2.ZipFile(new_egg, "w") as zo:
+                for archive in to_copy:
+                    fp = zi.open(archive)
+                    try:
+                        zo.writestr(archive, fp.read())
+                    finally:
+                        fp.close()
+
+                zo.writestr("EGG-INFO/spec/depend", spec_depend_string)
+
+        return new_egg
+
+    def test_support_higher_compatible_version(self):
+        # Given
+        spec_depend = textwrap.dedent("""\
+            metadata_version = '1.4'
+            name = 'enstaller'
+            version = '4.5.0'
+            build = 1
+
+            arch = None
+            platform = None
+            osdist = None
+            python = None
+
+            python_tag = None
+            abi_tag = None
+            platform_tag = None
+
+            packages = []""")
+
+        egg = self._override_spec_depend(ENSTALLER_EGG, spec_depend)
+
+        # When
+        metadata = EggMetadata.from_egg(egg)
+
+        # Then
+        self.assertEqual(metadata.name, "enstaller")
+        self.assertEqual(metadata.metadata_version, M("1.4"))
+        self.assertIs(metadata.is_strictly_supported, False)
+
+        # When/Then
+        with self.assertRaises(UnsupportedMetadata):
+            metadata._spec_depend
+
+    def test_support_lower_compatible_version(self):
+        # Given
+        spec_depend = textwrap.dedent("""\
+            metadata_version = '1.1'
+            name = 'nose'
+            version = '1.3.4'
+            build = 1
+
+            arch = 'amd64'
+            platform = 'linux2'
+            osdist = 'RedHat_5'
+            python = '2.7'
+            packages = []\n""")
+
+        egg = NOSE_1_3_4_OSX_X86_64
+        metadata = EggMetadata.from_egg(egg)
+
+        # When
+        metadata = EggMetadata.from_egg_metadata(
+            metadata, metadata_version=M("1.1")
+        )
+
+        # Then
+        self.assertEqual(metadata.name, "nose")
+        self.assertEqual(metadata.metadata_version, M("1.1"))
+        self.assertMultiLineEqual(
+            metadata._spec_depend.to_string(), spec_depend
+        )
 
     def test_from_cross_platform_egg(self):
         # Given

@@ -78,6 +78,32 @@ _UNSUPPORTED = "unsupported"
 _PYVER_RE = re.compile("(?P<major>\d).(?P<minor>\d)")
 
 
+def _are_compatible(left, right):
+    """Return True if both arguments are compatible metadata versions.
+
+    Parameters
+    ----------
+    left: MetadataVersion
+    right: MetadataVersion
+    """
+    return left.major == right.major
+
+
+def _highest_compatible(metadata_version):
+    """ Returns the highest metadata version supporting that is compatible with
+    the given version.
+    """
+    compatible_versions = [
+        m for m in _METADATA_VERSION_TO_KEYS
+        if _are_compatible(m, metadata_version)
+    ]
+
+    if len(compatible_versions) > 0:
+        return max(compatible_versions)
+    else:
+        raise UnsupportedMetadata(metadata_version)
+
+
 def split_egg_name(s):
     m = _EGG_NAME_RE.match(s)
     if m is None:
@@ -96,13 +122,11 @@ def parse_rawspec(spec_string):
     else:
         metadata_version = None
 
-    if (
-        metadata_version is None
-        or metadata_version not in _METADATA_VERSION_TO_KEYS
-    ):
-        msg = ("Invalid metadata version: {0!r}. You may need to update to a "
-               "more recent okonomiyaki version".format(metadata_version))
-        raise UnsupportedMetadata(msg)
+    if metadata_version is None:
+        raise InvalidMetadata(
+            "Invalid spec/depend: no metadata_version found")
+    elif metadata_version not in _METADATA_VERSION_TO_KEYS:
+        metadata_version = _highest_compatible(metadata_version)
 
     res = {}
 
@@ -659,6 +683,16 @@ def _normalized_info_from_string(spec_depend_string, epd_platform=None,
 class EggMetadata(object):
     """ Enthought egg metadata for format 1.x.
     """
+
+    HIGHEST_SUPPORTED_METADATA_VERSION = _METADATA_DEFAULT_VERSION
+    """ Highest supported metadata version (as a MetadataVersion object).
+
+    If the parsed metadata is higher, it will not be possible to write back
+    the metadata. If the parsed metadata version is not compatible (different
+    major version), then parsing will raise an UnsupportedMetadata exception as
+    well.
+    """
+
     @classmethod
     def from_egg(cls, path_or_file, strict=True):
         """ Create a EggMetadata instance from an existing Enthought egg.
@@ -741,6 +775,33 @@ class EggMetadata(object):
         return cls(raw_name, version, platform, python_tag, abi_tag,
                    dependencies, pkg_info, summary, metadata_version)
 
+    @classmethod
+    def from_egg_metadata(cls, egg_metadata, **kw):
+        """ Utility ctor to create a new EggMetadata instance from an existing
+        one, potentially updating some metadata.
+
+        Any keyword argument (except `egg_metadata`) is understood as an
+        argument to EggMetadata.__init__.
+
+        Parameters
+        ----------
+        egg_metadata: EggMetadata
+        """
+        passed_kw = {"raw_name": egg_metadata._raw_name}
+
+        for k in (
+            "version", "platform", "python", "abi_tag", "pkg_info", "summary",
+            "metadata_version"
+        ):
+            passed_kw[k] = getattr(egg_metadata, k)
+        passed_kw["dependencies"] = Dependencies(
+            egg_metadata.runtime_dependencies
+        )
+
+        passed_kw.update(**kw)
+
+        return cls(**passed_kw)
+
     def __init__(self, raw_name, version, platform, python, abi_tag,
                  dependencies, pkg_info, summary, metadata_version=None):
         """ EggMetadata instances encompass Enthought egg metadata.
@@ -820,6 +881,22 @@ class EggMetadata(object):
         return self._spec_depend.egg_name
 
     @property
+    def is_strictly_supported(self):
+        """ Returns True if the given metadata_version is fully supported.
+
+        A metadata_version is fully supported iff:
+            - metadata_version.major ==
+              EggMetadata.HIGHEST_SUPPORTED_METADATA_VERSION.major
+            - and metadata_version.minor <=
+              EggMetadata.HIGHEST_SUPPORTED_METADATA_VERSION.minor
+        """
+        max_supported = EggMetadata.HIGHEST_SUPPORTED_METADATA_VERSION
+        return (
+            _are_compatible(self.metadata_version, max_supported) and
+            self.metadata_version.minor <= max_supported.minor
+        )
+
+    @property
     def kind(self):
         return "egg"
 
@@ -877,6 +954,12 @@ class EggMetadata(object):
 
     @property
     def _spec_depend(self):
+        if not self.is_strictly_supported:
+            msg = "Cannot write back metadata with unsupported version {0!r}"
+            raise UnsupportedMetadata(
+                self.metadata_version, msg.format(str(self.metadata_version))
+            )
+
         if self.platform is None:
             _epd_legacy_platform = None
         else:

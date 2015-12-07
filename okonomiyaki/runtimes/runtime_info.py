@@ -182,7 +182,7 @@ def runtime_info_from_json(json_data):
     klass = _RUNTIME_INFO_JSON_FACTORY.get(key)
     if klass is None:
         msg = "Combination {0!r} is not supported".format(key)
-        raise UnsupportedMetadata(msg)
+        raise UnsupportedMetadata(metadata_version, msg)
     else:
         return klass._from_json_dict(json_data)
 
