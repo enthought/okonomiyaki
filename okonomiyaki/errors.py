@@ -7,7 +7,16 @@ class InvalidPackageFormat(OkonomiyakiError):
 
 
 class UnsupportedMetadata(InvalidPackageFormat):
-    pass
+    def __init__(self, metadata_version, *a, **kw):
+        self.metadata_version = metadata_version
+        super(UnsupportedMetadata, self).__init__(*a, **kw)
+
+    def __str__(self):
+        if len(self.args) >= 1:
+            return self.args[0]
+        else:
+            return "Unsupported metadata_version: {0!r}".format(
+                str(self.metadata_version))
 
 
 class InvalidEggName(InvalidPackageFormat):

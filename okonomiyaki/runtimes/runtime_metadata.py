@@ -112,8 +112,7 @@ class IRuntimeMetadataV1(IRuntimeMetadata):
 
         metadata_version = metadata_dict["metadata_version"]
         if metadata_version != "1.0":
-            msg = "Unsupported metadata version: {0!r}"
-            raise UnsupportedMetadata(msg.format(metadata_version))
+            raise UnsupportedMetadata(metadata_version)
 
         return cls._from_json_dict(metadata_dict)
 

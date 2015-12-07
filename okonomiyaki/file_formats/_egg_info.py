@@ -102,7 +102,7 @@ def parse_rawspec(spec_string):
     ):
         msg = ("Invalid metadata version: {0!r}. You may need to update to a "
                "more recent okonomiyaki version".format(metadata_version))
-        raise UnsupportedMetadata(msg)
+        raise UnsupportedMetadata(metadata_version, msg)
 
     res = {}
 
