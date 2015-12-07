@@ -1,6 +1,18 @@
 XXXXXXXXXX   0.14.0:
 --------------------
 
+Enhancements:
+
+  * Reject incompatible metadata_version in egg metadata, and add API to easily
+    tweak the output's metadata_version (#150)
+  * `default_abi` now works for alternative implementations (#149).
+  * Exception hierarchy for invalid metadata has been improved for
+    finer-grained error messages (#151)
+
+Backward incompatible changes:
+
+  * `default_abi` function now takes 3 arguments (#149).
+
 Bug fixes:
 
   * update python_tag blacklist to handle wrong metadata (#146)
