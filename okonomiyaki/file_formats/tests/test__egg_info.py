@@ -225,7 +225,7 @@ packages = [
         )
 
         s = textwrap.dedent("""\
-            metadata_version = "{}"
+            metadata_version = "{0}"
 
             name = "foo"
             version = "1.0"
@@ -783,8 +783,11 @@ class TestEggInfo(unittest.TestCase):
             to_copy = set(zi.namelist()) - set(("EGG-INFO/spec/depend",))
             with zipfile2.ZipFile(new_egg, "w") as zo:
                 for archive in to_copy:
-                    with zi.open(archive) as fp:
+                    fp = zi.open(archive)
+                    try:
                         zo.writestr(archive, fp.read())
+                    finally:
+                        fp.close()
 
                 zo.writestr("EGG-INFO/spec/depend", spec_depend_string)
 
@@ -792,7 +795,7 @@ class TestEggInfo(unittest.TestCase):
 
     def test_support_higher_compatible_version(self):
         # Given
-        spec_depend = textwrap.dedent(b"""\
+        spec_depend = textwrap.dedent("""\
             metadata_version = '1.4'
             name = 'enstaller'
             version = '4.5.0'
@@ -825,7 +828,7 @@ class TestEggInfo(unittest.TestCase):
 
     def test_support_lower_compatible_version(self):
         # Given
-        spec_depend = textwrap.dedent(b"""\
+        spec_depend = textwrap.dedent("""\
             metadata_version = '1.1'
             name = 'nose'
             version = '1.3.4'
