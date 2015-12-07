@@ -241,8 +241,7 @@ packages = [
             platform_tag = "macosx_10_6_i386"
             python_tag = "cp27"
 
-            packages = []""".format(str(unsupported))
-        )
+            packages = []""".format(str(unsupported)))
 
         # When/Then
         with self.assertRaises(UnsupportedMetadata):
