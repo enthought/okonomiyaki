@@ -14,6 +14,7 @@ else:
     import unittest
 
 from ...errors import InvalidEggName, InvalidMetadata, UnsupportedMetadata
+from ...utils.test_data import NOSE_1_3_4_OSX_X86_64
 from ...platforms import EPDPlatform
 from ...platforms.legacy import LegacyEPDPlatform
 from ...versions import EnpkgVersion, MetadataVersion
@@ -821,6 +822,35 @@ class TestEggInfo(unittest.TestCase):
         # When/Then
         with self.assertRaises(UnsupportedMetadata):
             metadata._spec_depend
+
+    def test_support_lower_compatible_version(self):
+        # Given
+        spec_depend = textwrap.dedent(b"""\
+            metadata_version = '1.1'
+            name = 'nose'
+            version = '1.3.4'
+            build = 1
+
+            arch = 'amd64'
+            platform = 'linux2'
+            osdist = 'RedHat_5'
+            python = '2.7'
+            packages = []\n""")
+
+        egg = NOSE_1_3_4_OSX_X86_64
+        metadata = EggMetadata.from_egg(egg)
+
+        # When
+        metadata = EggMetadata.from_egg_metadata(
+            metadata, metadata_version=M("1.1")
+        )
+
+        # Then
+        self.assertEqual(metadata.name, "nose")
+        self.assertEqual(metadata.metadata_version, M("1.1"))
+        self.assertMultiLineEqual(
+            metadata._spec_depend.to_string(), spec_depend
+        )
 
     def test_from_cross_platform_egg(self):
         # Given

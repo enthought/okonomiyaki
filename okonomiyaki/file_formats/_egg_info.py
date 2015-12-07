@@ -775,6 +775,33 @@ class EggMetadata(object):
         return cls(raw_name, version, platform, python_tag, abi_tag,
                    dependencies, pkg_info, summary, metadata_version)
 
+    @classmethod
+    def from_egg_metadata(cls, egg_metadata, **kw):
+        """ Utility ctor to create a new EggMetadata instance from an existing
+        one, potentially updating some metadata.
+
+        Any keyword argument (except `egg_metadata`) is understood as an
+        argument to EggMetadata.__init__.
+
+        Parameters
+        ----------
+        egg_metadata: EggMetadata
+        """
+        passed_kw = {"raw_name": egg_metadata._raw_name}
+
+        for k in (
+            "version", "platform", "python", "abi_tag", "pkg_info", "summary",
+            "metadata_version"
+        ):
+            passed_kw[k] = getattr(egg_metadata, k)
+        passed_kw["dependencies"] = Dependencies(
+            egg_metadata.runtime_dependencies
+        )
+
+        passed_kw.update(**kw)
+
+        return cls(**passed_kw)
+
     def __init__(self, raw_name, version, platform, python, abi_tag,
                  dependencies, pkg_info, summary, metadata_version=None):
         """ EggMetadata instances encompass Enthought egg metadata.
