@@ -201,7 +201,9 @@ class TestRuntimeMetadataFactory(unittest.TestCase):
         path = R_DEFAULT_3_0_0_RH5_X86_64
 
         # When/Then
-        with self.assertRaises(UnsupportedMetadata):
+        with self.assertRaisesRegexp(
+                UnsupportedMetadata,
+                r"^No support for language 'r' \('MetadataVersion\(1, 0\)'\)"):
             runtime_metadata_factory(path)
 
         # Given

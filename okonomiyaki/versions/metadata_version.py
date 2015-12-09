@@ -72,3 +72,6 @@ class MetadataVersion(object):
 
     def __str__(self):
         return "{0}.{1}".format(self.major, self.minor)
+
+    def __repr__(self):
+        return "MetadataVersion({0}, {1})".format(self.major, self.minor)
