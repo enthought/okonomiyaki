@@ -21,6 +21,7 @@ class UnsupportedMetadata(InvalidPackageFormat):
 
 class InvalidEggName(InvalidPackageFormat):
     def __init__(self, egg_name):
+        self.egg_name = egg_name
         msg = "Invalid egg name '{0}'".format(egg_name)
         super(InvalidEggName, self).__init__(msg)
 
@@ -35,6 +36,7 @@ class InvalidMetadata(InvalidPackageFormat):
 
 
 class InvalidRequirementString(InvalidPackageFormat):
-    def __init__(self, dependency_string):
-        msg = "Invalid requirement string {0!r}".format(dependency_string)
+    def __init__(self, requirement_string):
+        self.requirement_string = requirement_string
+        msg = "Invalid requirement string {0!r}".format(requirement_string)
         super(InvalidRequirementString, self).__init__(msg)
