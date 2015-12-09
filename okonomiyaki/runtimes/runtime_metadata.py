@@ -11,7 +11,7 @@ import zipfile2
 from attr import attr, attributes
 from attr.validators import instance_of
 
-from ..errors import InvalidMetadata, UnsupportedMetadata
+from ..errors import InvalidMetadata, MissingMetadata, UnsupportedMetadata
 from ..platforms import EPDPlatform, Platform
 from ..versions import MetadataVersion, RuntimeVersion
 
@@ -260,4 +260,4 @@ def _read_runtime_metadata_json(zp):
         return zp.read(_METADATA_ARCNAME).decode()
     except KeyError:
         msg = "Invalid runtime (missing metadata archive {0!r} in runtime)"
-        raise InvalidMetadata(msg.format(_METADATA_ARCNAME))
+        raise MissingMetadata(msg.format(_METADATA_ARCNAME))

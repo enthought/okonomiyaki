@@ -1,7 +1,7 @@
 import re
 import sys
 
-from ..errors import InvalidMetadata
+from ..errors import InvalidMetadataField
 
 
 _KIND_TO_ABBREVIATED = {
@@ -26,20 +26,18 @@ class PythonImplementation(object):
 
     @classmethod
     def from_string(cls, s):
+        generic_exc = InvalidMetadataField('python_tag', s)
         m = _TAG_RE.match(s)
         if m is None:
-            msg = "Invalid python tag string: {!r}".format(s)
-            raise InvalidMetadata(msg)
+            raise generic_exc
         else:
             d = m.groupdict()
             kind = d["interpreter"]
             version = d["version"]
             if len(version) < 2:
-                msg = "Compressed python cannot be converted"
-                raise InvalidMetadata(msg)
+                raise generic_exc
             elif len(version) > 2:
-                msg = "Python tag {0!r} not understood"
-                raise InvalidMetadata(msg.format(version))
+                raise generic_exc
             else:
                 major = int(version[0])
                 minor = int(version[1])

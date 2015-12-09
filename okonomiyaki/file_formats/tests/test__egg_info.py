@@ -13,7 +13,10 @@ if sys.version_info[:2] < (2, 7):
 else:
     import unittest
 
-from ...errors import InvalidEggName, InvalidMetadata, UnsupportedMetadata
+from ...errors import (
+    InvalidEggName, InvalidMetadata, InvalidMetadataField, MissingMetadata,
+    UnsupportedMetadata)
+from ...utils import tempdir
 from ...utils.test_data import NOSE_1_3_4_OSX_X86_64
 from ...platforms import EPDPlatform
 from ...platforms.legacy import LegacyEPDPlatform
@@ -247,6 +250,29 @@ packages = [
         with self.assertRaises(UnsupportedMetadata):
             LegacySpecDepend.from_string(s)
 
+    def test_error_python_to_python_tag(self):
+        # Given
+        s = textwrap.dedent("""\
+            metadata_version = "1.1"
+
+            name = "foo"
+            version = "1.0"
+            build = 1
+
+            arch = "amd64"
+            platform = "darwin"
+            osdist = None
+
+            python = "a.7"
+
+            packages = []""")
+
+        # When/Then
+        with self.assertRaisesRegexp(
+                InvalidMetadata,
+                r'^python_tag cannot be guessed'):
+            LegacySpecDepend.from_string(s)
+
     def test_blacklisted_platform(self):
         # Given
         egg = XZ_5_2_0_EGG
@@ -273,6 +299,16 @@ packages = [
 
         # Then
         self.assertEqual(str(spec_depend._epd_legacy_platform), "win-32")
+
+    def test_missing_spec_depend(self):
+        # When/Then
+        with tempdir() as d:
+            path = os.path.join(d, 'egg-5.1-1.egg')
+            with zipfile2.ZipFile(path, "w") as zp:
+                zp.writestr("dummy", b"")
+
+            with self.assertRaises(MissingMetadata):
+                LegacySpecDepend.from_egg(path)
 
 
 class TestLegacySpecDependAbi(unittest.TestCase):
@@ -543,7 +579,9 @@ class TestParseRawspec(unittest.TestCase):
         spec_string = "metadata_version = '1.0'"
 
         # When/Then
-        with self.assertRaises(InvalidMetadata):
+        with self.assertRaisesRegexp(
+                InvalidMetadataField,
+                r'^Metadata field is invalid \(name = <undefined>\)$'):
             parse_rawspec(spec_string)
 
     def test_simple_1_2(self):
@@ -676,7 +714,9 @@ packages = [
 """
 
         # When/Then
-        with self.assertRaises(InvalidMetadata):
+        with self.assertRaisesRegexp(
+                InvalidMetadataField,
+                r'^Metadata field is invalid \(metadata_version = None\)$'):
             parse_rawspec(spec_s)
 
         # Given a spec_string without some other metadata in >= 1.1
@@ -696,7 +736,9 @@ packages = [
 """
 
         # When/Then
-        with self.assertRaises(InvalidMetadata):
+        with self.assertRaisesRegexp(
+                InvalidMetadataField,
+                r'^Metadata field is invalid \(platform = <undefined>\)$'):
             parse_rawspec(spec_s)
 
         # Given a spec_string without some other metadata in >= 1.2
@@ -717,7 +759,9 @@ packages = [
 """
 
         # When/Then
-        with self.assertRaises(InvalidMetadata):
+        with self.assertRaisesRegexp(
+                InvalidMetadataField,
+                r'^Metadata field is invalid \(python_tag = <undefined>\)$'):
             parse_rawspec(spec_s)
 
 

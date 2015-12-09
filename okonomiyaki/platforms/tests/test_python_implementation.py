@@ -3,7 +3,7 @@ import unittest
 import mock
 
 from ..python_implementation import PythonImplementation
-from ...errors import InvalidMetadata
+from ...errors import InvalidMetadataField
 
 
 class TestPythonImplementation(unittest.TestCase):
@@ -49,21 +49,27 @@ class TestPythonImplementation(unittest.TestCase):
         s = "cp"
 
         # When/Then
-        with self.assertRaises(InvalidMetadata):
+        with self.assertRaisesRegexp(
+                InvalidMetadataField,
+                r"^Metadata field is invalid \(python_tag = 'cp'\)$"):
             PythonImplementation.from_string(s)
 
         # Given
         s = "py2"
 
         # When/Then
-        with self.assertRaises(InvalidMetadata):
+        with self.assertRaisesRegexp(
+                InvalidMetadataField,
+                r"^Metadata field is invalid \(python_tag = 'py2'\)$"):
             PythonImplementation.from_string(s)
 
         # Given
         s = "py234"
 
         # When/Then
-        with self.assertRaises(InvalidMetadata):
+        with self.assertRaisesRegexp(
+                InvalidMetadataField,
+                r"^Metadata field is invalid \(python_tag = 'py234'\)$"):
             PythonImplementation.from_string(s)
 
     def test_simple(self):
@@ -118,12 +124,16 @@ class TestPythonImplementation(unittest.TestCase):
         tag_string = "py3"
 
         # When/Then
-        with self.assertRaises(InvalidMetadata):
+        with self.assertRaisesRegexp(
+                InvalidMetadataField,
+                r"^Metadata field is invalid \(python_tag = 'py3'\)$"):
             PythonImplementation.from_string(tag_string)
 
         # Given
         tag_string = "py345"
 
         # When/Then
-        with self.assertRaises(InvalidMetadata):
+        with self.assertRaisesRegexp(
+                InvalidMetadataField,
+                r"^Metadata field is invalid \(python_tag = 'py345'\)$"):
             PythonImplementation.from_string(tag_string)
