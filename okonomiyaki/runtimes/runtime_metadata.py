@@ -209,8 +209,8 @@ def runtime_metadata_factory(path_or_file):
     key = _factory_key_from_metadata(json_dict)
     klass = _METADATA_KLASS_FACTORY.get(key)
     if klass is None:
-        msg = "No support for {0!r} combination".format(key)
-        raise UnsupportedMetadata(msg)
+        msg = "No support for language '{1}' ('{0!r}')".format(*key)
+        raise UnsupportedMetadata(key[0], msg)
     else:
         return klass._from_path(path_or_file)
 
