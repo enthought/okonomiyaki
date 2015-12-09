@@ -35,6 +35,27 @@ class InvalidMetadata(InvalidPackageFormat):
         return self.message
 
 
+class _undefined(object):
+    def __repr__(self):
+        return '<undefined>'
+
+
+class InvalidMetadataField(InvalidMetadata):
+
+    undefined = _undefined()
+
+    def __init__(self, name, value, *a, **kw):
+        self.name = name
+        self.value = value
+        message = 'Metadata field is invalid ({0} = {1!r})'.format(
+            name, value)
+        super(InvalidMetadataField, self).__init__(message, *a, **kw)
+
+
+class MissingMetadata(InvalidMetadata):
+    pass
+
+
 class InvalidRequirementString(InvalidPackageFormat):
     def __init__(self, requirement_string):
         self.requirement_string = requirement_string

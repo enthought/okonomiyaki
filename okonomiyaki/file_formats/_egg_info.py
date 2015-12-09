@@ -7,7 +7,7 @@ from ..bundled.traitlets import (
 )
 from ..errors import (
     InvalidRequirementString, InvalidEggName, InvalidMetadata,
-    UnsupportedMetadata
+    InvalidMetadataField, MissingMetadata, UnsupportedMetadata
 )
 from ..platforms import EPDPlatform, PythonImplementation
 from ..platforms.legacy import LegacyEPDPlatform
@@ -123,8 +123,7 @@ def parse_rawspec(spec_string):
         metadata_version = None
 
     if metadata_version is None:
-        raise InvalidMetadata(
-            "Invalid spec/depend: no metadata_version found")
+        raise InvalidMetadataField('metadata_version', metadata_version_string)
     elif metadata_version not in _METADATA_VERSION_TO_KEYS:
         metadata_version = _highest_compatible(metadata_version)
 
@@ -135,8 +134,7 @@ def parse_rawspec(spec_string):
         try:
             res[key] = spec[key]
         except KeyError:
-            msg = "Missing attribute {0!r} (metadata_version: {1!r})"
-            raise InvalidMetadata(msg.format(key, metadata_version))
+            raise InvalidMetadataField(key, InvalidMetadataField.undefined)
     return res
 
 
@@ -451,7 +449,7 @@ class LegacySpecDepend(HasTraits):
             except KeyError:
                 msg = ("File {0!r} is not an Enthought egg (is missing {1})"
                        .format(path_or_file, _SPEC_DEPEND_LOCATION))
-                raise InvalidMetadata(msg)
+                raise MissingMetadata(msg)
             else:
                 data, epd_platform = _normalized_info_from_string(
                     spec_depend_string, epd_platform, sha256
@@ -575,11 +573,11 @@ def _python_tag_to_python(python_tag):
     if python_tag is None:
         return None
 
-    generic_msg = "Python tag {0!r} not understood".format(python_tag)
+    generic_exc = InvalidMetadataField('python_tag', python_tag)
 
     m = _TAG_RE.match(python_tag)
     if m is None:
-        raise InvalidMetadata(generic_msg)
+        raise generic_exc
     else:
         d = m.groupdict()
         version = d["version"]
@@ -587,11 +585,11 @@ def _python_tag_to_python(python_tag):
             if version == "2":
                 return "2.7"
             else:
-                raise InvalidMetadata(generic_msg)
+                raise generic_exc
         elif len(version) == 2:
             return "{0}.{1}".format(version[0], version[1])
         else:
-            raise InvalidMetadata(generic_msg)
+            raise generic_exc
 
 
 def _metadata_version_to_tuple(metadata_version):
