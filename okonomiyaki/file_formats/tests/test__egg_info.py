@@ -304,8 +304,8 @@ packages = [
         # When/Then
         with tempdir() as d:
             path = os.path.join(d, 'egg-5.1-1.egg')
-            with zipfile2.ZipFile(path, "w"):
-                pass
+            with zipfile2.ZipFile(path, "w") as zp:
+                zp.writestr("dummy", b"")
 
             with self.assertRaises(MissingMetadata):
                 LegacySpecDepend.from_egg(path)
