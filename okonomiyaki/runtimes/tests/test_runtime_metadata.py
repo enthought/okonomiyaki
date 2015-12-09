@@ -4,7 +4,8 @@ import unittest
 
 import zipfile2
 
-from okonomiyaki.errors import InvalidMetadata, UnsupportedMetadata
+from okonomiyaki.errors import (
+    InvalidMetadata, MissingMetadata, UnsupportedMetadata)
 from okonomiyaki.utils import tempdir
 from okonomiyaki.utils.test_data import (
     JULIA_DEFAULT_0_3_11_RH5_X86_64, PYTHON_CPYTHON_2_7_10_RH5_X86_64,
@@ -214,4 +215,15 @@ class TestRuntimeMetadataFactory(unittest.TestCase):
             shutil.copy(path, target)
 
             with self.assertRaises(InvalidMetadata):
+                runtime_metadata_factory(target)
+
+        # Given
+        path = PYTHON_CPYTHON_2_7_10_RH5_X86_64
+
+        # When/Then
+        with tempdir() as d:
+            target = os.path.join(d, os.path.basename(path))
+            with zipfile2.ZipFile(target, "w"):
+                pass
+            with self.assertRaises(MissingMetadata):
                 runtime_metadata_factory(target)
