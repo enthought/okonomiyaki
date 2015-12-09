@@ -14,7 +14,9 @@ else:
     import unittest
 
 from ...errors import (
-    InvalidEggName, InvalidMetadata, InvalidMetadataField, UnsupportedMetadata)
+    InvalidEggName, InvalidMetadata, InvalidMetadataField, MissingMetadata,
+    UnsupportedMetadata)
+from ...utils import tempdir
 from ...utils.test_data import NOSE_1_3_4_OSX_X86_64
 from ...platforms import EPDPlatform
 from ...platforms.legacy import LegacyEPDPlatform
@@ -297,6 +299,16 @@ packages = [
 
         # Then
         self.assertEqual(str(spec_depend._epd_legacy_platform), "win-32")
+
+    def test_missing_spec_depend(self):
+        # When/Then
+        with tempdir() as d:
+            path = os.path.join(d, 'egg-5.1-1.egg')
+            with zipfile2.ZipFile(path, "w"):
+                pass
+
+            with self.assertRaises(MissingMetadata):
+                LegacySpecDepend.from_egg(path)
 
 
 class TestLegacySpecDependAbi(unittest.TestCase):
