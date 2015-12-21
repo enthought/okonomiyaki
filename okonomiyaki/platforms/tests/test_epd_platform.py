@@ -191,6 +191,10 @@ class TestEPDPlatformApplies(unittest.TestCase):
             self.assertTrue(applies("all", "current"))
             self.assertFalse(applies("!all", "current"))
 
+        platform = EPDPlatform.from_epd_string("rh5-x86_64")
+        self.assertTrue(applies("all", platform))
+        self.assertFalse(applies("!all", platform))
+
     @mock_centos_5_8
     def test_current_linux(self):
         with mock_x86:
