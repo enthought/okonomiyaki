@@ -303,6 +303,8 @@ def applies(platform_string, to='current'):
                 raise ValueError("Invalid 'to' argument: {0!r}".format(to))
             to_platform = to
             to_arch_bits = None
+    else:
+        to_platform = to.platform_name
 
     conditions = []
 
