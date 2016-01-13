@@ -1,5 +1,6 @@
 import re
 
+from ..errors import InvalidSemanticVersion
 from ..utils.py3compat import long
 
 
@@ -116,7 +117,7 @@ class SemanticVersion(object):
         m = _SEMVER_R.match(s)
 
         if m is None:
-            raise ValueError("Invalid semver: {0!r}".format(s))
+            raise InvalidSemanticVersion(s)
         else:
             d = m.groupdict()
 
@@ -128,11 +129,17 @@ class SemanticVersion(object):
 
             build = _parse_build(d["build"])
 
-            _ensure_no_leading_zero(major, "Major")
-            _ensure_no_leading_zero(minor, "Minor")
-            _ensure_no_leading_zero(patch, "Patch")
+            try:
+                _ensure_no_leading_zero(major, "Major")
+                _ensure_no_leading_zero(minor, "Minor")
+                _ensure_no_leading_zero(patch, "Patch")
 
-            return cls(int(major), int(minor), int(patch), pre_release, build)
+                return cls(int(major), int(minor), int(patch), pre_release, build)
+            except ValueError as exc:
+                msg = "Invalid semantic version '{0}' ({1})".format(
+                    s, str(exc)
+                )
+                raise InvalidSemanticVersion(s, msg)
 
     def __init__(self, major, minor, patch, pre_release=None, build=None):
         """ Private constructor, use one of the from_ ctors instead.
