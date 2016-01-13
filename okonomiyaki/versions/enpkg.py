@@ -1,3 +1,5 @@
+from okonomiyaki.errors import InvalidEnpkgVersion
+
 from .pep386_workaround import PEP386WorkaroundVersion
 
 
@@ -14,7 +16,13 @@ class EnpkgVersion(object):
         build : int
             The build number
         """
-        upstream = PEP386WorkaroundVersion.from_string(upstream)
+        try:
+            upstream = PEP386WorkaroundVersion.from_string(upstream)
+        except IrrationalVersionError:
+            raise InvalidEnpkgVersion(
+                "{}-{}".format(upstream, build),
+                "Invalid PEP386 version string: {0!r}".format(upstream)
+            )
         return cls(upstream, build)
 
     @classmethod
@@ -33,12 +41,12 @@ class EnpkgVersion(object):
             try:
                 build = int(parts[1])
             except ValueError:
-                raise ValueError(
+                raise InvalidEnpkgVersion(
+                    version_string,
                     "Invalid build number: {0!r}".format(parts[1])
                 )
         else:
-            msg = "Invalid version format: {0!r}".format(version_string)
-            raise ValueError(msg)
+            raise InvalidEnpkgVersion(version_string)
 
         return cls.from_upstream_and_build(parts[0], build)
 

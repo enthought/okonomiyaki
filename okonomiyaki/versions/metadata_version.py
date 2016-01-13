@@ -1,5 +1,7 @@
 import re
 
+from ..errors import InvalidMetadataVersion
+
 
 _VERSION_R = re.compile("(?P<major>\d+)\.(?P<minor>\d+)$")
 
@@ -13,7 +15,7 @@ class MetadataVersion(object):
         """
         m = _VERSION_R.match(s)
         if m is None:
-            raise ValueError("Invalid version: {0!r}".format(s))
+            raise InvalidMetadataVersion(s)
         else:
             d = m.groupdict()
             return cls(int(d["major"]), int(d["minor"]))

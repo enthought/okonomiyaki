@@ -1,5 +1,8 @@
 import unittest
 
+
+from okonomiyaki.errors import InvalidEnpkgVersion
+
 from ..enpkg import EnpkgVersion
 from ..pep386_workaround import PEP386WorkaroundVersion
 
@@ -67,7 +70,9 @@ class TestEnpkgVersionParsing(unittest.TestCase):
         s = "1.3.0-a"
 
         # When/Then
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegexp(
+            InvalidEnpkgVersion, "Invalid build number: 'a'"
+        ):
             EnpkgVersion.from_string(s)
 
     def test_cannot_compare(self):

@@ -1,5 +1,7 @@
 import unittest
 
+from okonomiyaki.errors import InvalidMetadataVersion
+
 from .. import MetadataVersion
 
 
@@ -59,7 +61,7 @@ class TestMetadataVersion(unittest.TestCase):
         s = "1"
 
         # When/Then
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidMetadataVersion):
             MetadataVersion.from_string(s)
 
         # Given
