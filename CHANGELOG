@@ -1,6 +1,11 @@
 Changes since 0.14.0
 --------------------
 
+Enhancements:
+
+  * Only raise okonomiyaki-specific errors when invalid version strings are
+    passed to one of the version class in okonomiyaki.versions (PR 157).
+
 2015-12-09   0.14.0:
 --------------------
 

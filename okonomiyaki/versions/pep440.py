@@ -4,6 +4,8 @@ Implementation adapted from the distlib.version package
 """
 import re
 
+from okonomiyaki.errors import InvalidPEP440Version
+
 
 PEP440_VERSION_RE = re.compile(r'^v?(\d+!)?(\d+(\.\d+)*)((a|b|rc)(\d+))?'
                                r'(\.(post)(\d+))?(\.(dev)(\d+))?'
@@ -69,7 +71,7 @@ class PEP440Version(object):
     def from_string(cls, s):
         m = PEP440_VERSION_RE.match(s)
         if not m:
-            raise ValueError('Not a valid version: %s' % s)
+            raise InvalidPEP440Version(s)
         groups = m.groups()
         nums = tuple(int(v) for v in groups[1].split('.'))
 

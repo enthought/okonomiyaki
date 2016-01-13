@@ -61,3 +61,33 @@ class InvalidRequirementString(InvalidPackageFormat):
         self.requirement_string = requirement_string
         msg = "Invalid requirement string {0!r}".format(requirement_string)
         super(InvalidRequirementString, self).__init__(msg)
+
+
+class InvalidVersion(OkonomiyakiError):
+    def __init__(self, version_string, *a, **kw):
+        self.version_string = version_string
+        super(InvalidVersion, self).__init__(*a, **kw)
+
+    def __str__(self):
+        if len(self.args) >= 1:
+            return self.args[0]
+        else:
+            return "Invalid version string format: {0!r}".format(
+                str(self.version_string)
+            )
+
+
+class InvalidPEP440Version(InvalidVersion):
+    pass
+
+
+class InvalidEnpkgVersion(InvalidVersion):
+    pass
+
+
+class InvalidMetadataVersion(InvalidVersion):
+    pass
+
+
+class InvalidSemanticVersion(InvalidVersion):
+    pass

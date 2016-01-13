@@ -1,5 +1,7 @@
 import unittest
 
+from okonomiyaki.errors import InvalidPEP440Version
+
 from ..pep440 import _MIN, _MAX, PEP440Version
 
 
@@ -198,5 +200,5 @@ class TestPEP440Version(unittest.TestCase):
             left > right
 
         # When/Then
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidPEP440Version):
             V("a")

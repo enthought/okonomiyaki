@@ -1,6 +1,8 @@
 import re
 import unittest
 
+from okonomiyaki.errors import InvalidSemanticVersion
+
 from ..enpkg import EnpkgVersion
 from ..semver import SemanticVersion, _PrereleaseParts
 
@@ -172,15 +174,18 @@ class TestSemanticVersion(unittest.TestCase):
 
         # When/Then
         for v in invalid_strings:
-            with self.assertRaises(ValueError):
+            with self.assertRaises(InvalidSemanticVersion):
                 SemanticVersion.from_string(v)
 
         # Given
         version_string = "1.2.03"
-        r_output = re.compile("Patch number cannot have leading 0: '03'$")
+        r_output = re.compile(
+            "Invalid semantic version '1.2.03' \(Patch number "
+            "cannot have leading 0: '03'\)$"
+        )
 
         # When/Then
-        with self.assertRaisesRegexp(ValueError, r_output):
+        with self.assertRaisesRegexp(InvalidSemanticVersion, r_output):
             SemanticVersion.from_string(version_string)
 
     def test_other_object(self):
