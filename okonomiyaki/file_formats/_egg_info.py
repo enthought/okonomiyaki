@@ -9,7 +9,7 @@ from ..errors import (
     InvalidRequirementString, InvalidEggName, InvalidMetadata,
     InvalidMetadataField, MissingMetadata, UnsupportedMetadata
 )
-from ..platforms import EPDPlatform, PythonImplementation
+from ..platforms import EPDPlatform, PythonImplementation, default_abi
 from ..platforms.legacy import LegacyEPDPlatform
 from ..utils import compute_sha256, parse_assignments
 from ..utils.py3compat import StringIO, string_types
@@ -330,6 +330,26 @@ def _guess_python_tag(pyver):
             minor = m.groupdict()["minor"]
 
             return "cp" + major + minor
+
+
+def _guess_platform_abi(platform, implementation_version):
+    """ Guess platform_abi from the given epd_platform and implementation.
+
+    None may be returned
+
+    Parameters
+    ----------
+    platform: Platform
+        May be None.
+    implementation_version : RuntimeVersion or str
+        The runtime version.
+    """
+    if platform is None:
+        return None
+    else:
+        return default_abi(
+            platform, "cpython", implementation_version
+        )
 
 
 _METADATA_DEFAULT_VERSION_STRING = "1.3"
