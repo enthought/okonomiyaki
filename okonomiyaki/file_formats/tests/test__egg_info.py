@@ -193,6 +193,7 @@ packages = [
             depend._epd_legacy_platform,
             LegacyEPDPlatform.from_epd_platform_string("win-32")
         )
+        self.assertEqual(depend.platform_abi, "msvc2008")
 
     def test_format_1_3(self):
         r_depend = """\
@@ -220,6 +221,37 @@ packages = [
         self.assertEqual(depend.python_tag, "cp27")
         self.assertEqual(depend.abi_tag, "cp27m")
         self.assertEqual(depend.platform_tag, "win32")
+        self.assertEqual(depend.platform_abi, "msvc2008")
+
+    def test_format_1_4(self):
+        r_depend = """\
+metadata_version = "1.4"
+name= "numpy_debug"
+version = "1.9.2"
+build = 3
+
+arch = 'x86'
+platform = 'win32'
+osdist = None
+
+python = "2.7"
+python_tag = "cp27"
+abi_tag = "cp27m"
+platform_tag = "win32"
+
+platform_abi = "msvc2008"
+
+packages = [
+]
+"""
+        depend = LegacySpecDepend.from_string(r_depend)
+
+        # Then
+        self.assertEqual(depend._metadata_version, M("1.4"))
+        self.assertEqual(depend.python_tag, "cp27")
+        self.assertEqual(depend.abi_tag, "cp27m")
+        self.assertEqual(depend.platform_tag, "win32")
+        self.assertEqual(depend.platform_abi, "msvc2008")
 
     def test_unsupported_metadata_version(self):
         # Given
@@ -332,6 +364,7 @@ packages = []
 
         # Then
         self.assertIsNone(spec_depend.abi_tag, None)
+        self.assertEqual(spec_depend.platform_abi, "darwin")
 
     def test_default_pure_python_egg(self):
         # Given
@@ -353,6 +386,7 @@ packages = []
 
         # Then
         self.assertEqual(spec_depend.abi_tag, "cp27m")
+        self.assertEqual(spec_depend.platform_abi, "darwin")
 
     def test_default_extension_python_egg(self):
         # Given
@@ -376,6 +410,30 @@ packages = [
 
         # Then
         self.assertEqual(spec_depend.abi_tag, "cp27m")
+        self.assertEqual(spec_depend.platform_abi, "darwin")
+
+    def test_default_no_python_egg(self):
+        # Given
+        spec_depend_string = """\
+metadata_version = '1.1'
+name = 'MKL'
+version = '11.1.4'
+build = 1
+
+arch = 'amd64'
+platform = 'win32'
+osdist = 'Windows'
+python = None
+packages = [
+]
+"""
+
+        # When
+        spec_depend = LegacySpecDepend.from_string(spec_depend_string)
+
+        # Then
+        self.assertIsNone(spec_depend.abi_tag)
+        self.assertEqual(spec_depend.platform_abi, "msvc2008")
 
     def test_default_pure_python_egg_pypi(self):
         # Given
@@ -399,6 +457,7 @@ packages = [
 
         # Then
         self.assertIsNone(spec_depend.abi_tag)
+        self.assertIsNone(spec_depend.platform_abi)
 
     def test_to_string(self):
         # Given
@@ -973,10 +1032,78 @@ class TestEggInfo(unittest.TestCase):
 
         return new_egg
 
-    def test_support_higher_compatible_version(self):
+    def test_platform_abi(self):
         # Given
         spec_depend = textwrap.dedent("""\
             metadata_version = '1.4'
+            name = 'Qt'
+            version = '4.8.7'
+            build = 4
+
+            arch = 'amd64'
+            platform = 'win32'
+            osdist = None
+            python = None
+
+            python_tag = None
+            abi_tag = None
+            platform_tag = 'win_amd64'
+
+            platform_abi = 'msvc2010'
+
+            packages = []""")
+
+        r_spec_depend = textwrap.dedent("""\
+            metadata_version = '1.4'
+            name = 'Qt'
+            version = '4.8.7'
+            build = 4
+
+            arch = 'amd64'
+            platform = 'win32'
+            osdist = None
+            python = None
+
+            python_tag = None
+            abi_tag = None
+            platform_tag = 'win_amd64'
+
+            platform_abi = 'msvc2015'
+
+            packages = []
+        """)
+
+        egg = self._override_spec_depend(ENSTALLER_EGG, spec_depend)
+
+        # When
+        metadata = EggMetadata.from_egg(egg)
+
+        # Then
+        self.assertEqual(metadata.name, "qt")
+        self.assertEqual(metadata.metadata_version, M("1.4"))
+        self.assertIs(metadata.is_strictly_supported, True)
+        self.assertEqual(metadata.platform_abi, "msvc2010")
+        self.assertEqual(metadata.platform_abi_string, "msvc2010")
+
+        # When
+        metadata.platform_abi = None
+
+        # Then
+        self.assertIs(metadata.platform_abi, None)
+        self.assertEqual(metadata.platform_abi_string, "none")
+
+        # When
+        metadata.platform_abi = "msvc2015"
+
+        # Then
+        self.assertMultiLineEqual(
+            metadata._spec_depend.to_string(), r_spec_depend
+        )
+
+    def test_support_higher_compatible_version(self):
+        # Given
+        spec_depend = textwrap.dedent("""\
+            metadata_version = '1.5'
             name = 'enstaller'
             version = '4.5.0'
             build = 1
@@ -990,6 +1117,8 @@ class TestEggInfo(unittest.TestCase):
             abi_tag = None
             platform_tag = None
 
+            platform_abi = None
+
             packages = []""")
 
         egg = self._override_spec_depend(ENSTALLER_EGG, spec_depend)
@@ -999,7 +1128,7 @@ class TestEggInfo(unittest.TestCase):
 
         # Then
         self.assertEqual(metadata.name, "enstaller")
-        self.assertEqual(metadata.metadata_version, M("1.4"))
+        self.assertEqual(metadata.metadata_version, M("1.5"))
         self.assertIs(metadata.is_strictly_supported, False)
 
         # When/Then
