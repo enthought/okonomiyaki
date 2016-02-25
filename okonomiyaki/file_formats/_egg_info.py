@@ -374,7 +374,7 @@ def _guess_platform_abi(platform, implementation):
         if implementation is None:
             # All our eggs so far have been python 2-only
             implementation = PythonImplementation.from_string("cp27")
-        implementation_version = "{}.{}".format(
+        implementation_version = "{0}.{1}".format(
             implementation.major, implementation.minor
         )
         return default_abi(
