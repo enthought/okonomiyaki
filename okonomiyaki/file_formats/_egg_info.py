@@ -332,23 +332,29 @@ def _guess_python_tag(pyver):
             return "cp" + major + minor
 
 
-def _guess_platform_abi(platform, implementation_version):
-    """ Guess platform_abi from the given epd_platform and implementation.
+def _guess_platform_abi(platform, implementation):
+    """ Guess platform_abi from the given platform and implementation.
 
-    None may be returned
+    May be None.
 
     Parameters
     ----------
     platform: Platform
         May be None.
-    implementation_version : RuntimeVersion or str
-        The runtime version.
+    implementation: PythonImplementation
+        May be None.
     """
     if platform is None:
         return None
     else:
+        if implementation is None:
+            # All our eggs so far have been python 2-only
+            implementation = PythonImplementation.from_string("cp27")
+        implementation_version = "{}.{}".format(
+            implementation.major, implementation.minor
+        )
         return default_abi(
-            platform, "cpython", implementation_version
+            platform, implementation.kind, implementation_version
         )
 
 
