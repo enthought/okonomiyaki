@@ -123,8 +123,8 @@ packages = []
         dependencies = Dependencies((), ())
 
         return EggMetadata(
-            pkg_info.name, version, platform, "cp27", "cp27m", dependencies,
-            pkg_info, pkg_info.summary
+            pkg_info.name, version, platform, "cp27", "cp27m", "gnu",
+            dependencies, pkg_info, pkg_info.summary
         )
 
     def test_reject_no_pkg_info(self):
@@ -134,7 +134,7 @@ packages = []
         dependencies = Dependencies((), ())
 
         metadata = EggMetadata("foo", version, platform, "cp27",
-                               "cp27m", dependencies, None, "")
+                               "cp27m", "gnu", dependencies, None, "")
 
         # When/Then
         with self.assertRaises(ValueError):
