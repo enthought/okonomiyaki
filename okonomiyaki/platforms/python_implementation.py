@@ -19,6 +19,15 @@ _TAG_RE = re.compile("""
 
 
 class PythonImplementation(object):
+    @staticmethod
+    def pep425_tag_string(implementation):
+        if implementation is None:
+            # an extension of PEP 425, to signify the egg will work on any
+            # python version (mostly non-python eggs)
+            return 'none'
+        else:
+            return implementation.pep425_tag
+
     @classmethod
     def from_running_python(cls):
         s = _abbreviated_implementation() + _implementation_version()

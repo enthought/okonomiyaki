@@ -79,6 +79,13 @@ class EPDPlatform(HasTraits):
     Main name of the platform (e.g. 'rh5')
     """
 
+    @staticmethod
+    def pep425_tag_string(platform):
+        if platform is None:
+            return 'any'
+        else:
+            return platform.pep425_tag
+
     @classmethod
     def from_running_python(cls):
         """

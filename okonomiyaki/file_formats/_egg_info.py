@@ -1005,10 +1005,7 @@ class EggMetadata(object):
 
     @property
     def platform_tag_string(self):
-        if self.platform_tag is None:
-            return 'any'
-        else:
-            return self.platform_tag
+        return EPDPlatform.pep425_tag_string(self.platform)
 
     @property
     def python_tag(self):
@@ -1019,12 +1016,7 @@ class EggMetadata(object):
 
     @property
     def python_tag_string(self):
-        if self.python_tag is None:
-            # an extension of PEP 425, to signify the egg will work on any
-            # python version (mostly non-python eggs)
-            return 'none'
-        else:
-            return self.python_tag
+        return PythonImplementation.pep425_tag_string(self.python)
 
     @property
     def spec_depend_string(self):
