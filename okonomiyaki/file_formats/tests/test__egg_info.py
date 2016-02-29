@@ -1100,6 +1100,41 @@ class TestEggInfo(unittest.TestCase):
             metadata._spec_depend.to_string(), r_spec_depend
         )
 
+    def test_platform_abi_no_python(self):
+        # Given
+        spec_depend = textwrap.dedent("""\
+            metadata_version = '1.3'
+
+            name = 'PythonDoc'
+            version = '2.7.3'
+            build = 1
+
+            arch = 'amd64'
+            platform = 'win32'
+            osdist = None
+            python = None
+
+            platform_tag = 'win_amd64'
+            abi_tag = 'cp27m'
+            python_tag = 'py27'
+
+            packages = [
+              'appinst',
+            ]
+        """)
+
+        egg = self._override_spec_depend(ENSTALLER_EGG, spec_depend)
+
+        # When
+        metadata = EggMetadata.from_egg(egg)
+
+        # Then
+        self.assertEqual(metadata.name, "pythondoc")
+        self.assertEqual(metadata.metadata_version, M("1.3"))
+        self.assertIs(metadata.is_strictly_supported, True)
+        self.assertIsNone(metadata.platform_abi)
+        self.assertEqual(metadata.platform_abi_string, "none")
+
     def test_support_higher_compatible_version(self):
         # Given
         spec_depend = textwrap.dedent("""\
