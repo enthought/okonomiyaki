@@ -11,6 +11,7 @@ from haas.plugins.result_handler import (
 from haas.plugins.runner import BaseTestRunner
 
 from hatcher.api import BroodClient, BroodBearerTokenAuth
+from hatcher.errors import ChecksumMismatchError
 from okonomiyaki.file_formats import EggMetadata
 from okonomiyaki.utils import compute_md5
 
@@ -160,6 +161,24 @@ def _egg_valid_by_md5(egg_path, index_entry):
     return md5 == index_entry['md5']
 
 
+def _retry_download_if_fails(platform_repo, python_tag, name, version,
+                             python_tag_dir, tries=3):
+    try_number = 0
+    while try_number < tries:
+        try:
+            platform_repo.download_egg(
+                python_tag, name, version, python_tag_dir)
+        except ChecksumMismatchError:
+            try_number += 1
+            if try_number < tries:
+                click.echo(
+                    'Download failed due to mismatched checksum; retrying.')
+            else:
+                raise
+        else:
+            return
+
+
 def update_eggs_for_repository(platform_repo, target_directory, org_name,
                                repo_name, platform, index, use_md5):
     if len(index) == 0:
@@ -194,8 +213,8 @@ def update_eggs_for_repository(platform_repo, target_directory, org_name,
             version = index_entry['full_version']
             click.echo('Downloading {!r} {!r} {!r} {!r}'.format(
                 repo_full, platform, python_tag, egg_name))
-            platform_repo.download_egg(
-                python_tag, name, version, python_tag_dir)
+            _retry_download_if_fails(
+                platform_repo, python_tag, name, version, python_tag_dir)
 
 
 def update_test_data(target_directory, repositories, token, use_md5):
