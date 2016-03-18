@@ -1068,3 +1068,41 @@ class EggMetadata(object):
             "_metadata_version": self.metadata_version,
         }
         return LegacySpecDepend(**args)
+
+    # Public methods
+    def dump(self, path):
+        """ Write the metadata to the given path as a metadata egg.
+
+        A metadata egg is a zipfile using the same structured as an egg, except
+        that it only contains metadata.
+
+        Parameters
+        ----------
+        path : str
+            The path to write the zipped metadata into.
+        """
+        with zipfile2.ZipFile(path, "w", zipfile2.ZIP_DEFLATED) as zp:
+            zp.writestr(
+                _SPEC_DEPEND_LOCATION, self.spec_depend_string.encode()
+            )
+            zp.writestr(
+                _SPEC_SUMMARY_LOCATION, self.summary.encode()
+            )
+            if self.pkg_info:
+                self.pkg_info._dump_as_zip(zp)
+
+    # Protocol implementations
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return (
+                self.spec_depend_string == other.spec_depend_string and
+                self.summary == other.summary and
+                self.pkg_info == other.pkg_info
+            )
+        else:
+            raise TypeError(
+                "Only equality between EggMetadata instances is supported"
+            )
+
+    def __ne__(self, other):
+        return not self == other

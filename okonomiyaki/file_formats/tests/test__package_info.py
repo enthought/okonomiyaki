@@ -1,9 +1,13 @@
+import os.path
+import shutil
 import sys
+import tempfile
 import zipfile2
 
 import mock
 
-from .._package_info import PackageInfo
+from .._blacklist.pkg_info_data import PYSIDE_1_1_0_PKG_INFO
+from .._package_info import PKG_INFO_ENCODING, _PKG_INFO_LOCATION, PackageInfo
 
 if sys.version_info[:2] < (2, 7):
     import unittest2 as unittest
@@ -21,6 +25,12 @@ from .common import (
 
 class TestPackageInfo(unittest.TestCase):
     maxDiff = None
+
+    def setUp(self):
+        self.tempdir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        shutil.rmtree(self.tempdir)
 
     def test_simple_from_string(self):
         # Given
@@ -224,3 +234,75 @@ class TestPackageInfo(unittest.TestCase):
             pkg_info.author_email,
             u"johannes.buchner.acad [\ufffdt] gmx.com",
         )
+
+    def test__dump_as_zip(self):
+        # Given
+        r_data = PIP_PKG_INFO
+        pkg_info = PackageInfo.from_string(r_data)
+
+        path = os.path.join(self.tempdir, "foo.zip")
+
+        # When
+        with zipfile2.ZipFile(path, "w") as zp:
+            pkg_info._dump_as_zip(zp)
+
+        # Then
+        with zipfile2.ZipFile(path) as zp:
+            data = zp.read(_PKG_INFO_LOCATION).decode(PKG_INFO_ENCODING)
+
+        self.assertMultiLineEqual(data, r_data)
+
+    def test__dump_as_zip_no_overwrite(self):
+        # Given
+        r_data = PIP_PKG_INFO
+        pkg_info = PackageInfo.from_string(r_data)
+        r_other_data = "nono le petit robot"
+
+        path = os.path.join(self.tempdir, "foo.zip")
+
+        # When
+        with zipfile2.ZipFile(path, "w") as zp:
+            zp.writestr("SOME_ARCHIVE", r_other_data.encode(PKG_INFO_ENCODING))
+            pkg_info._dump_as_zip(zp)
+
+        # Then
+        with zipfile2.ZipFile(path) as zp:
+            data = zp.read(_PKG_INFO_LOCATION).decode(PKG_INFO_ENCODING)
+            other = zp.read("SOME_ARCHIVE").decode(PKG_INFO_ENCODING)
+
+        self.assertMultiLineEqual(data, r_data)
+        self.assertMultiLineEqual(other, r_other_data)
+
+    def test__dump_as_zip_blacklist(self):
+        # Given
+        r_data_v11 = PYSIDE_1_1_0_PKG_INFO
+        # XXX: lots of our blacklisted PKG-INFO claim to be 1.0 but have
+        # classifiers which are part of metadata 1.1, so we strip the 1.1 parts
+        # here...
+        r_data = "\n".join(
+            line for line in r_data_v11.splitlines()
+            if not line.startswith("Classifier:")
+        ) + "\n"
+
+        egg = FAKE_PYSIDE_1_1_0_EGG
+        mock_sha256 = (
+            "5eff70cfb464c2d531e6f93f7601e8ef8255b3a1ab4dd533826cfdcd5b962b60"
+        )
+
+        with mock.patch(
+            "okonomiyaki.file_formats._package_info.compute_sha256",
+            return_value=mock_sha256
+        ):
+            pkg_info = PackageInfo.from_egg(egg)
+
+        path = os.path.join(self.tempdir, "foo.zip")
+
+        # When
+        with zipfile2.ZipFile(path, "w") as zp:
+            pkg_info._dump_as_zip(zp)
+
+        # Then
+        with zipfile2.ZipFile(path) as zp:
+            data = zp.read(_PKG_INFO_LOCATION).decode(PKG_INFO_ENCODING)
+
+        self.assertMultiLineEqual(data, r_data)

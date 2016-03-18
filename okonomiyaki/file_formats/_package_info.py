@@ -194,6 +194,12 @@ class PackageInfo(object):
 
         return s.getvalue()
 
+    def _dump_as_zip(self, zp, metadata_version_info=MAX_SUPPORTED_VERSION):
+        zp.writestr(
+            _PKG_INFO_LOCATION,
+            self.to_string(metadata_version_info).encode(PKG_INFO_ENCODING)
+        )
+
     def _write_field(self, s, name, value):
         value = '%s: %s\n' % (name, value)
         s.write(value)
@@ -201,6 +207,26 @@ class PackageInfo(object):
     def _write_list(self, s, name, values):
         for value in values:
             self._write_field(s, name, value)
+
+    # Protocol implementations
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return (
+                self.metadata_version == other.metadata_version and
+                self.to_string() == other.to_string()
+            )
+        elif other is None:
+            # We special-case None because EggMetadata.pkg_info may be None,
+            # and we want to support foo.pkg_info == foo2.pkg_info when one may
+            # be None
+            return False
+        else:
+            raise TypeError(
+                "Only equality between PackageInfo instances is supported"
+            )
+
+    def __ne__(self, other):
+        return not self == other
 
 
 def _string_to_version_info(metadata_version):

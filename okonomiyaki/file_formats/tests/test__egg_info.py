@@ -1478,3 +1478,67 @@ class TestEggInfo(unittest.TestCase):
             metadata.pkg_info.author_email,
             u"johannes.buchner.acad [\ufffdt] gmx.com",
         )
+
+    def test_dump_simple(self):
+        # Given
+        egg = ENSTALLER_EGG
+        r_metadata = EggMetadata.from_egg(egg)
+
+        path = os.path.join(self.tempdir, "foo.zip")
+
+        # When
+        r_metadata.dump(path)
+
+        # Then
+        metadata = EggMetadata.from_egg(path)
+        self.assertEqual(metadata, r_metadata)
+
+    def test_dump_blacklisted(self):
+        self.maxDiff = None
+
+        # Given
+        egg = FAKE_MEDIALOG_BOARDFILE_1_6_1_EGG
+        mock_sha256 = (
+            "ab9e029caf273e4a251d3686425cd4225e1b97682749acc7a82dc1fd15dbd060"
+        )
+
+        with mock.patch(
+            "okonomiyaki.file_formats._egg_info.compute_sha256",
+            return_value=mock_sha256
+        ):
+            r_metadata = EggMetadata.from_egg(egg)
+
+        path = os.path.join(self.tempdir, "foo.zip")
+
+        # When
+        r_metadata.dump(path)
+
+        # Then
+        metadata = EggMetadata.from_egg(path)
+        self.assertMultiLineEqual(
+            metadata.pkg_info.description,
+            FAKE_MEDIALOG_BOARDFILE_1_6_1_PKG_INFO
+        )
+        self.assertEqual(metadata, r_metadata)
+
+    def test_dump_blacklisted_platform(self):
+        # Given
+        egg = XZ_5_2_0_EGG
+        mock_sha256 = (
+            "ca5f2c417dd9f6354db3c2999edb441382ed11c7a034ade1839d1871a78ab2e8"
+        )
+
+        with mock.patch(
+            "okonomiyaki.file_formats._egg_info.compute_sha256",
+            return_value=mock_sha256
+        ):
+            r_metadata = EggMetadata.from_egg(egg)
+
+        path = os.path.join(self.tempdir, "foo.zip")
+
+        # When
+        r_metadata.dump(path)
+
+        # Then
+        metadata = EggMetadata.from_egg(path)
+        self.assertEqual(metadata.platform_tag, "win32")
