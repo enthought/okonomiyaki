@@ -194,6 +194,12 @@ class PackageInfo(object):
 
         return s.getvalue()
 
+    def _dump_as_zip(self, zp, metadata_version_info=MAX_SUPPORTED_VERSION):
+        zp.writestr(
+            _PKG_INFO_LOCATION,
+            self.to_string(metadata_version_info).encode(PKG_INFO_ENCODING)
+        )
+
     def _write_field(self, s, name, value):
         value = '%s: %s\n' % (name, value)
         s.write(value)
