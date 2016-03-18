@@ -57,6 +57,10 @@ _EPD_PLATFORM_STRING_RE = re.compile("""
     (?P<arch>[^-]+)
     """, flags=re.VERBOSE)
 
+_LINUX_TAG_R = re.compile("^linux_(?P<arch>\S+)$")
+_MACOSX_TAG_R = re.compile("^macosx_([^_]+)_([^_]+)_(?P<arch>\S+)$")
+_WINDOWS_TAG_R = re.compile("^win_*(?P<arch>\S+)$")
+
 
 class EPDPlatform(HasTraits):
     """
@@ -149,6 +153,41 @@ class EPDPlatform(HasTraits):
         else:
             raise ValueError(msg)
         return cls.from_epd_string("{0}-{1}".format(epd_name, arch._arch_bits))
+
+    @classmethod
+    def _from_platform_tag(cls, platform_tag):
+        """
+        Attempt to create an EPDPlatform instance from a PEP 425 platform tag.
+        """
+        if platform_tag is None or platform_tag == "any":
+            raise ValueError(
+                "Invalid platform_tag for platform: '{}'".format(platform_tag)
+            )
+        else:
+            if platform_tag.startswith("linux"):
+                m = _LINUX_TAG_R.match(platform_tag)
+                assert m, platform_tag
+                arch_string = m.group("arch")
+                epd_string = "rh5_" + str(Arch(arch_string))
+            elif platform_tag.startswith("macosx"):
+                m = _MACOSX_TAG_R.match(platform_tag)
+                assert m, platform_tag
+                arch_string = m.group("arch")
+                epd_string = "osx_" + str(Arch(arch_string))
+            elif platform_tag.startswith("win"):
+                m = _WINDOWS_TAG_R.match(platform_tag)
+                assert m, platform_tag
+                arch_string = m.group("arch")
+                if arch_string == "32":
+                    epd_string = "win_i386"
+                else:
+                    epd_string = "win_" + str(Arch(arch_string))
+            else:
+                raise NotImplementedError(
+                    "Unsupported platform '{}'".format(platform_tag)
+                )
+
+            return cls.from_epd_string(epd_string)
 
     def __init__(self, platform, **kw):
         if not self._is_supported(platform):

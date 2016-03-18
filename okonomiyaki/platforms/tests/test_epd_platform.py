@@ -437,3 +437,30 @@ class TestGuessEPDPlatform(unittest.TestCase):
         # When/Then
         with self.assertRaises(OkonomiyakiError):
             EPDPlatform.from_epd_string(epd_platform_string)
+
+    def test_from_platform_tag(self):
+        # Given
+        inputs_outputs = (
+            ("linux_i686", "rh5-32"),
+            ("linux_i386", "rh5-32"),
+            ("linux_x86_64", "rh5-64"),
+            ("win32", "win-32"),
+            ("win_amd64", "win-64"),
+            ("macosx_10_6_x86_64", "osx-64"),
+            ("macosx_10_6_i386", "osx-32"),
+        )
+
+        # When/Then
+        for platform_tag, epd_string in inputs_outputs:
+            platform = EPDPlatform._from_platform_tag(platform_tag)
+            self.assertEqual(platform.short, epd_string)
+
+        # When/Then
+        with self.assertRaises(NotImplementedError):
+            EPDPlatform._from_platform_tag("openbsd_i386")
+
+        with self.assertRaises(ValueError):
+            EPDPlatform._from_platform_tag("any")
+
+        with self.assertRaises(ValueError):
+            EPDPlatform._from_platform_tag(None)
