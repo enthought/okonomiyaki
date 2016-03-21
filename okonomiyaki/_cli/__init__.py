@@ -1,6 +1,8 @@
 import argparse
 import sys
 
+import zipfile2
+
 from ..file_formats import EggMetadata
 from ..versions import MetadataVersion
 
@@ -21,6 +23,14 @@ def spec_depend(ns):
             ns.metadata_version
         )
     print(metadata.spec_depend_string.rstrip())
+
+
+def show_index(ns):
+    with zipfile2.ZipFile(ns.path) as zp:
+        entries = sorted(zp.namelist())
+
+    for entry in entries:
+        print(entry)
 
 
 def summary(ns):
@@ -74,6 +84,17 @@ def main(argv=None):
              "given egg"
     )
     summary_p.set_defaults(func=summary)
+
+    index_p = subparsers.add_parser(
+        "show-index", help="Show the egg content"
+    )
+    index_p.add_argument("path")
+    index_p.add_argument(
+        "--sha256",
+        help="Inject the given sha256 instead of calculating it from the "
+             "given egg"
+    )
+    index_p.set_defaults(func=show_index)
 
     ns = p.parse_args(argv)
     ns.func(ns)
