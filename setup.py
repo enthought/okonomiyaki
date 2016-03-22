@@ -126,6 +126,8 @@ def main():
           packages=["okonomiyaki",
                     "okonomiyaki.bundled",
                     "okonomiyaki.bundled.traitlets",
+                    "okonomiyaki._cli",
+                    "okonomiyaki._cli.tests",
                     "okonomiyaki.file_formats",
                     "okonomiyaki.file_formats.tests",
                     "okonomiyaki.file_formats._blacklist",
