@@ -344,6 +344,7 @@ def applies(platform_string, to='current'):
             to_arch_bits = None
     else:
         to_platform = to.platform_name
+        to_arch_bits = to.arch_bits
 
     conditions = []
 
