@@ -4,7 +4,7 @@ Implementation adapted from the distlib.version package
 """
 import re
 
-from okonomiyaki.errors import InvalidPEP440Version
+from ..errors import InvalidPEP440Version
 
 
 PEP440_VERSION_RE = re.compile(r'^v?(\d+!)?(\d+(\.\d+)*)((a|b|rc)(\d+))?'
