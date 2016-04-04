@@ -1,6 +1,11 @@
 import posixpath
 import re
+
+import six
 import zipfile2
+
+from attr import attr, attributes
+from attr.validators import instance_of
 
 from ..bundled.traitlets import (
     HasTraits, Instance, List, Long, Unicode
@@ -168,20 +173,14 @@ def _translate_invalid_requirement(s):
     return _INVALID_REQUIREMENTS.get(s, s)
 
 
-class Requirement(HasTraits):
+@attributes
+class Requirement(object):
     """
     Model for entries in the package metadata inside EGG-INFO/spec/depend
     """
-    name = Unicode()
-    version_string = Unicode()
-    build_number = Long(-1)
-
-    def __init__(self, name="", version_string="", build_number=-1):
-        self.name = name
-        self.version_string = version_string
-        self.build_number = build_number
-        super(Requirement, self).__init__(self, name, version_string,
-                                          build_number)
+    name = attr("", validator=instance_of(six.string_types))
+    version_string = attr("", validator=instance_of(six.string_types))
+    build_number = attr(-1, validator=instance_of(int))
 
     @property
     def strictness(self):
@@ -255,21 +254,6 @@ class Requirement(HasTraits):
                 return "{0} {1}".format(self.name, self.version_string)
         else:
             return self.name
-
-    @property
-    def _key(self):
-        return (self.name, self.version_string, self.build_number)
-
-    def __eq__(self, other):
-        if not isinstance(other, type(self)):
-            return False
-        return self._key == other._key
-
-    def __ne__(self, other):
-        return not (self == other)
-
-    def __hash__(self):
-        return hash(self._key)
 
 
 _METADATA_TEMPLATES = {
