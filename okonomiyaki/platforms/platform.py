@@ -3,75 +3,92 @@ from __future__ import absolute_import
 import platform
 import sys
 
-from ..bundled.traitlets import HasTraits, Enum, Instance, Unicode
+import enum
+import six
+
+from attr import attr, attributes
+from attr.validators import instance_of
+
 from ..errors import OkonomiyakiError
 
 from ._arch import Arch
 
 
-DARWIN = "darwin"
-LINUX = "linux"
-SOLARIS = "solaris"
-WINDOWS = "windows"
+@enum.unique
+class OSKind(enum.Enum):
+    darwin = 0
+    linux = 1
+    solaris = 2
+    windows = 3
 
-CENTOS = "centos"
-DEBIAN = "debian"
-RHEL = "rhel"
-UBUNTU = "ubuntu"
-MAC_OS_X = "mac_os_x"
 
-NAME_TO_PRETTY_NAMES = {
-    WINDOWS: "Windows",
-    MAC_OS_X: "Mac OS X",
-    CENTOS: "CentOS",
-    RHEL: "RedHat",
-    UBUNTU: "Ubuntu",
-    DEBIAN: "Debian",
+@enum.unique
+class FamilyKind(enum.Enum):
+    rhel = 0
+    debian = 1
+    mac_os_x = 2
+    windows = 3
+    solaris = 4
+
+
+@enum.unique
+class NameKind(enum.Enum):
+    centos = 0
+    debian = 1
+    rhel = 2
+    ubuntu = 3
+    mac_os_x = 4
+    windows = 5
+    solaris = 6
+
+
+NAME_KIND_TO_PRETTY_NAMES = {
+    NameKind.windows: "Windows",
+    NameKind.mac_os_x: "Mac OS X",
+    NameKind.centos: "CentOS",
+    NameKind.rhel: "RedHat",
+    NameKind.ubuntu: "Ubuntu",
+    NameKind.debian: "Debian",
 }
 
-_DIST_NAME_TO_NAME = {
-    "centos": CENTOS,
-    "redhat": RHEL,
-    "ubuntu": UBUNTU,
-    "debian": DEBIAN,
-}
 
+@attributes(repr=False)
+class Platform(object):
+    """
+    An generic platform representation.
+    """
 
-class Platform(HasTraits):
-    """
-    An sane generic platform representation.
-    """
-    os = Enum([WINDOWS, LINUX, DARWIN, SOLARIS])
+    os_kind = attr(validator=instance_of(OSKind))
     """
     The most generic OS description
     """
 
-    name = Enum([WINDOWS, CENTOS, RHEL, DEBIAN, UBUNTU, MAC_OS_X, SOLARIS])
+    name_kind = attr(validator=instance_of(NameKind))
     """
     The most specific platform description
     """
 
-    family = Enum([WINDOWS, RHEL, DEBIAN, MAC_OS_X, SOLARIS])
+    family_kind = attr(validator=instance_of(FamilyKind))
     """
     The 'kind' of platforms. For example, both debian and ubuntu distributions
     share the same kind, 'debian'.
     """
 
-    release = Unicode()
+    release = attr(validator=instance_of(six.string_types))
     """
-    The release string. May be empty
+    The release string. May be an empty string
     """
 
-    arch = Instance(Arch)
+    arch = attr(validator=instance_of(Arch))
     """
     Actual architecture. The architecture is guessed from the running python.
     """
 
-    machine = Instance(Arch)
+    machine = attr(validator=instance_of(Arch))
     """
-    The machine (e.g. 'x86'). This is the CPU architecture (e.g. a 32 bits
-    python running on 64 bits Intel OS will be 'amd64', whereas arch will be
-    'x86')
+    The machine. This is the CPU architecture (e.g. for a 32 bits python
+    running on 64 bits Intel OS, machine will be an x86_64 arch, whereas arch
+    will be an 'x86' arch)
     """
 
     @classmethod
@@ -92,12 +109,17 @@ class Platform(HasTraits):
         """
         return _guess_platform(arch_string)
 
-    def __init__(self, os, name, family, arch, machine=None, release=""):
-        super(Platform, self).__init__(os=os, name=name, family=family,
-                                       arch=arch, machine=machine,
-                                       release=release)
-        if machine is None:
-            self.machine = self.arch
+    @property
+    def family(self):
+        return self.family_kind.name
+
+    @property
+    def name(self):
+        return self.name_kind.name
+
+    @property
+    def os(self):
+        return self.os_kind.name
 
     def __repr__(self):
         return (
@@ -107,52 +129,45 @@ class Platform(HasTraits):
 
     def __str__(self):
         return "{0} {1.release} on {1.machine}".format(
-            NAME_TO_PRETTY_NAMES[self.name],
+            NAME_KIND_TO_PRETTY_NAMES[self.name_kind],
             self
         )
 
-    def __eq__(self, other):
-        if not isinstance(other, self.__class__):
-            return False
-        else:
-            return (self.name == other.name and self.release == other.release
-                    and self.arch == other.arch
-                    and self.machine == other.machine)
 
-    def __ne__(self, other):
-        return not (self == other)
-
-    def __hash__(self):
-        return hash((self.name, self.release, self.arch, self.machine))
-
-
-def _guess_os():
+def _guess_os_kind():
     if sys.platform == "win32":
-        return WINDOWS
+        return OSKind.windows
     elif sys.platform == "darwin":
-        return DARWIN
+        return OSKind.darwin
     elif sys.platform.startswith("linux"):
-        return LINUX
+        return OSKind.linux
     else:
         msg = "Could not guess platform from sys.platform: {0!r}"
         raise OkonomiyakiError(msg.format(sys.platform))
 
 
-def _guess_platform_details(os):
-    if os == WINDOWS:
-        return WINDOWS, WINDOWS, platform.win32_ver()[0]
-    elif os == DARWIN:
-        return MAC_OS_X, MAC_OS_X, platform.mac_ver()[0]
-    elif os == LINUX:
+def _guess_platform_details(os_kind):
+    if os_kind == OSKind.windows:
+        return FamilyKind.windows, NameKind.windows, platform.win32_ver()[0]
+    elif os_kind == OSKind.darwin:
+        return FamilyKind.mac_os_x, NameKind.mac_os_x, platform.mac_ver()[0]
+    elif os_kind == OSKind.linux:
         name = platform.linux_distribution()[0].lower()
         _, release, _ = platform.dist()
-        if name in (DEBIAN, UBUNTU):
-            family = DEBIAN
-        elif name in (CENTOS, RHEL):
-            family = RHEL
+        try:
+            name_kind = NameKind[name]
+        except KeyError:
+            raise OkonomiyakiError(
+                "Unsupported platform: {0!r}".format(name)
+            )
         else:
-            raise OkonomiyakiError("Unsupported platform: {0!r}".format(name))
-        return name, family, release
+            if name_kind in (NameKind.ubuntu, NameKind.debian):
+                family_kind = FamilyKind.debian
+            elif name_kind in (NameKind.centos, NameKind.rhel):
+                family_kind = FamilyKind.rhel
+            else:
+                raise OkonomiyakiError("Unsupported platform: {0!r}".format(name))
+            return family_kind, name_kind, release
 
 
 def _guess_platform(arch_string=None):
@@ -162,8 +177,7 @@ def _guess_platform(arch_string=None):
         arch = Arch.from_name(arch_string)
 
     machine = Arch.from_running_system()
-    os = _guess_os()
-    name, family, release = _guess_platform_details(os)
+    os_kind = _guess_os_kind()
+    family_kind, name_kind, release = _guess_platform_details(os_kind)
 
-    return Platform(os=os, name=name, family=family, release=release,
-                    arch=arch, machine=machine)
+    return Platform(os_kind, name_kind, family_kind, release, arch, machine)

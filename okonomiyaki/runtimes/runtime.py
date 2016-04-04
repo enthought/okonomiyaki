@@ -8,7 +8,7 @@ from attr import attr, attributes
 from attr.validators import instance_of
 
 from ..platforms import Platform, default_abi
-from ..platforms.platform import WINDOWS
+from ..platforms.platform import OSKind
 from ..versions import MetadataVersion, RuntimeVersion
 
 from .runtime_info import IRuntimeInfoV1, PythonRuntimeInfoV1
@@ -90,7 +90,7 @@ class PythonRuntime(Runtime):
         if six.PY2:
             prefix = prefix.decode(sys.getfilesystemencoding())
 
-        if platform.os == WINDOWS:
+        if platform.os_kind == OSKind.windows:
             prefix = ntpath.normpath(prefix)
             scriptsdir = ntpath.join(prefix, "Scripts")
             paths = (prefix, scriptsdir)
@@ -106,7 +106,7 @@ class PythonRuntime(Runtime):
 
         major_minor = "{0}.{1}".format(version.major, version.minor)
 
-        if platform.os == WINDOWS:
+        if platform.os_kind == OSKind.windows:
             executable += ".exe"
             executable = ntpath.join(prefix, executable)
         else:
@@ -166,7 +166,7 @@ class PythonRuntime(Runtime):
         return self._runtime_info.site_packages
 
     def _compute_executable(self):
-        if self._runtime_info.platform.os == WINDOWS:
+        if self._runtime_info.platform.os_kind == OSKind.windows:
             # Hack to take into account virtualenvs
             paths = (
                 self._runtime_info.executable,
@@ -187,7 +187,7 @@ def _compute_site_packages(prefix, platform, major_minor):
     # Adapted from distutils.sysconfig.get_python_lib for 2.7.9
     prefix = prefix or sys.exec_prefix
 
-    if platform.os == WINDOWS:
+    if platform.os_kind == OSKind.windows:
         return ntpath.join(prefix, "Lib", "site-packages")
     else:
         return posixpath.join(

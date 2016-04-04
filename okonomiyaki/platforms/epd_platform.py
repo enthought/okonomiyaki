@@ -5,9 +5,7 @@ import re
 from ..bundled.traitlets import HasTraits, Instance
 from ..errors import OkonomiyakiError
 from ._arch import Arch, ArchitectureKind
-from .platform import (
-    Platform, DARWIN, LINUX, MAC_OS_X, RHEL, SOLARIS, WINDOWS
-)
+from .platform import OSKind, FamilyKind, NameKind, Platform
 
 # the string used in EGG-INFO/spec/depend. Only used during normalization
 # operations.
@@ -125,7 +123,7 @@ class EPDPlatform(HasTraits):
                 arch_name = _ARCHBITS_TO_ARCH[arch_bits]
                 arch = machine = Arch.from_name(arch_name)
             os, name, family, release = _epd_name_to_quadruplet(platform_name)
-            platform = Platform(os, name, family, arch, machine, release)
+            platform = Platform(os, name, family, release, arch, machine)
             return cls(platform)
 
     @classmethod
@@ -199,14 +197,14 @@ class EPDPlatform(HasTraits):
             platform.arch in (X86, X86_64)
             and platform.machine in (X86, X86_64)
         )
-        if platform.os == WINDOWS:
+        if platform.os_kind == OSKind.windows:
             return arch_and_machine_are_intel
-        if platform.os == DARWIN:
+        if platform.os_kind == OSKind.darwin:
             return arch_and_machine_are_intel
-        if platform.os == SOLARIS:
+        if platform.os_kind == OSKind.solaris:
             return arch_and_machine_are_intel
-        if platform.os == LINUX:
-            if platform.family != RHEL:
+        if platform.os_kind == OSKind.linux:
+            if platform.family_kind != FamilyKind.rhel:
                 return False
             parts = platform.release.split(".")
             return parts[0] in ("3", "5", "6", "7") \
@@ -229,21 +227,21 @@ class EPDPlatform(HasTraits):
     def pep425_tag(self):
         msg = "Cannot guess platform tag for platform {0!r}"
 
-        if self.platform.family == MAC_OS_X:
+        if self.platform.os_kind == OSKind.darwin:
             if self.platform.arch == X86:
                 return "macosx_10_6_i386"
             elif self.platform.arch == X86_64:
                 return "macosx_10_6_x86_64"
             else:
                 raise OkonomiyakiError(msg.format(self.platform))
-        elif self.platform.os == LINUX:
+        elif self.platform.os_kind == OSKind.linux:
             if self.platform.arch == X86:
                 return "linux_i686"
             elif self.platform.arch == X86_64:
                 return "linux_x86_64"
             else:
                 raise OkonomiyakiError(msg.format(self.platform))
-        elif self.platform.family == WINDOWS:
+        elif self.platform.os_kind == OSKind.windows:
             if self.platform.arch == X86:
                 return "win32"
             elif self.platform.arch == X86_64:
@@ -255,15 +253,15 @@ class EPDPlatform(HasTraits):
 
     @property
     def platform_name(self):
-        os = self.platform.os
-        if os == WINDOWS:
+        os_kind = self.platform.os_kind
+        if os_kind == OSKind.windows:
             return "win"
-        elif os == DARWIN:
+        elif os_kind == OSKind.darwin:
             return "osx"
-        elif os == LINUX:
-            family = self.platform.family
+        elif os_kind == OSKind.linux:
+            family_kind = self.platform.family_kind
             release = self.platform.release
-            if family == RHEL:
+            if family_kind == FamilyKind.rhel:
                 parts = release.split(".")
                 if parts[0] == "3":
                     base = "rh3"
@@ -278,9 +276,9 @@ class EPDPlatform(HasTraits):
                     raise OkonomiyakiError(msg)
                 return base
             else:
-                msg = "Unsupported distribution: {0!r}".format(family)
+                msg = "Unsupported distribution: {0!r}".format(family_kind)
                 raise OkonomiyakiError(msg)
-        elif os == SOLARIS:
+        elif os_kind == OSKind.solaris:
             return "sol"
         else:
             msg = "Unsupported OS: {0!r}".format(self.platform.name)
@@ -373,19 +371,19 @@ def applies(platform_string, to='current'):
 
 def _epd_name_to_quadruplet(name):
     if name == "rh7":
-        return (LINUX, RHEL, RHEL, "7.1")
+        return (OSKind.linux, NameKind.rhel, FamilyKind.rhel, "7.1")
     if name == "rh6":
-        return (LINUX, RHEL, RHEL, "6.5")
+        return (OSKind.linux, NameKind.rhel, FamilyKind.rhel,"6.5")
     elif name == "rh5":
-        return (LINUX, RHEL, RHEL, "5.8")
+        return (OSKind.linux, NameKind.rhel, FamilyKind.rhel, "5.8")
     elif name == "rh3":
-        return (LINUX, RHEL, RHEL, "3.8")
+        return (OSKind.linux, NameKind.rhel, FamilyKind.rhel, "3.8")
     elif name == "osx":
-        return (DARWIN, MAC_OS_X, MAC_OS_X, "10.6")
+        return (OSKind.darwin, NameKind.mac_os_x, FamilyKind.mac_os_x, "10.6")
     elif name == "sol":
-        return (SOLARIS, SOLARIS, SOLARIS, "")
+        return (OSKind.solaris, NameKind.solaris, FamilyKind.solaris, "")
     elif name == "win":
-        return (WINDOWS, WINDOWS, WINDOWS, "")
+        return (OSKind.windows, NameKind.windows, FamilyKind.windows, "")
     else:
         msg = "Invalid epd platform string name: {0!r}".format(name)
         raise OkonomiyakiError(msg)

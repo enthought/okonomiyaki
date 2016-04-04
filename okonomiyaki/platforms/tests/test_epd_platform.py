@@ -8,7 +8,7 @@ from ..epd_platform import (
     _guess_epd_platform, EPD_PLATFORM_SHORT_NAMES, X86, X86_64, applies
 )
 from ..legacy import _SUBDIR
-from ..platform import DARWIN, LINUX, MAC_OS_X, RHEL, WINDOWS
+from ..platform import OSKind, FamilyKind, NameKind
 from .._arch import Arch
 
 from .common import (
@@ -408,9 +408,9 @@ class TestGuessEPDPlatform(unittest.TestCase):
 
         # Then
         platform = epd_platform.platform
-        self.assertEqual(platform.os, LINUX)
-        self.assertEqual(platform.family, RHEL)
-        self.assertEqual(platform.name, RHEL)
+        self.assertEqual(platform.os_kind, OSKind.linux)
+        self.assertEqual(platform.family_kind, FamilyKind.rhel)
+        self.assertEqual(platform.name_kind, NameKind.rhel)
         self.assertEqual(platform.arch, X86)
         self.assertEqual(platform.machine, X86)
 
@@ -422,9 +422,9 @@ class TestGuessEPDPlatform(unittest.TestCase):
 
         # Then
         platform = epd_platform.platform
-        self.assertEqual(platform.os, WINDOWS)
-        self.assertEqual(platform.family, WINDOWS)
-        self.assertEqual(platform.name, WINDOWS)
+        self.assertEqual(platform.os_kind, OSKind.windows)
+        self.assertEqual(platform.family_kind, FamilyKind.windows)
+        self.assertEqual(platform.name_kind, NameKind.windows)
         self.assertEqual(platform.arch, X86)
         self.assertEqual(platform.machine, X86)
 
@@ -436,9 +436,9 @@ class TestGuessEPDPlatform(unittest.TestCase):
         platform = epd_platform.platform
 
         # Then
-        self.assertEqual(platform.os, DARWIN)
-        self.assertEqual(platform.family, MAC_OS_X)
-        self.assertEqual(platform.name, MAC_OS_X)
+        self.assertEqual(platform.os_kind, OSKind.darwin)
+        self.assertEqual(platform.family_kind, FamilyKind.mac_os_x)
+        self.assertEqual(platform.name_kind, NameKind.mac_os_x)
         self.assertEqual(platform.arch, X86_64)
         self.assertEqual(platform.machine, X86_64)
 

@@ -2,7 +2,7 @@ from ..errors import OkonomiyakiError
 from ..versions import RuntimeVersion
 
 from .epd_platform import EPDPlatform
-from .platform import DARWIN, LINUX, WINDOWS
+from .platform import OSKind
 
 
 def _default_cpython_abi(platform, implementation_version):
@@ -11,11 +11,11 @@ def _default_cpython_abi(platform, implementation_version):
         format(platform, implementation_version)
     )
 
-    if platform.os == DARWIN:
+    if platform.os_kind == OSKind.darwin:
         return u"darwin"
-    elif platform.os == LINUX:
+    elif platform.os_kind == OSKind.linux:
         return u"gnu"
-    elif platform.os == WINDOWS:
+    elif platform.os_kind == OSKind.windows:
         abi = None
         if implementation_version.major == 2:
             abi = u"msvc2008"
@@ -65,23 +65,23 @@ def default_abi(platform, implementation, implementation_version):
     if implementation == "cpython":
         return _default_cpython_abi(platform, implementation_version)
     elif implementation == "pypy":
-        if platform.os == WINDOWS:
+        if platform.os_kind == OSKind.windows:
             if implementation_version <= RuntimeVersion.from_string("4.1"):
                 return u"msvc2008"
             else:
                 raise OkonomiyakiError(msg)
-        elif platform.os == LINUX:
+        elif platform.os_kind == OSKind.linux:
             return u"gnu"
-        elif platform.os == DARWIN:
+        elif platform.os_kind == OSKind.darwin:
             return u"darwin"
         else:
             raise OkonomiyakiError(msg)
     elif implementation == "julia":
-        if platform.os == WINDOWS:
+        if platform.os_kind == OSKind.windows:
             return u"mingw"
-        elif platform.os == LINUX:
+        elif platform.os_kind == OSKind.linux:
             return u"gnu"
-        elif platform.os == DARWIN:
+        elif platform.os_kind == OSKind.darwin:
             return u"darwin"
         else:
             raise OkonomiyakiError(msg)
