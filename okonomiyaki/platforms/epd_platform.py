@@ -2,7 +2,9 @@ from __future__ import absolute_import
 
 import re
 
-from ..bundled.traitlets import HasTraits, Instance
+from attr import attributes, attr
+from attr.validators import instance_of
+
 from ..errors import OkonomiyakiError
 from ._arch import Arch, ArchitectureKind
 from .platform import OSKind, FamilyKind, NameKind, Platform
@@ -59,7 +61,18 @@ _MACOSX_TAG_R = re.compile("^macosx_([^_]+)_([^_]+)_(?P<arch>\S+)$")
 _WINDOWS_TAG_R = re.compile("^win_*(?P<arch>\S+)$")
 
 
-class EPDPlatform(HasTraits):
+def platform_validator():
+    def wrapper(inst, attr, value):
+        instance_of(Platform)(inst, attr, value)
+        if not _is_supported(value):
+            raise OkonomiyakiError(
+                 "Platform {0} not supported".format(value)
+            )
+    return wrapper
+
+
+@attributes
+class EPDPlatform(object):
     """
     An sane Canopy/EPD platform representation.
 
@@ -71,7 +84,7 @@ class EPDPlatform(HasTraits):
         assert epd.arch == "x86"
     """
 
-    platform = Instance(Platform)
+    platform = attr(validator=platform_validator())
     """
     Main name of the platform (e.g. 'rh5')
     """
@@ -185,32 +198,6 @@ class EPDPlatform(HasTraits):
                 )
 
             return cls.from_epd_string(epd_string)
-
-    def __init__(self, platform, **kw):
-        if not self._is_supported(platform):
-            msg = "Platform {0} not supported".format(platform)
-            raise OkonomiyakiError(msg)
-        super(EPDPlatform, self).__init__(platform=platform, **kw)
-
-    def _is_supported(self, platform):
-        arch_and_machine_are_intel = (
-            platform.arch in (X86, X86_64)
-            and platform.machine in (X86, X86_64)
-        )
-        if platform.os_kind == OSKind.windows:
-            return arch_and_machine_are_intel
-        if platform.os_kind == OSKind.darwin:
-            return arch_and_machine_are_intel
-        if platform.os_kind == OSKind.solaris:
-            return arch_and_machine_are_intel
-        if platform.os_kind == OSKind.linux:
-            if platform.family_kind != FamilyKind.rhel:
-                return False
-            parts = platform.release.split(".")
-            return parts[0] in ("3", "5", "6", "7") \
-                and arch_and_machine_are_intel
-
-        return False
 
     @property
     def arch(self):
@@ -395,3 +382,24 @@ def _guess_epd_platform(arch=None):
 
     platform = Platform.from_running_system(str(arch))
     return EPDPlatform(platform)
+
+
+def _is_supported(platform):
+    arch_and_machine_are_intel = (
+        platform.arch in (X86, X86_64)
+        and platform.machine in (X86, X86_64)
+    )
+    if platform.os_kind == OSKind.windows:
+        return arch_and_machine_are_intel
+    if platform.os_kind == OSKind.darwin:
+        return arch_and_machine_are_intel
+    if platform.os_kind == OSKind.solaris:
+        return arch_and_machine_are_intel
+    if platform.os_kind == OSKind.linux:
+        if platform.family_kind != FamilyKind.rhel:
+            return False
+        parts = platform.release.split(".")
+        return parts[0] in ("3", "5", "6", "7") \
+            and arch_and_machine_are_intel
+
+    return False
