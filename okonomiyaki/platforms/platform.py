@@ -144,7 +144,7 @@ def _guess_platform_details(os):
     elif os == DARWIN:
         return MAC_OS_X, MAC_OS_X, platform.mac_ver()[0]
     elif os == LINUX:
-        name = platform.linux_distribution()[0].lower()
+        name = platform.linux_distribution()[0].lower().split()[0]
         _, release, _ = platform.dist()
         if name in (DEBIAN, UBUNTU):
             family = DEBIAN
