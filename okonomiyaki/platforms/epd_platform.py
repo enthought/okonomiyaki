@@ -4,7 +4,7 @@ import re
 
 from ..bundled.traitlets import HasTraits, Instance
 from ..errors import OkonomiyakiError
-from ._arch import Arch, X86_64, X86
+from ._arch import Arch, ArchitectureKind
 from .platform import (
     Platform, DARWIN, LINUX, MAC_OS_X, RHEL, SOLARIS, WINDOWS
 )
@@ -16,11 +16,14 @@ _X86_64_LEGACY_SPEC = "amd64"
 # Those lists are redundant with legacy spec. We check the consistency in our
 # unit-tests
 _ARCHBITS_TO_ARCH = {
-    "32": X86,
+    "32": ArchitectureKind.x86.name,
     "64": _X86_64_LEGACY_SPEC,
-    X86: X86,
-    X86_64: _X86_64_LEGACY_SPEC,
+    ArchitectureKind.x86: ArchitectureKind.x86.name,
+    ArchitectureKind.x86_64: _X86_64_LEGACY_SPEC,
 }
+
+X86 = Arch(ArchitectureKind.x86)
+X86_64 = Arch(ArchitectureKind.x86_64)
 
 PLATFORM_NAMES = [
     "osx",
@@ -46,10 +49,6 @@ EPD_PLATFORM_SHORT_NAMES = [
     "win-32",
     "win-64",
 ]
-
-_X86 = Arch.from_name(X86)
-_X64_64 = Arch.from_name(X86_64)
-
 
 _EPD_PLATFORM_STRING_RE = re.compile("""
     (?P<os>[^-_]+)
@@ -121,10 +120,10 @@ class EPDPlatform(HasTraits):
             platform_name = d["os"]
             arch_bits = d["arch"]
             if arch_bits not in _ARCHBITS_TO_ARCH:
-                arch = machine = Arch(arch_bits)
+                arch = machine = Arch.from_name(arch_bits)
             else:
                 arch_name = _ARCHBITS_TO_ARCH[arch_bits]
-                arch = machine = Arch(arch_name)
+                arch = machine = Arch.from_name(arch_name)
             os, name, family, release = _epd_name_to_quadruplet(platform_name)
             platform = Platform(os, name, family, arch, machine, release)
             return cls(platform)
@@ -168,12 +167,12 @@ class EPDPlatform(HasTraits):
                 m = _LINUX_TAG_R.match(platform_tag)
                 assert m, platform_tag
                 arch_string = m.group("arch")
-                epd_string = "rh5_" + str(Arch(arch_string))
+                epd_string = "rh5_" + str(Arch.from_name(arch_string))
             elif platform_tag.startswith("macosx"):
                 m = _MACOSX_TAG_R.match(platform_tag)
                 assert m, platform_tag
                 arch_string = m.group("arch")
-                epd_string = "osx_" + str(Arch(arch_string))
+                epd_string = "osx_" + str(Arch.from_name(arch_string))
             elif platform_tag.startswith("win"):
                 m = _WINDOWS_TAG_R.match(platform_tag)
                 assert m, platform_tag
@@ -181,7 +180,7 @@ class EPDPlatform(HasTraits):
                 if arch_string == "32":
                     epd_string = "win_i386"
                 else:
-                    epd_string = "win_" + str(Arch(arch_string))
+                    epd_string = "win_" + str(Arch.from_name(arch_string))
             else:
                 raise NotImplementedError(
                     "Unsupported platform '{}'".format(platform_tag)
@@ -197,8 +196,8 @@ class EPDPlatform(HasTraits):
 
     def _is_supported(self, platform):
         arch_and_machine_are_intel = (
-            platform.arch in (_X86, _X64_64)
-            and platform.machine in (_X86, _X64_64)
+            platform.arch in (X86, X86_64)
+            and platform.machine in (X86, X86_64)
         )
         if platform.os == WINDOWS:
             return arch_and_machine_are_intel
@@ -231,23 +230,23 @@ class EPDPlatform(HasTraits):
         msg = "Cannot guess platform tag for platform {0!r}"
 
         if self.platform.family == MAC_OS_X:
-            if self.platform.arch.name == X86:
+            if self.platform.arch == X86:
                 return "macosx_10_6_i386"
-            elif self.platform.arch.name == X86_64:
+            elif self.platform.arch == X86_64:
                 return "macosx_10_6_x86_64"
             else:
                 raise OkonomiyakiError(msg.format(self.platform))
         elif self.platform.os == LINUX:
-            if self.platform.arch.name == X86:
+            if self.platform.arch == X86:
                 return "linux_i686"
-            elif self.platform.arch.name == X86_64:
+            elif self.platform.arch == X86_64:
                 return "linux_x86_64"
             else:
                 raise OkonomiyakiError(msg.format(self.platform))
         elif self.platform.family == WINDOWS:
-            if self.platform.arch.name == X86:
+            if self.platform.arch == X86:
                 return "win32"
-            elif self.platform.arch.name == X86_64:
+            elif self.platform.arch == X86_64:
                 return "win_amd64"
             else:
                 raise OkonomiyakiError(msg.format(self.platform))

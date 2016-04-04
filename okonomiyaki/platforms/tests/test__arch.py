@@ -14,33 +14,13 @@ class TestArch(unittest.TestCase):
         bits = 32
 
         # When
-        arch = Arch(name)
+        arch = Arch.from_name(name)
 
         # Then
         self.assertEqual(arch.name, name)
         self.assertEqual(arch.bits, bits)
         self.assertEqual(str(arch), arch.name)
-        self.assertEqual(repr(arch), "Arch('x86')")
-
-    def test_hashing(self):
-        # Given
-        name1 = "x86"
-        name2 = "i386"
-        name3 = "amd64"
-
-        # When
-        arch1 = Arch(name1)
-        arch2 = Arch(name2)
-        arch3 = Arch(name3)
-
-        # Then
-        self.assertEqual(arch1, arch2)
-        self.assertNotEqual(arch1, arch3)
-        self.assertEqual(hash(arch1), hash(arch1))
-        self.assertTrue(arch1 == arch2)
-        self.assertFalse(arch1 != arch2)
-        self.assertTrue(arch1 != arch3)
-        self.assertFalse(arch1 == arch3)
+        self.assertEqual(repr(arch), "Arch(_kind=<ArchitectureKind.x86: 0>)")
 
     def test_from_name(self):
         # Given
@@ -145,3 +125,13 @@ class TestArch(unittest.TestCase):
         with mock_machine_armv71:
             with self.assertRaises(OkonomiyakiError):
                 arch = Arch.from_running_system()
+
+    def test__legacy_name(self):
+        # Given
+        name = "x86_64"
+
+        # When
+        arch = Arch.from_name(name)
+
+        # Then
+        self.assertEqual(arch._legacy_name, "amd64")
