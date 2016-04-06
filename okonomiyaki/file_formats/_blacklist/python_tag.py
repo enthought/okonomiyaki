@@ -122,6 +122,36 @@ _EGG_PYTHON_TAG_BLACK_LIST = {
         'a3be988ed45e40ddc0c71e688f4c006e92f0621cd3cd99442b0de248ba353002':
         'cp27'
     },
+    'PyQt-4.11.4-1.egg': {
+        '844c055da23a14ca4520645cabe38943b431f5b2fe5bfa94d3343a8660e16fc7':
+        'cp27',
+        'cdae3af411cbdfc462e30d5ed3444a778952e46e28572bb2020d9ee519d868f3':
+        'cp27',
+        'd43f74c1036c6beb01d56fc29a4d164431d2949b31be7f6588b21f58aa4c9a13':
+        'cp27',
+        'd4cd87af5f059ba330c1eab969e9b2fb4c229e8a32918a053d02b6c712d42ed1':
+        'cp27'
+    },
+    'PyQt-4.11.4-2.egg': {
+        '4b4f32f87fa328bc7b1da1d4bba86fd299a01068bf3cb4a7bac41c15288e3f1b':
+        'cp27',
+        'ab59819726d68f77725c5a4b0536339aad933c878ad2d9ba017ac6fd18108414':
+        'cp27',
+        'abe989adb7e3daa59da37413ef50c2921475f88752508b1693e889546034bca3':
+        'cp27',
+        'b31ed0dd54ccf59fa4f77c5d6659ece6d558faf3be270b15876df757fca78e68':
+        'cp27'
+    },
+    'PyQt-4.11.4-3.egg': {
+        '02c3e75499c1f2f0d45f4ea459d2af2f3411a2437a399807cde570b8ae9ce35a':
+        'cp27',
+        '1fdb2ef39fd239ad3fa94075fe4a5310bd8b029d5c4fbfc7296a3d3ad94302ab':
+        'cp27',
+        'a028154fce4ebb77fbf3125e82a7bc90e186d52696e15ce08ccd264eabab4f43':
+        'cp27',
+        'deeffbf5f8c7d96560cb840d7069edcbcaa361e1ea4bf296d3a9eaea53dac522':
+        'cp27'
+    },
     'PySide-1.0.3-1.egg': {
         '5af973a78c53bfa4fe843992bc86207d5c945b06f7df576e64463a743a558fb1':
         'cp27',
@@ -425,6 +455,16 @@ _EGG_PYTHON_TAG_BLACK_LIST = {
         'cp27',
         'b6c1a52fc97010625924496af3b3d0bb1f550bd9297bec975195ee4b3427b42d':
         'cp27'
+    },
+    'dynd_python-0.6.6-3.egg': {
+         '4d0a6021c7d6fd33177f788c39219db60e851afa5f437388c9536716ce8db86d':
+         'cp27',
+         'a7e683f6d4e1b1b9c35112d1b1f0f7d368fd9508cedf54e16a6aa87792d8c02a':
+         'cp27',
+         'bbf7206264db43c6545abcd37304eb8478bdb7bb74fe2c6ea5f34b154ca1819f':
+         'cp27',
+         'f2cec59f1dd1150e180e968e1db60f7b647a376d5e446c5227d36c12b3971793':
+         'cp27'
     },
     'enstaller-4.5.0-1.egg': {
         '30667f62941dbcbdb1ac9134d2b084ce797c4e1babf0b6186db7c21114edf6f6':
@@ -902,6 +942,12 @@ _EGG_PYTHON_TAG_BLACK_LIST = {
         'fdb36641cf61ddbd098c2cdfd7f08138839f4c9e0e13b85b73d43cd628f6915f':
         'cp27'
     },
+    'sip-4.17-1.egg': {
+        '32bb0b59b219cb183a5a43c3d0d99b33aa2076d4b8c4d95f44a8cb1cd3af3cd0':
+        'cp27',
+        'f834ecbeea817b3fbcc50caf0be4e5590baae7df95cde138a2e0f6ad53b67762':
+        'cp27'
+    },
     'ujson-1.33.0-1.egg': {
         '36516cd660ab1aeac3ec3e70053e4191db66d880961f07e2e248cdce5823e4e4':
         'cp27',
@@ -925,7 +971,17 @@ _EGG_PYTHON_TAG_BLACK_LIST = {
         'cp27',
         'f4b6d9ce5702a86137c5f1a7d5ccf866f4b8813c7fc24b2fed0c1c4b24943802':
         'cp27'
-    }
+    },
+    'ujson-1.35-1.egg': {
+        '1c7b0c6eaca9571a6ce2222523682276bc312fe55348588b093c1d748932e434':
+        'cp27',
+        'c4c4c886e42ca99aa05a1eb6e66ae7bb00d96f12ae87191eb3d49064c61c6669':
+        'cp27',
+        'e9aca0f10bafa1f745df9b3779dc735b8d0fa0c61a815fafa2fb17b587365495':
+        'cp27',
+        'f48186b63e79d9959b0a4f6f8383bd046fdab61b6a993296f8ba0658f2dc47af':
+        'cp27'
+    },
 }
 
 
