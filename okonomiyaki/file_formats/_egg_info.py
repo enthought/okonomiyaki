@@ -9,7 +9,9 @@ from ..errors import (
     InvalidRequirementString, InvalidEggName, InvalidMetadata,
     InvalidMetadataField, MissingMetadata, UnsupportedMetadata
 )
-from ..platforms import EPDPlatform, PythonImplementation, default_abi
+from ..platforms import (
+    EPDPlatform, PythonABI, PythonImplementation, default_abi
+)
 from ..platforms.legacy import LegacyEPDPlatform
 from ..utils import compute_sha256, parse_assignments
 from ..utils.py3compat import StringIO, string_types
@@ -921,7 +923,10 @@ class EggMetadata(object):
         self.python = python
         """ The python implementation."""
 
-        self.abi_tag = abi_tag
+        if abi_tag is not None:
+            abi_tag = PythonABI(abi_tag)
+
+        self.abi = abi_tag
         """ The ABI tag, following the PEP425 format, except that no ABI
         is sorted as None."""
 
@@ -941,11 +946,15 @@ class EggMetadata(object):
         """ The summary string."""
 
     @property
-    def abi_tag_string(self):
-        if self.abi_tag is None:
-            return 'none'
+    def abi_tag(self):
+        if self.abi is None:
+            return None
         else:
-            return self.abi_tag
+            return self.abi.pep425
+
+    @property
+    def abi_tag_string(self):
+        return PythonABI.pep425_tag_string(self.abi)
 
     @property
     def build(self):

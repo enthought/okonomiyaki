@@ -1,6 +1,11 @@
 import re
 import sys
 
+import six
+
+from attr import attributes, attr
+from attr.validators import instance_of, optional
+
 from ..errors import InvalidMetadataField
 
 
@@ -16,6 +21,20 @@ _TAG_RE = re.compile("""
     (?P<interpreter>([^\d]+))
     (?P<version>([\d_]+))
 """, flags=re.VERBOSE)
+
+
+@attributes
+class PythonABI(object):
+    """ An object representation of python ABI as defined in PEP 425.
+    """
+    pep425 = attr(validator=instance_of(six.text_type))
+
+    @staticmethod
+    def pep425_tag_string(abi):
+        if abi is None:
+            return u'none'
+        else:
+            return abi.pep425
 
 
 class PythonImplementation(object):

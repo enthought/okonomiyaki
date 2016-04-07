@@ -2,7 +2,7 @@ import unittest
 
 import mock
 
-from ..python_implementation import PythonImplementation
+from ..python_implementation import PythonABI, PythonImplementation
 from ...errors import InvalidMetadataField
 
 
@@ -137,3 +137,25 @@ class TestPythonImplementation(unittest.TestCase):
                 InvalidMetadataField,
                 r"^Metadata field is invalid \(python_tag = 'py345'\)$"):
             PythonImplementation.from_string(tag_string)
+
+
+class TestPythonABI(unittest.TestCase):
+    def test_pep425_tag_string_none(self):
+        # Given
+        abi_tag = None
+
+        # When
+        abi_tag_string = PythonABI.pep425_tag_string(abi_tag)
+
+        # Then
+        self.assertEqual(abi_tag_string, "none")
+
+    def test_pep425_tag_string(self):
+        # Given
+        abi_tag = PythonABI(u"cp27mu")
+
+        # When
+        abi_tag_string = PythonABI.pep425_tag_string(abi_tag)
+
+        # Then
+        self.assertEqual(abi_tag_string, "cp27mu")

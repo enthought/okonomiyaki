@@ -2,7 +2,7 @@
 from .abi import default_abi
 from .epd_platform import EPDPlatform, applies
 from .platform import Platform
-from .python_implementation import PythonImplementation
+from .python_implementation import PythonABI, PythonImplementation
 from ._arch import X86, X86_64
 
 __all__ = [
