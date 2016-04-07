@@ -1,5 +1,7 @@
 import posixpath
 import re
+
+import six
 import zipfile2
 
 from ..bundled.traitlets import (
@@ -10,7 +12,7 @@ from ..errors import (
     InvalidMetadataField, MissingMetadata, UnsupportedMetadata
 )
 from ..platforms import (
-    EPDPlatform, PythonABI, PythonImplementation, default_abi
+    EPDPlatform, PlatformABI, PythonABI, PythonImplementation, default_abi
 )
 from ..platforms.legacy import LegacyEPDPlatform
 from ..utils import compute_sha256, parse_assignments
@@ -923,13 +925,18 @@ class EggMetadata(object):
         self.python = python
         """ The python implementation."""
 
-        if abi_tag is not None:
+        if abi_tag is not None and isinstance(abi_tag, six.string_types):
             abi_tag = PythonABI(abi_tag)
 
         self.abi = abi_tag
         """ The ABI tag, following the PEP425 format, except that no ABI
         is sorted as None."""
 
+        if (
+            platform_abi is not None and
+            isinstance(platform_abi, six.string_types)
+        ):
+            platform_abi = PlatformABI(platform_abi)
         self.platform_abi = platform_abi
 
         self.runtime_dependencies = tuple(dependencies.runtime)
@@ -950,7 +957,7 @@ class EggMetadata(object):
         if self.abi is None:
             return None
         else:
-            return self.abi.pep425
+            return self.abi.pep425_tag
 
     @property
     def abi_tag_string(self):
@@ -997,11 +1004,15 @@ class EggMetadata(object):
         return self._raw_name.lower().replace("-", "_")
 
     @property
-    def platform_abi_string(self):
+    def platform_abi_tag(self):
         if self.platform_abi is None:
-            return 'none'
+            return None
         else:
-            return self.platform_abi
+            return self.platform_abi.pep425_tag
+
+    @property
+    def platform_abi_tag_string(self):
+        return PlatformABI.pep425_tag_string(self.platform_abi)
 
     @property
     def platform_tag(self):
@@ -1063,7 +1074,7 @@ class EggMetadata(object):
             "python_tag": self.python_tag,
             "abi_tag": self.abi_tag,
             "platform_tag": self.platform_tag,
-            "platform_abi": self.platform_abi,
+            "platform_abi": self.platform_abi_tag,
             "packages": [p for p in self.runtime_dependencies],
             "_epd_legacy_platform": _epd_legacy_platform,
             "_metadata_version": self.metadata_version,

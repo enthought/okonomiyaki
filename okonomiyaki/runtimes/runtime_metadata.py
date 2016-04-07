@@ -13,6 +13,7 @@ from attr.validators import instance_of
 
 from ..errors import InvalidMetadata, MissingMetadata, UnsupportedMetadata
 from ..platforms import EPDPlatform, Platform
+from ..platforms.abi import _PLATFORM_ABI_NONE
 from ..versions import MetadataVersion, RuntimeVersion
 
 from .common import _platform_string
@@ -149,7 +150,7 @@ class IRuntimeMetadataV1(IRuntimeMetadata):
         template = (
             "{0.implementation}-{0.version}-{1}-{2}.runtime"
         )
-        str_abi = self.abi or "none"
+        str_abi = self.abi or _PLATFORM_ABI_NONE
         return template.format(self, _platform_string(self.platform), str_abi)
 
 
@@ -244,7 +245,7 @@ def _parse_from_path(path):
         raise InvalidMetadata("Invalid format: {0!r}".format(filename))
 
     version_string, platform_string, abi_string = subparts
-    if abi_string == "none":
+    if abi_string == _PLATFORM_ABI_NONE:
         abi = None
     else:
         abi = abi_string

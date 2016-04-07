@@ -22,19 +22,22 @@ _TAG_RE = re.compile("""
     (?P<version>([\d_]+))
 """, flags=re.VERBOSE)
 
+_ABI_NONE = u'none'
+_PYTHON_TAG_NONE = u'none'
+
 
 @attributes
 class PythonABI(object):
     """ An object representation of python ABI as defined in PEP 425.
     """
-    pep425 = attr(validator=instance_of(six.text_type))
+    pep425_tag = attr(validator=instance_of(six.text_type))
 
     @staticmethod
     def pep425_tag_string(abi):
         if abi is None:
-            return u'none'
+            return _ABI_NONE
         else:
-            return abi.pep425
+            return abi.pep425_tag
 
 
 class PythonImplementation(object):
@@ -43,7 +46,7 @@ class PythonImplementation(object):
         if implementation is None:
             # an extension of PEP 425, to signify the egg will work on any
             # python version (mostly non-python eggs)
-            return 'none'
+            return _PYTHON_TAG_NONE
         else:
             return implementation.pep425_tag
 
