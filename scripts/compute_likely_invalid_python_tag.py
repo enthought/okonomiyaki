@@ -68,6 +68,9 @@ CP27_INVALID_LIST = set((
     "pyqt-4.10.3-1",
     "pyqt-4.11.0-1",
     "pyqt-4.11.3-1",
+    "pyqt-4.11.4-1",
+    "pyqt-4.11.4-2",
+    "pyqt-4.11.4-3",
     "pyside-1.0.0b3-1",
     "pyside-1.0.0b5-1",
     "pyside-1.0.0rc1-1",
@@ -97,6 +100,7 @@ CP27_INVALID_LIST = set((
     "sip-4.16.7-1",
     "ujson-1.33.0-1",
     "ujson-1.33.0-2",
+    "ujson-1.35-1",
 ))
 
 PY27_INVALID_LIST = set((
