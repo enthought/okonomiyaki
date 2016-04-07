@@ -15,6 +15,7 @@ from ..utils import compute_sha256, parse_assignments
 from ..utils.py3compat import StringIO, string_types
 from ..utils.traitlets import NoneOrInstance, NoneOrUnicode
 from ..versions import EnpkgVersion, MetadataVersion
+from .legacy import _guess_abi_tag, _guess_python_tag
 from ._blacklist import (
     EGG_PLATFORM_BLACK_LIST, EGG_PYTHON_TAG_BLACK_LIST,
     may_be_in_platform_blacklist, may_be_in_python_tag_blacklist,
@@ -30,8 +31,6 @@ _EGG_NAME_RE = re.compile("""
     -
     (?P<build>\d+)
     \.egg$""", re.VERBOSE)
-
-_PYVER_RE = re.compile("(?P<major>\d+)\.(?P<minor>\d+)")
 
 EGG_INFO_PREFIX = "EGG-INFO"
 
@@ -79,8 +78,6 @@ _METADATA_VERSION_TO_KEYS[M("1.4")] = (
 )
 
 _UNSUPPORTED = "unsupported"
-
-_PYVER_RE = re.compile("(?P<major>\d).(?P<minor>\d)")
 
 
 def _are_compatible(left, right):
@@ -335,25 +332,6 @@ platform_abi = {platform_abi!r}
 packages = {packages}
 """
 }
-
-
-def _guess_python_tag(pyver):
-    """ Guess python_tag from the given python string ("MAJOR.MINOR", e.g. "2.7").
-
-    None may be returned (for egg that don't depend on python)
-    """
-    if pyver in (None, ""):
-        return None
-    else:
-        m = _PYVER_RE.search(pyver)
-        if m is None:
-            msg = "python_tag cannot be guessed for python = {0}"
-            raise InvalidMetadata(msg.format(pyver))
-        else:
-            major = m.groupdict()["major"]
-            minor = m.groupdict()["minor"]
-
-            return "cp" + major + minor
 
 
 def _guess_platform_abi(platform, implementation):
@@ -621,52 +599,10 @@ class Dependencies(object):
         self.build = runtime or ()
 
 
-_TAG_RE = re.compile("""
-    (?P<interpreter>(cp|pp|cpython|py))
-    (?P<version>([\d_]+))
-""", flags=re.VERBOSE)
-
-
-def _python_tag_to_python(python_tag):
-    # This converts only python version we currently intent to support in
-    # metadata version 1.x.
-    if python_tag is None:
-        return None
-
-    generic_exc = InvalidMetadataField('python_tag', python_tag)
-
-    m = _TAG_RE.match(python_tag)
-    if m is None:
-        raise generic_exc
-    else:
-        d = m.groupdict()
-        version = d["version"]
-        if len(version) == 1:
-            if version == "2":
-                return "2.7"
-            else:
-                raise generic_exc
-        elif len(version) == 2:
-            return "{0}.{1}".format(version[0], version[1])
-        else:
-            raise generic_exc
-
 
 def _metadata_version_to_tuple(metadata_version):
     """ Convert a metadata version string to a tuple for comparison."""
     return tuple(int(s) for s in metadata_version.split("."))
-
-
-def _guess_abi_tag(platform, python_tag):
-    assert python_tag is not None, "BUG, this function expects a python_tag"
-
-    # For legacy (aka legacy spec version info < 1.3), we know that pyver
-    # can only be one of "2.X" with X in (5, 6, 7).
-    #
-    # In those cases, the mapping (platform pyver) -> ABI is unambiguous,
-    # as we only ever used one ABI for a given python version/platform.
-    pyver = _python_tag_to_python(python_tag)
-    return "cp{0}{1}m".format(pyver[0], pyver[2])
 
 
 def _guess_platform_tag(platform):
@@ -717,18 +653,7 @@ def _normalized_info_from_string(spec_depend_string, epd_platform=None,
 
     if metadata_version < M("1.3"):
         python_tag = data[_TAG_PYTHON_PEP425_TAG]
-
-        if python_tag is None:
-            # No python tag, so should only be a "pure binary" egg, i.e.
-            # an egg containing no python code and no python C extensions.
-            abi = None
-        elif epd_platform is None:
-            # No platform, so should only be a "pure python" egg, i.e.
-            # an egg containing no C extension.
-            abi = None
-        else:
-            abi = _guess_abi_tag(epd_platform, python_tag)
-        data[_TAG_ABI_PEP425_TAG] = abi
+        data[_TAG_ABI_PEP425_TAG] = _guess_abi_tag(epd_platform, python_tag)
     else:
         data[_TAG_ABI_PEP425_TAG] = raw_data[_TAG_ABI_PEP425_TAG]
 
