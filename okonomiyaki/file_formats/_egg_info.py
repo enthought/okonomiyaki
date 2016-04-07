@@ -6,16 +6,18 @@ from ..bundled.traitlets import (
     HasTraits, Instance, List, Long, Unicode
 )
 from ..errors import (
-    InvalidRequirementString, InvalidEggName, InvalidMetadata,
-    InvalidMetadataField, MissingMetadata, UnsupportedMetadata
+    InvalidRequirementString, InvalidEggName, InvalidMetadataField,
+    MissingMetadata, UnsupportedMetadata
 )
-from ..platforms import EPDPlatform, PythonImplementation, default_abi
+from ..platforms import EPDPlatform, PythonImplementation
 from ..platforms.legacy import LegacyEPDPlatform
 from ..utils import compute_sha256, parse_assignments
 from ..utils.py3compat import StringIO, string_types
 from ..utils.traitlets import NoneOrInstance, NoneOrUnicode
 from ..versions import EnpkgVersion, MetadataVersion
-from .legacy import _guess_abi_tag, _guess_python_tag
+from .legacy import (
+    _guess_abi_tag, _guess_platform_abi, _guess_platform_tag, _guess_python_tag
+)
 from ._blacklist import (
     EGG_PLATFORM_BLACK_LIST, EGG_PYTHON_TAG_BLACK_LIST,
     may_be_in_platform_blacklist, may_be_in_python_tag_blacklist,
@@ -334,36 +336,6 @@ packages = {packages}
 }
 
 
-def _guess_platform_abi(platform, implementation):
-    """ Guess platform_abi from the given platform and implementation.
-
-    May be None.
-
-    Parameters
-    ----------
-    platform: Platform
-        May be None.
-    implementation: PythonImplementation
-        May be None.
-    """
-    if platform is None:
-        return None
-    else:
-        if implementation is None:
-            # All our eggs so far have been python 2-only
-            implementation = PythonImplementation.from_string("cp27")
-
-        if implementation.kind == "python":
-            return None
-
-        implementation_version = "{0}.{1}".format(
-            implementation.major, implementation.minor
-        )
-        return default_abi(
-            platform, implementation.kind, implementation_version
-        )
-
-
 _METADATA_DEFAULT_VERSION_STRING = "1.4"
 _METADATA_DEFAULT_VERSION = M(_METADATA_DEFAULT_VERSION_STRING)
 
@@ -605,13 +577,6 @@ def _metadata_version_to_tuple(metadata_version):
     return tuple(int(s) for s in metadata_version.split("."))
 
 
-def _guess_platform_tag(platform):
-    if platform is None:
-        return None
-
-    return platform.pep425_tag
-
-
 def _normalized_info_from_string(spec_depend_string, epd_platform=None,
                                  sha256=None):
     """ Return a 'normalized' dictionary from the given spec/depend string.
@@ -658,21 +623,12 @@ def _normalized_info_from_string(spec_depend_string, epd_platform=None,
         data[_TAG_ABI_PEP425_TAG] = raw_data[_TAG_ABI_PEP425_TAG]
 
     if metadata_version < M("1.3"):
-        if epd_platform is None:
-            platform_tag = None
-        else:
-            platform_tag = _guess_platform_tag(epd_platform)
-        data[_TAG_PLATFORM_PEP425_TAG] = platform_tag
+        data[_TAG_PLATFORM_PEP425_TAG] = _guess_platform_tag(epd_platform)
     else:
         data[_TAG_PLATFORM_PEP425_TAG] = raw_data[_TAG_PLATFORM_PEP425_TAG]
 
     if metadata_version < M("1.4"):
-        if epd_platform is None:
-            platform = None
-        else:
-            platform = epd_platform.platform
-
-        platform_abi = _guess_platform_abi(platform, python_implementation)
+        platform_abi = _guess_platform_abi(epd_platform, python_implementation)
     else:
         platform_abi = raw_data[_TAG_PLATFORM_ABI]
     data[_TAG_PLATFORM_ABI] = platform_abi

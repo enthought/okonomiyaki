@@ -618,7 +618,7 @@ class TestGuessPlatformAbi(unittest.TestCase):
     def test_python_27(self):
         # Given
         implementation = PythonImplementation.from_string("cp27")
-        platform = EPDPlatform.from_epd_string("rh5-64").platform
+        platform = EPDPlatform.from_epd_string("rh5-64")
 
         # When
         abi = _guess_platform_abi(platform, implementation)
@@ -627,7 +627,7 @@ class TestGuessPlatformAbi(unittest.TestCase):
         self.assertEqual(abi, "gnu")
 
         # Given
-        platform = EPDPlatform.from_epd_string("osx-64").platform
+        platform = EPDPlatform.from_epd_string("osx-64")
 
         # When
         abi = _guess_platform_abi(platform, implementation)
@@ -636,7 +636,7 @@ class TestGuessPlatformAbi(unittest.TestCase):
         self.assertEqual(abi, "darwin")
 
         # Given
-        platform = EPDPlatform.from_epd_string("win-64").platform
+        platform = EPDPlatform.from_epd_string("win-64")
 
         # When
         abi = _guess_platform_abi(platform, implementation)
@@ -647,7 +647,7 @@ class TestGuessPlatformAbi(unittest.TestCase):
     def test_python_34(self):
         # Given
         implementation = PythonImplementation.from_string("cp34")
-        platform = EPDPlatform.from_epd_string("rh5-64").platform
+        platform = EPDPlatform.from_epd_string("rh5-64")
 
         # When
         abi = _guess_platform_abi(platform, implementation)
@@ -656,7 +656,7 @@ class TestGuessPlatformAbi(unittest.TestCase):
         self.assertEqual(abi, "gnu")
 
         # Given
-        platform = EPDPlatform.from_epd_string("osx-64").platform
+        platform = EPDPlatform.from_epd_string("osx-64")
 
         # When
         abi = _guess_platform_abi(platform, implementation)
@@ -665,7 +665,7 @@ class TestGuessPlatformAbi(unittest.TestCase):
         self.assertEqual(abi, "darwin")
 
         # Given
-        platform = EPDPlatform.from_epd_string("win-64").platform
+        platform = EPDPlatform.from_epd_string("win-64")
 
         # When
         abi = _guess_platform_abi(platform, implementation)
@@ -676,7 +676,7 @@ class TestGuessPlatformAbi(unittest.TestCase):
     def test_python_35(self):
         # Given
         implementation = PythonImplementation.from_string("cp35")
-        platform = EPDPlatform.from_epd_string("rh5-64").platform
+        platform = EPDPlatform.from_epd_string("rh5-64")
 
         # When
         abi = _guess_platform_abi(platform, implementation)
@@ -685,7 +685,7 @@ class TestGuessPlatformAbi(unittest.TestCase):
         self.assertEqual(abi, "gnu")
 
         # Given
-        platform = EPDPlatform.from_epd_string("osx-64").platform
+        platform = EPDPlatform.from_epd_string("osx-64")
 
         # When
         abi = _guess_platform_abi(platform, implementation)
@@ -694,7 +694,7 @@ class TestGuessPlatformAbi(unittest.TestCase):
         self.assertEqual(abi, "darwin")
 
         # Given
-        platform = EPDPlatform.from_epd_string("win-64").platform
+        platform = EPDPlatform.from_epd_string("win-64")
 
         # When
         abi = _guess_platform_abi(platform, implementation)
@@ -724,7 +724,7 @@ class TestGuessPlatformAbi(unittest.TestCase):
 
     def test_no_python_implementation(self):
         # Given
-        platform = EPDPlatform.from_epd_string("rh5-64").platform
+        platform = EPDPlatform.from_epd_string("rh5-64")
 
         # When
         abi = _guess_platform_abi(platform, None)
@@ -733,7 +733,7 @@ class TestGuessPlatformAbi(unittest.TestCase):
         self.assertEqual(abi, "gnu")
 
         # Given
-        platform = EPDPlatform.from_epd_string("osx-64").platform
+        platform = EPDPlatform.from_epd_string("osx-64")
 
         # When
         abi = _guess_platform_abi(platform, None)
@@ -742,7 +742,7 @@ class TestGuessPlatformAbi(unittest.TestCase):
         self.assertEqual(abi, "darwin")
 
         # Given
-        platform = EPDPlatform.from_epd_string("win-64").platform
+        platform = EPDPlatform.from_epd_string("win-64")
 
         # When
         abi = _guess_platform_abi(platform, None)

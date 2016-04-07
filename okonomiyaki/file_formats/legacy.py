@@ -4,6 +4,7 @@ metadata.
 import re
 
 from ..errors import InvalidMetadata, InvalidMetadataField
+from ..platforms import PythonImplementation, default_abi
 
 
 # To parse the python field in our index and spec/depend
@@ -17,6 +18,8 @@ _TAG_RE = re.compile("""
 
 
 def _guess_abi_tag(epd_platform, python_tag):
+    """ Guess the ABI tag from the epd_platform and python_tag.
+    """
     if python_tag is None:
         # No python tag, so should only be a "pure binary" egg, i.e.
         # an egg containing no python code and no python C extensions.
@@ -34,6 +37,43 @@ def _guess_abi_tag(epd_platform, python_tag):
     # as we only ever used one ABI for a given python version/platform.
     pyver = _python_tag_to_python(python_tag)
     return "cp{0}{1}m".format(pyver[0], pyver[2])
+
+
+def _guess_platform_abi(epd_platform, implementation):
+    """ Guess platform_abi from the given platform and implementation.
+
+    May be None.
+
+    Parameters
+    ----------
+    epd_platform: EPDPlatform
+        May be None.
+    implementation: PythonImplementation
+        May be None.
+    """
+    if epd_platform is None:
+        return None
+    else:
+        if implementation is None:
+            # All our eggs so far have been python 2-only
+            implementation = PythonImplementation.from_string("cp27")
+
+        if implementation.kind == "python":
+            return None
+
+        implementation_version = "{0}.{1}".format(
+            implementation.major, implementation.minor
+        )
+        return default_abi(
+            epd_platform.platform, implementation.kind, implementation_version
+        )
+
+
+def _guess_platform_tag(epd_platform):
+    if epd_platform is None:
+        return None
+    else:
+        return epd_platform.pep425_tag
 
 
 def _guess_python_tag(major_minor):
