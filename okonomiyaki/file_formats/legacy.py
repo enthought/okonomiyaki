@@ -39,25 +39,29 @@ def _guess_abi_tag(epd_platform, python_tag):
     return "cp{0}{1}m".format(pyver[0], pyver[2])
 
 
-def _guess_platform_abi(epd_platform, implementation):
+def _guess_platform_abi(epd_platform, python_tag):
     """ Guess platform_abi from the given platform and implementation.
 
     May be None.
 
     Parameters
     ----------
-    epd_platform: EPDPlatform
-        May be None.
-    implementation: PythonImplementation
-        May be None.
+    epd_platform: EPDPlatform or None
+        The platform to guess for
+    python_tag: str or None
+        e.g. `cp27`.
     """
+
+    if python_tag is None:
+        # All our eggs so far have been python 2-only (we don't really care
+        # about things < 2.7
+        implementation = PythonImplementation.from_string("cp27")
+    else:
+        implementation = PythonImplementation.from_string(python_tag)
+
     if epd_platform is None:
         return None
     else:
-        if implementation is None:
-            # All our eggs so far have been python 2-only
-            implementation = PythonImplementation.from_string("cp27")
-
         if implementation.kind == "python":
             return None
 
@@ -70,6 +74,12 @@ def _guess_platform_abi(epd_platform, implementation):
 
 
 def _guess_platform_tag(epd_platform):
+    """ Guess the platform tag from the given epd_platform.
+
+    Parameters
+    ----------
+    epd_platform : EPDPlatform or None
+    """
     if epd_platform is None:
         return None
     else:

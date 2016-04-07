@@ -609,26 +609,18 @@ def _normalized_info_from_string(spec_depend_string, epd_platform=None,
             )
         else:
             data[_TAG_PYTHON_PEP425_TAG] = raw_data[_TAG_PYTHON_PEP425_TAG]
-    if data[_TAG_PYTHON_PEP425_TAG] is None:
-        python_implementation = None
-    else:
-        python_implementation = PythonImplementation.from_string(
-            data[_TAG_PYTHON_PEP425_TAG]
-        )
 
     if metadata_version < M("1.3"):
         python_tag = data[_TAG_PYTHON_PEP425_TAG]
         data[_TAG_ABI_PEP425_TAG] = _guess_abi_tag(epd_platform, python_tag)
-    else:
-        data[_TAG_ABI_PEP425_TAG] = raw_data[_TAG_ABI_PEP425_TAG]
-
-    if metadata_version < M("1.3"):
         data[_TAG_PLATFORM_PEP425_TAG] = _guess_platform_tag(epd_platform)
     else:
+        data[_TAG_ABI_PEP425_TAG] = raw_data[_TAG_ABI_PEP425_TAG]
         data[_TAG_PLATFORM_PEP425_TAG] = raw_data[_TAG_PLATFORM_PEP425_TAG]
 
     if metadata_version < M("1.4"):
-        platform_abi = _guess_platform_abi(epd_platform, python_implementation)
+        python_tag = data[_TAG_PYTHON_PEP425_TAG]
+        platform_abi = _guess_platform_abi(epd_platform, python_tag)
     else:
         platform_abi = raw_data[_TAG_PLATFORM_ABI]
     data[_TAG_PLATFORM_ABI] = platform_abi
