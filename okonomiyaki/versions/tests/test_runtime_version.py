@@ -1,6 +1,11 @@
-import unittest
+import sys
 
 from ..runtime_version import RuntimeVersion
+
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
 
 
 V = RuntimeVersion.from_string

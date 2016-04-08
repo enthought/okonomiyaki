@@ -1,6 +1,11 @@
-import unittest
+import sys
 
 from ..pep386_workaround import PEP386WorkaroundVersion
+
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
 
 
 class TestPEP386Workaround(unittest.TestCase):
