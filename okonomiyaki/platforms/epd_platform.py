@@ -60,6 +60,8 @@ _LINUX_TAG_R = re.compile("^linux_(?P<arch>\S+)$")
 _MACOSX_TAG_R = re.compile("^macosx_([^_]+)_([^_]+)_(?P<arch>\S+)$")
 _WINDOWS_TAG_R = re.compile("^win_*(?P<arch>\S+)$")
 
+_ANY_PLATFORM_STRING = u'any'
+
 
 def platform_validator():
     def wrapper(inst, attr, value):
@@ -88,6 +90,13 @@ class EPDPlatform(object):
     """
     Main name of the platform (e.g. 'rh5')
     """
+
+    @staticmethod
+    def pep425_tag_string(platform):
+        if platform is None:
+            return _ANY_PLATFORM_STRING
+        else:
+            return platform.pep425_tag
 
     @classmethod
     def from_running_python(cls):
@@ -169,7 +178,7 @@ class EPDPlatform(object):
         """
         Attempt to create an EPDPlatform instance from a PEP 425 platform tag.
         """
-        if platform_tag is None or platform_tag == "any":
+        if platform_tag is None or platform_tag == _ANY_PLATFORM_STRING:
             raise ValueError(
                 "Invalid platform_tag for platform: '{}'".format(platform_tag)
             )

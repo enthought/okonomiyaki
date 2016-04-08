@@ -1,8 +1,28 @@
+import six
+
+from attr import attributes, attr
+from attr.validators import instance_of, optional
+
 from ..errors import OkonomiyakiError
 from ..versions import RuntimeVersion
 
 from .epd_platform import EPDPlatform
 from .platform import OSKind
+
+
+_PLATFORM_ABI_NONE = u'none'
+
+
+@attributes
+class PlatformABI(object):
+    pep425_tag = attr(validator=instance_of(six.text_type))
+
+    @staticmethod
+    def pep425_tag_string(abi):
+        if abi is None:
+            return _PLATFORM_ABI_NONE
+        else:
+            return abi.pep425_tag
 
 
 def _default_cpython_abi(platform, implementation_version):

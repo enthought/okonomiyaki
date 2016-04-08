@@ -11,7 +11,9 @@ from ..errors import (
     InvalidRequirementString, InvalidEggName, InvalidMetadataField,
     MissingMetadata, UnsupportedMetadata
 )
-from ..platforms import EPDPlatform, PythonImplementation
+from ..platforms import (
+    EPDPlatform, PlatformABI, PythonABI, PythonImplementation, default_abi
+)
 from ..platforms.legacy import LegacyEPDPlatform
 from ..utils import compute_sha256, decode_if_needed, parse_assignments
 from ..utils.py3compat import StringIO, string_types
@@ -815,10 +817,18 @@ class EggMetadata(object):
         self.python = python
         """ The python implementation."""
 
-        self.abi_tag = abi_tag
+        if abi_tag is not None and isinstance(abi_tag, six.string_types):
+            abi_tag = PythonABI(abi_tag)
+
+        self.abi = abi_tag
         """ The ABI tag, following the PEP425 format, except that no ABI
         is sorted as None."""
 
+        if (
+            platform_abi is not None and
+            isinstance(platform_abi, six.string_types)
+        ):
+            platform_abi = PlatformABI(platform_abi)
         self.platform_abi = platform_abi
 
         self.runtime_dependencies = tuple(dependencies.runtime)
@@ -835,11 +845,15 @@ class EggMetadata(object):
         """ The summary string."""
 
     @property
-    def abi_tag_string(self):
-        if self.abi_tag is None:
-            return 'none'
+    def abi_tag(self):
+        if self.abi is None:
+            return None
         else:
-            return self.abi_tag
+            return self.abi.pep425_tag
+
+    @property
+    def abi_tag_string(self):
+        return PythonABI.pep425_tag_string(self.abi)
 
     @property
     def build(self):
@@ -882,11 +896,15 @@ class EggMetadata(object):
         return self._raw_name.lower().replace("-", "_")
 
     @property
-    def platform_abi_string(self):
+    def platform_abi_tag(self):
         if self.platform_abi is None:
-            return 'none'
+            return None
         else:
-            return self.platform_abi
+            return self.platform_abi.pep425_tag
+
+    @property
+    def platform_abi_tag_string(self):
+        return PlatformABI.pep425_tag_string(self.platform_abi)
 
     @property
     def platform_tag(self):
@@ -899,10 +917,7 @@ class EggMetadata(object):
 
     @property
     def platform_tag_string(self):
-        if self.platform_tag is None:
-            return 'any'
-        else:
-            return self.platform_tag
+        return EPDPlatform.pep425_tag_string(self.platform)
 
     @property
     def python_tag(self):
@@ -913,12 +928,7 @@ class EggMetadata(object):
 
     @property
     def python_tag_string(self):
-        if self.python_tag is None:
-            # an extension of PEP 425, to signify the egg will work on any
-            # python version (mostly non-python eggs)
-            return 'none'
-        else:
-            return self.python_tag
+        return PythonImplementation.pep425_tag_string(self.python)
 
     @property
     def spec_depend_string(self):
@@ -957,7 +967,7 @@ class EggMetadata(object):
             "python_tag": self.python_tag,
             "abi_tag": self.abi_tag,
             "platform_tag": self.platform_tag,
-            "platform_abi": self.platform_abi,
+            "platform_abi": self.platform_abi_tag,
             "packages": [str(p) for p in self.runtime_dependencies],
             "metadata_version": str(self.metadata_version),
         }

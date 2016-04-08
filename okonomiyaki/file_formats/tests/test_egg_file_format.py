@@ -123,7 +123,7 @@ packages = []
         dependencies = Dependencies((), ())
 
         return EggMetadata(
-            pkg_info.name, version, platform, "cp27", "cp27m", "gnu",
+            pkg_info.name, version, platform, "cp27", u"cp27m", u"gnu",
             dependencies, pkg_info, pkg_info.summary
         )
 
@@ -134,7 +134,7 @@ packages = []
         dependencies = Dependencies((), ())
 
         metadata = EggMetadata("foo", version, platform, "cp27",
-                               "cp27m", "gnu", dependencies, None, "")
+                               u"cp27m", u"gnu", dependencies, None, "")
 
         # When/Then
         with self.assertRaises(ValueError):

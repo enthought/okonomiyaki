@@ -18,7 +18,7 @@ from ...errors import (
     UnsupportedMetadata)
 from ...utils import tempdir
 from ...utils.test_data import NOSE_1_3_4_OSX_X86_64
-from ...platforms import EPDPlatform, PythonImplementation
+from ...platforms import EPDPlatform, PlatformABI, PythonImplementation
 from ...platforms.legacy import LegacyEPDPlatform
 from ...versions import EnpkgVersion, MetadataVersion, RuntimeVersion
 
@@ -966,7 +966,7 @@ packages = [
             parse_rawspec(spec_s)
 
 
-class TestEggInfo(unittest.TestCase):
+class TestEggMetadata(unittest.TestCase):
     def setUp(self):
         self.tempdir = tempfile.mkdtemp()
 
@@ -1000,6 +1000,8 @@ class TestEggInfo(unittest.TestCase):
         self.assertEqual(metadata.platform_tag_string, 'any')
         self.assertEqual(metadata.python_tag, None)
         self.assertEqual(metadata.python_tag_string, 'none')
+        self.assertEqual(metadata.platform_abi_tag, None)
+        self.assertEqual(metadata.platform_abi_tag_string, 'none')
 
     def test_simple_non_python_egg(self):
         # Given
@@ -1017,6 +1019,9 @@ class TestEggInfo(unittest.TestCase):
         self.assertEqual(metadata.abi_tag_string, 'none')
         self.assertEqual(metadata.platform_tag, 'macosx_10_6_x86_64')
         self.assertEqual(metadata.platform_tag_string, 'macosx_10_6_x86_64')
+        self.assertEqual(metadata.platform_abi, PlatformABI(u'darwin'))
+        self.assertEqual(metadata.platform_abi_tag, u'darwin')
+        self.assertEqual(metadata.platform_abi_tag_string, u'darwin')
         self.assertEqual(metadata.python_tag, None)
         self.assertEqual(metadata.python_tag_string, 'none')
         self.assertEqual(metadata.runtime_dependencies, tuple())
@@ -1087,18 +1092,18 @@ class TestEggInfo(unittest.TestCase):
         self.assertEqual(metadata.name, "qt")
         self.assertEqual(metadata.metadata_version, M("1.4"))
         self.assertIs(metadata.is_strictly_supported, True)
-        self.assertEqual(metadata.platform_abi, "msvc2010")
-        self.assertEqual(metadata.platform_abi_string, "msvc2010")
+        self.assertEqual(metadata.platform_abi_tag, u"msvc2010")
+        self.assertEqual(metadata.platform_abi_tag_string, u"msvc2010")
 
         # When
         metadata.platform_abi = None
 
         # Then
         self.assertIs(metadata.platform_abi, None)
-        self.assertEqual(metadata.platform_abi_string, "none")
+        self.assertEqual(metadata.platform_abi_tag_string, "none")
 
         # When
-        metadata.platform_abi = "msvc2015"
+        metadata.platform_abi = PlatformABI(u"msvc2015")
 
         # Then
         self.assertMultiLineEqual(
@@ -1138,7 +1143,7 @@ class TestEggInfo(unittest.TestCase):
         self.assertEqual(metadata.metadata_version, M("1.3"))
         self.assertIs(metadata.is_strictly_supported, True)
         self.assertIsNone(metadata.platform_abi)
-        self.assertEqual(metadata.platform_abi_string, "none")
+        self.assertEqual(metadata.platform_abi_tag_string, "none")
 
     def test_support_higher_compatible_version(self):
         # Given
