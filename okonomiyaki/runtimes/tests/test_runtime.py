@@ -39,6 +39,10 @@ class TestPythonRuntime(unittest.TestCase):
                 os.path.realpath(NORM_EXECUTABLE)
             )
 
+    @unittest.skipIf(
+        hasattr(sys, "pypy_version_info"),
+        "This test is only supported on cpython"
+    )
     def test_from_prefix_and_platform(self):
         # Given
         prefix = u"/usr/local"
