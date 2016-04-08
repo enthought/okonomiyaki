@@ -203,7 +203,7 @@ class TestRuntimeMetadataFactory(unittest.TestCase):
         # When/Then
         with self.assertRaisesRegexp(
                 UnsupportedMetadata,
-                r"^No support for language 'r' \('MetadataVersion\(1, 0\)'\)"):
+                r"^No support for language 'r' \(metadata version '1.0'\)"):
             runtime_metadata_factory(path)
 
         # Given
