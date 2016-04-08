@@ -124,8 +124,6 @@ def main():
           author="David Cournapeau",
           author_email="David Cournapeau",
           packages=["okonomiyaki",
-                    "okonomiyaki.bundled",
-                    "okonomiyaki.bundled.traitlets",
                     "okonomiyaki._cli",
                     "okonomiyaki._cli.tests",
                     "okonomiyaki.file_formats",

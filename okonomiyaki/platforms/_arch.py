@@ -3,81 +3,93 @@ from __future__ import absolute_import
 import platform
 import sys
 
-from ..bundled.traitlets import HasTraits, Enum
+import enum
+
+from attr import attr, attributes
+from attr.validators import instance_of
+
 from ..errors import OkonomiyakiError
 
 
-X86 = "x86"
-X86_64 = "x86_64"
+@enum.unique
+class ArchitectureKind(enum.Enum):
+    x86 = 0
+    x86_64 = 1
 
-_ARCH_NAME_TO_BITS = {
-    X86: 32,
-    X86_64: 64,
+
+_KIND_TO_BITWIDTHS = {
+    ArchitectureKind.x86: 32,
+    ArchitectureKind.x86_64: 64,
+}
+for k in ArchitectureKind.__members__:
+    assert ArchitectureKind[k] in _KIND_TO_BITWIDTHS
+
+_NORMALIZED_NAMES = {
+    "x86": ArchitectureKind.x86,
+    "i386": ArchitectureKind.x86,
+    "i686": ArchitectureKind.x86,
+
+    "amd64": ArchitectureKind.x86_64,
+    "AMD64": ArchitectureKind.x86_64,
+    "x86_64": ArchitectureKind.x86_64,
 }
 
-_ARCH_NAME_TO_NORMALIZED = {
-    "amd64": X86_64,
-    "AMD64": X86_64,
-    "x86_64": X86_64,
-    "x86": X86,
-    "i386": X86,
-    "i686": X86,
-}
 
-
-class Arch(HasTraits):
-    name = Enum([X86, X86_64])
+@attributes
+class Arch(object):
+    """ A normalized architecture representation.
     """
-    Actual architecture name (e.g. 'x86'). The architecture is guessed from the
-    running python.
-    """
+    _kind = attr(validator=instance_of(ArchitectureKind))
 
     @classmethod
     def _from_bitwidth(cls, bitwidth):
         if bitwidth == "32":
-            return cls.from_name(X86)
+            return cls(ArchitectureKind.x86)
         elif bitwidth == "64":
-            return cls.from_name(X86_64)
+            return cls(ArchitectureKind.x86_64)
         else:
             msg = "Invalid bits width: {0!r}".format(bitwidth)
             raise OkonomiyakiError(msg)
 
     @classmethod
     def from_name(cls, name):
-        # FIXME: kept for backward compatibility
-        return cls(name)
+        kind = _NORMALIZED_NAMES.get(name)
+        if kind is None:
+            raise OkonomiyakiError(
+                "Unsupported/unrecognized architecture: {0!r}".format(name)
+            )
+        else:
+            return cls(kind)
 
     @classmethod
     def from_running_python(cls):
         machine = platform.machine()
 
-        if machine in _ARCH_NAME_TO_NORMALIZED:
+        if machine in _NORMALIZED_NAMES:
             if sys.maxsize > 2 ** 32:
-                return Arch.from_name(X86_64)
+                return Arch(ArchitectureKind.x86_64)
             else:
-                return Arch.from_name(X86)
+                return Arch(ArchitectureKind.x86)
         else:
-            raise OkonomiyakiError("Unknown machine combination {0!r}".
-                                   format(machine))
+            raise OkonomiyakiError(
+                "Unknown machine combination {0!r}".format(machine)
+            )
 
     @classmethod
     def from_running_system(cls):
         return Arch.from_name(platform.machine())
-
-    def __init__(self, name):
-        normalized_name = _ARCH_NAME_TO_NORMALIZED.get(name)
-        if normalized_name is None:
-            msg = "Unsupported/unrecognized architecture: {0!r}"
-            raise OkonomiyakiError(msg.format(name))
-
-        super(Arch, self).__init__(name=normalized_name)
 
     @property
     def bits(self):
         """
         Actual architecture bits (e.g. 32), as an int.
         """
-        return _ARCH_NAME_TO_BITS[self.name]
+        return _KIND_TO_BITWIDTHS[self._kind]
+
+    @property
+    def name(self):
+        """ The normalized architecture name."""
+        return self._kind.name
 
     @property
     def _arch_bits(self):
@@ -88,25 +100,10 @@ class Arch(HasTraits):
     def _legacy_name(self):
         # Used for translating the arch into EGG-INFO/spec/depend (old
         # 'platform' entry)
-        if self.name == X86_64:
+        if self._kind == ArchitectureKind.x86_64:
             return "amd64"
         else:
             return self.name
 
-    def __repr__(self):
-        return "Arch({0.name!r})".format(self)
-
     def __str__(self):
         return self.name
-
-    def __eq__(self, other):
-        if not isinstance(other, self.__class__):
-            return False
-        else:
-            return self.name == other.name and self.bits == other.bits
-
-    def __ne__(self, other):
-        return not (self == other)
-
-    def __hash__(self):
-        return hash((self.name, self.bits))

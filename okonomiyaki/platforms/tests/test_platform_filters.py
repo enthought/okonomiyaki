@@ -2,15 +2,16 @@ from __future__ import absolute_import
 
 import unittest
 
+from .._arch import Arch
 from ..epd_platform import EPDPlatform
-from ..platform import Arch, Platform
+from ..platform import OSKind, NameKind, FamilyKind, Platform
 from ..platform_filters import PlatformFilter, PlatformLabel, PlatformLiteral
 
 LABEL_WINDOWS_ANY = PlatformLabel()
-LABEL_WINDOWS_ANY.os = "windows"
+LABEL_WINDOWS_ANY.os_kind = OSKind.windows
 
 LABEL_OSX_32 = PlatformLabel()
-LABEL_OSX_32.os = "darwin"
+LABEL_OSX_32.os_kind = OSKind.darwin
 LABEL_OSX_32.arch = Arch.from_name("x86")
 
 
@@ -23,12 +24,18 @@ RH5_X86_64 = _platform_from_epd_string("rh5-64")
 OSX_32 = _platform_from_epd_string("osx-32")
 WIN_X86_64 = _platform_from_epd_string("win-64")
 
-UBUNTU_12_10_X32 = Platform("linux", "ubuntu", "debian", Arch.from_name("x86"),
-                            release="12.10")
-UBUNTU_14_04_X32 = Platform("linux", "ubuntu", "debian", Arch.from_name("x86"),
-                            release="14.04")
-UBUNTU_14_04_X64 = Platform("linux", "ubuntu", "debian",
-                            Arch.from_name("x86_64"), release="14.04")
+UBUNTU_12_10_X32 = Platform(
+    OSKind.linux, NameKind.ubuntu, FamilyKind.debian, "12.10",
+    Arch.from_name("x86"), Arch.from_name("x86"),
+)
+UBUNTU_14_04_X32 = Platform(
+    OSKind.linux, NameKind.ubuntu, FamilyKind.debian, "14.04",
+    Arch.from_name("x86"), Arch.from_name("x86"),
+)
+UBUNTU_14_04_X64 = Platform(
+    OSKind.linux, NameKind.ubuntu, FamilyKind.debian, "14.04",
+    Arch.from_name("x86_64"), Arch.from_name("x86_64")
+)
 
 
 class TestPlatformLabel(unittest.TestCase):
@@ -44,7 +51,7 @@ class TestPlatformLabel(unittest.TestCase):
 
     def test_os(self):
         # Given
-        label = PlatformLabel(os="windows")
+        label = PlatformLabel(os_kind=OSKind.windows)
 
         # When/Then
         self.assertFalse(label.matches(RH5_32))
@@ -54,7 +61,7 @@ class TestPlatformLabel(unittest.TestCase):
 
     def test_name(self):
         # Given
-        label = PlatformLabel(name="centos")
+        label = PlatformLabel(name_kind=NameKind.centos)
 
         # When/Then
         self.assertFalse(label.matches(RH5_32))
@@ -64,8 +71,10 @@ class TestPlatformLabel(unittest.TestCase):
 
     def test_specific(self):
         # Given
-        label = PlatformLabel(name="ubuntu", arch=Arch.from_name("x86"),
-                              release="14.04")
+        label = PlatformLabel(
+            name_kind=NameKind.ubuntu, arch=Arch.from_name("x86"),
+            release="14.04"
+        )
 
         # When/Then
         self.assertFalse(label.matches(RH5_32))

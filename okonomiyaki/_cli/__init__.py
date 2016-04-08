@@ -8,9 +8,16 @@ from ..utils import compute_sha256
 from ..versions import MetadataVersion
 
 
+def _metadata_from_path(path, sha256):
+    if sha256 is None:
+        return EggMetadata.from_egg(path)
+    else:
+        return EggMetadata._from_egg(path, sha256)
+
+
 def pkg_info(ns):
-    sha256 = ns.sha256 or compute_sha256(ns.path)
-    metadata = EggMetadata._from_egg(ns.path, sha256)
+    metadata = _metadata_from_path(ns.path, ns.sha256)
+
     if metadata.pkg_info is None:
         print("No PKG-INFO")
         sys.exit(-1)
@@ -19,8 +26,8 @@ def pkg_info(ns):
 
 
 def spec_depend(ns):
-    sha256 = ns.sha256 or compute_sha256(ns.path)
-    metadata = EggMetadata._from_egg(ns.path, sha256)
+    metadata = _metadata_from_path(ns.path, ns.sha256)
+
     if ns.metadata_version is not None:
         metadata.metadata_version = MetadataVersion.from_string(
             ns.metadata_version
@@ -37,8 +44,7 @@ def show_index(ns):
 
 
 def summary(ns):
-    sha256 = ns.sha256 or compute_sha256(ns.path)
-    metadata = EggMetadata._from_egg(ns.path, sha256)
+    metadata = _metadata_from_path(ns.path, ns.sha256)
     print(metadata.summary.rstrip())
 
 

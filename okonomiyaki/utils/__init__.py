@@ -10,7 +10,7 @@ import hashlib
 from .misc import (
     parse_assignments, substitute_variable, substitute_variables, tempdir
 )
-from .py3compat import string_types
+from .py3compat import decode_if_needed, string_types
 
 
 def compute_md5(path):
