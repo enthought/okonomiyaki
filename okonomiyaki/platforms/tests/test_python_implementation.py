@@ -1,9 +1,14 @@
-import unittest
+import sys
 
 import mock
 
 from ..python_implementation import PythonImplementation
 from ...errors import InvalidMetadataField
+
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
 
 
 class TestPythonImplementation(unittest.TestCase):

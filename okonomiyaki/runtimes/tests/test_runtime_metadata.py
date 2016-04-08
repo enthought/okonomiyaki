@@ -1,6 +1,6 @@
 import os.path
 import shutil
-import unittest
+import sys
 
 import zipfile2
 
@@ -18,6 +18,11 @@ from ..runtime_metadata import (
     JuliaRuntimeMetadataV1, PythonRuntimeMetadataV1, RuntimeVersion,
     is_runtime_path_valid, runtime_metadata_factory
 )
+
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
 
 
 class TestPythonMetadataV1(unittest.TestCase):
@@ -225,7 +230,8 @@ class TestRuntimeMetadataFactory(unittest.TestCase):
         # When/Then
         with tempdir() as d:
             target = os.path.join(d, os.path.basename(path))
-            with zipfile2.ZipFile(target, "w"):
-                pass
+            # One needs to add an archive for the zipfile to be valid on 2.6.
+            with zipfile2.ZipFile(target, "w") as zp:
+                zp.writestr("dummy", b"dummy data")
             with self.assertRaises(MissingMetadata):
                 runtime_metadata_factory(target)

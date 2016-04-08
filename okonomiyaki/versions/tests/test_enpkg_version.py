@@ -1,10 +1,14 @@
-import unittest
-
+import sys
 
 from okonomiyaki.errors import InvalidEnpkgVersion
 
 from ..enpkg import EnpkgVersion
 from ..pep386_workaround import PEP386WorkaroundVersion
+
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
 
 
 class TestEnpkgVersionParsing(unittest.TestCase):

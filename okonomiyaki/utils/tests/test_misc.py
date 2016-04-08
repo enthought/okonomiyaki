@@ -1,9 +1,14 @@
+import sys
 import textwrap
-import unittest
 
 from ...errors import OkonomiyakiError
 from ..misc import parse_assignments, substitute_variables
 from ..py3compat import StringIO
+
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
 
 
 class TestParseAssignments(unittest.TestCase):
