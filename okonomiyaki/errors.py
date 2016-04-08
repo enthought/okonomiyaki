@@ -47,8 +47,11 @@ class InvalidMetadataField(InvalidMetadata):
     def __init__(self, name, value, *a, **kw):
         self.name = name
         self.value = value
-        message = 'Metadata field is invalid ({0} = {1!r})'.format(
-            name, value)
+        if value is InvalidMetadataField.undefined:
+            message = "Missing metadata field {0!r}".format(self.name)
+        else:
+            message = 'Invalid value for metadata field {0!r}: {1!r}'.format(
+                name, value)
         super(InvalidMetadataField, self).__init__(message, *a, **kw)
 
 

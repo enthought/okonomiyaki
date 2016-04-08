@@ -301,9 +301,13 @@ packages = [
 
         # When/Then
         with self.assertRaisesRegexp(
-                InvalidMetadata,
-                r'^python_tag cannot be guessed'):
+            InvalidMetadataField,
+            r"^Invalid value for metadata field 'python': 'a.7'"
+        ) as exc:
             LegacySpecDepend.from_string(s)
+
+        self.assertEqual(exc.exception.name, "python")
+        self.assertEqual(exc.exception.value, "a.7")
 
     def test_blacklisted_platform(self):
         # Given
@@ -776,8 +780,8 @@ class TestParseRawspec(unittest.TestCase):
 
         # When/Then
         with self.assertRaisesRegexp(
-                InvalidMetadataField,
-                r'^Metadata field is invalid \(name = <undefined>\)$'):
+            InvalidMetadataField, r"^Missing metadata field 'name'"
+        ):
             parse_rawspec(spec_string)
 
     def test_simple_1_2(self):
@@ -911,8 +915,9 @@ packages = [
 
         # When/Then
         with self.assertRaisesRegexp(
-                InvalidMetadataField,
-                r'^Metadata field is invalid \(metadata_version = None\)$'):
+            InvalidMetadataField,
+            r"^Invalid value for metadata field 'metadata_version': None"
+        ):
             parse_rawspec(spec_s)
 
         # Given a spec_string without some other metadata in >= 1.1
@@ -933,8 +938,8 @@ packages = [
 
         # When/Then
         with self.assertRaisesRegexp(
-                InvalidMetadataField,
-                r'^Metadata field is invalid \(platform = <undefined>\)$'):
+            InvalidMetadataField, r"^Missing metadata field 'platform'"
+        ):
             parse_rawspec(spec_s)
 
         # Given a spec_string without some other metadata in >= 1.2
@@ -956,8 +961,8 @@ packages = [
 
         # When/Then
         with self.assertRaisesRegexp(
-                InvalidMetadataField,
-                r'^Metadata field is invalid \(python_tag = <undefined>\)$'):
+            InvalidMetadataField, r"^Missing metadata field 'python_tag'"
+        ):
             parse_rawspec(spec_s)
 
 
