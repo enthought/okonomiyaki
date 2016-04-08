@@ -13,7 +13,7 @@ from ..errors import (
 )
 from ..platforms import EPDPlatform, PythonImplementation, default_abi
 from ..platforms.legacy import LegacyEPDPlatform
-from ..utils import compute_sha256, parse_assignments
+from ..utils import compute_sha256, decode_if_needed, parse_assignments
 from ..utils.py3compat import StringIO, string_types
 from ..versions import EnpkgVersion, MetadataVersion
 from ._blacklist import (
@@ -169,13 +169,37 @@ def _translate_invalid_requirement(s):
     return _INVALID_REQUIREMENTS.get(s, s)
 
 
+def text_attr(**kw):
+    """ An attrs.attr-like descriptor to describe fields that must be unicode
+    but accept bytes/ascii (which are automatically converted).
+    """
+    for k in ("validator", "convert"):
+        if k in kw:
+            raise ValueError("Cannot pass '{0}' argument".format(k))
+    return attr(
+        validator=instance_of(six.text_type), convert=decode_if_needed, **kw
+    )
+
+
+def text_or_none_attr(**kw):
+    """ An attrs.attr-like descriptor to describe fields that must be unicode
+    or None, but accept bytes/ascii (which are automatically converted).
+    """
+    for k in ("validator", "convert"):
+        if k in kw:
+            raise ValueError("Cannot pass '{0}' argument".format(k))
+    return attr(
+        validator=optional(instance_of(six.text_type)), convert=decode_if_needed, **kw
+    )
+
+
 @attributes
 class Requirement(object):
     """
     Model for entries in the package metadata inside EGG-INFO/spec/depend
     """
-    name = attr("", validator=instance_of(six.string_types))
-    version_string = attr("", validator=instance_of(six.string_types))
+    name = text_attr(default="")
+    version_string = text_attr(default="")
     build_number = attr(-1, validator=instance_of(int))
 
     @property
@@ -393,12 +417,12 @@ class LegacySpecDepend(object):
     This models the EGG-INFO/spec/depend content.
     """
     # Name is taken from egg path, so may be upper case
-    name = attr(validator=instance_of(six.string_types))
+    name = text_attr()
     """
     Egg name
     """
 
-    version = attr(validator=instance_of(six.string_types))
+    version = text_attr()
     """
     Upstream version (as a string).
     """
@@ -408,27 +432,27 @@ class LegacySpecDepend(object):
     Build number
     """
 
-    python = attr(validator=optional(instance_of(six.string_types)))
+    python = text_or_none_attr()
     """
     Python version
     """
 
-    python_tag = attr(validator=optional(instance_of(six.string_types)))
+    python_tag = text_or_none_attr()
     """
     Python tag (as defined in PEP 425).
     """
 
-    abi_tag = attr(validator=optional(instance_of(six.string_types)))
+    abi_tag = text_or_none_attr()
     """
     ABI tag (as defined in PEP 425), except that 'none' is None.
     """
 
-    platform_tag = attr(validator=optional(instance_of(six.string_types)))
+    platform_tag = text_or_none_attr()
     """
     Platform tag (as defined in PEP 425), except that 'any' is None.
     """
 
-    platform_abi = attr(validator=optional(instance_of(six.string_types)))
+    platform_abi = text_or_none_attr()
     """
     Platform abi. None if no abi.
     """

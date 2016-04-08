@@ -1,5 +1,7 @@
 import sys
 
+import six
+
 
 PY2 = sys.version_info[0] == 2
 PY3 = sys.version_info[0] == 3
@@ -74,3 +76,9 @@ def with_metaclass(meta, *bases):
         def __new__(cls, name, this_bases, d):
             return meta(name, bases, d)
     return type.__new__(metaclass, 'temporary_class', (), {})
+
+
+def decode_if_needed(value):
+    if isinstance(value, six.binary_type):
+        return value.decode("utf8")
+    return value
