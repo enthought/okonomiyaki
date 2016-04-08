@@ -5,12 +5,8 @@
 "Rational" version definition and parsing for DistutilsVersionFight
 discussion at PyCon 2009.
 """
-import logging
 import sys
 import re
-
-
-logger = logging.getLogger(__name__)
 
 
 class IrrationalVersionError(Exception):
@@ -202,7 +198,6 @@ class NormalizedVersion(object):
 
     def __eq__(self, other):
         if not isinstance(other, NormalizedVersion):
-            logger.error("error: self.parts = %r, other = %r", self.parts, other)
             self._cannot_compare(other)
         return self.parts == other.parts
 

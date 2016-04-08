@@ -1,4 +1,6 @@
-from ..bundled.traitlets import HasTraits, Instance
+from attr import attributes, attr
+from attr.validators import instance_of
+
 from ..errors import OkonomiyakiError
 
 from .epd_platform import EPDPlatform
@@ -22,8 +24,9 @@ _SUBDIR = [
 ]
 
 
-class LegacyEPDPlatform(HasTraits):
-    _epd_platform = Instance(EPDPlatform)
+@attributes
+class LegacyEPDPlatform(object):
+    _epd_platform = attr(validator=instance_of(EPDPlatform))
 
     @classmethod
     def from_running_system(cls, arch=None):
@@ -43,10 +46,6 @@ class LegacyEPDPlatform(HasTraits):
     def from_epd_platform_string(cls, epd_platform_string):
         _epd_platform = EPDPlatform.from_epd_string(epd_platform_string)
         return cls(_epd_platform)
-
-    def __init__(self, _epd_platform, **kw):
-        super(LegacyEPDPlatform, self).__init__(_epd_platform=_epd_platform,
-                                                **kw)
 
     @property
     def arch(self):
@@ -70,20 +69,6 @@ class LegacyEPDPlatform(HasTraits):
     def subdir(self):
         entry = _get_entry(self.short)
         return entry[1]
-
-    @property
-    def _comp_key(self):
-        return (self.arch, self.platform, self.osdist)
-
-    def __eq__(self, other):
-        if not isinstance(other, LegacyEPDPlatform):
-            return NotImplemented
-        return self._comp_key == other._comp_key
-
-    def __ne__(self, other):
-        if not isinstance(other, LegacyEPDPlatform):
-            return NotImplemented
-        return self._comp_key != other._comp_key
 
     def __str__(self):
         return self.short
