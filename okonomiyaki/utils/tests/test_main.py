@@ -1,11 +1,15 @@
 import io
 import os.path
 import shutil
+import sys
 import tempfile
-import unittest
-
 
 from .. import compute_sha256
+
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
 
 
 class TestSha256(unittest.TestCase):

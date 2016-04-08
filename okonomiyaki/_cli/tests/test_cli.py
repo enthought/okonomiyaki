@@ -1,14 +1,19 @@
 import os.path
 import shutil
+import sys
 import tempfile
 import textwrap
-import unittest
 
 import testfixtures
 
 from okonomiyaki.file_formats import EggMetadata, PackageInfo
 from okonomiyaki.utils.test_data import NOSE_1_3_4_RH5_X86_64
 from okonomiyaki._cli import main
+
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
 
 
 class TestMain(unittest.TestCase):
@@ -91,6 +96,10 @@ class TestMain(unittest.TestCase):
         with testfixtures.OutputCapture() as capture:
             with self.assertRaises(SystemExit) as exc:
                 main(["pkg-info", path])
-            self.assertEqual(exc.exception.code, -1)
+            if sys.version_info < (2, 7):
+                code = exc.exception
+            else:
+                code = exc.exception.code
+            self.assertEqual(code, -1)
 
         capture.compare("No PKG-INFO")

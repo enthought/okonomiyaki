@@ -1,11 +1,15 @@
 import os.path
 import sys
-import unittest
 
 from okonomiyaki.platforms import EPDPlatform
 from okonomiyaki.versions import RuntimeVersion
 
 from ..runtime import PythonRuntime
+
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
 
 
 NORM_EXEC_PREFIX = os.path.normpath(sys.exec_prefix)
