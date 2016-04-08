@@ -14,11 +14,11 @@ IS_RELEASED = False
 VERSION = '%d.%d.%d' % (MAJOR, MINOR, MICRO)
 
 INSTALL_REQUIRES = [
-    "attrs >= 15.1.0",
-    "jsonschema",
+    "attrs >= 15.2.0",
+    "jsonschema >= 2.5.1",
     "six >= 1.9.0",
     "stevedore < 1.10",  # newer versions don't work w/ 2.6
-    "zipfile2 >= 0.0.10",
+    "zipfile2 >= 0.0.12",
 ]
 
 

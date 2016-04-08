@@ -8,7 +8,7 @@ import zipfile2
 
 import mock
 
-if sys.version_info[:2] < (2, 7):
+if sys.version_info < (2, 7):
     import unittest2 as unittest
 else:
     import unittest
@@ -621,114 +621,114 @@ packages = []
 class TestGuessPlatformAbi(unittest.TestCase):
     def test_python_27(self):
         # Given
-        implementation = PythonImplementation.from_string("cp27")
-        platform = EPDPlatform.from_epd_string("rh5-64").platform
+        platform = EPDPlatform.from_epd_string("rh5-64")
+        python_tag = "cp27"
 
         # When
-        abi = _guess_platform_abi(platform, implementation)
+        abi = _guess_platform_abi(platform, python_tag)
 
         # Then
         self.assertEqual(abi, "gnu")
 
         # Given
-        platform = EPDPlatform.from_epd_string("osx-64").platform
+        platform = EPDPlatform.from_epd_string("osx-64")
 
         # When
-        abi = _guess_platform_abi(platform, implementation)
+        abi = _guess_platform_abi(platform, python_tag)
 
         # Then
         self.assertEqual(abi, "darwin")
 
         # Given
-        platform = EPDPlatform.from_epd_string("win-64").platform
+        platform = EPDPlatform.from_epd_string("win-64")
 
         # When
-        abi = _guess_platform_abi(platform, implementation)
+        abi = _guess_platform_abi(platform, python_tag)
 
         # Then
         self.assertEqual(abi, "msvc2008")
 
     def test_python_34(self):
         # Given
-        implementation = PythonImplementation.from_string("cp34")
-        platform = EPDPlatform.from_epd_string("rh5-64").platform
+        platform = EPDPlatform.from_epd_string("rh5-64")
+        python_tag = "cp34"
 
         # When
-        abi = _guess_platform_abi(platform, implementation)
+        abi = _guess_platform_abi(platform, python_tag)
 
         # Then
         self.assertEqual(abi, "gnu")
 
         # Given
-        platform = EPDPlatform.from_epd_string("osx-64").platform
+        platform = EPDPlatform.from_epd_string("osx-64")
 
         # When
-        abi = _guess_platform_abi(platform, implementation)
+        abi = _guess_platform_abi(platform, python_tag)
 
         # Then
         self.assertEqual(abi, "darwin")
 
         # Given
-        platform = EPDPlatform.from_epd_string("win-64").platform
+        platform = EPDPlatform.from_epd_string("win-64")
 
         # When
-        abi = _guess_platform_abi(platform, implementation)
+        abi = _guess_platform_abi(platform, python_tag)
 
         # Then
         self.assertEqual(abi, "msvc2010")
 
     def test_python_35(self):
         # Given
-        implementation = PythonImplementation.from_string("cp35")
-        platform = EPDPlatform.from_epd_string("rh5-64").platform
+        platform = EPDPlatform.from_epd_string("rh5-64")
+        python_tag = "cp35"
 
         # When
-        abi = _guess_platform_abi(platform, implementation)
+        abi = _guess_platform_abi(platform, python_tag)
 
         # Then
         self.assertEqual(abi, "gnu")
 
         # Given
-        platform = EPDPlatform.from_epd_string("osx-64").platform
+        platform = EPDPlatform.from_epd_string("osx-64")
 
         # When
-        abi = _guess_platform_abi(platform, implementation)
+        abi = _guess_platform_abi(platform, python_tag)
 
         # Then
         self.assertEqual(abi, "darwin")
 
         # Given
-        platform = EPDPlatform.from_epd_string("win-64").platform
+        platform = EPDPlatform.from_epd_string("win-64")
 
         # When
-        abi = _guess_platform_abi(platform, implementation)
+        abi = _guess_platform_abi(platform, python_tag)
 
         # Then
         self.assertEqual(abi, "msvc2015")
 
     def test_no_platform(self):
         # Given
-        implementation = PythonImplementation.from_string("cp27")
         platform = None
+        python_tag = "cp27"
 
         # When
-        abi = _guess_platform_abi(platform, implementation)
+        abi = _guess_platform_abi(platform, python_tag)
 
         # Then
         self.assertIsNone(abi)
 
         # Given
-        implementation = PythonImplementation.from_string("cp34")
+        python_tag = "cp34"
 
         # When
-        abi = _guess_platform_abi(platform, implementation)
+        abi = _guess_platform_abi(platform, python_tag)
 
         # Then
         self.assertIsNone(abi)
 
     def test_no_python_implementation(self):
         # Given
-        platform = EPDPlatform.from_epd_string("rh5-64").platform
+        platform = EPDPlatform.from_epd_string("rh5-64")
 
         # When
         abi = _guess_platform_abi(platform, None)
@@ -737,7 +737,7 @@ class TestGuessPlatformAbi(unittest.TestCase):
         self.assertEqual(abi, "gnu")
 
         # Given
-        platform = EPDPlatform.from_epd_string("osx-64").platform
+        platform = EPDPlatform.from_epd_string("osx-64")
 
         # When
         abi = _guess_platform_abi(platform, None)
@@ -746,7 +746,7 @@ class TestGuessPlatformAbi(unittest.TestCase):
         self.assertEqual(abi, "darwin")
 
         # Given
-        platform = EPDPlatform.from_epd_string("win-64").platform
+        platform = EPDPlatform.from_epd_string("win-64")
 
         # When
         abi = _guess_platform_abi(platform, None)

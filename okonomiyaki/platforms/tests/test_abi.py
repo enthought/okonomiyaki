@@ -1,7 +1,12 @@
-import unittest
+import sys
 
 from ...errors import OkonomiyakiError
 from ..abi import default_abi
+
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
 
 
 class TestDefaultABI(unittest.TestCase):

@@ -8,8 +8,8 @@ from attr import attr, attributes
 from attr.validators import instance_of, optional
 
 from ..errors import (
-    InvalidRequirementString, InvalidEggName, InvalidMetadata,
-    InvalidMetadataField, MissingMetadata, UnsupportedMetadata
+    InvalidRequirementString, InvalidEggName, InvalidMetadataField,
+    MissingMetadata, UnsupportedMetadata
 )
 from ..platforms import (
     EPDPlatform, PlatformABI, PythonABI, PythonImplementation, default_abi
@@ -18,6 +18,9 @@ from ..platforms.legacy import LegacyEPDPlatform
 from ..utils import compute_sha256, decode_if_needed, parse_assignments
 from ..utils.py3compat import StringIO, string_types
 from ..versions import EnpkgVersion, MetadataVersion
+from .legacy import (
+    _guess_abi_tag, _guess_platform_abi, _guess_platform_tag, _guess_python_tag
+)
 from ._blacklist import (
     EGG_PLATFORM_BLACK_LIST, EGG_PYTHON_TAG_BLACK_LIST,
     may_be_in_platform_blacklist, may_be_in_python_tag_blacklist,
@@ -33,8 +36,6 @@ _EGG_NAME_RE = re.compile("""
     -
     (?P<build>\d+)
     \.egg$""", re.VERBOSE)
-
-_PYVER_RE = re.compile("(?P<major>\d+)\.(?P<minor>\d+)")
 
 EGG_INFO_PREFIX = "EGG-INFO"
 
@@ -82,8 +83,6 @@ _METADATA_VERSION_TO_KEYS[M("1.4")] = (
 )
 
 _UNSUPPORTED = "unsupported"
-
-_PYVER_RE = re.compile("(?P<major>\d).(?P<minor>\d)")
 
 
 def _are_compatible(left, right):
@@ -343,54 +342,6 @@ packages = {packages}
 }
 
 
-def _guess_python_tag(pyver):
-    """ Guess python_tag from the given python string ("MAJOR.MINOR", e.g. "2.7").
-
-    None may be returned (for egg that don't depend on python)
-    """
-    if pyver in (None, ""):
-        return None
-    else:
-        m = _PYVER_RE.search(pyver)
-        if m is None:
-            raise InvalidMetadataField('python', pyver)
-        else:
-            major = m.groupdict()["major"]
-            minor = m.groupdict()["minor"]
-
-            return "cp" + major + minor
-
-
-def _guess_platform_abi(platform, implementation):
-    """ Guess platform_abi from the given platform and implementation.
-
-    May be None.
-
-    Parameters
-    ----------
-    platform: Platform
-        May be None.
-    implementation: PythonImplementation
-        May be None.
-    """
-    if platform is None:
-        return None
-    else:
-        if implementation is None:
-            # All our eggs so far have been python 2-only
-            implementation = PythonImplementation.from_string("cp27")
-
-        if implementation.kind == "python":
-            return None
-
-        implementation_version = "{0}.{1}".format(
-            implementation.major, implementation.minor
-        )
-        return default_abi(
-            platform, implementation.kind, implementation_version
-        )
-
-
 _METADATA_DEFAULT_VERSION_STRING = "1.4"
 _METADATA_DEFAULT_VERSION = M(_METADATA_DEFAULT_VERSION_STRING)
 
@@ -643,59 +594,10 @@ class Dependencies(object):
         self.build = runtime or ()
 
 
-_TAG_RE = re.compile("""
-    (?P<interpreter>(cp|pp|cpython|py))
-    (?P<version>([\d_]+))
-""", flags=re.VERBOSE)
-
-
-def _python_tag_to_python(python_tag):
-    # This converts only python version we currently intent to support in
-    # metadata version 1.x.
-    if python_tag is None:
-        return None
-
-    generic_exc = InvalidMetadataField('python_tag', python_tag)
-
-    m = _TAG_RE.match(python_tag)
-    if m is None:
-        raise generic_exc
-    else:
-        d = m.groupdict()
-        version = d["version"]
-        if len(version) == 1:
-            if version == "2":
-                return "2.7"
-            else:
-                raise generic_exc
-        elif len(version) == 2:
-            return "{0}.{1}".format(version[0], version[1])
-        else:
-            raise generic_exc
-
 
 def _metadata_version_to_tuple(metadata_version):
     """ Convert a metadata version string to a tuple for comparison."""
     return tuple(int(s) for s in metadata_version.split("."))
-
-
-def _guess_abi_tag(platform, python_tag):
-    assert python_tag is not None, "BUG, this function expects a python_tag"
-
-    # For legacy (aka legacy spec version info < 1.3), we know that pyver
-    # can only be one of "2.X" with X in (5, 6, 7).
-    #
-    # In those cases, the mapping (platform pyver) -> ABI is unambiguous,
-    # as we only ever used one ABI for a given python version/platform.
-    pyver = _python_tag_to_python(python_tag)
-    return "cp{0}{1}m".format(pyver[0], pyver[2])
-
-
-def _guess_platform_tag(platform):
-    if platform is None:
-        return None
-
-    return platform.pep425_tag
 
 
 def _normalized_info_from_string(spec_depend_string, epd_platform=None,
@@ -730,46 +632,18 @@ def _normalized_info_from_string(spec_depend_string, epd_platform=None,
             )
         else:
             data[_TAG_PYTHON_PEP425_TAG] = raw_data[_TAG_PYTHON_PEP425_TAG]
-    if data[_TAG_PYTHON_PEP425_TAG] is None:
-        python_implementation = None
-    else:
-        python_implementation = PythonImplementation.from_string(
-            data[_TAG_PYTHON_PEP425_TAG]
-        )
 
     if metadata_version < M("1.3"):
         python_tag = data[_TAG_PYTHON_PEP425_TAG]
-
-        if python_tag is None:
-            # No python tag, so should only be a "pure binary" egg, i.e.
-            # an egg containing no python code and no python C extensions.
-            abi = None
-        elif epd_platform is None:
-            # No platform, so should only be a "pure python" egg, i.e.
-            # an egg containing no C extension.
-            abi = None
-        else:
-            abi = _guess_abi_tag(epd_platform, python_tag)
-        data[_TAG_ABI_PEP425_TAG] = abi
+        data[_TAG_ABI_PEP425_TAG] = _guess_abi_tag(epd_platform, python_tag)
+        data[_TAG_PLATFORM_PEP425_TAG] = _guess_platform_tag(epd_platform)
     else:
         data[_TAG_ABI_PEP425_TAG] = raw_data[_TAG_ABI_PEP425_TAG]
-
-    if metadata_version < M("1.3"):
-        if epd_platform is None:
-            platform_tag = None
-        else:
-            platform_tag = _guess_platform_tag(epd_platform)
-        data[_TAG_PLATFORM_PEP425_TAG] = platform_tag
-    else:
         data[_TAG_PLATFORM_PEP425_TAG] = raw_data[_TAG_PLATFORM_PEP425_TAG]
 
     if metadata_version < M("1.4"):
-        if epd_platform is None:
-            platform = None
-        else:
-            platform = epd_platform.platform
-
-        platform_abi = _guess_platform_abi(platform, python_implementation)
+        python_tag = data[_TAG_PYTHON_PEP425_TAG]
+        platform_abi = _guess_platform_abi(epd_platform, python_tag)
     else:
         platform_abi = raw_data[_TAG_PLATFORM_ABI]
     data[_TAG_PLATFORM_ABI] = platform_abi

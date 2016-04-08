@@ -1,5 +1,5 @@
 import mock
-import unittest
+import sys
 
 from ...errors import OkonomiyakiError
 
@@ -16,6 +16,11 @@ from .common import (
     mock_centos_6_3, mock_darwin, mock_machine_x86, mock_machine_x86_64,
     mock_solaris, mock_ubuntu_raring, mock_windows, mock_x86, mock_x86_64
 )
+
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
 
 
 class TestEPDPlatform(unittest.TestCase):
@@ -139,7 +144,7 @@ class TestEPDPlatform(unittest.TestCase):
     def test_epd_platform_from_string_new_arch(self):
         def old_to_new_name(epd_platform_string):
             left, right = epd_platform_string.split("-")
-            return "{}-{}".format(left, {"32": X86, "64": X86_64}[right])
+            return "{0}-{1}".format(left, {"32": X86, "64": X86_64}[right])
 
         # Given
         name_to_platform = {}

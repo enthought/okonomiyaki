@@ -203,7 +203,7 @@ class EPDPlatform(object):
                     epd_string = "win_" + str(Arch.from_name(arch_string))
             else:
                 raise NotImplementedError(
-                    "Unsupported platform '{}'".format(platform_tag)
+                    "Unsupported platform '{0}'".format(platform_tag)
                 )
 
             return cls.from_epd_string(epd_string)
