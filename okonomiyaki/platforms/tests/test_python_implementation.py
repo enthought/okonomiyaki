@@ -50,8 +50,9 @@ class TestPythonImplementation(unittest.TestCase):
 
         # When/Then
         with self.assertRaisesRegexp(
-                InvalidMetadataField,
-                r"^Metadata field is invalid \(python_tag = 'cp'\)$"):
+            InvalidMetadataField,
+            r"^Invalid value for metadata field 'python_tag': 'cp'"
+        ):
             PythonImplementation.from_string(s)
 
         # Given
@@ -59,8 +60,9 @@ class TestPythonImplementation(unittest.TestCase):
 
         # When/Then
         with self.assertRaisesRegexp(
-                InvalidMetadataField,
-                r"^Metadata field is invalid \(python_tag = 'py2'\)$"):
+            InvalidMetadataField,
+            r"^Invalid value for metadata field 'python_tag': 'py2'$"
+        ):
             PythonImplementation.from_string(s)
 
         # Given
@@ -68,8 +70,9 @@ class TestPythonImplementation(unittest.TestCase):
 
         # When/Then
         with self.assertRaisesRegexp(
-                InvalidMetadataField,
-                r"^Metadata field is invalid \(python_tag = 'py234'\)$"):
+            InvalidMetadataField,
+            r"^Invalid value for metadata field 'python_tag': 'py234'$"
+        ):
             PythonImplementation.from_string(s)
 
     def test_simple(self):
@@ -125,8 +128,9 @@ class TestPythonImplementation(unittest.TestCase):
 
         # When/Then
         with self.assertRaisesRegexp(
-                InvalidMetadataField,
-                r"^Metadata field is invalid \(python_tag = 'py3'\)$"):
+            InvalidMetadataField,
+            r"^Invalid value for metadata field 'python_tag': 'py3'$"
+        ):
             PythonImplementation.from_string(tag_string)
 
         # Given
@@ -134,6 +138,7 @@ class TestPythonImplementation(unittest.TestCase):
 
         # When/Then
         with self.assertRaisesRegexp(
-                InvalidMetadataField,
-                r"^Metadata field is invalid \(python_tag = 'py345'\)$"):
+            InvalidMetadataField,
+            r"^Invalid value for metadata field 'python_tag': 'py345'$"
+        ):
             PythonImplementation.from_string(tag_string)

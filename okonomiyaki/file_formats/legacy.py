@@ -104,8 +104,7 @@ def _guess_python_tag(major_minor):
     else:
         m = _PYVER_RE.search(major_minor)
         if m is None:
-            msg = "python_tag cannot be guessed for python = {0}"
-            raise InvalidMetadata(msg.format(major_minor))
+            raise InvalidMetadataField('python', major_minor)
         else:
             major = m.groupdict()["major"]
             minor = m.groupdict()["minor"]

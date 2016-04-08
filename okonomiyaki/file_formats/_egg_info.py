@@ -1,19 +1,20 @@
 import posixpath
 import re
+
+import six
 import zipfile2
 
-from ..bundled.traitlets import (
-    HasTraits, Instance, List, Long, Unicode
-)
+from attr import attr, attributes
+from attr.validators import instance_of, optional
+
 from ..errors import (
     InvalidRequirementString, InvalidEggName, InvalidMetadataField,
     MissingMetadata, UnsupportedMetadata
 )
 from ..platforms import EPDPlatform, PythonImplementation
 from ..platforms.legacy import LegacyEPDPlatform
-from ..utils import compute_sha256, parse_assignments
+from ..utils import compute_sha256, decode_if_needed, parse_assignments
 from ..utils.py3compat import StringIO, string_types
-from ..utils.traitlets import NoneOrInstance, NoneOrUnicode
 from ..versions import EnpkgVersion, MetadataVersion
 from .legacy import (
     _guess_abi_tag, _guess_platform_abi, _guess_platform_tag, _guess_python_tag
@@ -167,20 +168,38 @@ def _translate_invalid_requirement(s):
     return _INVALID_REQUIREMENTS.get(s, s)
 
 
-class Requirement(HasTraits):
+def text_attr(**kw):
+    """ An attrs.attr-like descriptor to describe fields that must be unicode
+    but accept bytes/ascii (which are automatically converted).
+    """
+    for k in ("validator", "convert"):
+        if k in kw:
+            raise ValueError("Cannot pass '{0}' argument".format(k))
+    return attr(
+        validator=instance_of(six.text_type), convert=decode_if_needed, **kw
+    )
+
+
+def text_or_none_attr(**kw):
+    """ An attrs.attr-like descriptor to describe fields that must be unicode
+    or None, but accept bytes/ascii (which are automatically converted).
+    """
+    for k in ("validator", "convert"):
+        if k in kw:
+            raise ValueError("Cannot pass '{0}' argument".format(k))
+    return attr(
+        validator=optional(instance_of(six.text_type)), convert=decode_if_needed, **kw
+    )
+
+
+@attributes
+class Requirement(object):
     """
     Model for entries in the package metadata inside EGG-INFO/spec/depend
     """
-    name = Unicode()
-    version_string = Unicode()
-    build_number = Long(-1)
-
-    def __init__(self, name="", version_string="", build_number=-1):
-        self.name = name
-        self.version_string = version_string
-        self.build_number = build_number
-        super(Requirement, self).__init__(self, name, version_string,
-                                          build_number)
+    name = text_attr(default="")
+    version_string = text_attr(default="")
+    build_number = attr(-1, validator=instance_of(int))
 
     @property
     def strictness(self):
@@ -254,21 +273,6 @@ class Requirement(HasTraits):
                 return "{0} {1}".format(self.name, self.version_string)
         else:
             return self.name
-
-    @property
-    def _key(self):
-        return (self.name, self.version_string, self.build_number)
-
-    def __eq__(self, other):
-        if not isinstance(other, type(self)):
-            return False
-        return self._key == other._key
-
-    def __ne__(self, other):
-        return not (self == other)
-
-    def __hash__(self):
-        return hash(self._key)
 
 
 _METADATA_TEMPLATES = {
@@ -358,57 +362,62 @@ def _epd_platform_from_raw_spec(raw_spec):
         )
 
 
-class LegacySpecDepend(HasTraits):
+@attributes
+class LegacySpecDepend(object):
     """
     This models the EGG-INFO/spec/depend content.
     """
     # Name is taken from egg path, so may be upper case
-    name = Unicode()
+    name = text_attr()
     """
     Egg name
     """
-    version = Unicode()
+
+    version = text_attr()
     """
     Upstream version (as a string).
     """
-    build = Long()
+
+    build = attr(validator=instance_of(int))
     """
     Build number
     """
 
-    python = NoneOrUnicode()
+    python = text_or_none_attr()
     """
     Python version
     """
 
-    python_tag = NoneOrUnicode()
+    python_tag = text_or_none_attr()
     """
     Python tag (as defined in PEP 425).
     """
 
-    abi_tag = NoneOrUnicode()
+    abi_tag = text_or_none_attr()
     """
     ABI tag (as defined in PEP 425), except that 'none' is None.
     """
 
-    platform_tag = NoneOrUnicode()
+    platform_tag = text_or_none_attr()
     """
     Platform tag (as defined in PEP 425), except that 'any' is None.
     """
 
-    platform_abi = NoneOrUnicode()
+    platform_abi = text_or_none_attr()
     """
     Platform abi. None if no abi.
     """
 
-    packages = List(Instance(Requirement))
+    packages = attr(validator=instance_of(list))
     """
     List of dependencies for this egg
     """
 
-    _epd_legacy_platform = NoneOrInstance(LegacyEPDPlatform)
+    _epd_legacy_platform = attr(
+        validator=optional(instance_of(LegacyEPDPlatform))
+    )
 
-    _metadata_version = Instance(MetadataVersion)
+    _metadata_version = attr(validator=instance_of(MetadataVersion))
 
     @classmethod
     def _from_data(cls, data, epd_platform):
@@ -428,7 +437,19 @@ class LegacySpecDepend(HasTraits):
             for s in args.get(_TAG_PACKAGES, [])
         ]
 
-        return cls(**args)
+        return cls(
+            args["name"],
+            args["version"],
+            args["build"],
+            args["python"],
+            args["python_tag"],
+            args["abi_tag"],
+            args["platform_tag"],
+            args["platform_abi"],
+            args["packages"],
+            args["_epd_legacy_platform"],
+            args["metadata_version"],
+        )
 
     @classmethod
     def from_egg(cls, path_or_file):
@@ -923,9 +944,10 @@ class EggMetadata(object):
             )
 
         if self.platform is None:
-            _epd_legacy_platform = None
+            epd_platform = None
         else:
-            _epd_legacy_platform = LegacyEPDPlatform(self.platform)
+            legacy_epd_platform = LegacyEPDPlatform(self.platform)
+            epd_platform = legacy_epd_platform._epd_platform
 
         args = {
             "name": self._raw_name,
@@ -936,11 +958,10 @@ class EggMetadata(object):
             "abi_tag": self.abi_tag,
             "platform_tag": self.platform_tag,
             "platform_abi": self.platform_abi,
-            "packages": [p for p in self.runtime_dependencies],
-            "_epd_legacy_platform": _epd_legacy_platform,
-            "_metadata_version": self.metadata_version,
+            "packages": [str(p) for p in self.runtime_dependencies],
+            "metadata_version": str(self.metadata_version),
         }
-        return LegacySpecDepend(**args)
+        return LegacySpecDepend._from_data(args, epd_platform)
 
     # Public methods
     def dump(self, path):

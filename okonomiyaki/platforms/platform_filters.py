@@ -1,44 +1,47 @@
 from __future__ import absolute_import
 
-from ..bundled.traitlets import HasTraits, Bool, Enum, Instance, List, Unicode
+import six
+
+from attr import attr, attributes
+from attr.validators import instance_of, optional
+
 from ..errors import OkonomiyakiError
 
+from ._arch import Arch
 from .epd_platform import EPDPlatform
-from .platform import DARWIN, LINUX, SOLARIS, WINDOWS
-from .platform import CENTOS, RHEL, DEBIAN, UBUNTU, MAC_OS_X
-from .platform import Arch
+from .platform import OSKind, FamilyKind, NameKind
 
 
-class PlatformLabel(HasTraits):
+@attributes
+class PlatformLabel(object):
     """
     A platform filter.
     """
 
-    os = Enum([WINDOWS, LINUX, DARWIN, SOLARIS, None])
+    os_kind = attr(validator=optional(instance_of(OSKind)), default=None)
     """
     The most generic OS description
     """
 
-    name = Enum([WINDOWS, CENTOS, RHEL, DEBIAN, UBUNTU, MAC_OS_X, SOLARIS,
-                 None])
+    name_kind = attr(validator=optional(instance_of(NameKind)), default=None)
     """
     The most specific platform description
     """
 
-    family = Enum([WINDOWS, RHEL, DEBIAN, MAC_OS_X, SOLARIS, None])
+    family_kind = attr(validator=optional(instance_of(FamilyKind)), default=None)
     """
     The 'kind' of platforms. For example, both debian and ubuntu distributions
     share the same kind, 'debian'.
     """
 
-    release = Unicode()
-    """
-    The release string. May be empty
-    """
-
-    arch = Instance(Arch)
+    arch = attr(validator=optional(instance_of(Arch)), default=None)
     """
     Actual architecture. May be None.
+    """
+
+    release = attr(validator=instance_of(six.string_types), default="")
+    """
+    The release string. May be empty
     """
 
     @classmethod
@@ -48,11 +51,13 @@ class PlatformLabel(HasTraits):
         """
         def _epd_name_to_quadruplet(name):
             if name == "rh":
-                return (LINUX, RHEL, RHEL, "")
+                return (OSKind.linux, NameKind.rhel, FamilyKind.rhel, "")
             else:
                 platform = EPDPlatform.from_epd_string(name + "-32").platform
-                return (platform.os, platform.name, platform.family,
-                        platform.release)
+                return (
+                    platform.os_kind, platform.name_kind, platform.family_kind,
+                    platform.release
+                )
 
         parts = s.split("-")
         if len(parts) == 2:
@@ -75,40 +80,35 @@ class PlatformLabel(HasTraits):
             msg = "Invalid epd string: {0!r}".format(s)
             raise OkonomiyakiError(msg)
 
-    def __init__(self, os=None, name=None, family=None, arch=None, release=""):
-        super(PlatformLabel, self).__init__(os=os, name=name, family=family,
-                                            arch=arch, release=release)
-
     def matches(self, platform):
         """ Returns True if the given platform matches this label."""
-        if self.os and platform.os != self.os:
+        if self.os_kind is not None and platform.os_kind != self.os_kind:
             return False
 
-        if self.family and platform.family != self.family:
+        if self.family_kind is not None and platform.family_kind != self.family_kind:
             return False
 
-        if self.name and platform.name != self.name:
+        if self.name_kind is not None and platform.name_kind != self.name_kind:
             return False
 
         if self.release and platform.release != self.release:
             return False
 
-        if self.arch and platform.arch != self.arch:
+        if self.arch is not None and platform.arch != self.arch:
             return False
 
         return True
 
 
-class PlatformLiteral(HasTraits):
-    label = Instance(PlatformLabel)
-    is_true = Bool(True)
-
-    def __init__(self, label, is_true=True):
-        super(PlatformLiteral, self).__init__(label=label, is_true=is_true)
+@attributes
+class PlatformLiteral(object):
+    label = attr(validator=instance_of(PlatformLabel))
+    is_true = attr(validator=instance_of(bool), default=True)
 
 
-class PlatformFilter(HasTraits):
-    platform_labels = List(Instance(PlatformLiteral))
+@attributes
+class PlatformFilter(object):
+    platform_labels = attr(validator=instance_of(list))
 
     @classmethod
     def from_legacy_string(cls, s):
@@ -127,16 +127,14 @@ class PlatformFilter(HasTraits):
 
         return cls(literals)
 
-    def __init__(self, labels):
-        super(PlatformFilter, self).__init__(platform_labels=labels)
-
     def matches(self, platform):
         for platform_label in self.platform_labels:
-            if ((platform_label.is_true
-                 and not platform_label.label.matches(platform))
-                or
+            if (
+                (platform_label.is_true
+                 and not platform_label.label.matches(platform)) or
                 (not platform_label.is_true
-                 and platform_label.label.matches(platform))):
+                 and platform_label.label.matches(platform))
+            ):
                 return False
 
         return True

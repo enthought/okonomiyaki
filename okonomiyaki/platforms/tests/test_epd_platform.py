@@ -5,11 +5,11 @@ from ...errors import OkonomiyakiError
 
 from .. import EPDPlatform
 from ..epd_platform import (
-    _guess_epd_platform, EPD_PLATFORM_SHORT_NAMES, applies
+    _guess_epd_platform, EPD_PLATFORM_SHORT_NAMES, X86, X86_64, applies
 )
 from ..legacy import _SUBDIR
-from ..platform import DARWIN, LINUX, MAC_OS_X, RHEL, WINDOWS
-from .._arch import Arch, X86, X86_64
+from ..platform import OSKind, FamilyKind, NameKind
+from .._arch import Arch
 
 from .common import (
     mock_architecture_32bit, mock_architecture_64bit, mock_centos_5_8,
@@ -182,6 +182,24 @@ class TestEPDPlatform(unittest.TestCase):
 
         # Then
         self.assertEqual(str(epd_platform), s)
+
+    def test_pep425_tag(self):
+        # Given
+        epd_string_to_pep425 = (
+            ("rh5_x86", "linux_i686"),
+            ("rh5_x86_64", "linux_x86_64"),
+            ("osx_x86", "macosx_10_6_i386"),
+            ("osx_x86_64", "macosx_10_6_x86_64"),
+            ("win_x86", "win32"),
+            ("win_x86_64", "win_amd64"),
+        )
+
+        # When/Then
+        for epd_string, platform_tag in epd_string_to_pep425:
+            self.assertEqual(
+                EPDPlatform.from_epd_string(epd_string).pep425_tag,
+                platform_tag,
+            )
 
 
 class TestEPDPlatformApplies(unittest.TestCase):
@@ -390,11 +408,11 @@ class TestGuessEPDPlatform(unittest.TestCase):
 
         # Then
         platform = epd_platform.platform
-        self.assertEqual(platform.os, LINUX)
-        self.assertEqual(platform.family, RHEL)
-        self.assertEqual(platform.name, RHEL)
-        self.assertEqual(platform.arch, Arch.from_name(X86))
-        self.assertEqual(platform.machine, Arch.from_name(X86))
+        self.assertEqual(platform.os_kind, OSKind.linux)
+        self.assertEqual(platform.family_kind, FamilyKind.rhel)
+        self.assertEqual(platform.name_kind, NameKind.rhel)
+        self.assertEqual(platform.arch, X86)
+        self.assertEqual(platform.machine, X86)
 
         # Given
         epd_platform_string = "win-32"
@@ -404,11 +422,11 @@ class TestGuessEPDPlatform(unittest.TestCase):
 
         # Then
         platform = epd_platform.platform
-        self.assertEqual(platform.os, WINDOWS)
-        self.assertEqual(platform.family, WINDOWS)
-        self.assertEqual(platform.name, WINDOWS)
-        self.assertEqual(platform.arch, Arch.from_name(X86))
-        self.assertEqual(platform.machine, Arch.from_name(X86))
+        self.assertEqual(platform.os_kind, OSKind.windows)
+        self.assertEqual(platform.family_kind, FamilyKind.windows)
+        self.assertEqual(platform.name_kind, NameKind.windows)
+        self.assertEqual(platform.arch, X86)
+        self.assertEqual(platform.machine, X86)
 
         # Given
         epd_platform_string = "osx-64"
@@ -418,11 +436,11 @@ class TestGuessEPDPlatform(unittest.TestCase):
         platform = epd_platform.platform
 
         # Then
-        self.assertEqual(platform.os, DARWIN)
-        self.assertEqual(platform.family, MAC_OS_X)
-        self.assertEqual(platform.name, MAC_OS_X)
-        self.assertEqual(platform.arch, Arch.from_name(X86_64))
-        self.assertEqual(platform.machine, Arch.from_name(X86_64))
+        self.assertEqual(platform.os_kind, OSKind.darwin)
+        self.assertEqual(platform.family_kind, FamilyKind.mac_os_x)
+        self.assertEqual(platform.name_kind, NameKind.mac_os_x)
+        self.assertEqual(platform.arch, X86_64)
+        self.assertEqual(platform.machine, X86_64)
 
     def test_from_epd_platform_string_invalid(self):
         # Given
