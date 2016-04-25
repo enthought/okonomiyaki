@@ -38,6 +38,11 @@ R_DEFAULT_3_0_0_RH5_X86_64 = os.path.join(
     _HERE, "r-3.0.0+1-rh5_x86_64-gnu.runtime",
 )
 
+# Invalid runtimes
+INVALID_RUNTIME_NO_METADATA_VERSION = os.path.join(
+    _HERE, "cpython-2.7.9+2-rh5_x86_64-gnu.runtime.invalid",
+)
+
 # Dummmy eggs for testing
 _RH5_X86_64 = os.path.join(_HERE, "eggs", "rh5_x86_64")
 
