@@ -198,7 +198,7 @@ def runtime_metadata_factory(path_or_file):
         for k in ("metadata_version", "implementation"):
             if k not in json_dict:
                 raise MissingMetadata(
-                    "Missing runtime metadata field {!r}".format(k)
+                    "Missing runtime metadata field {0!r}".format(k)
                 )
         return (
             MetadataVersion.from_string(json_dict["metadata_version"]),
