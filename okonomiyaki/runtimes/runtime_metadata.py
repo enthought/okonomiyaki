@@ -195,6 +195,11 @@ def runtime_metadata_factory(path_or_file):
         The path to the runtime package. May be a ZipFile instance.
     """
     def _factory_key_from_metadata(json_dict):
+        for k in ("metadata_version", "implementation"):
+            if k not in json_dict:
+                raise MissingMetadata(
+                    "Missing runtime metadata field {!r}".format(k)
+                )
         return (
             MetadataVersion.from_string(json_dict["metadata_version"]),
             json_dict["implementation"]

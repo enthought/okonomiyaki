@@ -8,9 +8,9 @@ from okonomiyaki.errors import (
     InvalidMetadata, MissingMetadata, UnsupportedMetadata)
 from okonomiyaki.utils import tempdir
 from okonomiyaki.utils.test_data import (
-    JULIA_DEFAULT_0_3_11_RH5_X86_64, PYTHON_CPYTHON_2_7_10_RH5_X86_64,
-    PYTHON_CPYTHON_2_7_10_RH5_X86_64_INVALID, PYTHON_PYPY_2_6_0_RH5_X86_64,
-    R_DEFAULT_3_0_0_RH5_X86_64
+    INVALID_RUNTIME_NO_METADATA_VERSION, JULIA_DEFAULT_0_3_11_RH5_X86_64,
+    PYTHON_CPYTHON_2_7_10_RH5_X86_64, PYTHON_CPYTHON_2_7_10_RH5_X86_64_INVALID,
+    PYTHON_PYPY_2_6_0_RH5_X86_64, R_DEFAULT_3_0_0_RH5_X86_64
 )
 from okonomiyaki.versions import MetadataVersion
 
@@ -235,3 +235,14 @@ class TestRuntimeMetadataFactory(unittest.TestCase):
                 zp.writestr("dummy", b"dummy data")
             with self.assertRaises(MissingMetadata):
                 runtime_metadata_factory(target)
+
+    def test_missing_metadata(self):
+        # Given
+        path = INVALID_RUNTIME_NO_METADATA_VERSION
+
+        # When/Then
+        with self.assertRaisesRegexp(
+            MissingMetadata,
+            r"^Missing runtime metadata field 'metadata_version'$"
+        ):
+            metadata = runtime_metadata_factory(path)
