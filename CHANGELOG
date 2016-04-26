@@ -1,6 +1,20 @@
 Changes since 0.14.0
 --------------------
 
+Enhancements:
+
+  * add `platform_abi` field to `EggMetadata`
+
+Bug fixes:
+
+  * raise the correct exception for invalid egg metadata (#156)
+  * raise the correct exception for missing metadata in runtimes (#165)
+
+Internal changes:
+
+  * enum34 is used instead of traitlets (#55)
+  * traitlets is not used anymore (#56, #115, #145)
+
 2015-12-09   0.14.0:
 --------------------
 
