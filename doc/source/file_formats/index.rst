@@ -1,5 +1,8 @@
 .. _file_formats:
 
+.. include:: eggs.rst.inc
+
+========
 Runtimes
 ========
 

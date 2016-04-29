@@ -78,3 +78,27 @@ class.
 
 .. autoclass:: Platform
     :members:
+
+Version representations
+=======================
+
+.. currentmodule:: okonomiyaki.versions
+
+Each class has a `from_string` constructor to build the corresponding object
+from its string representation. Those classes are designed to compare versions
+between them (intra class, you obviously cannot compare a version from one kind
+to a version of a different kind).
+
+To manipulate versions in Enthought' eggs, you should use :py:class:`EnpkgVersion`.
+
+.. autoclass:: PEP440Version
+   :members:
+
+.. autoclass:: EnpkgVersion
+   :members:
+
+.. autoclass:: SemanticVersion
+   :members:
+
+.. autoclass:: MetadataVersion
+   :members:

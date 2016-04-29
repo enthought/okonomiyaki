@@ -15,7 +15,9 @@ specificities. It includes:
 * various utilities for platform detection
 * a minimalistic CLI to query egg metadata from the command line.
 
-Example::
+Example:
+
+   .. code-block:: shell
 
     $ python -m okonomiyaki --spec-depend numpy-1.9.2-3.egg
     metadata_version = '1.3'
