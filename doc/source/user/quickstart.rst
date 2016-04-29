@@ -8,6 +8,60 @@ started with okonomiyaki.
 
 Let's get started with some simple examples.
 
+Querying an Enthought egg metadata
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Begin by importing the :class:`EggMetadata
+<okonomiyaki.file_formats.EggMetadata>` class::
+
+    >>> from okonomiyaki.file_formats import EggMetadata
+
+Now, to query metadata of an existing egg::
+
+    >>> metadata = EggMetadata.from_egg("enstaller-4.8.4-1.egg")
+    >>> print(metadata.name)
+    enstaller
+    >>> print(metadata.abi_tag)
+    None
+
+
+Packaging files into an Enthought egg
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you want to packages existing files into an egg, you should use the
+:class:`EggBuilder <okonomiyaki.file_formats.EggBuilder>` class::
+
+    from okonomiyaki.file_formats import EggBuilder
+
+    metadata = EggMetadata(....)
+
+    with EggBuilder(metadata) as builder:
+        builder.add_tree("./usr", "EGG-INFO/usr")
+
+This will create an egg with the given metadata, adding every file in
+"./usr" into the egg.
+
+.. note:: EggMetadata constructor is considered private. You generally do not
+        want to create a new EggMetadata instance from scratch, but modify an existing
+        one::
+
+         metadata = EggMetadata.from_egg("enstaller-4.8.4-1.egg")
+         new_metadata = EggMetadata.from_egg_metadata(metadata, name="yolo")
+         ...
+
+Repackaging an existing setuptools egg
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you want to create an Enthought egg from an existing setuptools egg,
+you should use the EggRewriter class::
+
+    from okonomiyaki.file_formats import EggBuilder
+
+    # Create metadata using the EggMetadata class to add platform,
+    # dependencies information
+    with EggRewriter(metadata, "foo-2.3-py2.7.egg") as rewriter:
+        rewriter.add_file("dummy.txt", "EGG-INFO/dummy.txt")
+
 Querying a jaguar runtime
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -23,52 +77,9 @@ To query metadata of an existing runtime::
     >>> metadata = runtime_metadata_factory("python-cpython-2.7.10-1-rh5_x86_64.runtime")
     >>> print(metadata.implementation)
 
-Every metadata instance shares the attributes of the class RuntimeMetadataV1,
-but each instance may have additional attributes depending on the language.
-
-Querying an Enthought egg metadata
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Begin by importing the :class:`EggMetadata
-<okonomiyaki.file_formats.EggMetadata>` class::
-
-    >>> from okonomiyaki.file_formats import EggMetadata
-
-Now, to query metadata of an existing egg::
-
-    >>> metadata = EggMetadata.from_path("enstaller-4.8.4-1.egg")
-    >>> print(metadata.name)
-    enstaller
-    >>> print(metadata.abi_tag)
-    None
-
-
-Packaging files into an Enthought egg
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-If you want to packages existing files into an egg, you should use the
-EggBuilder class::
-
-    from okonomiyaki.file_formats import EggBuilder
-
-    with EggBuilder(metadata) as builder:
-        builder.add_tree("./usr", "EGG-INFO/usr")
-
-This will create an egg with the given metadata, adding every file in
-"./usr" into the egg.
-
-Repackaging an existing setuptools egg
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-If you want to create an Enthought egg from an existing setuptools egg,
-you should use the EggRewriter class::
-
-    from okonomiyaki.file_formats import EggBuilder
-
-    # Create metadata using the EggMetadata class to add platform,
-    # dependencies information
-    with EggRewriter(metadata, "foo-2.3-py2.7.egg") as rewriter:
-        rewriter.add_file("dummy.txt", "EGG-INFO/dummy.txt")
+Every metadata instance shares the attributes of the class
+:class:`RuntimeMetadataV1 <okonomiyaki.runtimes.RuntimeMetadataV1>`, but each
+instance may have additional attributes depending on the language.
 
 Platform representations
 ------------------------
@@ -77,7 +88,7 @@ Platform representations
 
 There are 2 main classes to deal with platform representations in
 okonomiyaki, :class:`Platform <okonomiyaki.platforms.Platform>`
-nd :class:`EPDPlatform <okonomiyaki.platforms.EPDPlatform>`.
+and :class:`EPDPlatform <okonomiyaki.platforms.EPDPlatform>`.
 
 Platform are generic representations, and provide a consistent API to
 query various details about a given platform, that is an OS + architecture

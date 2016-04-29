@@ -33,8 +33,8 @@ This is a class to build Enthought eggs from an install tree
     :members:
     :inherited-members:
 
-EggBuilder class
-----------------
+EggRewriter class
+-----------------
 
 This is a class to build Enthought eggs from an existing setuptools egg.
 
@@ -77,17 +77,4 @@ Generic platform representations are available through the `Platform`
 class.
 
 .. autoclass:: Platform
-    :members:
-
-Repositories format
-===================
-
-.. currentmodule:: okonomiyaki.repositories
-
-Classes in this module model our different index entries.
-
-GritsEggEntry can be used to automatically create the grits key, tags and
-metadata from an egg package.
-
-.. autoclass:: GritsEggEntry
     :members:
