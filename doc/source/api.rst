@@ -33,8 +33,8 @@ This is a class to build Enthought eggs from an install tree
     :members:
     :inherited-members:
 
-EggBuilder class
-----------------
+EggRewriter class
+-----------------
 
 This is a class to build Enthought eggs from an existing setuptools egg.
 
@@ -79,15 +79,26 @@ class.
 .. autoclass:: Platform
     :members:
 
-Repositories format
-===================
+Version representations
+=======================
 
-.. currentmodule:: okonomiyaki.repositories
+.. currentmodule:: okonomiyaki.versions
 
-Classes in this module model our different index entries.
+Each class has a `from_string` constructor to build the corresponding object
+from its string representation. Those classes are designed to compare versions
+between them (intra class, you obviously cannot compare a version from one kind
+to a version of a different kind).
 
-GritsEggEntry can be used to automatically create the grits key, tags and
-metadata from an egg package.
+To manipulate versions in Enthought' eggs, you should use :py:class:`EnpkgVersion`.
 
-.. autoclass:: GritsEggEntry
-    :members:
+.. autoclass:: PEP440Version
+   :members:
+
+.. autoclass:: EnpkgVersion
+   :members:
+
+.. autoclass:: SemanticVersion
+   :members:
+
+.. autoclass:: MetadataVersion
+   :members:

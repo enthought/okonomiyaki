@@ -29,4 +29,4 @@ or runtime packaging format, this part of the documentation is for you.
 .. toctree::
    :maxdepth: 2
 
-   file_formats
+   file_formats/index
