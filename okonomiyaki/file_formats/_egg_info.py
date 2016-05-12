@@ -664,6 +664,14 @@ class EggMetadata(object):
     well.
     """
 
+    @staticmethod
+    def _may_be_in_blacklist(path):
+        return (
+            may_be_in_platform_blacklist(path)
+            or may_be_in_pkg_info_blacklist(path)
+            or may_be_in_python_tag_blacklist(path)
+        )
+
     @classmethod
     def from_egg(cls, path_or_file, strict=True):
         """ Create a EggMetadata instance from an existing Enthought egg.
@@ -680,11 +688,7 @@ class EggMetadata(object):
         """
         sha256 = None
         if isinstance(path_or_file, string_types):
-            if (
-                may_be_in_platform_blacklist(path_or_file)
-                or may_be_in_pkg_info_blacklist(path_or_file)
-                or may_be_in_python_tag_blacklist(path_or_file)
-            ):
+            if cls._may_be_in_blacklist(path_or_file):
                 sha256 = compute_sha256(path_or_file)
         else:
             with _keep_position(path_or_file.fp):
