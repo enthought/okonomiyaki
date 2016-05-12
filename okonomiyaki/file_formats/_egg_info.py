@@ -703,20 +703,24 @@ class EggMetadata(object):
                 summary = b""
             return summary.decode("utf8")
 
-        spec_depend = LegacySpecDepend._from_egg(path_or_file, sha256)
+        def _compute_all_metadata(fp):
+            summary = _read_summary(fp)
+            pkg_info_data = _read_pkg_info(fp)
+
+            if pkg_info_data is None:
+                pkg_info = None
+            else:
+                pkg_info = PackageInfo._from_egg(fp, sha256, strict)
+
+            spec_depend = LegacySpecDepend._from_egg(fp, sha256)
+
+            return summary, pkg_info, spec_depend
 
         if isinstance(path_or_file, string_types):
-            with zipfile2.ZipFile(path_or_file) as fp:
-                summary = _read_summary(fp)
-                pkg_info_data = _read_pkg_info(fp)
+            with zipfile2.ZipFile(path_or_file) as zp:
+                summary, pkg_info, spec_depend = _compute_all_metadata(zp)
         else:
-            summary = _read_summary(path_or_file)
-            pkg_info_data = _read_pkg_info(path_or_file)
-
-        if pkg_info_data is None:
-            pkg_info = None
-        else:
-            pkg_info = PackageInfo._from_egg(path_or_file, sha256, strict)
+            summary, pkg_info, spec_depend = _compute_all_metadata(path_or_file)
 
         return cls._from_spec_depend(spec_depend, pkg_info, summary)
 
