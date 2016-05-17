@@ -160,7 +160,8 @@ class TestPythonABI(unittest.TestCase):
         abi_tag_string = PythonABI.pep425_tag_string(abi_tag)
 
         # Then
-        self.assertEqual(abi_tag_string, "none")
+        self.assertEqual(abi_tag_string, u"none")
+        self.assertIsInstance(abi_tag_string, six.text_type)
 
     def test_pep425_tag_string(self):
         # Given
@@ -170,4 +171,5 @@ class TestPythonABI(unittest.TestCase):
         abi_tag_string = PythonABI.pep425_tag_string(abi_tag)
 
         # Then
-        self.assertEqual(abi_tag_string, "cp27mu")
+        self.assertEqual(abi_tag_string, u"cp27mu")
+        self.assertIsInstance(abi_tag_string, six.text_type)
