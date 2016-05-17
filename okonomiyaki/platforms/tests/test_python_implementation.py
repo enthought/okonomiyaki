@@ -1,6 +1,7 @@
 import sys
 
 import mock
+import six
 
 from ..python_implementation import PythonABI, PythonImplementation
 from ...errors import InvalidMetadataField
@@ -23,7 +24,7 @@ class TestPythonImplementation(unittest.TestCase):
                 py = PythonImplementation.from_running_python()
 
         # Then
-        self.assertEqual(py.pep425_tag, "cp27")
+        self.assertEqual(py.pep425_tag, u"cp27")
 
         # When
         with mock.patch("sys.pypy_version_info", "pypy 1.9", create=True):
@@ -31,7 +32,7 @@ class TestPythonImplementation(unittest.TestCase):
                 py = PythonImplementation.from_running_python()
 
         # Then
-        self.assertEqual(py.pep425_tag, "pp27")
+        self.assertEqual(py.pep425_tag, u"pp27")
 
         # When
         with mock.patch("sys.platform", "java 1.7", create=True):
@@ -39,7 +40,7 @@ class TestPythonImplementation(unittest.TestCase):
                 py = PythonImplementation.from_running_python()
 
         # Then
-        self.assertEqual(py.pep425_tag, "jy27")
+        self.assertEqual(py.pep425_tag, u"jy27")
 
         # When
         with mock.patch("sys.platform", "cli", create=True):
@@ -47,36 +48,36 @@ class TestPythonImplementation(unittest.TestCase):
                 py = PythonImplementation.from_running_python()
 
         # Then
-        self.assertEqual(py.pep425_tag, "ip27")
+        self.assertEqual(py.pep425_tag, u"ip27")
 
     def test_errors(self):
         # Given
-        s = "cp"
+        s = u"cp"
 
         # When/Then
         with self.assertRaisesRegexp(
             InvalidMetadataField,
-            r"^Invalid value for metadata field 'python_tag': 'cp'"
+            r"^Invalid value for metadata field 'python_tag': u?'cp'"
         ):
             PythonImplementation.from_string(s)
 
         # Given
-        s = "py2"
+        s = u"py2"
 
         # When/Then
         with self.assertRaisesRegexp(
             InvalidMetadataField,
-            r"^Invalid value for metadata field 'python_tag': 'py2'$"
+            r"^Invalid value for metadata field 'python_tag': u?'py2'$"
         ):
             PythonImplementation.from_string(s)
 
         # Given
-        s = "py234"
+        s = u"py234"
 
         # When/Then
         with self.assertRaisesRegexp(
             InvalidMetadataField,
-            r"^Invalid value for metadata field 'python_tag': 'py234'$"
+            r"^Invalid value for metadata field 'python_tag': u?'py234'$"
         ):
             PythonImplementation.from_string(s)
 
@@ -92,6 +93,7 @@ class TestPythonImplementation(unittest.TestCase):
         # Then
         self.assertEqual(tag.abbreviated_implementation, "cp")
         self.assertEqual(str(tag), "cp27")
+        self.assertIsInstance(six.text_type(tag), six.text_type)
 
     def test_abbreviations(self):
         # Given

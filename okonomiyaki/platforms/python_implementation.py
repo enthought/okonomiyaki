@@ -10,9 +10,9 @@ from ..errors import InvalidMetadataField
 
 
 _KIND_TO_ABBREVIATED = {
-    "cpython": "cp",
-    "python": "py",
-    "pypy": "pp",
+    u"cpython": u"cp",
+    u"python": u"py",
+    u"pypy": u"pp",
 }
 
 _ABBREVIATED_TO_KIND = dict((v, k) for k, v in _KIND_TO_ABBREVIATED.items())
@@ -40,6 +40,7 @@ class PythonABI(object):
             return abi.pep425_tag
 
 
+@six.python_2_unicode_compatible
 class PythonImplementation(object):
     @staticmethod
     def pep425_tag_string(implementation):
@@ -86,7 +87,7 @@ class PythonImplementation(object):
     @property
     def pep425_tag(self):
         """ PEP425-compliant python tag string. """
-        return str(self)
+        return six.text_type(self)
 
     def __str__(self):
         return "{0.abbreviated_implementation}{0.major}{0.minor}".format(self)
