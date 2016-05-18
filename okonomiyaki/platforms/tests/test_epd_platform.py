@@ -28,7 +28,7 @@ else:
 class TestEPDPlatform(unittest.TestCase):
     def setUp(self):
         self.platform_strings = tuple(
-            platform + "-{}".format(arch)
+            platform + "-{0}".format(arch)
             for arch in ("x86", "x86_64")
             for platform in ("osx", "win", "rh5")
         )
