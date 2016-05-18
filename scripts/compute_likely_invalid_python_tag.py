@@ -163,15 +163,15 @@ def may_be_invalid(path):
                 "CP27 {} (because of {})".format(path, name),
                 file=sys.stderr
             )
-            return "cp27"
+            return u"cp27"
         elif principal in PY27_INVALID_LIST:
             if metadata.python is None:
                 print("PY27 {}".format(path), file=sys.stderr)
-                return "py27"
+                return u"py27"
         elif principal in CP27_INVALID_LIST:
             if metadata.python is None:
                 print("CP27 {}".format(path), file=sys.stderr)
-                return "cp27"
+                return u"cp27"
         return None
 
 

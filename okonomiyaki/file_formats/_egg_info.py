@@ -15,7 +15,9 @@ from ..platforms import (
     EPDPlatform, PlatformABI, PythonABI, PythonImplementation, default_abi
 )
 from ..platforms.legacy import LegacyEPDPlatform
-from ..utils import compute_sha256, decode_if_needed, parse_assignments
+from ..utils import (
+    compute_sha256, decode_if_needed, encode_if_needed, parse_assignments
+)
 from ..utils.py3compat import StringIO, string_types
 from ..versions import EnpkgVersion, MetadataVersion
 from .legacy import (
@@ -142,6 +144,12 @@ def parse_rawspec(spec_string):
             res[key] = spec[key]
         except KeyError:
             raise InvalidMetadataField(key, InvalidMetadataField.undefined)
+
+    for k, v in res.items():
+        if isinstance(v, six.binary_type):
+            res[k] = decode_if_needed(v)
+
+    res[_TAG_PACKAGES] = [decode_if_needed(v) for v in res[_TAG_PACKAGES]]
     return res
 
 
@@ -162,7 +170,7 @@ def is_egg_name_valid(s):
 
 
 _INVALID_REQUIREMENTS = {
-    "numpy-1.8.0": "numpy 1.8.0",
+    u"numpy-1.8.0": u"numpy 1.8.0",
 }
 
 
@@ -171,36 +179,32 @@ def _translate_invalid_requirement(s):
 
 
 def text_attr(**kw):
-    """ An attrs.attr-like descriptor to describe fields that must be unicode
-    but accept bytes/ascii (which are automatically converted).
+    """ An attrs.attr-like descriptor to describe fields that must be unicode.
     """
-    for k in ("validator", "convert"):
+    for k in ("validator", ):
         if k in kw:
             raise ValueError("Cannot pass '{0}' argument".format(k))
-    return attr(
-        validator=instance_of(six.text_type), convert=decode_if_needed, **kw
-    )
+    return attr(validator=instance_of(six.text_type), **kw)
 
 
 def text_or_none_attr(**kw):
     """ An attrs.attr-like descriptor to describe fields that must be unicode
-    or None, but accept bytes/ascii (which are automatically converted).
+    or None.
     """
-    for k in ("validator", "convert"):
+    for k in ("validator", ):
         if k in kw:
             raise ValueError("Cannot pass '{0}' argument".format(k))
-    return attr(
-        validator=optional(instance_of(six.text_type)), convert=decode_if_needed, **kw
-    )
+    return attr(validator=optional(instance_of(six.text_type)), **kw)
 
 
+@six.python_2_unicode_compatible
 @attributes
 class Requirement(object):
     """
     Model for entries in the package metadata inside EGG-INFO/spec/depend
     """
-    name = text_attr(default="")
-    version_string = text_attr(default="")
+    name = text_attr(default=u"")
+    version_string = text_attr(default=u"")
     build_number = attr(-1, validator=instance_of(int))
 
     @property
@@ -220,12 +224,12 @@ class Requirement(object):
 
         Parameters
         ----------
-        s: str
-            Egg name, e.g. 'Qt-4.8.5-2'.
+        s: text type
+            Egg name, e.g. u'Qt-4.8.5-2'.
         strictness: int
             Control strictness of string representation
         """
-        name, version, build = split_egg_name("{0}.egg".format(s))
+        name, version, build = split_egg_name(u"{0}.egg".format(s))
         if strictness >= 3:
             build_number = build
         else:
@@ -234,7 +238,7 @@ class Requirement(object):
         if strictness >= 2:
             version_string = version
         else:
-            version_string = ""
+            version_string = u""
 
         return cls(name=name, version_string=version_string,
                    build_number=build_number)
@@ -268,11 +272,11 @@ class Requirement(object):
     def __str__(self):
         if len(self.version_string) > 0:
             if self.build_number > 0:
-                return "{0} {1}-{2}".format(self.name,
-                                            self.version_string,
-                                            self.build_number)
+                return u"{0} {1}-{2}".format(
+                    self.name, self.version_string, self.build_number
+                )
             else:
-                return "{0} {1}".format(self.name, self.version_string)
+                return u"{0} {1}".format(self.name, self.version_string)
         else:
             return self.name
 
@@ -558,12 +562,7 @@ class LegacySpecDepend(object):
             _TAG_METADATA_VERSION: self.metadata_version
         }
 
-        ret = {}
-        for k, v in raw_data.items():
-            if isinstance(v, string_types):
-                v = str(v)
-            ret[k] = v
-        return ret
+        return raw_data
 
     def to_string(self):
         """
@@ -573,14 +572,25 @@ class LegacySpecDepend(object):
         template = _METADATA_TEMPLATES.get(self.metadata_version, None)
         data = self._to_dict()
 
+        if six.PY2:
+            # Hack to avoid the 'u' prefix to appear in the spec/depend entries
+            for k, v in data.items():
+                data[k] = encode_if_needed(v)
+
         # This is just to ensure the exact same string as the produced by the
         # legacy buildsystem
         if len(self.packages) == 0:
             data[_TAG_PACKAGES] = "[]"
         else:
-            data[_TAG_PACKAGES] = "[\n{0}\n]". \
-                format("\n".join("  '{0}',".format(p)
-                       for p in self.packages))
+            if six.PY2:
+                packages = [decode_if_needed(p) for p in self.packages]
+            else:
+                packages = self.packages
+            data[_TAG_PACKAGES] = (
+                "[\n{0}\n]".format(
+                    "\n".join("  '{0}',".format(p) for p in packages)
+                )
+            )
         return template.format(**data)
 
 
@@ -944,14 +954,14 @@ class EggMetadata(object):
 
     @property
     def upstream_version(self):
-        return str(self.version.upstream)
+        return six.text_type(self.version.upstream)
 
     @property
     def _python(self):
         if self.python is None:
             return None
         else:
-            return "{0}.{1}".format(self.python.major, self.python.minor)
+            return u"{0}.{1}".format(self.python.major, self.python.minor)
 
     @property
     def _spec_depend(self):
@@ -976,8 +986,8 @@ class EggMetadata(object):
             "abi_tag": self.abi_tag,
             "platform_tag": self.platform_tag,
             "platform_abi": self.platform_abi_tag,
-            "packages": [str(p) for p in self.runtime_dependencies],
-            "metadata_version": str(self.metadata_version),
+            "packages": [six.text_type(p) for p in self.runtime_dependencies],
+            "metadata_version": six.text_type(self.metadata_version),
         }
         return LegacySpecDepend._from_data(args, epd_platform)
 
