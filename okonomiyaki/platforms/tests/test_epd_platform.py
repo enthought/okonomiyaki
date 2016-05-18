@@ -26,6 +26,13 @@ else:
 
 
 class TestEPDPlatform(unittest.TestCase):
+    def setUp(self):
+        self.platform_strings = tuple(
+            platform + "-{}".format(arch)
+            for arch in ("x86", "x86_64")
+            for platform in ("osx", "win", "rh5")
+        )
+
     def test_short_names_consistency(self):
         legacy_entries = sorted([entry[0] for entry in _SUBDIR])
 
@@ -35,6 +42,24 @@ class TestEPDPlatform(unittest.TestCase):
         """Ensure every epd short platform is understood by EPDPlatform."""
         for epd_platform_string in EPD_PLATFORM_SHORT_NAMES:
             EPDPlatform.from_epd_string(epd_platform_string)
+
+    def test_pep425_is_unicode(self):
+        # When/Then
+        for platform_string in self.platform_strings:
+            platform = EPDPlatform.from_epd_string(platform_string)
+            self.assertIsInstance(platform.pep425_tag, six.text_type)
+
+    def test_platform_name(self):
+        # When/Then
+        for platform_string in self.platform_strings:
+            platform = EPDPlatform.from_epd_string(platform_string)
+            self.assertIsInstance(platform.platform_name, six.text_type)
+
+    def test_str_is_unicode(self):
+        # When/Then
+        for platform_string in self.platform_strings:
+            platform = EPDPlatform.from_epd_string(platform_string)
+            self.assertIsInstance(six.text_type(platform), six.text_type)
 
     def test_epd_platform_from_string_new_names_underscore(self):
         # Given

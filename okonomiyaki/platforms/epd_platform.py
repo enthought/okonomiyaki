@@ -228,23 +228,23 @@ class EPDPlatform(object):
 
         if self.platform.os_kind == OSKind.darwin:
             if self.platform.arch == X86:
-                return "macosx_10_6_i386"
+                return u"macosx_10_6_i386"
             elif self.platform.arch == X86_64:
-                return "macosx_10_6_x86_64"
+                return u"macosx_10_6_x86_64"
             else:
                 raise OkonomiyakiError(msg.format(self.platform))
         elif self.platform.os_kind == OSKind.linux:
             if self.platform.arch == X86:
-                return "linux_i686"
+                return u"linux_i686"
             elif self.platform.arch == X86_64:
-                return "linux_x86_64"
+                return u"linux_x86_64"
             else:
                 raise OkonomiyakiError(msg.format(self.platform))
         elif self.platform.os_kind == OSKind.windows:
             if self.platform.arch == X86:
-                return "win32"
+                return u"win32"
             elif self.platform.arch == X86_64:
-                return "win_amd64"
+                return u"win_amd64"
             else:
                 raise OkonomiyakiError(msg.format(self.platform))
         else:
@@ -254,22 +254,22 @@ class EPDPlatform(object):
     def platform_name(self):
         os_kind = self.platform.os_kind
         if os_kind == OSKind.windows:
-            return "win"
+            return u"win"
         elif os_kind == OSKind.darwin:
-            return "osx"
+            return u"osx"
         elif os_kind == OSKind.linux:
             family_kind = self.platform.family_kind
             release = self.platform.release
             if family_kind == FamilyKind.rhel:
                 parts = release.split(".")
                 if parts[0] == "3":
-                    base = "rh3"
+                    base = u"rh3"
                 elif parts[0] == "5":
-                    base = "rh5"
+                    base = u"rh5"
                 elif parts[0] == "6":
-                    base = "rh6"
+                    base = u"rh6"
                 elif parts[0] == "7":
-                    base = "rh7"
+                    base = u"rh7"
                 else:
                     msg = ("Unsupported rhel release: {0!r}".format(release))
                     raise OkonomiyakiError(msg)
@@ -278,7 +278,7 @@ class EPDPlatform(object):
                 msg = "Unsupported distribution: {0!r}".format(family_kind)
                 raise OkonomiyakiError(msg)
         elif os_kind == OSKind.solaris:
-            return "sol"
+            return u"sol"
         else:
             msg = "Unsupported OS: {0!r}".format(self.platform.name)
             raise OkonomiyakiError(msg)
