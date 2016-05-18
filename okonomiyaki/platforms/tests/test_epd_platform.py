@@ -1,6 +1,8 @@
 import mock
 import sys
 
+import six
+
 from ...errors import OkonomiyakiError
 
 from .. import EPDPlatform
@@ -178,6 +180,8 @@ class TestEPDPlatform(unittest.TestCase):
 
         # When/Then
         self.assertEqual(str(epd_platform), "osx_x86")
+        self.assertEqual(six.text_type(epd_platform), u"osx_x86")
+        self.assertIsInstance(six.text_type(epd_platform), six.text_type)
 
         # Given
         s = "osx_x86"
