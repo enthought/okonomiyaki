@@ -17,7 +17,6 @@ INSTALL_REQUIRES = [
     "attrs >= 15.2.0",
     "jsonschema >= 2.5.1",
     "six >= 1.9.0",
-    "stevedore < 1.10",  # newer versions don't work w/ 2.6
     "zipfile2 >= 0.0.12",
 ]
 
