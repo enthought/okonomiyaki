@@ -40,66 +40,66 @@ M = MetadataVersion.from_string
 
 class TestRequirement(unittest.TestCase):
     def test_str(self):
-        dependency = Requirement(name="numpy")
+        dependency = Requirement(name=u"numpy")
         r_str = "numpy"
 
         self.assertEqual(r_str, str(dependency))
 
-        dependency = Requirement(name="numpy", version_string="1.7.1")
+        dependency = Requirement(name=u"numpy", version_string=u"1.7.1")
         r_str = "numpy 1.7.1"
 
         self.assertEqual(r_str, str(dependency))
 
-        dependency = Requirement(name="numpy", version_string="1.7.1",
+        dependency = Requirement(name=u"numpy", version_string=u"1.7.1",
                                  build_number=1)
         r_str = "numpy 1.7.1-1"
 
         self.assertEqual(r_str, str(dependency))
 
-        dependency = Requirement("numpy", "1.7.1", 1)
+        dependency = Requirement(u"numpy", u"1.7.1", 1)
         r_str = "numpy 1.7.1-1"
 
         self.assertEqual(r_str, str(dependency))
 
     def test_from_spec_string(self):
-        dependency = Requirement.from_spec_string("numpy")
+        dependency = Requirement.from_spec_string(u"numpy")
         self.assertEqual(dependency.name, "numpy")
         self.assertEqual(dependency.version_string, "")
         self.assertEqual(dependency.build_number, -1)
         self.assertEqual(dependency.strictness, 1)
 
-        dependency = Requirement.from_spec_string("numpy 1.7.1")
+        dependency = Requirement.from_spec_string(u"numpy 1.7.1")
         self.assertEqual(dependency.name, "numpy")
         self.assertEqual(dependency.version_string, "1.7.1")
         self.assertEqual(dependency.build_number, -1)
         self.assertEqual(dependency.strictness, 2)
 
-        dependency = Requirement.from_spec_string("numpy 1.7.1-2")
+        dependency = Requirement.from_spec_string(u"numpy 1.7.1-2")
         self.assertEqual(dependency.name, "numpy")
         self.assertEqual(dependency.version_string, "1.7.1")
         self.assertEqual(dependency.build_number, 2)
         self.assertEqual(dependency.strictness, 3)
 
     def test_from_string(self):
-        dependency = Requirement.from_string("numpy-1.7.1-2", 3)
+        dependency = Requirement.from_string(u"numpy-1.7.1-2", 3)
         self.assertEqual(dependency.name, "numpy")
         self.assertEqual(dependency.version_string, "1.7.1")
         self.assertEqual(dependency.build_number, 2)
 
-        dependency = Requirement.from_string("numpy-1.7.1-2", 2)
+        dependency = Requirement.from_string(u"numpy-1.7.1-2", 2)
         self.assertEqual(dependency.name, "numpy")
         self.assertEqual(dependency.version_string, "1.7.1")
         self.assertEqual(dependency.build_number, -1)
 
-        dependency = Requirement.from_string("numpy-1.7.1-2", 1)
+        dependency = Requirement.from_string(u"numpy-1.7.1-2", 1)
         self.assertEqual(dependency.name, "numpy")
         self.assertEqual(dependency.version_string, "")
         self.assertEqual(dependency.build_number, -1)
 
         self.assertRaises(InvalidEggName, lambda:
-                          Requirement.from_string("numpy"))
+                          Requirement.from_string(u"numpy"))
         self.assertRaises(InvalidEggName, lambda:
-                          Requirement.from_string("numpy 1.7.1"))
+                          Requirement.from_string(u"numpy 1.7.1"))
 
 
 class TestLegacySpecDepend(unittest.TestCase):
@@ -143,7 +143,7 @@ packages = [
         # Then
         self.assertMultiLineEqual(depend.to_string(), r_depend)
         self.assertEqual(depend.packages,
-                         [Requirement.from_spec_string("Qt 4.8.5")])
+                         [Requirement.from_spec_string(u"Qt 4.8.5")])
 
     def test_to_string(self):
         # Given
@@ -302,7 +302,7 @@ packages = [
         # When/Then
         with self.assertRaisesRegexp(
             InvalidMetadataField,
-            r"^Invalid value for metadata field 'python': 'a.7'"
+            r"^Invalid value for metadata field 'python': u?'a.7'"
         ) as exc:
             LegacySpecDepend.from_string(s)
 
@@ -1230,23 +1230,23 @@ class TestEggMetadata(unittest.TestCase):
         # Given
         egg = ETS_EGG
         r_runtime_dependencies = (
-            Requirement.from_spec_string('apptools 4.2.0-2'),
-            Requirement.from_spec_string('blockcanvas 4.0.3-1'),
-            Requirement.from_spec_string('casuarius 1.1-1'),
-            Requirement.from_spec_string('chaco 4.3.0-2'),
-            Requirement.from_spec_string('codetools 4.1.0-2'),
-            Requirement.from_spec_string('enable 4.3.0-5'),
-            Requirement.from_spec_string('enaml 0.6.8-2'),
-            Requirement.from_spec_string('encore 0.3-1'),
-            Requirement.from_spec_string('envisage 4.3.0-2'),
-            Requirement.from_spec_string('etsdevtools 4.0.2-1'),
-            Requirement.from_spec_string('etsproxy 0.1.2-1'),
-            Requirement.from_spec_string('graphcanvas 4.0.2-1'),
-            Requirement.from_spec_string('mayavi 4.3.0-3'),
-            Requirement.from_spec_string('pyface 4.3.0-2'),
-            Requirement.from_spec_string('scimath 4.1.2-2'),
-            Requirement.from_spec_string('traits 4.3.0-2'),
-            Requirement.from_spec_string('traitsui 4.3.0-2'),
+            Requirement.from_spec_string(u'apptools 4.2.0-2'),
+            Requirement.from_spec_string(u'blockcanvas 4.0.3-1'),
+            Requirement.from_spec_string(u'casuarius 1.1-1'),
+            Requirement.from_spec_string(u'chaco 4.3.0-2'),
+            Requirement.from_spec_string(u'codetools 4.1.0-2'),
+            Requirement.from_spec_string(u'enable 4.3.0-5'),
+            Requirement.from_spec_string(u'enaml 0.6.8-2'),
+            Requirement.from_spec_string(u'encore 0.3-1'),
+            Requirement.from_spec_string(u'envisage 4.3.0-2'),
+            Requirement.from_spec_string(u'etsdevtools 4.0.2-1'),
+            Requirement.from_spec_string(u'etsproxy 0.1.2-1'),
+            Requirement.from_spec_string(u'graphcanvas 4.0.2-1'),
+            Requirement.from_spec_string(u'mayavi 4.3.0-3'),
+            Requirement.from_spec_string(u'pyface 4.3.0-2'),
+            Requirement.from_spec_string(u'scimath 4.1.2-2'),
+            Requirement.from_spec_string(u'traits 4.3.0-2'),
+            Requirement.from_spec_string(u'traitsui 4.3.0-2'),
         )
 
         # When

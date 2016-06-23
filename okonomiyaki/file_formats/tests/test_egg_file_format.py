@@ -115,15 +115,15 @@ packages = []
 
     def _create_fake_metadata(self):
         pkg_info = PackageInfo.from_string(PIP_PKG_INFO)
-        pkg_info.version = "4.8.6"
-        pkg_info.name = "Qt_debug"
+        pkg_info.version = u"4.8.6"
+        pkg_info.name = u"Qt_debug"
 
         version = EnpkgVersion.from_upstream_and_build(pkg_info.version, 1)
         platform = EPDPlatform.from_epd_string("rh5-32")
         dependencies = Dependencies((), ())
 
         return EggMetadata(
-            pkg_info.name, version, platform, "cp27", u"cp27m", u"gnu",
+            pkg_info.name, version, platform, u"cp27", u"cp27m", u"gnu",
             dependencies, pkg_info, pkg_info.summary
         )
 

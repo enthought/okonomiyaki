@@ -36,7 +36,7 @@ def _guess_abi_tag(epd_platform, python_tag):
     # In those cases, the mapping (platform pyver) -> ABI is unambiguous,
     # as we only ever used one ABI for a given python version/platform.
     pyver = _python_tag_to_python(python_tag)
-    return "cp{0}{1}m".format(pyver[0], pyver[2])
+    return u"cp{0}{1}m".format(pyver[0], pyver[2])
 
 
 def _guess_platform_abi(epd_platform, python_tag):
@@ -109,7 +109,7 @@ def _guess_python_tag(major_minor):
             major = m.groupdict()["major"]
             minor = m.groupdict()["minor"]
 
-            return "cp" + major + minor
+            return u"cp" + major + minor
 
 
 def _python_tag_to_python(python_tag):

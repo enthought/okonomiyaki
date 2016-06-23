@@ -82,3 +82,9 @@ def decode_if_needed(value):
     if isinstance(value, six.binary_type):
         return value.decode("utf8")
     return value
+
+
+def encode_if_needed(value):
+    if isinstance(value, six.text_type):
+        return value.encode("utf8")
+    return value

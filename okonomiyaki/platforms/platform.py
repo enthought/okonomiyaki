@@ -52,6 +52,7 @@ NAME_KIND_TO_PRETTY_NAMES = {
 }
 
 
+@six.python_2_unicode_compatible
 @attributes(repr=False)
 class Platform(object):
     """
@@ -128,7 +129,7 @@ class Platform(object):
         )
 
     def __str__(self):
-        return "{0} {1.release} on {1.machine}".format(
+        return u"{0} {1.release} on {1.machine}".format(
             NAME_KIND_TO_PRETTY_NAMES[self.name_kind],
             self
         )
