@@ -146,6 +146,8 @@ def parse_rawspec(spec_string):
             raise InvalidMetadataField(key, InvalidMetadataField.undefined)
 
     for k, v in res.items():
+        # Some values are not string-like, so filter on the type that needs
+        # conversion
         if isinstance(v, six.binary_type):
             res[k] = decode_if_needed(v)
 
@@ -587,7 +589,7 @@ class LegacySpecDepend(object):
             else:
                 packages = self.packages
             data[_TAG_PACKAGES] = (
-                "[\n{0}\n]".format(
+                u"[\n{0}\n]".format(
                     "\n".join("  '{0}',".format(p) for p in packages)
                 )
             )
