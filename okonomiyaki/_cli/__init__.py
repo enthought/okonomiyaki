@@ -4,7 +4,6 @@ import sys
 import zipfile2
 
 from ..file_formats import EggMetadata
-from ..utils import compute_sha256
 from ..versions import MetadataVersion
 
 

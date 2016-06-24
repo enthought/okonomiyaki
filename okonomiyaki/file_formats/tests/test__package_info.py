@@ -9,7 +9,7 @@ import mock
 from .._blacklist.pkg_info_data import PYSIDE_1_1_0_PKG_INFO
 from .._package_info import PKG_INFO_ENCODING, _PKG_INFO_LOCATION, PackageInfo
 
-if sys.version_info < (2, 7):
+if sys.version_info < (2, 7):  # noqa
     import unittest2 as unittest
 else:
     import unittest

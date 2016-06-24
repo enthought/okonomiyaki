@@ -1,7 +1,7 @@
 import six
 
 from attr import attributes, attr
-from attr.validators import instance_of, optional
+from attr.validators import instance_of
 
 from ..errors import OkonomiyakiError
 from ..versions import RuntimeVersion

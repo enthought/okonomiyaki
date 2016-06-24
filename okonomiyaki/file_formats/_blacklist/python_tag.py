@@ -457,14 +457,14 @@ _EGG_PYTHON_TAG_BLACK_LIST = {
         u'cp27'
     },
     'dynd_python-0.6.6-3.egg': {
-         '4d0a6021c7d6fd33177f788c39219db60e851afa5f437388c9536716ce8db86d':
-         u'cp27',
-         'a7e683f6d4e1b1b9c35112d1b1f0f7d368fd9508cedf54e16a6aa87792d8c02a':
-         u'cp27',
-         'bbf7206264db43c6545abcd37304eb8478bdb7bb74fe2c6ea5f34b154ca1819f':
-         u'cp27',
-         'f2cec59f1dd1150e180e968e1db60f7b647a376d5e446c5227d36c12b3971793':
-         u'cp27'
+        '4d0a6021c7d6fd33177f788c39219db60e851afa5f437388c9536716ce8db86d':
+        u'cp27',
+        'a7e683f6d4e1b1b9c35112d1b1f0f7d368fd9508cedf54e16a6aa87792d8c02a':
+        u'cp27',
+        'bbf7206264db43c6545abcd37304eb8478bdb7bb74fe2c6ea5f34b154ca1819f':
+        u'cp27',
+        'f2cec59f1dd1150e180e968e1db60f7b647a376d5e446c5227d36c12b3971793':
+        u'cp27'
     },
     'enstaller-4.5.0-1.egg': {
         '30667f62941dbcbdb1ac9134d2b084ce797c4e1babf0b6186db7c21114edf6f6':

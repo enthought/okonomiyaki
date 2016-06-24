@@ -34,16 +34,16 @@ class TestMain(unittest.TestCase):
         name = 'nose'
         version = '1.3.4'
         build = 1
-        
+
         arch = 'amd64'
         platform = 'linux2'
         osdist = 'RedHat_5'
         python = '2.7'
-        
+
         python_tag = 'cp27'
         abi_tag = 'cp27m'
         platform_tag = 'linux_x86_64'
-        
+
         packages = []
         """)
 

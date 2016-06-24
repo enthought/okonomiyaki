@@ -12,7 +12,7 @@ from ..errors import (
     MissingMetadata, UnsupportedMetadata
 )
 from ..platforms import (
-    EPDPlatform, PlatformABI, PythonABI, PythonImplementation, default_abi
+    EPDPlatform, PlatformABI, PythonABI, PythonImplementation
 )
 from ..platforms.legacy import LegacyEPDPlatform
 from ..utils import (
@@ -604,7 +604,6 @@ class Dependencies(object):
     def __init__(self, runtime=None, build=None):
         self.runtime = runtime or ()
         self.build = runtime or ()
-
 
 
 def _metadata_version_to_tuple(metadata_version):

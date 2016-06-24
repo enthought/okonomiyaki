@@ -3,7 +3,7 @@ metadata.
 """
 import re
 
-from ..errors import InvalidMetadata, InvalidMetadataField
+from ..errors import InvalidMetadataField
 from ..platforms import PythonImplementation, default_abi
 
 

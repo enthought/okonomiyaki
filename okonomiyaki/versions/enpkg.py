@@ -1,6 +1,6 @@
 from ..errors import InvalidEnpkgVersion
 
-from .pep386_workaround import PEP386WorkaroundVersion
+from .pep386_workaround import IrrationalVersionError, PEP386WorkaroundVersion
 
 
 class EnpkgVersion(object):

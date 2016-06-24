@@ -245,4 +245,4 @@ class TestRuntimeMetadataFactory(unittest.TestCase):
             MissingMetadata,
             r"^Missing runtime metadata field 'metadata_version'$"
         ):
-            metadata = runtime_metadata_factory(path)
+            runtime_metadata_factory(path)
