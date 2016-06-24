@@ -4,8 +4,13 @@ import os.path
 _HERE = os.path.dirname(__file__)
 
 # Dummy runtimes for testing
+
+# 2.7.9
 PYTHON_CPYTHON_2_7_9_RH5_X86_64 = os.path.join(
     _HERE, "cpython-2.7.9+1-rh5_x86_64-gnu.runtime",
+)
+PYTHON_CPYTHON_2_7_9_OSX_X86_64 = os.path.join(
+    _HERE, "cpython-2.7.9+1-osx_x86_64-darwin.runtime"
 )
 PYTHON_CPYTHON_2_7_9_WIN_X86 = os.path.join(
     _HERE, "cpython-2.7.9+1-win_x86-msvc2008.runtime",
@@ -13,8 +18,13 @@ PYTHON_CPYTHON_2_7_9_WIN_X86 = os.path.join(
 PYTHON_CPYTHON_2_7_9_WIN_X86_64 = os.path.join(
     _HERE, "cpython-2.7.9+1-win_x86_64-msvc2008.runtime",
 )
+
+# 2.7.10
 PYTHON_CPYTHON_2_7_10_RH5_X86_64 = os.path.join(
     _HERE, "cpython-2.7.10+1-rh5_x86_64-gnu.runtime",
+)
+PYTHON_CPYTHON_2_7_10_OSX_X86_64 = os.path.join(
+    _HERE, "cpython-2.7.10+1-osx_x86_64-darwin.runtime"
 )
 PYTHON_CPYTHON_2_7_10_WIN_X86 = os.path.join(
     _HERE, "cpython-2.7.10+1-win_x86-msvc2008.runtime",
@@ -22,6 +32,35 @@ PYTHON_CPYTHON_2_7_10_WIN_X86 = os.path.join(
 PYTHON_CPYTHON_2_7_10_WIN_X86_64 = os.path.join(
     _HERE, "cpython-2.7.10+1-win_x86_64-msvc2008.runtime",
 )
+
+# 3.4.1
+PYTHON_CPYTHON_3_4_1_RH5_X86_64 = os.path.join(
+    _HERE, "cpython-3.4.1+1-rh5_x86_64-gnu.runtime",
+)
+PYTHON_CPYTHON_3_4_1_OSX_X86_64 = os.path.join(
+    _HERE, "cpython-3.4.1+1-osx_x86_64-darwin.runtime",
+)
+PYTHON_CPYTHON_3_4_1_WIN_X86 = os.path.join(
+    _HERE, "cpython-3.4.1+1-win_x86-msvc2008.runtime",
+)
+PYTHON_CPYTHON_3_4_1_WIN_X86_64 = os.path.join(
+    _HERE, "cpython-3.4.1+1-win_x86_64-msvc2008.runtime",
+)
+
+# 3.5.1
+PYTHON_CPYTHON_3_5_1_RH5_X86_64 = os.path.join(
+    _HERE, "cpython-3.5.1+1-rh5_x86_64-gnu.runtime",
+)
+PYTHON_CPYTHON_3_5_1_OSX_X86_64 = os.path.join(
+    _HERE, "cpython-3.5.1+1-osx_x86_64-darwin.runtime",
+)
+PYTHON_CPYTHON_3_5_1_WIN_X86 = os.path.join(
+    _HERE, "cpython-3.5.1+1-win_x86-msvc2008.runtime",
+)
+PYTHON_CPYTHON_3_5_1_WIN_X86_64 = os.path.join(
+    _HERE, "cpython-3.5.1+1-win_x86_64-msvc2008.runtime",
+)
+
 PYTHON_CPYTHON_2_7_10_RH5_X86_64_INVALID = os.path.join(
     _HERE, "cpython-2.7.10+1-rh5_x86_64-gnu.runtime.invalid",
 )
