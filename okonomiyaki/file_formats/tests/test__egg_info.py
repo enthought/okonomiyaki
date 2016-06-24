@@ -1563,7 +1563,6 @@ class TestEggMetadata(unittest.TestCase):
         r_json_dict = {
             "metadata_version": u"1.3",
             "_raw_name": u"nose",
-            "name": u"nose",
             "version": u"1.3.4-1",
             "epd_platform": u"rh5_x86_64",
             "python_tag": u"cp27",
@@ -1591,7 +1590,6 @@ class TestEggMetadata(unittest.TestCase):
         json_dict = {
             "metadata_version": u"1.3",
             "_raw_name": u"nose",
-            "name": u"nose",
             "version": u"1.3.4-1",
             "epd_platform": u"rh5_x86_64",
             "python_tag": u"cp27",

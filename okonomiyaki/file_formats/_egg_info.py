@@ -665,7 +665,6 @@ def _normalized_info_from_string(spec_depend_string, epd_platform=None,
 
 _JSON_METADATA_VERSION = "metadata_version"
 _JSON__RAW_NAME = "_raw_name"
-_JSON_NAME = "name"
 _JSON_VERSION = "version"
 _JSON_EPD_PLATFORM = "epd_platform"
 _JSON_PYTHON_TAG = "python_tag"
@@ -1063,7 +1062,6 @@ class EggMetadata(object):
         return {
             _JSON_METADATA_VERSION: six.text_type(self.metadata_version),
             _JSON__RAW_NAME: self._raw_name,
-            _JSON_NAME: self.name,
             _JSON_VERSION: six.text_type(self.version),
             _JSON_EPD_PLATFORM: epd_platform,
             _JSON_PYTHON_TAG: self.python_tag,
