@@ -663,6 +663,18 @@ def _normalized_info_from_string(spec_depend_string, epd_platform=None,
     return data, epd_platform
 
 
+_JSON_METADATA_VERSION = "metadata_version"
+_JSON__RAW_NAME = "_raw_name"
+_JSON_VERSION = "version"
+_JSON_EPD_PLATFORM = "epd_platform"
+_JSON_PYTHON_TAG = "python_tag"
+_JSON_ABI_TAG = "abi_tag"
+_JSON_PLATFORM_TAG = "platform_tag"
+_JSON_PLATFORM_ABI_TAG = "platform_abi_tag"
+_JSON_RUNTIME_DEPENDENCIES = "runtime_dependencies"
+_JSON_SUMMARY = "summary"
+
+
 class EggMetadata(object):
     """ Enthought egg metadata for format 1.x.
     """
@@ -706,6 +718,32 @@ class EggMetadata(object):
             with _keep_position(path_or_file.fp):
                 sha256 = compute_sha256(path_or_file.fp)
         return cls._from_egg(path_or_file, sha256, strict)
+
+    @classmethod
+    def from_json_dict(cls, json_dict, pkg_info):
+        version = EnpkgVersion.from_string(json_dict[_JSON_VERSION])
+
+        if json_dict[_JSON_PYTHON_TAG] is not None:
+            python = PythonImplementation.from_string(json_dict[_JSON_PYTHON_TAG])
+        else:
+            python = None
+
+        if json_dict[_JSON_EPD_PLATFORM] is None:
+            epd_platform = None
+        else:
+            epd_platform = EPDPlatform.from_epd_string(json_dict[_JSON_EPD_PLATFORM])
+
+        dependencies = Dependencies(tuple(json_dict[_JSON_RUNTIME_DEPENDENCIES]))
+        metadata_version = MetadataVersion.from_string(
+            json_dict[_JSON_METADATA_VERSION]
+        )
+
+        return cls(
+            json_dict[_JSON__RAW_NAME], version, epd_platform, python,
+            json_dict[_JSON_ABI_TAG], json_dict[_JSON_PLATFORM_ABI_TAG],
+            dependencies, pkg_info, json_dict[_JSON_SUMMARY],
+            metadata_version=metadata_version
+        )
 
     @classmethod
     def _from_egg(cls, path_or_file, sha256, strict=True):
@@ -1014,6 +1052,27 @@ class EggMetadata(object):
             )
             if self.pkg_info:
                 self.pkg_info._dump_as_zip(zp)
+
+    def to_json_dict(self):
+        if self.platform is None:
+            epd_platform = None
+        else:
+            epd_platform = six.text_type(self.platform)
+
+        return {
+            _JSON_METADATA_VERSION: six.text_type(self.metadata_version),
+            _JSON__RAW_NAME: self._raw_name,
+            _JSON_VERSION: six.text_type(self.version),
+            _JSON_EPD_PLATFORM: epd_platform,
+            _JSON_PYTHON_TAG: self.python_tag,
+            _JSON_ABI_TAG: self.abi_tag,
+            _JSON_PLATFORM_TAG: self.platform_tag,
+            _JSON_PLATFORM_ABI_TAG: self.platform_abi_tag,
+            _JSON_RUNTIME_DEPENDENCIES: [
+                six.text_type(p) for p in self.runtime_dependencies
+            ],
+            _JSON_SUMMARY: self.summary,
+        }
 
     # Protocol implementations
     def __eq__(self, other):
