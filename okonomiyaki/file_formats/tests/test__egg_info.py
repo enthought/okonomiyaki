@@ -17,7 +17,9 @@ from ...errors import (
     InvalidEggName, InvalidMetadataField, MissingMetadata, UnsupportedMetadata
 )
 from ...utils import tempdir
-from ...utils.test_data import NOSE_1_3_4_OSX_X86_64
+from ...utils.test_data import (
+    MKL_10_3_RH5_X86_64, NOSE_1_3_4_OSX_X86_64, NOSE_1_3_4_RH5_X86_64
+)
 from ...platforms import EPDPlatform, PlatformABI
 from ...platforms.legacy import LegacyEPDPlatform
 from ...versions import EnpkgVersion, MetadataVersion
@@ -1552,3 +1554,68 @@ class TestEggMetadata(unittest.TestCase):
         # Then
         metadata = EggMetadata.from_egg(path)
         self.assertEqual(metadata.platform_tag, "win32")
+
+    def test_to_json_dict(self):
+        # Given
+        egg = NOSE_1_3_4_RH5_X86_64
+        metadata = EggMetadata.from_egg(egg)
+
+        r_json_dict = {
+            "metadata_version": u"1.3",
+            "_raw_name": u"nose",
+            "version": u"1.3.4-1",
+            "epd_platform": u"rh5_x86_64",
+            "python_tag": u"cp27",
+            "abi_tag": u"cp27m",
+            "platform_tag": u"linux_x86_64",
+            "platform_abi_tag": u"gnu",
+            "runtime_dependencies": [],
+            "summary": (
+                u"Extends the Python Unittest module with additional "
+                "disocvery and running\noptions\n"
+            )
+        }
+
+        # When
+        json_dict = metadata.to_json_dict()
+
+        # Then
+        self.assertEqual(json_dict, r_json_dict)
+
+    def test_from_json_dict(self):
+        # Given
+        egg = NOSE_1_3_4_RH5_X86_64
+        r_metadata = EggMetadata.from_egg(egg)
+
+        json_dict = {
+            "metadata_version": u"1.3",
+            "_raw_name": u"nose",
+            "version": u"1.3.4-1",
+            "epd_platform": u"rh5_x86_64",
+            "python_tag": u"cp27",
+            "abi_tag": u"cp27m",
+            "platform_tag": u"linux_x86_64",
+            "platform_abi_tag": u"gnu",
+            "runtime_dependencies": [],
+            "summary": (
+                u"Extends the Python Unittest module with additional "
+                "disocvery and running\noptions\n"
+            )
+        }
+
+        # When
+        metadata = EggMetadata.from_json_dict(json_dict, r_metadata.pkg_info)
+
+        # Then
+        self.assertEqual(metadata, r_metadata)
+
+    def _test_roundtrip(self, egg):
+        r_metadata = EggMetadata.from_egg(egg)
+        metadata = EggMetadata.from_json_dict(
+            r_metadata.to_json_dict(), r_metadata.pkg_info
+        )
+
+        self.assertEqual(metadata, r_metadata)
+
+    def test_mkl_roundtrip(self):
+        self._test_roundtrip(MKL_10_3_RH5_X86_64)
