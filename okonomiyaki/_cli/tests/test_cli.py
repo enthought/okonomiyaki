@@ -89,7 +89,7 @@ class TestMain(unittest.TestCase):
             self.tempdir, os.path.basename(NOSE_1_3_4_RH5_X86_64)
         )
         m = EggMetadata.from_egg(NOSE_1_3_4_RH5_X86_64)
-        m.pkg_info = None
+        m._pkg_info = None
         m.dump(path)
 
         # When/Then

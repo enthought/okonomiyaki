@@ -28,7 +28,9 @@ from ._blacklist import (
     may_be_in_platform_blacklist, may_be_in_python_tag_blacklist,
     may_be_in_pkg_info_blacklist
 )
-from ._package_info import PackageInfo, _keep_position, _read_pkg_info
+from ._package_info import (
+    PackageInfo, _convert_if_needed, _keep_position, _read_pkg_info
+)
 
 
 _EGG_NAME_RE = re.compile("""
@@ -759,23 +761,26 @@ class EggMetadata(object):
         def _compute_all_metadata(fp):
             summary = _read_summary(fp)
             pkg_info_data = _read_pkg_info(fp)
-
             if pkg_info_data is None:
-                pkg_info = None
+                pkg_info_string = None
             else:
-                pkg_info = PackageInfo._from_egg(fp, sha256, strict)
+                pkg_info_string = _convert_if_needed(
+                    pkg_info_data, sha256, strict
+                )
 
             spec_depend = LegacySpecDepend._from_egg(fp, sha256)
 
-            return summary, pkg_info, spec_depend
+            return summary, pkg_info_string, spec_depend
 
         if isinstance(path_or_file, string_types):
             with zipfile2.ZipFile(path_or_file) as zp:
-                summary, pkg_info, spec_depend = _compute_all_metadata(zp)
+                summary, pkg_info_string, spec_depend = _compute_all_metadata(zp)
         else:
-            summary, pkg_info, spec_depend = _compute_all_metadata(path_or_file)
+            summary, pkg_info_string, spec_depend = _compute_all_metadata(
+                path_or_file
+            )
 
-        return cls._from_spec_depend(spec_depend, pkg_info, summary)
+        return cls._from_spec_depend(spec_depend, pkg_info_string, summary)
 
     @classmethod
     def _from_spec_depend(cls, spec_depend, pkg_info, summary,
@@ -856,8 +861,11 @@ class EggMetadata(object):
             The platform abi, e.g. 'msvc2008', 'gnu', etc. May be None.
         dependencies: Dependencies
             A Dependencies instance.
-        pkg_info: PackageInfo or None
-            Instance modeling the PKG-INFO content of the egg.
+        pkg_info: PackageInfo or str or None
+            Instance modeling the PKG-INFO content of the egg. If a string is
+            passed, it is assumed to be the PKG-INFO content, and is lazily
+            parsed into a PackageInfo when pkg_info is accessed for the first
+            time.
         summary: str
             The summary. Models the string in EGG-INFO/spec/summary. May
             be empty.
@@ -894,7 +902,7 @@ class EggMetadata(object):
         self.metadata_version = metadata_version or _METADATA_DEFAULT_VERSION
         """ The version format of the underlying metadata."""
 
-        self.pkg_info = pkg_info
+        self._pkg_info = pkg_info
         """ A PackageInfo instance modeling the underlying PKG-INFO. May
         be None for eggs without an PKG-INFO file."""
 
@@ -951,6 +959,13 @@ class EggMetadata(object):
     def name(self):
         """ The package name."""
         return self._raw_name.lower().replace("-", "_")
+
+    @property
+    def pkg_info(self):
+        if isinstance(self._pkg_info, six.string_types):
+            self._pkg_info = PackageInfo.from_string(self._pkg_info)
+
+        return self._pkg_info
 
     @property
     def platform_abi_tag(self):
