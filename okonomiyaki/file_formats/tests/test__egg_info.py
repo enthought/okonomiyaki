@@ -8,21 +8,21 @@ import zipfile2
 
 import mock
 
-if sys.version_info < (2, 7):
+if sys.version_info < (2, 7):  # noqa
     import unittest2 as unittest
 else:
     import unittest
 
 from ...errors import (
-    InvalidEggName, InvalidMetadata, InvalidMetadataField, MissingMetadata,
-    UnsupportedMetadata)
+    InvalidEggName, InvalidMetadataField, MissingMetadata, UnsupportedMetadata
+)
 from ...utils import tempdir
 from ...utils.test_data import (
     MKL_10_3_RH5_X86_64, NOSE_1_3_4_OSX_X86_64, NOSE_1_3_4_RH5_X86_64
 )
-from ...platforms import EPDPlatform, PlatformABI, PythonImplementation
+from ...platforms import EPDPlatform, PlatformABI
 from ...platforms.legacy import LegacyEPDPlatform
-from ...versions import EnpkgVersion, MetadataVersion, RuntimeVersion
+from ...versions import EnpkgVersion, MetadataVersion
 
 from .._egg_info import (
     Requirement, EggMetadata, LegacySpecDepend, parse_rawspec,
@@ -418,7 +418,7 @@ packages = [
         self.assertEqual(spec_depend.abi_tag, "cp27m")
         self.assertEqual(spec_depend.platform_abi, "darwin")
 
-    def test_default_no_python_egg(self):
+    def test_default_no_python_egg_windows(self):
         # Given
         spec_depend_string = """\
 metadata_version = '1.1'

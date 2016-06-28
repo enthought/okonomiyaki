@@ -70,7 +70,7 @@ def platform_validator():
         instance_of(Platform)(inst, attr, value)
         if not _is_supported(value):
             raise OkonomiyakiError(
-                 "Platform {0} not supported".format(value)
+                "Platform {0} not supported".format(value)
             )
     return wrapper
 
@@ -372,7 +372,7 @@ def _epd_name_to_quadruplet(name):
     if name == "rh7":
         return (OSKind.linux, NameKind.rhel, FamilyKind.rhel, "7.1")
     if name == "rh6":
-        return (OSKind.linux, NameKind.rhel, FamilyKind.rhel,"6.5")
+        return (OSKind.linux, NameKind.rhel, FamilyKind.rhel, "6.5")
     elif name == "rh5":
         return (OSKind.linux, NameKind.rhel, FamilyKind.rhel, "5.8")
     elif name == "rh3":

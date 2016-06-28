@@ -100,15 +100,17 @@ mock_osx_10_7 = MultiPatcher([
     mock.patch("platform.mac_ver", lambda: ("10.7.5", ("", "", ""), "x86_64")),
 ])
 
+
 # Architecture mocking
-mock_machine = lambda machine: Patcher(mock.patch("platform.machine",
-                                                  lambda: machine))
+def mock_machine(machine):
+    return Patcher(mock.patch("platform.machine", lambda: machine))
+
 
 mock_machine_x86 = Patcher(mock_machine("x86"))
-mock_architecture_32bit = Patcher(mock.patch("sys.maxsize", 2**32-1))
+mock_architecture_32bit = Patcher(mock.patch("sys.maxsize", 2**32 - 1))
 
 mock_machine_x86_64 = Patcher(mock_machine("x86_64"))
-mock_architecture_64bit = Patcher(mock.patch("sys.maxsize", 2**64-1))
+mock_architecture_64bit = Patcher(mock.patch("sys.maxsize", 2**64 - 1))
 
 mock_x86 = MultiPatcher([mock_machine_x86, mock_architecture_32bit])
 mock_x86_64 = MultiPatcher([mock_machine_x86_64, mock_architecture_64bit])

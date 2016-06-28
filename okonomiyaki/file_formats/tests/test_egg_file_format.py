@@ -7,7 +7,7 @@ import tempfile
 import textwrap
 import zipfile2
 
-if sys.version_info < (2, 7):
+if sys.version_info < (2, 7):  # noqa
     import unittest2 as unittest
 else:
     import unittest

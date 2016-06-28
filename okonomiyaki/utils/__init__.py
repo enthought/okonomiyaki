@@ -1,10 +1,5 @@
 from __future__ import absolute_import
 
-__all__ = [
-    "compute_md5", "parse_assignments", "substitute_variable",
-    "substitute_variables", "tempdir"
-]
-
 import hashlib
 
 from .misc import (
@@ -57,3 +52,9 @@ def _compute_hash(path, m):
             return _compute_checksum(fp)
     else:
         return _compute_checksum(path)
+
+
+__all__ = [
+    "compute_md5", "decode_if_needed", "encode_if_needed", "parse_assignments",
+    "substitute_variable", "substitute_variables", "tempdir"
+]
