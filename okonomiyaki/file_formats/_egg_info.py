@@ -825,9 +825,10 @@ class EggMetadata(object):
         dependencies: Dependencies
             A Dependencies instance.
         pkg_info: PackageInfo or str or None
-            Instance modeling the PKG-INFO content of the egg. If a string, is
-            lazily parsed into a PackageInfo when pkg_info is accessed for the
-            first time.
+            Instance modeling the PKG-INFO content of the egg. If a string is
+            passed, it is assumed to be the PKG-INFO content, and is lazily
+            parsed into a PackageInfo when pkg_info is accessed for the first
+            time.
         summary: str
             The summary. Models the string in EGG-INFO/spec/summary. May
             be empty.
