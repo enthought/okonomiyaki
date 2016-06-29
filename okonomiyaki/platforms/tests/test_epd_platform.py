@@ -41,24 +41,24 @@ class TestEPDPlatform(unittest.TestCase):
     def test_epd_platform_from_string(self):
         """Ensure every epd short platform is understood by EPDPlatform."""
         for epd_platform_string in EPD_PLATFORM_SHORT_NAMES:
-            EPDPlatform.from_epd_string(epd_platform_string)
+            EPDPlatform.from_string(epd_platform_string)
 
     def test_pep425_is_unicode(self):
         # When/Then
         for platform_string in self.platform_strings:
-            platform = EPDPlatform.from_epd_string(platform_string)
+            platform = EPDPlatform.from_string(platform_string)
             self.assertIsInstance(platform.pep425_tag, six.text_type)
 
     def test_platform_name(self):
         # When/Then
         for platform_string in self.platform_strings:
-            platform = EPDPlatform.from_epd_string(platform_string)
+            platform = EPDPlatform.from_string(platform_string)
             self.assertIsInstance(platform.platform_name, six.text_type)
 
     def test_str_is_unicode(self):
         # When/Then
         for platform_string in self.platform_strings:
-            platform = EPDPlatform.from_epd_string(platform_string)
+            platform = EPDPlatform.from_string(platform_string)
             self.assertIsInstance(six.text_type(platform), six.text_type)
 
     def test_epd_platform_from_string_new_names_underscore(self):
@@ -67,7 +67,7 @@ class TestEPDPlatform(unittest.TestCase):
 
         # When
         epd_platforms = tuple(
-            EPDPlatform.from_epd_string("rh5_" + arch)
+            EPDPlatform.from_string("rh5_" + arch)
             for arch in archs
         )
 
@@ -80,7 +80,7 @@ class TestEPDPlatform(unittest.TestCase):
 
         # When
         epd_platforms = tuple(
-            EPDPlatform.from_epd_string("rh5_" + arch)
+            EPDPlatform.from_string("rh5_" + arch)
             for arch in archs
         )
 
@@ -92,19 +92,19 @@ class TestEPDPlatform(unittest.TestCase):
         s = "win_x86_64"
 
         # When
-        epd_platform = EPDPlatform.from_epd_string(s)
+        epd_platform = EPDPlatform.from_string(s)
 
         # Then
-        self.assertEqual(epd_platform, EPDPlatform.from_epd_string("win-64"))
+        self.assertEqual(epd_platform, EPDPlatform.from_string("win-64"))
 
         # Given
         s = "osx_x86_64"
 
         # When
-        epd_platform = EPDPlatform.from_epd_string(s)
+        epd_platform = EPDPlatform.from_string(s)
 
         # Then
-        self.assertEqual(epd_platform, EPDPlatform.from_epd_string("osx-64"))
+        self.assertEqual(epd_platform, EPDPlatform.from_string("osx-64"))
 
     def test_epd_platform_from_string_new_names(self):
         """Ensure every epd short platform is understood by EPDPlatform."""
@@ -113,7 +113,7 @@ class TestEPDPlatform(unittest.TestCase):
 
         # When
         epd_platforms = tuple(
-            EPDPlatform.from_epd_string("rh5-" + arch)
+            EPDPlatform.from_string("rh5-" + arch)
             for arch in archs
         )
 
@@ -126,7 +126,7 @@ class TestEPDPlatform(unittest.TestCase):
 
         # When
         epd_platforms = tuple(
-            EPDPlatform.from_epd_string("rh5-" + arch)
+            EPDPlatform.from_string("rh5-" + arch)
             for arch in archs
         )
 
@@ -179,7 +179,7 @@ class TestEPDPlatform(unittest.TestCase):
         # When
         for old_name in EPD_PLATFORM_SHORT_NAMES:
             new_name = old_to_new_name(old_name)
-            name_to_platform[old_name] = EPDPlatform.from_epd_string(new_name)
+            name_to_platform[old_name] = EPDPlatform.from_string(new_name)
 
         # Then
         for old_name in name_to_platform:
@@ -195,13 +195,13 @@ class TestEPDPlatform(unittest.TestCase):
 
     def test_str(self):
         # Given
-        epd_platform = EPDPlatform.from_epd_string("rh5-64")
+        epd_platform = EPDPlatform.from_string("rh5-64")
 
         # When/Then
         self.assertEqual(str(epd_platform), "rh5_x86_64")
 
         # Given
-        epd_platform = EPDPlatform.from_epd_string("osx-32")
+        epd_platform = EPDPlatform.from_string("osx-32")
 
         # When/Then
         self.assertEqual(str(epd_platform), "osx_x86")
@@ -212,7 +212,7 @@ class TestEPDPlatform(unittest.TestCase):
         s = "osx_x86"
 
         # When
-        epd_platform = EPDPlatform.from_epd_string(s)
+        epd_platform = EPDPlatform.from_string(s)
 
         # Then
         self.assertEqual(str(epd_platform), s)
@@ -231,7 +231,7 @@ class TestEPDPlatform(unittest.TestCase):
         # When/Then
         for epd_string, platform_tag in epd_string_to_pep425:
             self.assertEqual(
-                EPDPlatform.from_epd_string(epd_string).pep425_tag,
+                EPDPlatform.from_string(epd_string).pep425_tag,
                 platform_tag,
             )
 
@@ -243,7 +243,7 @@ class TestEPDPlatformApplies(unittest.TestCase):
             self.assertTrue(applies("rh5", "current"))
             self.assertFalse(applies("!rh5", "current"))
 
-        platform = EPDPlatform.from_epd_string("rh5-x86_64")
+        platform = EPDPlatform.from_string("rh5-x86_64")
         self.assertTrue(applies("rh5", platform))
         self.assertFalse(applies("!rh5", platform))
         self.assertFalse(applies("rh5-32", platform))
@@ -254,7 +254,7 @@ class TestEPDPlatformApplies(unittest.TestCase):
             self.assertTrue(applies("all", "current"))
             self.assertFalse(applies("!all", "current"))
 
-        platform = EPDPlatform.from_epd_string("rh5-x86_64")
+        platform = EPDPlatform.from_string("rh5-x86_64")
         self.assertTrue(applies("all", platform))
         self.assertFalse(applies("!all", platform))
 
@@ -411,21 +411,21 @@ class TestGuessEPDPlatform(unittest.TestCase):
         # Given
         examples = (
             (("linux2", None, "x86"),
-             EPDPlatform.from_epd_string("rh5-32"),),
+             EPDPlatform.from_string("rh5-32"),),
             (("linux2", "RedHat_3", "x86"),
-             EPDPlatform.from_epd_string("rh3-32"),),
+             EPDPlatform.from_string("rh3-32"),),
             (("linux2", "RedHat_5", "x86"),
-             EPDPlatform.from_epd_string("rh5-32"),),
+             EPDPlatform.from_string("rh5-32"),),
             (("linux2", "RedHat_5", "amd64"),
-             EPDPlatform.from_epd_string("rh5-64"),),
+             EPDPlatform.from_string("rh5-64"),),
             (("darwin", None, "x86"),
-             EPDPlatform.from_epd_string("osx-32"),),
+             EPDPlatform.from_string("osx-32"),),
             (("darwin", None, "amd64"),
-             EPDPlatform.from_epd_string("osx-64"),),
+             EPDPlatform.from_string("osx-64"),),
             (("win32", None, "x86"),
-             EPDPlatform.from_epd_string("win-32"),),
+             EPDPlatform.from_string("win-32"),),
             (("win32", None, "amd64"),
-             EPDPlatform.from_epd_string("win-64"),),
+             EPDPlatform.from_string("win-64"),),
         )
 
         # When/Then
@@ -438,7 +438,7 @@ class TestGuessEPDPlatform(unittest.TestCase):
         epd_platform_string = "rh5-32"
 
         # When
-        epd_platform = EPDPlatform.from_epd_string(epd_platform_string)
+        epd_platform = EPDPlatform.from_string(epd_platform_string)
 
         # Then
         platform = epd_platform.platform
@@ -452,7 +452,7 @@ class TestGuessEPDPlatform(unittest.TestCase):
         epd_platform_string = "win-32"
 
         # When
-        epd_platform = EPDPlatform.from_epd_string(epd_platform_string)
+        epd_platform = EPDPlatform.from_string(epd_platform_string)
 
         # Then
         platform = epd_platform.platform
@@ -466,7 +466,7 @@ class TestGuessEPDPlatform(unittest.TestCase):
         epd_platform_string = "osx-64"
 
         # When
-        epd_platform = EPDPlatform.from_epd_string(epd_platform_string)
+        epd_platform = EPDPlatform.from_string(epd_platform_string)
         platform = epd_platform.platform
 
         # Then
@@ -483,7 +483,7 @@ class TestGuessEPDPlatform(unittest.TestCase):
 
         # When/Then
         with self.assertRaises(OkonomiyakiError):
-            EPDPlatform.from_epd_string(epd_platform_string)
+            EPDPlatform.from_string(epd_platform_string)
 
         # Given
         # Invalid bitwidth
@@ -491,7 +491,7 @@ class TestGuessEPDPlatform(unittest.TestCase):
 
         # When/Then
         with self.assertRaises(OkonomiyakiError):
-            EPDPlatform.from_epd_string(epd_platform_string)
+            EPDPlatform.from_string(epd_platform_string)
 
         # Given
         # Invalid platform basename
@@ -499,7 +499,7 @@ class TestGuessEPDPlatform(unittest.TestCase):
 
         # When/Then
         with self.assertRaises(OkonomiyakiError):
-            EPDPlatform.from_epd_string(epd_platform_string)
+            EPDPlatform.from_string(epd_platform_string)
 
     def test_from_platform_tag(self):
         # Given

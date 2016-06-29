@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import re
+import warnings
 
 import six
 
@@ -128,7 +129,7 @@ class EPDPlatform(object):
         return _guess_epd_platform(arch)
 
     @classmethod
-    def from_epd_string(cls, s):
+    def from_string(cls, s):
         """
         Create a new instance from an epd platform string (e.g. 'win-32')
 
@@ -150,6 +151,19 @@ class EPDPlatform(object):
             os, name, family, release = _epd_name_to_quadruplet(platform_name)
             platform = Platform(os, name, family, release, arch, machine)
             return cls(platform)
+
+    @classmethod
+    def from_epd_string(cls, s):
+        """
+        Create a new instance from an epd platform string (e.g. 'win-32')
+
+        DEPRECATED: use from_string instead.
+        """
+        warnings.warn(
+            "Deprecated: use EPDPlatform.from_string instead",
+            DeprecationWarning
+        )
+        return cls.from_string(s)
 
     @classmethod
     def _from_spec_depend_data(cls, platform, osdist, arch_name):
