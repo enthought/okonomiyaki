@@ -1,5 +1,29 @@
-Changes since 0.15.0
+2016-06-29    0.16.0
 --------------------
+
+This release focused on speeding up EggMetadata, and adding json serialization
+for EDM.
+
+Enhancements:
+
+  * update dependency on attr >= 16.0.0, which contains some speedups for
+    validators (#220)
+  * lazily parse PKG-INFO in EggMedata (#216)
+  * test runtimes's dummy pythons output the right string and are of the right
+    bitness (#215)
+  * test runtimes now contains symlinks on Unix (#214)
+  * json serialization for EggMetadata (#213)
+  * expose *Kind enums to okonomiyaki.runtimes (#204)
+  * speedup EggMetadata.from_egg (#203)
+  * EPDPlatform.from_epd_string is deprecated in favor of
+    EPDPlatform.from_string(#199)
+  * EggMetadata.from_egg does not re-open a zipfile 3 times (#195)
+
+Bugs:
+
+  * fix flake8 violations (#218)
+  * remove spurious dependency on stevedore (#208)
+  * missing enum34 dependency (#196)
 
 2016-04-27   0.15.0:
 --------------------
