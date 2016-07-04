@@ -20,7 +20,8 @@ from .common import _platform_string
 from .runtime_schemas import _JULIA_V1, _PYTHON_V1
 
 
-_METADATA_ARCNAME = os.path.join("enthought", "runtime.json")
+_METADATA_ARCNAME = "enthought/runtime.json"
+_METADATA_PATHNAME = os.path.join("enthought", "runtime.json")
 
 
 @attributes
@@ -326,11 +327,11 @@ def _read_runtime_metadata_json(zp):
 
 
 def _read_extracted_runtime_metadata_json(extracted_dir):
-    metadata_src = os.path.join(extracted_dir, _METADATA_ARCNAME)
+    metadata_src = os.path.join(extracted_dir, _METADATA_PATHNAME)
     try:
         with open(metadata_src, "rt") as fp:
             return fp.read()
     except IOError:
         msg = ("Invalid extracted runtime (unable to read metadata archive "
                "{0!r} in runtime)")
-        raise MissingMetadata(msg.format(_METADATA_ARCNAME))
+        raise MissingMetadata(msg.format(_METADATA_PATHNAME))
