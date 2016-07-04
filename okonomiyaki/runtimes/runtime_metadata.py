@@ -20,7 +20,7 @@ from .common import _platform_string
 from .runtime_schemas import _JULIA_V1, _PYTHON_V1
 
 
-_METADATA_ARCNAME = "enthought/runtime.json"
+_METADATA_ARCNAME = os.path.join("enthought", "runtime.json")
 
 
 @attributes
@@ -40,10 +40,28 @@ class IRuntimeMetadata(six.with_metaclass(abc.ABCMeta)):
         return runtime_metadata_factory(path)
 
     @classmethod
+    def factory_from_extracted_path(cls, path):
+        """ Creates a metadata instance from the given unzipped runtime path.
+
+        The created instance's class will be detected dynamically from the
+        metadata file content.
+        """
+        return runtime_metadata_from_extracted_dir_factory(path)
+
+    @classmethod
     @abc.abstractmethod
     def _from_path(cls, path):
         """Create an instance of the given runtime metadata class from a
         path.
+
+        Users of the metadata classes should not use this method directly, but
+        use the factory class method instead."""
+
+    @classmethod
+    @abc.abstractmethod
+    def _from_extracted_path(cls, path):
+        """Create an instance of the given runtime metadata class from a
+        path to an unarchived runtime.
 
         Users of the metadata classes should not use this method directly, but
         use the factory class method instead."""
@@ -103,6 +121,23 @@ class IRuntimeMetadataV1(IRuntimeMetadata):
                 metadata_s = _read_runtime_metadata_json(zp)
         else:
             metadata_s = _read_runtime_metadata_json(path_or_file)
+
+        metadata_dict = json.loads(metadata_s)
+        try:
+            jsonschema.validate(metadata_dict, cls._json_schema)
+        except jsonschema.ValidationError as e:
+            msg = "Invalid metadata: {0!r}".format(e.message)
+            raise InvalidMetadata(msg)
+
+        metadata_version = metadata_dict["metadata_version"]
+        if metadata_version != "1.0":
+            raise UnsupportedMetadata(metadata_version)
+
+        return cls._from_json_dict(metadata_dict)
+
+    @classmethod
+    def _from_extracted_path(cls, extracted_path):
+        metadata_s = _read_extracted_runtime_metadata_json(extracted_path)
 
         metadata_dict = json.loads(metadata_s)
         try:
@@ -194,17 +229,6 @@ def runtime_metadata_factory(path_or_file):
     path_or_file: str or ZipFile
         The path to the runtime package. May be a ZipFile instance.
     """
-    def _factory_key_from_metadata(json_dict):
-        for k in ("metadata_version", "implementation"):
-            if k not in json_dict:
-                raise MissingMetadata(
-                    "Missing runtime metadata field {0!r}".format(k)
-                )
-        return (
-            MetadataVersion.from_string(json_dict["metadata_version"]),
-            json_dict["implementation"]
-        )
-
     if isinstance(path_or_file, six.string_types):
         with zipfile2.ZipFile(path_or_file) as zp:
             metadata = _read_runtime_metadata_json(zp)
@@ -219,6 +243,38 @@ def runtime_metadata_factory(path_or_file):
         raise UnsupportedMetadata(key[0], msg)
     else:
         return klass._from_path(path_or_file)
+
+
+def runtime_metadata_from_extracted_dir_factory(extracted_dir):
+    """ Creates metadata object of the appropriate class from the given path.
+
+    Parameters
+    ----------
+    extracted_dir: str
+        The path to the uncompressed runtime package.
+    """
+    metadata = _read_extracted_runtime_metadata_json(extracted_dir)
+    json_dict = json.loads(metadata)
+
+    key = _factory_key_from_metadata(json_dict)
+    klass = _METADATA_KLASS_FACTORY.get(key)
+    if klass is None:
+        msg = "No support for language '{1}' (metadata version '{0}')".format(*key)
+        raise UnsupportedMetadata(key[0], msg)
+    else:
+        return klass._from_extracted_path(extracted_dir)
+
+
+def _factory_key_from_metadata(json_dict):
+    for k in ("metadata_version", "implementation"):
+        if k not in json_dict:
+            raise MissingMetadata(
+                "Missing runtime metadata field {0!r}".format(k)
+            )
+    return (
+        MetadataVersion.from_string(json_dict["metadata_version"]),
+        json_dict["implementation"]
+    )
 
 
 def is_runtime_path_valid(path):
@@ -266,4 +322,15 @@ def _read_runtime_metadata_json(zp):
         return zp.read(_METADATA_ARCNAME).decode()
     except KeyError:
         msg = "Invalid runtime (missing metadata archive {0!r} in runtime)"
+        raise MissingMetadata(msg.format(_METADATA_ARCNAME))
+
+
+def _read_extracted_runtime_metadata_json(extracted_dir):
+    metadata_src = os.path.join(extracted_dir, _METADATA_ARCNAME)
+    try:
+        with open(metadata_src, "rt") as fp:
+            return fp.read()
+    except IOError:
+        msg = ("Invalid extracted runtime (unable to read metadata archive "
+               "{0!r} in runtime)")
         raise MissingMetadata(msg.format(_METADATA_ARCNAME))
