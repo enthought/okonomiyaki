@@ -40,7 +40,9 @@ def _default_cpython_abi(platform, implementation_version):
         if implementation_version.major == 2:
             abi = u"msvc2008"
         elif implementation_version.major == 3:
-            if implementation_version.minor <= 4:
+            if implementation_version.minor <= 2:
+                abi = u"msvc2008"
+            elif implementation_version.minor <= 4:
                 abi = u"msvc2010"
             elif implementation_version.minor == 5:
                 abi = u"msvc2015"
@@ -96,6 +98,11 @@ def default_abi(platform, implementation, implementation_version):
             return u"darwin"
         else:
             raise OkonomiyakiError(msg)
+    elif implementation in ("ironpython", "jython"):
+        if implementation_version == RuntimeVersion.from_string("2.7"):
+            return _default_cpython_abi(platform, implementation_version)
+        else:
+            OkonomiyakiError(msg)
     elif implementation == "julia":
         if platform.os_kind == OSKind.windows:
             return u"mingw"
