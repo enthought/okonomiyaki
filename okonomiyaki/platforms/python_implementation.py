@@ -13,6 +13,8 @@ _KIND_TO_ABBREVIATED = {
     u"cpython": u"cp",
     u"python": u"py",
     u"pypy": u"pp",
+    u"ironpython": u"ip",
+    u"jython": u"jy",
 }
 
 _ABBREVIATED_TO_KIND = dict((v, k) for k, v in _KIND_TO_ABBREVIATED.items())
