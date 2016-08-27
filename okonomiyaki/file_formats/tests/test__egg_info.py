@@ -708,6 +708,35 @@ class TestGuessPlatformAbi(unittest.TestCase):
         # Then
         self.assertEqual(abi, "msvc2015")
 
+    def test_python_36(self):
+        # Given
+        platform = EPDPlatform.from_epd_string("rh5-64")
+        python_tag = "cp36"
+
+        # When
+        abi = _guess_platform_abi(platform, python_tag)
+
+        # Then
+        self.assertEqual(abi, "gnu")
+
+        # Given
+        platform = EPDPlatform.from_epd_string("osx-64")
+
+        # When
+        abi = _guess_platform_abi(platform, python_tag)
+
+        # Then
+        self.assertEqual(abi, "darwin")
+
+        # Given
+        platform = EPDPlatform.from_epd_string("win-64")
+
+        # When
+        abi = _guess_platform_abi(platform, python_tag)
+
+        # Then
+        self.assertEqual(abi, "msvc2015")
+
     def test_no_platform(self):
         # Given
         platform = None
