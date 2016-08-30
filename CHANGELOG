@@ -1,3 +1,10 @@
+2016-08-30    0.16.2
+--------------------
+
+Enhancements:
+
+  * add support for cp35 and cp36 in _guess_platform_abi (#233)
+
 2016-07-26    0.16.1
 --------------------
 
