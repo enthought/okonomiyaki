@@ -14,7 +14,7 @@ IS_RELEASED = False
 VERSION = '%d.%d.%d' % (MAJOR, MINOR, MICRO)
 
 INSTALL_REQUIRES = [
-    "attrs >= 16.0.0",
+    "attrs < 16.1.0",  # Needed to support Python 2.6
     "jsonschema >= 2.5.1",
     "six >= 1.9.0",
     "zipfile2 >= 0.0.12",
