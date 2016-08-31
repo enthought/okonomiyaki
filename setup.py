@@ -124,8 +124,8 @@ def main():
     }
 
     setup(name="okonomiyaki",
-          author="David Cournapeau",
-          author_email="David Cournapeau",
+          author="Enthought, Inc.",
+          author_email="info@enthought.com",
           packages=["okonomiyaki",
                     "okonomiyaki._cli",
                     "okonomiyaki._cli.tests",
