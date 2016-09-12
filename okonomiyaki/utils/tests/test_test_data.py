@@ -1,8 +1,8 @@
-import os
 import sys
 import zipfile2
 
 from okonomiyaki.runtimes.runtime_metadata import IRuntimeMetadata
+from okonomiyaki.errors import UnsupportedMetadata
 
 from .. import test_data
 
@@ -24,20 +24,23 @@ class TestDummyPythonRuntimes(unittest.TestCase):
         """
 
         # Given
-        python_runtimes = [attribute for attribute in dir(test_data)
-                           if attribute.startswith('PYTHON')]
-        win_runtimes = []
-        for runtime in python_runtimes:
-            runtime_path = getattr(test_data, runtime)
-            if os.path.splitext(runtime_path)[-1] == '.runtime':
+        runtime_paths = [getattr(test_data, attrib) for attrib in dir(test_data)
+                         if isinstance(getattr(test_data, attrib), str)
+                         and getattr(test_data, attrib).endswith('.runtime')]
+        win_cpy_runtimes = []
+        for runtime_path in runtime_paths:
+            try:
                 runtime_metadata = IRuntimeMetadata.factory_from_path(runtime_path)
-                if runtime_metadata.platform.os == 'windows':
-                    win_runtimes.append((runtime, runtime_path))
+                if (runtime_metadata.platform.os == 'windows'
+                   and runtime_metadata.implementation == 'cpython'):
+                    win_cpy_runtimes.append(runtime_path)
+            except UnsupportedMetadata:
+                continue
 
         # When/Then
-        for runtime_name, runtime_path in win_runtimes:
-            files_in_runtime = self._get_contents_of_runtime(runtime_path)
+        for win_runtime in win_cpy_runtimes:
+            files_in_runtime = self._get_contents_of_runtime(win_runtime)
             self.assertIn(
                 'pythonw.exe', files_in_runtime,
-                msg="'pythonw.exe' is not in {0}".format(runtime_name)
+                msg="'pythonw.exe' is not in {0}".format(win_runtime)
             )
