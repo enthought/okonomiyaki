@@ -1,10 +1,10 @@
+import os
+from os.path import join, dirname
 import sys
 import zipfile2
 
 from okonomiyaki.runtimes.runtime_metadata import IRuntimeMetadata
 from okonomiyaki.errors import UnsupportedMetadata
-
-from .. import test_data
 
 if sys.version_info < (2, 7):
     import unittest2 as unittest
@@ -24,9 +24,9 @@ class TestDummyPythonRuntimes(unittest.TestCase):
         """
 
         # Given
-        runtime_paths = [getattr(test_data, attrib) for attrib in dir(test_data)
-                         if isinstance(getattr(test_data, attrib), str)
-                         and getattr(test_data, attrib).endswith('.runtime')]
+        test_data_dir = join(dirname(__file__), '..', 'test_data')
+        runtime_paths = [join(test_data_dir, f) for f in os.listdir(test_data_dir)
+                         if f.endswith('.runtime')]
         win_cpy_runtimes = []
         for runtime_path in runtime_paths:
             try:
@@ -38,6 +38,7 @@ class TestDummyPythonRuntimes(unittest.TestCase):
                 continue
 
         # When/Then
+        self.assertGreaterEqual(len(win_cpy_runtimes), 1)
         for win_runtime in win_cpy_runtimes:
             files_in_runtime = self._get_contents_of_runtime(win_runtime)
             self.assertIn(
