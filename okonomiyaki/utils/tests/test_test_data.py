@@ -1,4 +1,4 @@
-import os
+import glob
 from os.path import join, dirname
 import sys
 import zipfile2
@@ -25,8 +25,8 @@ class TestDummyPythonRuntimes(unittest.TestCase):
 
         # Given
         test_data_dir = join(dirname(__file__), '..', 'test_data')
-        runtime_paths = [join(test_data_dir, f) for f in os.listdir(test_data_dir)
-                         if f.endswith('.runtime')]
+        runtime_paths = [join(test_data_dir, f) for f
+                         in glob.glob(join(test_data_dir, '*.runtime'))]
         win_cpy_runtimes = []
         for runtime_path in runtime_paths:
             try:
