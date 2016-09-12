@@ -30,5 +30,5 @@ class TestDummyPythonRuntimes(unittest.TestCase):
             files_in_runtime = self._get_contents_of_runtime(path_to_runtime)
             self.assertIn(
                 'pythonw.exe', files_in_runtime,
-                msg="'pythonw.exe' is not in {}".format(runtime)
+                msg="'pythonw.exe' is not in {0}".format(runtime)
             )
