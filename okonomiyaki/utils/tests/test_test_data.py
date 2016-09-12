@@ -1,10 +1,12 @@
 import glob
-from os.path import join, dirname
+from os.path import join
 import sys
 import zipfile2
 
 from okonomiyaki.runtimes.runtime_metadata import IRuntimeMetadata
 from okonomiyaki.errors import UnsupportedMetadata
+
+from ..test_data import DUMMY_RUNTIMES_DIRECTORY
 
 if sys.version_info < (2, 7):
     import unittest2 as unittest
@@ -24,9 +26,8 @@ class TestDummyPythonRuntimes(unittest.TestCase):
         """
 
         # Given
-        test_data_dir = join(dirname(__file__), '..', 'test_data')
-        runtime_paths = [join(test_data_dir, f) for f
-                         in glob.glob(join(test_data_dir, '*.runtime'))]
+        runtime_paths = [join(DUMMY_RUNTIMES_DIRECTORY, f) for f
+                         in glob.glob(join(DUMMY_RUNTIMES_DIRECTORY, '*.runtime'))]
         win_cpy_runtimes = []
         for runtime_path in runtime_paths:
             try:
