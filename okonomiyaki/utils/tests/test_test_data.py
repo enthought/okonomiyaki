@@ -1,12 +1,15 @@
+import os
 import sys
 import zipfile2
+
+from okonomiyaki.runtimes.runtime_metadata import IRuntimeMetadata
 
 from .. import test_data
 
 if sys.version_info < (2, 7):
-        import unittest2 as unittest
+    import unittest2 as unittest
 else:
-        import unittest
+    import unittest
 
 
 class TestDummyPythonRuntimes(unittest.TestCase):
@@ -21,14 +24,20 @@ class TestDummyPythonRuntimes(unittest.TestCase):
         """
 
         # Given
-        win_runtimes = [f for f in dir(test_data)
-                        if 'CPYTHON' in f and 'WIN' in f]
+        python_runtimes = [attribute for attribute in dir(test_data)
+                           if attribute.startswith('PYTHON')]
+        win_runtimes = []
+        for runtime in python_runtimes:
+            runtime_path = getattr(test_data, runtime)
+            if os.path.splitext(runtime_path)[-1] == '.runtime':
+                runtime_metadata = IRuntimeMetadata.factory_from_path(runtime_path)
+                if runtime_metadata.platform.os == 'windows':
+                    win_runtimes.append((runtime, runtime_path))
 
         # When/Then
-        for runtime in win_runtimes:
-            path_to_runtime = test_data.__dict__[runtime]
-            files_in_runtime = self._get_contents_of_runtime(path_to_runtime)
+        for runtime_name, runtime_path in win_runtimes:
+            files_in_runtime = self._get_contents_of_runtime(runtime_path)
             self.assertIn(
                 'pythonw.exe', files_in_runtime,
-                msg="'pythonw.exe' is not in {0}".format(runtime)
+                msg="'pythonw.exe' is not in {0}".format(runtime_name)
             )
