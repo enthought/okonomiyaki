@@ -1,7 +1,7 @@
 import os.path
 
 
-_HERE = os.path.dirname(__file__)
+DUMMY_RUNTIMES_DIRECTORY = _HERE = os.path.dirname(__file__)
 
 # Dummy runtimes for testing
 
