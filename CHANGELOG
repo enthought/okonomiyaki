@@ -1,3 +1,11 @@
+2016-10-12    0.16.5
+--------------------
+
+Bug fix:
+
+  * fix handling of applies('32') and applies('64') (backport fix for issue
+    #244)
+
 2016-09-12    0.16.4
 --------------------
 
