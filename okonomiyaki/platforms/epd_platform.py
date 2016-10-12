@@ -28,7 +28,7 @@ _ARCHBITS_TO_ARCH = {
 X86 = Arch(ArchitectureKind.x86)
 X86_64 = Arch(ArchitectureKind.x86_64)
 
-PLATFORM_NAMES = [
+PLATFORM_NAMES = (
     "osx",
     "rh3",
     "rh5",
@@ -36,9 +36,9 @@ PLATFORM_NAMES = [
     "rh7",
     "sol",
     "win",
-]
+)
 
-EPD_PLATFORM_SHORT_NAMES = [
+EPD_PLATFORM_SHORT_NAMES = (
     "osx-32",
     "osx-64",
     "rh3-32",
@@ -51,7 +51,9 @@ EPD_PLATFORM_SHORT_NAMES = [
     "sol-64",
     "win-32",
     "win-64",
-]
+)
+
+VALID_PLATFORMS_FILTER = PLATFORM_NAMES + ("all", "rh",)
 
 _EPD_PLATFORM_STRING_RE = re.compile("""
     (?P<os>[^-_]+)
@@ -326,11 +328,27 @@ def applies(platform_string, to='current'):
 
         parts = component.split("-")
         if len(parts) == 1:
-            return parts[0], None
+            if parts[0] in VALID_PLATFORMS_FILTER:
+                return parts[0], None
+            elif parts[0] in _ARCHBITS_TO_ARCH:
+                return "all", parts[0]
+            else:
+                raise ValueError(
+                    "Invalid filter string: '{}'".format(component)
+                )
         elif len(parts) == 2:
+            if (
+                parts[0] not in VALID_PLATFORMS_FILTER or
+                parts[1] not in _ARCHBITS_TO_ARCH
+            ):
+                raise ValueError(
+                    "Invalid filter string: '{}'".format(component)
+                )
             return parts[0], parts[1]
         else:
-            raise ValueError()
+            raise ValueError(
+                "Invalid filter string: '{}'".format(component)
+            )
 
     def _are_compatible(short_left, short_right):
         return short_left == short_right or \
