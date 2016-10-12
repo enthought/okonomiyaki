@@ -34,7 +34,7 @@ class TestEPDPlatform(unittest.TestCase):
         )
 
     def test_short_names_consistency(self):
-        legacy_entries = sorted([entry[0] for entry in _SUBDIR])
+        legacy_entries = tuple(sorted([entry[0] for entry in _SUBDIR]))
 
         self.assertEqual(EPD_PLATFORM_SHORT_NAMES, legacy_entries)
 
@@ -237,6 +237,37 @@ class TestEPDPlatform(unittest.TestCase):
 
 
 class TestEPDPlatformApplies(unittest.TestCase):
+    def test_arch_only(self):
+        # Given
+        platform = "64"
+        to = "rh5-64"
+
+        # When
+        s = applies(platform, to)
+
+        # Then
+        self.assertIs(s, True)
+
+        # Given
+        platform = "32"
+        to = "rh5-64"
+
+        # When
+        s = applies(platform, to)
+
+        # Then
+        self.assertIs(s, False)
+
+        # Given
+        platform = "64"
+        to = "rh5-32"
+
+        # When
+        s = applies(platform, to)
+
+        # Then
+        self.assertIs(s, False)
+
     @mock_centos_5_8
     def test_no_arch(self):
         with mock_x86:
