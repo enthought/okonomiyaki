@@ -19,6 +19,7 @@ def _mock_uname(*args):
     else:
         return uname_result(*args)
 
+
 mock_darwin = MultiPatcher([
     mock.patch("sys.platform", "darwin"),
     mock.patch("platform.uname",
