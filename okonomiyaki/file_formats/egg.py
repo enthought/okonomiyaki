@@ -3,6 +3,7 @@ import os.path
 import re
 import shutil
 import tempfile
+import time
 import zipfile
 
 import zipfile2
@@ -66,9 +67,21 @@ class _EggBuilderNoPkgInfo(object):
         """ Add the given file to the egg, under the given archive name."""
         self._fp.write(path, archive_name)
 
-    def add_data(self, data, archive_name):
+    def add_data(self, data, archive_name, chmod=0o644):
         """ Write the given data as the given archive name."""
-        self._fp.writestr(archive_name, data)
+        if archive_name[-1] == "/":
+            raise ValueError(
+                "Invalid member name for data: '{}'".format(archive_name)
+            )
+
+        if not isinstance(archive_name, zipfile.ZipInfo):
+            zinfo = zipfile.ZipInfo(
+                filename=archive_name,
+                date_time=time.localtime(time.time())[:6]
+            )
+            zinfo.compress_type = self._fp.compression
+            zinfo.external_attr = chmod << 16
+        self._fp.writestr(zinfo, data)
 
     def add_tree(self, directory, archive_prefix=""):
         """
@@ -94,16 +107,18 @@ class _EggBuilderNoPkgInfo(object):
 
     def _write_spec_depend(self):
         spec_depend_string = self._egg_metadata.spec_depend_string
-        self._fp.writestr(_SPEC_DEPEND_LOCATION,
-                          spec_depend_string.encode("ascii"))
+        self.add_data(
+            spec_depend_string.encode("ascii"), _SPEC_DEPEND_LOCATION)
 
     def _write_spec_summary(self):
-        self._fp.writestr(_SPEC_SUMMARY_LOCATION,
-                          self._egg_metadata.summary.encode("utf8"))
+        self.add_data(
+            self._egg_metadata.summary.encode("utf8"),
+            _SPEC_SUMMARY_LOCATION,
+        )
 
     def _write_pkg_info(self):
         data = self._egg_metadata.pkg_info.to_string()
-        self._fp.writestr(_PKG_INFO_LOCATION, data.encode("utf8"))
+        self.add_data(data.encode("utf8"), _PKG_INFO_LOCATION)
 
 
 class EggBuilder(_EggBuilderNoPkgInfo):
