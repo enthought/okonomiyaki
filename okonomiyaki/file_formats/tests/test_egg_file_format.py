@@ -313,7 +313,10 @@ packages = []
             pkg_info = os.path.join(r_prefix, archive)
             self.assertTrue(os.path.exists(pkg_info))
             perms = stat.S_IMODE(os.stat(pkg_info).st_mode)
-            self.assertEqual(perms, 0o644)
+            if sys.platform == "win32":
+                self.assertEqual(perms, 0o666)
+            else:
+                self.assertEqual(perms, 0o644)
 
 
 class TestEggRewriter(unittest.TestCase):
