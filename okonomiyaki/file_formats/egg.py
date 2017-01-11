@@ -74,13 +74,12 @@ class _EggBuilderNoPkgInfo(object):
                 "Invalid member name for data: '{}'".format(archive_name)
             )
 
-        if not isinstance(archive_name, zipfile.ZipInfo):
-            zinfo = zipfile.ZipInfo(
-                filename=archive_name,
-                date_time=time.localtime(time.time())[:6]
-            )
-            zinfo.compress_type = self._fp.compression
-            zinfo.external_attr = chmod << 16
+        zinfo = zipfile.ZipInfo(
+            filename=archive_name,
+            date_time=time.localtime(time.time())[:6]
+        )
+        zinfo.compress_type = self._fp.compression
+        zinfo.external_attr = chmod << 16
         self._fp.writestr(zinfo, data)
 
     def add_tree(self, directory, archive_prefix=""):

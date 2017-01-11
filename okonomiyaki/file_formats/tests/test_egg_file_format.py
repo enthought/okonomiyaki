@@ -318,6 +318,16 @@ packages = []
             else:
                 self.assertEqual(perms, 0o644)
 
+    def test_add_data(self):
+        # Given
+        metadata = self._create_fake_metadata()
+
+        # When/Then
+        # Ensure we don't create "directories" w/ data
+        with self.assertRaises(ValueError):
+            with EggBuilder(metadata, cwd=self.d) as fp:
+                fp.add_data(b"data", "EGG-INFO/")
+
 
 class TestEggRewriter(unittest.TestCase):
     def setUp(self):
