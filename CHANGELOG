@@ -1,3 +1,10 @@
+2017-01-12    0.16.5
+--------------------
+
+Bug fix:
+
+  * fix default permissions in EggBuilder.add_data_file (#250)
+
 2016-10-12    0.16.5
 --------------------
 
