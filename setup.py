@@ -109,6 +109,8 @@ else:
 
 def main():
     write_version_py("okonomiyaki/_version.py")
+    with open("README.rst", "rt") as fp:
+        long_description = fp.read()
 
     from okonomiyaki import __version__
 
@@ -154,6 +156,11 @@ def main():
             "Programming Language :: Python :: 2.7"
             "Programming Language :: Python :: 3",
         ],
+        description=(
+            "Self-contained library to deal with metadata in "
+            "Enthought-specific eggs",
+        ),
+        long_description=long_description,
     )
 
 
