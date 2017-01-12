@@ -2,6 +2,7 @@
 import os
 import os.path
 import shutil
+import stat
 import sys
 import tempfile
 import textwrap
@@ -285,6 +286,47 @@ packages = []
 
         with zipfile2.ZipFile(egg_path, "r") as fp:
             self.assertEqual(set(fp.namelist()), set(r_files))
+
+    def test_files_are_readable(self):
+        # Given
+        metadata = self._create_fake_metadata()
+        r_prefix = os.path.join(self.d, "prefix")
+
+        # When
+        with EggBuilder(metadata, cwd=self.d) as fp:
+            pass
+
+        egg_path = os.path.join(self.d, "Qt_debug-4.8.6-1.egg")
+
+        with zipfile2.ZipFile(egg_path, "r") as fp:
+            fp.extractall(
+                r_prefix, preserve_permissions=zipfile2.PERMS_PRESERVE_SAFE
+            )
+
+        # Then
+        # Files are readable for everybody
+        for archive in (
+            "EGG-INFO/PKG-INFO",
+            "EGG-INFO/spec/depend",
+            "EGG-INFO/spec/summary",
+        ):
+            pkg_info = os.path.join(r_prefix, archive)
+            self.assertTrue(os.path.exists(pkg_info))
+            perms = stat.S_IMODE(os.stat(pkg_info).st_mode)
+            if sys.platform == "win32":
+                self.assertEqual(perms, 0o666)
+            else:
+                self.assertEqual(perms, 0o644)
+
+    def test_add_data(self):
+        # Given
+        metadata = self._create_fake_metadata()
+
+        # When/Then
+        # Ensure we don't create "directories" w/ data
+        with self.assertRaises(ValueError):
+            with EggBuilder(metadata, cwd=self.d) as fp:
+                fp.add_data(b"data", "EGG-INFO/")
 
 
 class TestEggRewriter(unittest.TestCase):
