@@ -61,6 +61,11 @@ class TestEPDPlatform(unittest.TestCase):
             platform = EPDPlatform.from_string(platform_string)
             self.assertIsInstance(six.text_type(platform), six.text_type)
 
+    def test_over_complete_strings(self):
+        # When/Then
+        with self.assertRaises(OkonomiyakiError):
+            EPDPlatform.from_string("win_x86-64")
+
     def test_epd_platform_from_string_new_names_underscore(self):
         # Given
         archs = ("i386", "x86", "i686")
