@@ -14,7 +14,7 @@ IS_RELEASED = False
 VERSION = '%d.%d.%d' % (MAJOR, MINOR, MICRO)
 
 INSTALL_REQUIRES = [
-    "attrs < 16.1.0",  # Needed to support Python 2.6
+    "attrs >= 16.1.0",
     "jsonschema >= 2.5.1",
     "six >= 1.9.0",
     "zipfile2 >= 0.0.12",
@@ -123,32 +123,39 @@ def main():
         ],
     }
 
-    setup(name="okonomiyaki",
-          author="Enthought, Inc.",
-          author_email="info@enthought.com",
-          packages=["okonomiyaki",
-                    "okonomiyaki._cli",
-                    "okonomiyaki._cli.tests",
-                    "okonomiyaki.file_formats",
-                    "okonomiyaki.file_formats.tests",
-                    "okonomiyaki.file_formats._blacklist",
-                    "okonomiyaki.platforms",
-                    "okonomiyaki.platforms.tests",
-                    "okonomiyaki.repositories",
-                    "okonomiyaki.repositories.tests",
-                    "okonomiyaki.runtimes",
-                    "okonomiyaki.runtimes.tests",
-                    "okonomiyaki.versions",
-                    "okonomiyaki.versions.tests",
-                    "okonomiyaki.utils",
-                    "okonomiyaki.utils.test_data",
-                    "okonomiyaki.utils.tests",
-                    ],
-          package_data=package_data,
-          install_requires=INSTALL_REQUIRES,
-          extras_require=EXTRAS_REQUIRE,
-          license="BSD",
-          version=__version__)
+    setup(
+        name="okonomiyaki",
+        author="Enthought, Inc.",
+        author_email="info@enthought.com",
+        packages=["okonomiyaki",
+            "okonomiyaki._cli",
+            "okonomiyaki._cli.tests",
+            "okonomiyaki.file_formats",
+            "okonomiyaki.file_formats.tests",
+            "okonomiyaki.file_formats._blacklist",
+            "okonomiyaki.platforms",
+            "okonomiyaki.platforms.tests",
+            "okonomiyaki.repositories",
+            "okonomiyaki.repositories.tests",
+            "okonomiyaki.runtimes",
+            "okonomiyaki.runtimes.tests",
+            "okonomiyaki.versions",
+            "okonomiyaki.versions.tests",
+            "okonomiyaki.utils",
+            "okonomiyaki.utils.test_data",
+            "okonomiyaki.utils.tests",
+        ],
+        package_data=package_data,
+        install_requires=INSTALL_REQUIRES,
+        extras_require=EXTRAS_REQUIRE,
+        license="BSD",
+        version=__version__,
+        classifiers=[
+            "Programming Language :: Python :: 2.7"
+            "Programming Language :: Python :: 3",
+        ],
+    )
+
 
 if __name__ == "__main__":
     main()

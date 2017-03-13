@@ -1,3 +1,3 @@
-stevedore < 1.10  # newer versions don't work w/ 2.6
+stevedore
 -r dev_requirements.txt
 unittest2
