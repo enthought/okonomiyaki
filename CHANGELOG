@@ -1,3 +1,10 @@
+2017-03-13    0.16.8
+--------------------
+
+Bug fix:
+
+  * fix invalid trove classifier that caused pypi to reject okonomiyaki wheel
+
 2017-03-13    0.16.7
 --------------------
 
