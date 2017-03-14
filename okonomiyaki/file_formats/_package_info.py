@@ -1,7 +1,7 @@
 """
 Most of the code below is adapted from pkg-info 1.2.1
 
-We support only 1.0 and 1.1, as 1.2 does not seem to be used anywhere ?
+We support 1.0, 1.1 and 1.2.
 """
 import contextlib
 
@@ -44,9 +44,21 @@ HEADER_ATTRS_1_1 = HEADER_ATTRS_1_0 + (  # PEP 314
     ('Obsoletes', 'obsoletes', True),
 )
 
+HEADER_ATTRS_1_2 = HEADER_ATTRS_1_1 + (  # PEP 345
+    ('Maintainer', 'maintainer', False),
+    ('Maintainer-email', 'maintainer_email', False),
+    ('Requires-Python', 'requires_python', False),
+    ('Requires-External', 'requires_external', True),
+    ('Requires-Dist', 'requires_dist', True),
+    ('Provides-Dist', 'provides_dist', True),
+    ('Obsoletes-Dist', 'obsoletes_dist', True),
+    ('Project-URL', 'project_urls', True),
+)
+
 HEADER_ATTRS = {
     (1, 0): HEADER_ATTRS_1_0,
     (1, 1): HEADER_ATTRS_1_1,
+    (1, 2): HEADER_ATTRS_1_2,
 }
 
 MAX_SUPPORTED_VERSION = max(HEADER_ATTRS.keys())
@@ -133,8 +145,11 @@ class PackageInfo(object):
     def __init__(self, metadata_version, name, version, platforms=None,
                  supported_platforms=None, summary="", description="",
                  keywords=None, home_page="", download_url="", author="",
-                 author_email="", license="", classifiers=None,
-                 requires=None, provides=None, obsoletes=None):
+                 author_email="", license="", classifiers=None, requires=None,
+                 provides=None, obsoletes=None, maintainer="",
+                 maintainer_email="", requires_python=None,
+                 requires_external=None, requires_dist=None,
+                 provides_dist=None, obsoletes_dist=None, projects_urls=None):
         _ensure_supported_version(metadata_version)
 
         self.metadata_version = metadata_version
@@ -158,6 +173,16 @@ class PackageInfo(object):
         self.requires = requires or ()
         self.provides = provides or ()
         self.obsoletes = obsoletes or ()
+
+        # version 1.2
+        self.maintainer = maintainer or ""
+        self.maintainer_email = maintainer_email or ""
+        self.requires_python = requires_python or ()
+        self.requires_external = requires_external or ()
+        self.requires_dist = requires_dist or ()
+        self.provides_dist = provides_dist or ()
+        self.obsoletes_dist = obsoletes_dist or ()
+        self.project_urls = projects_urls or ()
 
     def to_string(self, metadata_version_info=MAX_SUPPORTED_VERSION):
         s = py3compat.StringIO()
