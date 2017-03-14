@@ -19,7 +19,7 @@ from .common import (
     BROKEN_MCCABE_EGG, PIP_EGG, PKG_INFO_ENSTALLER_1_0_DESCRIPTION,
     PIP_PKG_INFO, PKG_INFO_ENSTALLER_1_0, PYMULTINEST_EGG, SUPERVISOR_EGG,
     UNICODE_DESCRIPTION_EGG, UNICODE_DESCRIPTION_TEXT, FAKE_PYSIDE_1_1_0_EGG,
-    FAKE_PYSIDE_1_1_0_EGG_PKG_INFO
+    FAKE_PYSIDE_1_1_0_EGG_PKG_INFO, SETUPTOOLS_PKG_INFO_1_2,
 )
 
 
@@ -66,7 +66,7 @@ class TestPackageInfo(unittest.TestCase):
 
     def test_from_string_unsupported(self):
         # Given
-        data = u"Metadata-Version: 1.2"
+        data = u"Metadata-Version: 1.3"
 
         # When/Then
         with self.assertRaises(OkonomiyakiError):
@@ -75,7 +75,7 @@ class TestPackageInfo(unittest.TestCase):
     def test_unsupported(self):
         # When/Then
         with self.assertRaises(OkonomiyakiError):
-            PackageInfo("1.2", "numpy", "1.9.2")
+            PackageInfo("1.3", "numpy", "1.9.2")
 
     def test_simple_from_egg(self):
         # Given
@@ -306,3 +306,58 @@ class TestPackageInfo(unittest.TestCase):
             data = zp.read(_PKG_INFO_LOCATION).decode(PKG_INFO_ENCODING)
 
         self.assertMultiLineEqual(data, r_data)
+
+    def test_metadata_1_2_from_string(self):
+        # Given
+        data = SETUPTOOLS_PKG_INFO_1_2
+        r_classifiers = [
+            u'Development Status :: 5 - Production/Stable',
+            u'Intended Audience :: Developers', u'License :: OSI Approved :: MIT License',
+            u'Operating System :: OS Independent',
+            u'Programming Language :: Python :: 2',
+            u'Programming Language :: Python :: 2.6',
+            u'Programming Language :: Python :: 2.7',
+            u'Programming Language :: Python :: 3',
+            u'Programming Language :: Python :: 3.3',
+            u'Programming Language :: Python :: 3.4',
+            u'Programming Language :: Python :: 3.5',
+            u'Programming Language :: Python :: 3.6',
+            u'Topic :: Software Development :: Libraries :: Python Modules',
+            u'Topic :: System :: Archiving :: Packaging',
+            u'Topic :: System :: Systems Administration',
+            u'Topic :: Utilities'
+        ]
+        r_requires_python = u'>=2.6,!=3.0.*,!=3.1.*,!=3.2.*'
+
+        # When
+        pkg_info = PackageInfo.from_string(data)
+
+        # Then
+        self.assertEqual(pkg_info.name, "setuptools")
+        self.assertEqual(pkg_info.version, "34.3.2")
+        self.assertEqual(pkg_info.platforms, ())
+        self.assertEqual(pkg_info.supported_platforms, ())
+        self.assertEqual(
+            pkg_info.summary,
+            ("Easily download, build, install, upgrade, and uninstall Python "
+             "packages"),
+        )
+        self.assertEqual(
+            pkg_info.keywords,
+            (u"CPAN", u"PyPI", u"distutils", u"eggs", u"package",
+             u"management"),
+        )
+        self.assertEqual(
+            pkg_info.home_page, "https://github.com/pypa/setuptools"
+        )
+        self.assertEqual(pkg_info.download_url, "")
+        self.assertEqual(pkg_info.author, "Python Packaging Authority")
+        self.assertEqual(pkg_info.author_email, "distutils-sig@python.org")
+        self.assertEqual(pkg_info.license, "")
+
+        self.assertEqual(pkg_info.classifiers, r_classifiers)
+        self.assertEqual(pkg_info.requires, ())
+        self.assertEqual(pkg_info.provides, ())
+        self.assertEqual(pkg_info.obsoletes, ())
+
+        self.assertEqual(pkg_info.requires_python, r_requires_python)
