@@ -81,7 +81,7 @@ def platform_validator():
 
 
 @six.python_2_unicode_compatible
-@attributes
+@attributes(frozen=True)
 class EPDPlatform(object):
     """
     An sane Canopy/EPD platform representation.

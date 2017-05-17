@@ -35,7 +35,7 @@ _NORMALIZED_NAMES = {
 }
 
 
-@attributes
+@attributes(frozen=True)
 class Arch(object):
     """ A normalized architecture representation.
     """
