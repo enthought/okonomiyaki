@@ -94,6 +94,20 @@ class PythonImplementation(object):
     def __str__(self):
         return "{0.abbreviated_implementation}{0.major}{0.minor}".format(self)
 
+    def __eq__(self, other):
+        if isinstance(other, PythonImplementation):
+            return (
+                (self.major, self.minor, self.kind) == (other.major, other.minor, other.kind)
+            )
+        else:
+            return NotImplemented
+
+    def __ne__(self, other):
+        if isinstance(other, PythonImplementation):
+            return not self == other
+        else:
+            return NotImplemented
+
 
 def _abbreviated_implementation():
     """Return abbreviated implementation name."""
