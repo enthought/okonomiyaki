@@ -296,10 +296,10 @@ def _collapse_leading_ws(header, txt):
         lines = [x[8:] if x.startswith(' ' * 8) else x
                  for x in txt.strip().splitlines()]
         # Append a line to be char-by-char compatible with distutils
-        lines.append('')
-        return '\n'.join(lines)
+        lines.append(u'')
+        return u'\n'.join(lines)
     else:
-        return ' '.join([x.strip() for x in txt.splitlines()])
+        return u' '.join([x.strip() for x in txt.splitlines()])
 
 
 def _convert_if_needed(data, sha256, strict):
