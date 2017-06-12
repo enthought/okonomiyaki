@@ -143,11 +143,11 @@ class PackageInfo(object):
         return cls(metadata_version, name, version, **kw)
 
     def __init__(self, metadata_version, name, version, platforms=None,
-                 supported_platforms=None, summary="", description="",
-                 keywords=None, home_page="", download_url="", author="",
-                 author_email="", license="", classifiers=None, requires=None,
-                 provides=None, obsoletes=None, maintainer="",
-                 maintainer_email="", requires_python=None,
+                 supported_platforms=None, summary=u"", description=u"",
+                 keywords=None, home_page=u"", download_url=u"", author=u"",
+                 author_email=u"", license=u"", classifiers=None, requires=None,
+                 provides=None, obsoletes=None, maintainer=u"",
+                 maintainer_email=u"", requires_python=None,
                  requires_external=None, requires_dist=None,
                  provides_dist=None, obsoletes_dist=None, projects_urls=None):
         _ensure_supported_version(metadata_version)
@@ -175,8 +175,8 @@ class PackageInfo(object):
         self.obsoletes = obsoletes or ()
 
         # version 1.2
-        self.maintainer = maintainer or ""
-        self.maintainer_email = maintainer_email or ""
+        self.maintainer = maintainer or u""
+        self.maintainer_email = maintainer_email or u""
         self.requires_python = requires_python or ()
         self.requires_external = requires_external or ()
         self.requires_dist = requires_dist or ()
