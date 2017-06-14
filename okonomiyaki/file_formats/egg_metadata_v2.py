@@ -174,6 +174,13 @@ class EggMetadataV2(object):
     provides = dependency_attr()
 
     @property
+    def epd_platform_tag(self):
+        if self.epd_platform is None:
+            return None
+        else:
+            return str(self.epd_platform)
+
+    @property
     def name(self):
         return self._raw_name.lower()
 
