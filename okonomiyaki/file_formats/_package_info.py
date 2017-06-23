@@ -1,9 +1,11 @@
 """
 Most of the code below is adapted from pkg-info 1.2.1
 
-We support 1.0, 1.1 and 1.2.
+We support 1.0, 1.1, 1.2 and 2.0.
 """
 import contextlib
+import os.path
+import re
 
 import zipfile2
 
@@ -12,6 +14,14 @@ from ..errors import OkonomiyakiError
 
 from ._blacklist import EGG_PKG_INFO_BLACK_LIST, may_be_in_pkg_info_blacklist
 
+
+# Copied from pip.wheel module
+_R_WHEEL_BASE = re.compile(
+    r"""^(?P<namever>(?P<name>.+?)-(?P<ver>\d.*?))
+    ((-(?P<build>\d.*?))?-(?P<pyver>.+?)-(?P<abi>.+?)-(?P<plat>.+?)
+    \.whl|\.dist-info)$""",
+    re.VERBOSE
+)
 
 _PKG_INFO_LOCATION = "EGG-INFO/PKG-INFO"
 _PKG_INFO_CANDIDATES = (
@@ -55,10 +65,15 @@ HEADER_ATTRS_1_2 = HEADER_ATTRS_1_1 + (  # PEP 345
     ('Project-URL', 'project_urls', True),
 )
 
+# 2.0 not formalized, but seen in wheels produced by wheel as recent as 0.30.0.
+# See PEP 426, and the PyPI pkginfo project.
+HEADER_ATTRS_2_0 = HEADER_ATTRS_1_2
+
 HEADER_ATTRS = {
     (1, 0): HEADER_ATTRS_1_0,
     (1, 1): HEADER_ATTRS_1_1,
     (1, 2): HEADER_ATTRS_1_2,
+    (2, 0): HEADER_ATTRS_2_0,
 }
 
 MAX_SUPPORTED_VERSION = max(HEADER_ATTRS.keys())
@@ -67,6 +82,31 @@ MAX_SUPPORTED_VERSION = max(HEADER_ATTRS.keys())
 class PackageInfo(object):
     """ Class modeling the PKG-INFO content.
     """
+    @classmethod
+    def from_wheel(cls, path_or_file, strict=True):
+        if isinstance(path_or_file, py3compat.string_types):
+            m = _R_WHEEL_BASE.match(os.path.basename(path_or_file))
+            if m is None:
+                raise OkonomiyakiError(
+                    u"Unrecognized filename format '{0}'".format(path_or_file)
+                )
+
+            name = m.group("name")
+            version = m.group("ver")
+
+            with zipfile2.ZipFile(path_or_file) as fp:
+                data = _read_pkg_info_wheel(fp, (name, version))
+        else:
+            # path_or_file assumed to be a ZipFile instance
+            data = _read_pkg_info_wheel(path_or_file)
+
+        if data is None:
+            msg = "No METADATA archive found in wheel file"
+            raise OkonomiyakiError(msg)
+
+        data = _convert_if_needed(data, None, strict)
+        return cls.from_string(data)
+
     @classmethod
     def from_egg(cls, path_or_file, strict=True):
         """ Create a PackageInfo instance from an existing egg.
@@ -314,6 +354,42 @@ def _convert_if_needed(data, sha256, strict):
             return data.decode(PKG_INFO_ENCODING, 'replace')
     else:
         return decoded_data
+
+
+def _read_pkg_info_wheel(fp, name_version=None):
+    """ Read the METADATA content in the possible locations for a wheel, and
+    return the decoded content.
+
+    If no pkg info data is found, return None.
+
+    Parameters
+    ----------
+    fp : ZipFile
+    name_or_version: tuple or None
+        If not None, assumed to be (name, version) pair. If known,
+        significantly speed up finding the metadata archive name.
+    """
+    if name_version is None:
+        for arcname in fp.namelist():
+            parts = arcname.split("/")
+            if (
+                len(parts) == 2 and
+                parts[0].endswith(".dist-info") and
+                parts[1] == "METADATA"
+            ):
+                candidate = arcname
+                break
+        else:
+            return None 
+    else:
+        name, version = name_version
+        dist_info = "{0}-{1}.dist-info".format(name, version)
+        candidate = "{0}/METADATA".format(dist_info)
+
+    try:
+        return fp.read(candidate)
+    except KeyError:
+        return None
 
 
 def _read_pkg_info(fp):
