@@ -1,7 +1,7 @@
 """
 Most of the code below is adapted from pkg-info 1.2.1
 
-We support 1.0, 1.1 and 1.2.
+We support 1.0, 1.1, 1.2 and 2.0.
 """
 import contextlib
 
@@ -55,10 +55,15 @@ HEADER_ATTRS_1_2 = HEADER_ATTRS_1_1 + (  # PEP 345
     ('Project-URL', 'project_urls', True),
 )
 
+# 2.0 not formalized, but seen in wheels produced by wheel as recent as 0.30.0.
+# See PEP 426, and the PyPI pkginfo project.
+HEADER_ATTRS_2_0 = HEADER_ATTRS_1_2
+
 HEADER_ATTRS = {
     (1, 0): HEADER_ATTRS_1_0,
     (1, 1): HEADER_ATTRS_1_1,
     (1, 2): HEADER_ATTRS_1_2,
+    (2, 0): HEADER_ATTRS_2_0,
 }
 
 MAX_SUPPORTED_VERSION = max(HEADER_ATTRS.keys())
