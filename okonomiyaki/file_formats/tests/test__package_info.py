@@ -14,6 +14,7 @@ if sys.version_info < (2, 7):  # noqa
 else:
     import unittest
 
+from okonomiyaki.utils.test_data import OKONOMIYAKI_0_17_0_PY2
 from ...errors import OkonomiyakiError
 from .common import (
     BROKEN_MCCABE_EGG, PIP_EGG, PKG_INFO_ENSTALLER_1_0_DESCRIPTION,
@@ -76,6 +77,47 @@ class TestPackageInfo(unittest.TestCase):
         # When/Then
         with self.assertRaises(OkonomiyakiError):
             PackageInfo("1.3", "numpy", "1.9.2")
+
+    def test_simple_from_wheel(self):
+        # Given
+        wheel = OKONOMIYAKI_0_17_0_PY2
+
+        # When
+        pkg_info = PackageInfo.from_wheel(wheel)
+
+        # Then
+        self.assertEqual(pkg_info.metadata_version, "2.0")
+        self.assertEqual(pkg_info.name, "okonomiyaki")
+        self.assertEqual(pkg_info.version, "0.17.0.dev799")
+        self.assertEqual(pkg_info.summary, "")
+        self.assertEqual(pkg_info.description, "")
+        self.assertEqual(pkg_info.author, "Enthought, Inc.")
+        self.assertEqual(pkg_info.author_email, "info@enthought.com")
+        self.assertEqual(pkg_info.license, "BSD")
+        self.assertEqual(
+            pkg_info.classifiers,
+            [u"Programming Language :: Python :: 2.7",
+             u"Programming Language :: Python :: 3"]
+        )
+
+        # When
+        with zipfile2.ZipFile(wheel) as zp:
+            pkg_info = PackageInfo.from_wheel(zp)
+
+        # Then
+        self.assertEqual(pkg_info.metadata_version, "2.0")
+        self.assertEqual(pkg_info.name, "okonomiyaki")
+        self.assertEqual(pkg_info.version, "0.17.0.dev799")
+        self.assertEqual(pkg_info.summary, "")
+        self.assertEqual(pkg_info.description, "")
+        self.assertEqual(pkg_info.author, "Enthought, Inc.")
+        self.assertEqual(pkg_info.author_email, "info@enthought.com")
+        self.assertEqual(pkg_info.license, "BSD")
+        self.assertEqual(
+            pkg_info.classifiers,
+            [u"Programming Language :: Python :: 2.7",
+             u"Programming Language :: Python :: 3"]
+        )
 
     def test_simple_from_egg(self):
         # Given

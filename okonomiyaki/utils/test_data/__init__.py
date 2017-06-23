@@ -100,3 +100,10 @@ _OSX_X86_64 = os.path.join(_HERE, "eggs", "rh5_x86_64")
 NOSE_1_3_4_OSX_X86_64 = os.path.join(_OSX_X86_64, "nose-1.3.4-1.egg")
 MKL_10_3_OSX_X86_64 = os.path.join(_OSX_X86_64, "MKL-10.3-1.egg")
 NUMPY_1_9_2_OSX_X86_64 = os.path.join(_OSX_X86_64, "numpy-1.9.2-1.egg")
+
+
+_WHEELS_DIR = os.path.join(_HERE, "wheels")
+
+OKONOMIYAKI_0_17_0_PY2 = os.path.join(
+    _WHEELS_DIR, "okonomiyaki-0.17.0.dev799-py2-none-any.whl"
+)

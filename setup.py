@@ -120,6 +120,7 @@ def main():
             "*.runtime", "*.runtime.invalid",
             "eggs/osx_x86_64/*.egg",
             "eggs/rh5_x86_64/*.egg", "eggs/win_x86_64/*.egg",
+            "wheels/*.whl",
         ],
     }
 
