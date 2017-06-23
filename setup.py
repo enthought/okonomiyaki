@@ -153,7 +153,7 @@ def main():
         license="BSD",
         version=__version__,
         classifiers=[
-            "Programming Language :: Python :: 2.7"
+            "Programming Language :: Python :: 2.7",
             "Programming Language :: Python :: 3",
         ],
         description=(

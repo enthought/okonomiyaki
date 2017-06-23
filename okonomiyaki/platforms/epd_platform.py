@@ -56,9 +56,11 @@ EPD_PLATFORM_SHORT_NAMES = (
 VALID_PLATFORMS_FILTER = PLATFORM_NAMES + ("all", "rh",)
 
 _EPD_PLATFORM_STRING_RE = re.compile("""
+    ^
     (?P<os>[^-_]+)
     [_-]
     (?P<arch>[^-]+)
+    $
     """, flags=re.VERBOSE)
 
 _LINUX_TAG_R = re.compile("^linux_(?P<arch>\S+)$")
@@ -79,7 +81,7 @@ def platform_validator():
 
 
 @six.python_2_unicode_compatible
-@attributes
+@attributes(frozen=True)
 class EPDPlatform(object):
     """
     An sane Canopy/EPD platform representation.

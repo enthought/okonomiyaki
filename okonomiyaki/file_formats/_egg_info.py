@@ -202,7 +202,7 @@ def text_or_none_attr(**kw):
 
 
 @six.python_2_unicode_compatible
-@attributes
+@attributes(frozen=True)
 class Requirement(object):
     """
     Model for entries in the package metadata inside EGG-INFO/spec/depend

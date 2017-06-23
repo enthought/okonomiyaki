@@ -53,7 +53,7 @@ NAME_KIND_TO_PRETTY_NAMES = {
 
 
 @six.python_2_unicode_compatible
-@attributes(repr=False)
+@attributes(repr=False, frozen=True)
 class Platform(object):
     """
     An generic platform representation.
