@@ -43,7 +43,12 @@ class PythonABI(object):
 
 
 @six.python_2_unicode_compatible
+@attributes(frozen=True)
 class PythonImplementation(object):
+    kind = attr(convert=lambda x: _ABBREVIATED_TO_KIND.get(x, x))
+    major = attr()
+    minor = attr()
+
     @staticmethod
     def pep425_tag_string(implementation):
         if implementation is None:
@@ -77,11 +82,6 @@ class PythonImplementation(object):
                 minor = int(version[1])
                 return cls(kind, major, minor)
 
-    def __init__(self, kind, major, minor):
-        self.kind = _ABBREVIATED_TO_KIND.get(kind, kind)
-        self.major = major
-        self.minor = minor
-
     @property
     def abbreviated_implementation(self):
         return _KIND_TO_ABBREVIATED.get(self.kind, self.kind)
@@ -93,20 +93,6 @@ class PythonImplementation(object):
 
     def __str__(self):
         return "{0.abbreviated_implementation}{0.major}{0.minor}".format(self)
-
-    def __eq__(self, other):
-        if isinstance(other, PythonImplementation):
-            return (
-                (self.major, self.minor, self.kind) == (other.major, other.minor, other.kind)
-            )
-        else:
-            return NotImplemented
-
-    def __ne__(self, other):
-        if isinstance(other, PythonImplementation):
-            return not self == other
-        else:
-            return NotImplemented
 
 
 def _abbreviated_implementation():
