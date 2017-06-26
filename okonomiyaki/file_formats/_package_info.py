@@ -83,6 +83,19 @@ class PackageInfo(object):
     """ Class modeling the PKG-INFO content.
     """
     @classmethod
+    def from_path(cls, path, strict=True):
+        if path.endswith(".egg"):
+            return cls.from_egg(path, strict)
+        elif path.endswith(".whl"):
+            return cls.from_wheel(path, strict)
+        else:
+            raise OkonomiyakiError(
+                u"Unrecognized package extension: '{}'".format(
+                    os.path.splitext(path)[1]
+                )
+            )
+
+    @classmethod
     def from_wheel(cls, path_or_file, strict=True):
         if isinstance(path_or_file, py3compat.string_types):
             m = _R_WHEEL_BASE.match(os.path.basename(path_or_file))
@@ -380,7 +393,7 @@ def _read_pkg_info_wheel(fp, name_version=None):
                 candidate = arcname
                 break
         else:
-            return None 
+            return None
     else:
         name, version = name_version
         dist_info = "{0}-{1}.dist-info".format(name, version)
