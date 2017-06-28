@@ -4,8 +4,6 @@ Most of the code below is adapted from pkg-info 1.2.1
 We support 1.0, 1.1, 1.2 and 2.0.
 """
 import contextlib
-import os.path
-import re
 
 import zipfile2
 
@@ -13,15 +11,8 @@ from ..utils import py3compat, compute_sha256
 from ..errors import OkonomiyakiError
 
 from ._blacklist import EGG_PKG_INFO_BLACK_LIST, may_be_in_pkg_info_blacklist
+from ._wheel_info import WheelInfo
 
-
-# Copied from pip.wheel module
-_R_WHEEL_BASE = re.compile(
-    r"""^(?P<namever>(?P<name>.+?)-(?P<ver>\d.*?))
-    ((-(?P<build>\d.*?))?-(?P<pyver>.+?)-(?P<abi>.+?)-(?P<plat>.+?)
-    \.whl|\.dist-info)$""",
-    re.VERBOSE
-)
 
 _PKG_INFO_LOCATION = "EGG-INFO/PKG-INFO"
 _PKG_INFO_CANDIDATES = (
@@ -85,17 +76,10 @@ class PackageInfo(object):
     @classmethod
     def from_wheel(cls, path_or_file, strict=True):
         if isinstance(path_or_file, py3compat.string_types):
-            m = _R_WHEEL_BASE.match(os.path.basename(path_or_file))
-            if m is None:
-                raise OkonomiyakiError(
-                    u"Unrecognized filename format '{0}'".format(path_or_file)
-                )
-
-            name = m.group("name")
-            version = m.group("ver")
+            wheel_info = WheelInfo.from_path(path_or_file)
 
             with zipfile2.ZipFile(path_or_file) as fp:
-                data = _read_pkg_info_wheel(fp, (name, version))
+                data = _read_pkg_info_wheel(fp, (wheel_info.name, wheel_info.version))
         else:
             # path_or_file assumed to be a ZipFile instance
             data = _read_pkg_info_wheel(path_or_file)
@@ -380,7 +364,7 @@ def _read_pkg_info_wheel(fp, name_version=None):
                 candidate = arcname
                 break
         else:
-            return None 
+            return None
     else:
         name, version = name_version
         dist_info = "{0}-{1}.dist-info".format(name, version)
