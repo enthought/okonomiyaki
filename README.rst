@@ -12,3 +12,48 @@ The library contains code for the following:
 
 It works on both python 2 and 3, and pypy. It is expected to work on pretty
 much any compliant python implementation.
+
+# Examples
+
+## Version parsing
+
+To parse versions:
+
+```python
+
+from okonomiyaki.versions import EnpkgVersion
+# Every Version class has a from_string constructor
+v1 = EnpkgVersion.from_string("1.3.3-1")
+v2 = EnpkgVersion.from_string("1.3.2-3")
+
+assert v1 > v2
+```
+
+Version instances are designed to be immutable, and to be used as keys in
+dictionaries.
+
+## Platform parsing
+
+```python
+from okonomiyaki.platforms import EPDPlatform
+# Internal representation is normalized.
+rh5_new_name = EPDPlatform.from_string("rh5-x86_64")
+rh5_old_name = EPDPlatform.from_string("rh5-64")
+
+assert rh5_old_name == rh5_new_name
+```
+
+As for Version instances, `EPDPlatform` instances are designed to be immutable
+and to be used as keys in dictionaries.
+
+## Egg metadata
+
+```python
+from okonomiyaki.file_formats import EggMetadata
+
+# Only works for Enthought eggs
+metadata = EggMetadata.from_egg("numpy-1.10.1-1.egg")
+print(metadata.metadata_version)
+print(metadata.name)
+print(metadata.version)
+```
