@@ -4,6 +4,7 @@ Most of the code below is adapted from pkg-info 1.2.1
 We support 1.0, 1.1, 1.2 and 2.0.
 """
 import contextlib
+import os.path
 
 import zipfile2
 
