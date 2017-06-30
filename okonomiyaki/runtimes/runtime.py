@@ -7,8 +7,7 @@ import six
 from attr import attr, attributes
 from attr.validators import instance_of
 
-from ..platforms import Platform, default_abi
-from ..platforms.platform import OSKind
+from ..platforms import OSKind, Platform, default_abi
 from ..versions import MetadataVersion, RuntimeVersion
 
 from .runtime_info import IRuntimeInfoV1, PythonRuntimeInfoV1

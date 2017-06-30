@@ -2,7 +2,7 @@ import sys
 
 from ...errors import OkonomiyakiError
 from ..epd_platform import EPDPlatform
-from ..platform import Platform
+from .._platform import Platform
 
 from .common import (mock_machine_armv71, mock_x86, mock_x86_64,
                      mock_machine_x86_64)

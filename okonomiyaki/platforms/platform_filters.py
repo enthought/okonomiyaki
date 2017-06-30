@@ -9,7 +9,7 @@ from ..errors import OkonomiyakiError
 
 from ._arch import Arch
 from .epd_platform import EPDPlatform
-from .platform import OSKind, FamilyKind, NameKind
+from ._platform import OSKind, FamilyKind, NameKind
 
 
 @attributes

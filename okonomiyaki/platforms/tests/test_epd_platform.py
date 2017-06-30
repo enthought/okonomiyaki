@@ -10,7 +10,7 @@ from ..epd_platform import (
     _guess_epd_platform, EPD_PLATFORM_SHORT_NAMES, X86, X86_64, applies
 )
 from ..legacy import _SUBDIR
-from ..platform import OSKind, FamilyKind, NameKind
+from .._platform import OSKind, FamilyKind, NameKind
 from .._arch import Arch
 
 from .common import (

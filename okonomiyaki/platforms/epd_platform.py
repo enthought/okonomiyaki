@@ -10,7 +10,7 @@ from attr.validators import instance_of
 
 from ..errors import OkonomiyakiError
 from ._arch import Arch, ArchitectureKind
-from .platform import OSKind, FamilyKind, NameKind, Platform
+from ._platform import OSKind, FamilyKind, NameKind, Platform
 
 # the string used in EGG-INFO/spec/depend. Only used during normalization
 # operations.

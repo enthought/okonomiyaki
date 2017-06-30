@@ -4,7 +4,7 @@ import sys
 
 from .._arch import Arch
 from ..epd_platform import EPDPlatform
-from ..platform import OSKind, NameKind, FamilyKind, Platform
+from .._platform import OSKind, NameKind, FamilyKind, Platform
 from ..platform_filters import PlatformFilter, PlatformLabel, PlatformLiteral
 
 if sys.version_info < (2, 7):

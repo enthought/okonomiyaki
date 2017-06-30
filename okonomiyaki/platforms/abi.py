@@ -7,7 +7,7 @@ from ..errors import OkonomiyakiError
 from ..versions import RuntimeVersion
 
 from .epd_platform import EPDPlatform
-from .platform import OSKind
+from ._platform import OSKind
 
 
 _PLATFORM_ABI_NONE = u'none'
