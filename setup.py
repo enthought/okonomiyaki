@@ -6,7 +6,7 @@ from setuptools import setup
 
 
 MAJOR = 0
-MINOR = 17
+MINOR = 18
 MICRO = 0
 
 IS_RELEASED = False
