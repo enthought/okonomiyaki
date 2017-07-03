@@ -39,3 +39,23 @@ class WheelInfo(object):
             name, version, python_tag_strings, python_abi_strings, platforms,
             build
         )
+
+    @property
+    def metadata_prefix(self):
+        return "{0.name}-{0.version}.dist-info".format(self)
+
+    @property
+    def data_prefix(self):
+        return "{0.name}-{0.version}.data".format(self)
+
+    @property
+    def data_scheme_prefix(self):
+        return "{}/data".format(self.data_prefix)
+
+    @property
+    def purelib_scheme_prefix(self):
+        return "{}/purelib".format(self.data_prefix)
+
+    @property
+    def platlib_scheme_prefix(self):
+        return "{}/platlib".format(self.data_prefix)
