@@ -1,3 +1,31 @@
+2017-07-03    0.17.0
+--------------------
+
+Enhancements:
+
+* compute default ABI for ironpython/jython. (#225)
+* add support for CPython 3.6 (#229)
+* add support for `PKG-INFO` format 1.2 and 2.0 (#261, #271)
+* fix support for attrs >= 17.x
+* PackageInfo.from_path may parse PKG-INFO metadata from both wheels and eggs. (#274)
+* add WheelInfo class for wheel pep425 tags parsing. (#275)
+* add compute_abi_tag/compute_python_tag/compute_platform_tag functions to
+  compute PEP 425 tags from arbitrary python executables (#278)
+* add some basic examples in the README. (#279)
+* add commonly used wheel prefixes to WheelInfo. (#280)
+
+bug fixes:
+
+* fix author_* entries in setup.py. (#235)
+* test runtimes should include pythonw.exe (#238)
+* fix applies("32")/applies("64") (#244)
+* fix permissions for egg metadata written through writestr. (#249)
+* fix error handling for platform strings with 'remains'. (#253)
+* fix invalid trove classifier in setup.py. (#258)
+* mark classes we need hashable as immutable. (#266)
+* add (long) description into setup.py. (#272)
+
+
 2016-06-29    0.16.0
 --------------------
 
