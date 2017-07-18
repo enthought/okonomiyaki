@@ -9,7 +9,7 @@ from ._pep425_impl import _PEP425_IMPL
 
 
 def _run_pep425(executable, flag):
-    with tempfile.NamedTemporaryFile(suffix='.py', delete=False) as handle:
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as handle:
         handle.write(_PEP425_IMPL)
     try:
         out = subprocess.check_output([executable, handle.name, flag]).strip()
