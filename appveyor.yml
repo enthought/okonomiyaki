@@ -24,10 +24,11 @@ init:
   - ps: $Env:path = $Env:python + ";" + $Env:python + "\scripts;" + $Env:path
 
 install:
-  - ps: python -m pip install --upgrade pip wheel coveralls
+  - ps: python -m pip install --upgrade pip wheel
+  - ps: pip install coveralls
   - ps: pip --version
   - ps: pip install .
-  - ps: pip install dev_requirements.txt
+  - ps: pip install -r dev_requirements.txt
 test_script:
   - cmd: coverage run -m haas okonomiyaki
 on_success:
