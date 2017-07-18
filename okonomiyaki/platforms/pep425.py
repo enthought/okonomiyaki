@@ -1,46 +1,48 @@
+import os
 import subprocess
+import sys
+import tempfile
 
 
 from okonomiyaki.utils import decode_if_needed
-from . import _pep425_impl
-
-
-_PEP425_IMPL = _pep425_impl.__file__
+from ._pep425_impl import _PEP425_IMPL
 
 
 def _run_pep425(executable, flag):
-    out = subprocess.check_output([executable, _PEP425_IMPL, flag]).strip()
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as handle:
+        handle.write(_PEP425_IMPL)
+    try:
+        out = subprocess.check_output([executable, handle.name, flag]).strip()
+    finally:
+        os.remove(handle.name)
     return decode_if_needed(out)
 
 
 def compute_abi_tag(python_executable=None):
     """ Compute the PEP425 abi tag for the given python executable.
 
-    This may launch a subprocess if python_executable is not the running python
+    This will launch a subprocess.
     """
     if python_executable is None:
-        return _pep425_impl.get_abi_tag()
-    else:
-        return _run_pep425(python_executable, "--abi-tag")
+        python_executable = sys.executable
+    return _run_pep425(python_executable, "--abi-tag")
 
 
 def compute_python_tag(python_executable=None):
     """ Compute the PEP425 python tag for the given python executable.
 
-    This may launch a subprocess if python_executable is not the running python
+    This will launch a subprocess.
     """
     if python_executable is None:
-        return _pep425_impl.get_impl_tag()
-    else:
-        return _run_pep425(python_executable, "--python-tag")
+        python_executable = sys.executable
+    return _run_pep425(python_executable, "--python-tag")
 
 
 def compute_platform_tag(python_executable=None):
     """ Compute the PEP425 platform tag for the given python executable.
 
-    This may launch a subprocess if python_executable is not the running python
+    This will launch a subprocess.
     """
     if python_executable is None:
-        return _pep425_impl.get_platform()
-    else:
-        return _run_pep425(python_executable, "--platform-tag")
+        python_executable = sys.executable
+    return _run_pep425(python_executable, "--platform-tag")
