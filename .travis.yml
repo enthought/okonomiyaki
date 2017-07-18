@@ -1,4 +1,6 @@
 language: python
+os: linux
+sudo: false
 
 env:
   global:
@@ -6,16 +8,10 @@ env:
 
 matrix:
   include:
-  - os: linux
-    sudo: false
-    python: 2.7
+  - python: 2.7
     env: RUN_FLAKE8="1"
-  - os: linux
-    sudo: false
-    python: 3.5
-  - os: linux
-    sudo: false
-    python: pypy
+  - python: 3.5
+  - python: pypy
 
 
 cache:
