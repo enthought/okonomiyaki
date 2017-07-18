@@ -27,8 +27,8 @@ install:
   - pip install .
 
 script:
-  - if [[ ${RUN_FLAKE8} == "1" ]]; then flake8 okonomiyaki; fi
   - coverage run -m haas okonomiyaki
+  - if [[ ${RUN_FLAKE8} == "1" ]]; then flake8 okonomiyaki; fi
 
 after_success:
   - pip install coveralls
