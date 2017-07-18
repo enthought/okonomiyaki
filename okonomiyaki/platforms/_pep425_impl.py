@@ -1,3 +1,4 @@
+_PEP425_IMPL='''\
 from __future__ import absolute_import, print_function
 
 import sys
@@ -140,3 +141,4 @@ if __name__ == "__main__":
         print(get_impl_tag())
     elif ns.platform_tag:
         print(get_platform())
+'''
