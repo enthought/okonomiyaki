@@ -27,7 +27,7 @@ install:
     - pip install coveralls
 
 script:
-    - if [[ ${TRAVIS_OS_NAME} == "linux" ] && [ ${PYTHON} == "2.7" ]]; then flake8 okonomiyaki fi
+    - if [[ ${TRAVIS_OS_NAME} == "linux" ] && [ ${PYTHON} == "2.7" ]]; then flake8 okonomiyaki; fi
     - coverage run -m haas okonomiyaki
 
 after_success:
