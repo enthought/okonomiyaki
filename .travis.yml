@@ -23,7 +23,7 @@ branches:
     - maint/*
 
 install:
-  - pip install -U pip wheel;
+  - pip install -U pip wheel coveralls;
   - pip install -q .
   - pip install -q -rdev_requirements.txt
 
@@ -32,5 +32,4 @@ script:
   - if [[ ${RUN_FLAKE8} == "1" ]]; then flake8 okonomiyaki; fi
 
 after_success:
-  - pip install coveralls
   - coveralls

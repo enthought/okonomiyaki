@@ -1,4 +1,3 @@
-stevedore
 haas
 coverage
 flake8
