@@ -23,10 +23,9 @@ branches:
     - maint/*
 
 install:
-  - pip install -U pip;
-  - if [[ ${TRAVIS_PYTHON_VERSION} != "pypy" ]]; then pip install wheel; fi
-  - pip install .
-  - pip install -rdev_requirements.txt
+  - pip install -U pip wheel;
+  - pip install -q .
+  - pip install -q -rdev_requirements.txt
 
 script:
   - coverage run -m haas okonomiyaki
