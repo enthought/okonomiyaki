@@ -98,7 +98,7 @@ def _is_running_32bit():
 
 
 def get_platform():
-    import distutils
+    import distutils.util
     import platform
     """Return our platform name 'win32', 'linux_x86_64'"""
     if sys.platform == 'darwin':
