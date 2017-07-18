@@ -1,0 +1,34 @@
+build: false
+skip_branch_with_pr: true
+# Actual shallow *clone*. The shallow_clone appveyor option downloads
+# an archive from GitHub API and does *not* clone!
+platform: x64
+
+environment:
+
+  global:
+    PYTHONUNBUFFERED: "1"
+
+  matrix:
+    - python: "C:/Python27-x64"
+    - python: "C:/Python27"
+    - python: "C:/Python35-x64"
+    - python: "C:/Python35"
+    - python: "C:/Python36-x64"
+    - python: "C:/Python36"
+
+cache:
+  - C:\Users\appveyor\AppData\Local\pip\Cache
+
+init:
+  - ps: $Env:path = $Env:python + ";" + $Env:python + "\scripts;" + $Env:path
+
+install:
+  - ps: python -m pip install --upgrade pip wheel coveralls
+  - ps: pip --version
+  - ps: pip install .
+  - ps: pip install dev_requirements.txt
+test_script:
+  - cmd: coverage run -m haas okonomiyaki
+on_success:
+  - coveralls
