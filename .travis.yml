@@ -1,13 +1,17 @@
 language: python
 sudo: false
+python:
+  - 2.7
+  - 3.5
+  - pypy
 
 matrix:
-    include:
-        - python: 2.7
-        - python: 3.5
-        - python: pypy
-        - python: 2.7
-          env: RUN_FLAKE8=1
+  include:
+    - os: linux
+      sudo: false
+    - os: osx
+      osx_image: xcode6.4  # 10.9
+
 
 install:
     - bash scripts/travis_install.sh
