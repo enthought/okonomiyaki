@@ -19,6 +19,10 @@ matrix:
 cache:
   pip: true
 
+branches:
+  only:
+    - master
+    - maint/*
 
 install:
     - bash scripts/travis_install.sh
