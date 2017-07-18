@@ -1,3 +1,4 @@
+_PEP425_IMPL = '''\
 from __future__ import absolute_import, print_function
 
 import sys
@@ -98,7 +99,7 @@ def _is_running_32bit():
 
 
 def get_platform():
-    import distutils
+    import distutils.util
     import platform
     """Return our platform name 'win32', 'linux_x86_64'"""
     if sys.platform == 'darwin':
@@ -140,3 +141,4 @@ if __name__ == "__main__":
         print(get_impl_tag())
     elif ns.platform_tag:
         print(get_platform())
+'''

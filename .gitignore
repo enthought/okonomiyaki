@@ -4,3 +4,4 @@
 dist/*
 okonomiyaki/_version.py
 *.egg-info
+*.pyc
