@@ -23,12 +23,13 @@ branches:
     - maint/*
 
 install:
-  - bash scripts/travis_install.sh
-  - pip install coveralls
+  - pip install -rdev_requirements.txt
+  - pip install .
 
 script:
   - if [[ ${RUN_FLAKE8} == "1" ]]; then flake8 okonomiyaki; fi
   - coverage run -m haas okonomiyaki
 
 after_success:
+  - pip install coveralls
   - coveralls
