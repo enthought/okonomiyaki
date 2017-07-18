@@ -3,3 +3,4 @@ flake8
 haas
 mock
 testfixtures
+stevedore
