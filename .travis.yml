@@ -23,14 +23,9 @@ branches:
     - maint/*
 
 install:
-  - |
-    if [[ ${TRAVIS_PYTHON_VERSION} == "pypy" ]]; then
-        pip install -U "pip==8.1.2" wheel;
-    else
-        pip install -U pip wheel;
-    fi
-  - pip install -rdev_requirements.txt
+  - pip install -U pip wheel;
   - pip install .
+  - pip install -rdev_requirements.txt
 
 script:
   - coverage run -m haas okonomiyaki
