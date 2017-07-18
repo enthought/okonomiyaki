@@ -1,5 +1,9 @@
 language: python
-sudo: false
+
+env:
+  global:
+    - PYTHONUNBUFFERED="1"
+
 python:
   - 2.7
   - 3.5
