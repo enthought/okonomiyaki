@@ -10,20 +10,11 @@ matrix:
     sudo: false
     python: 2.7
     env: RUN_FLAKE8="1"
-  - os: osx
-    osx_image: xcode6.4  # 10.9
-    python: 2.7
   - os: linux
     sudo: false
     python: 3.5
-  - os: osx
-    osx_image: xcode6.4  # 10.9
-    python: 3.5
   - os: linux
     sudo: false
-    python: pypy
-  - os: osx
-    osx_image: xcode6.4  # 10.9
     python: pypy
 
 
