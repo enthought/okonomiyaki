@@ -23,6 +23,7 @@ branches:
     - maint/*
 
 install:
+  - pip install -U pip wheel
   - pip install -rdev_requirements.txt
   - pip install .
 
