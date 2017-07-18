@@ -26,7 +26,7 @@ install:
   - |
     if [[ ${TRAVIS_PYTHON_VERSION} == "pypy" ]]; then
         pip install -U pip-9.0.0 wheel;
-    else:
+    else
         pip install -U pip wheel;
     fi
   - pip install -rdev_requirements.txt
