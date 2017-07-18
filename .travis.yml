@@ -27,16 +27,12 @@ branches:
     - maint/*
 
 install:
-    - bash scripts/travis_install.sh
-    - pip install coveralls
+  - bash scripts/travis_install.sh
+  - pip install coveralls
 
 script:
-    - if [[ ${RUN_FLAKE8} == "1" ]]; then flake8 okonomiyaki; fi
-    - coverage run -m haas okonomiyaki
+  - if [[ ${RUN_FLAKE8} == "1" ]]; then flake8 okonomiyaki; fi
+  - coverage run -m haas okonomiyaki
 
 after_success:
-    coveralls
-
-notifications:
-    email:
-        - davidc@enthought.com
+  - coveralls
