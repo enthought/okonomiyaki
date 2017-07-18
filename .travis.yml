@@ -23,7 +23,8 @@ branches:
     - maint/*
 
 install:
-  - pip install -U pip wheel;
+  - pip install -U pip;
+  - if [[ ${TRAVIS_PYTHON_VERSION} != "pypy" ]]; then pip install wheel; fi
   - pip install .
   - pip install -rdev_requirements.txt
 
