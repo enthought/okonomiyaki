@@ -16,6 +16,9 @@ matrix:
     - os: osx
       osx_image: xcode6.4  # 10.9
 
+cache:
+  pip: true
+
 
 install:
     - bash scripts/travis_install.sh
