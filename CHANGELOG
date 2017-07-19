@@ -1,3 +1,18 @@
+2017-07-19    0.17.1
+--------------------
+
+Enhancements:
+
+* streamline travis ci testing. (#286)
+* run tests on appveyor and python 3. (#288)
+
+bug fixes:
+
+* fix Runtime.executable value for Python 3 on windows. (#288)
+* fix compute_abi_tag/compute_python_tag/compute_platform_tag so that
+  they can be used in a frozen app. (#284)
+
+
 2017-07-03    0.17.0
 --------------------
 
