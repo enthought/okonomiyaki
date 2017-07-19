@@ -1,3 +1,0 @@
-stevedore
--r dev_requirements.txt
-unittest2
