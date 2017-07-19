@@ -1,25 +1,36 @@
 language: python
+os: linux
 sudo: false
 
+env:
+  global:
+    - PYTHONUNBUFFERED="1"
+
 matrix:
-    include:
-        - python: 2.7
-        - python: 3.5
-        - python: 3.6
-        - python: pypy
-        - python: 2.7
-          env: RUN_FLAKE8=1
+  include:
+  - python: 2.7
+    env: RUN_FLAKE8="1"
+  - python: 3.5
+  - python: 3.6
+  - python: pypy
+
+
+cache:
+  pip: true
+
+branches:
+  only:
+    - master
+    - maint/*
 
 install:
-    - bash scripts/travis_install.sh
-    - pip install coveralls
+  - pip install -U pip wheel coveralls;
+  - pip install -q .
+  - pip install -q -rdev_requirements.txt
 
 script:
-    - coverage run -a -m haas okonomiyaki
+  - coverage run -m haas okonomiyaki
+  - if [[ ${RUN_FLAKE8} == "1" ]]; then flake8 okonomiyaki; fi
 
 after_success:
-    coveralls
-
-notifications:
-    email:
-        - davidc@enthought.com
+  - coveralls
