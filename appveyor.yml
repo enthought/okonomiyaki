@@ -1,7 +1,5 @@
 build: false
 skip_branch_with_pr: true
-# Actual shallow *clone*. The shallow_clone appveyor option downloads
-# an archive from GitHub API and does *not* clone!
 platform: x64
 
 environment:
