@@ -11,6 +11,7 @@ matrix:
   - python: 2.7
     env: RUN_FLAKE8="1"
   - python: 3.5
+  - python: 3.6
   - python: pypy
 
 
@@ -23,7 +24,7 @@ branches:
     - maint/*
 
 install:
-  - pip install -U pip wheel coveralls;
+  - pip install -q -U pip wheel coveralls;
   - pip install -q .
   - pip install -q -rdev_requirements.txt
 

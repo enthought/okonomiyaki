@@ -98,7 +98,7 @@ class PythonRuntime(Runtime):
             scriptsdir = bindir = posixpath.join(prefix, "bin")
             paths = (bindir, )
 
-        if version.major == 3:
+        if version.major == 3 and platform.os_kind != OSKind.windows:
             executable = u"python3"
         else:
             executable = u"python"
