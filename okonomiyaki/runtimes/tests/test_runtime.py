@@ -26,18 +26,19 @@ class TestPythonRuntime(unittest.TestCase):
 
         # Then
         self.assertEqual(runtime_info.prefix, NORM_EXEC_PREFIX)
-        if sys.platform == "win32":
+        if sys.platform.startswith("win"):
             # XXX: we can't easily check whether two paths are the same file on
             # windows on python 2, as os.path.samefile is not available there
             self.assertEqual(
                 os.path.realpath(runtime_info.executable).lower(),
                 os.path.realpath(NORM_EXECUTABLE).lower()
             )
+        elif sys.platform.startswith("darwin") and sys.version_info[:2] == (2, 7):
+            raise unittest.SkipTest('sys.executable returns incompatible path, see #294')
         else:
             self.assertEqual(
                 os.path.realpath(runtime_info.executable),
-                os.path.realpath(NORM_EXECUTABLE)
-            )
+                os.path.realpath(NORM_EXECUTABLE))
 
     @unittest.skipIf(
         hasattr(sys, "pypy_version_info"),
