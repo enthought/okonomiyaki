@@ -49,3 +49,30 @@ class TestWheelInfo(unittest.TestCase):
         # When/Then
         with self.assertRaises(OkonomiyakiError):
             WheelInfo.from_path(path)
+
+    def test_prefix_path_properties(self):
+        # Given
+        path = "okonomiyaki-0.17.0.dev807-py2-none-any.whl"
+
+        # When
+        w_info = WheelInfo.from_path(path)
+
+        # Then
+        self.assertEqual(
+            w_info.metadata_prefix, u"okonomiyaki-0.17.0.dev807.dist-info")
+        self.assertEqual(
+            w_info.data_prefix, u"okonomiyaki-0.17.0.dev807.data")
+        self.assertEqual(
+            w_info.data_scheme_prefix, u"okonomiyaki-0.17.0.dev807.data/data")
+        self.assertEqual(
+            w_info.purelib_scheme_prefix,
+            u"okonomiyaki-0.17.0.dev807.data/purelib")
+        self.assertEqual(
+            w_info.platlib_scheme_prefix,
+            u"okonomiyaki-0.17.0.dev807.data/platlib")
+        self.assertEqual(
+            w_info.scripts_scheme_prefix,
+            u"okonomiyaki-0.17.0.dev807.data/scripts")
+        self.assertEqual(
+            w_info.headers_scheme_prefix,
+            u"okonomiyaki-0.17.0.dev807.data/headers")
