@@ -59,3 +59,11 @@ class WheelInfo(object):
     @property
     def platlib_scheme_prefix(self):
         return "{}/platlib".format(self.data_prefix)
+
+    @property
+    def headers_scheme_prefix(self):
+        return "{}/headers".format(self.data_prefix)
+
+    @property
+    def scripts_scheme_prefix(self):
+        return "{}/scripts".format(self.data_prefix)
