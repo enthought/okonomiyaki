@@ -1,3 +1,21 @@
+2017-12-13    0.17.3
+--------------------
+
+Enhancements:
+
+* WheelInfo provides properties for the 'scripts' and 'headers'
+  prefix scheme. (#298)
+
+
+2017-07-20    0.17.2
+--------------------
+
+bug fixes:
+
+* skip expected failure test_simple_from_running_python when running
+  on osx under python 2.7.x. (#295)
+
+
 2017-07-19    0.17.1
 --------------------
 
