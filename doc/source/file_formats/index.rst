@@ -34,19 +34,19 @@ look as follows::
 
     {
         "metadata_version": "1.0",
-    
+
         "language": "julia",
         "implementation": "default",
         "version": "0.3.11+1",
         "language_version": "0.3.11",
         "platform": "win_x86_64",
-    
+
         "build_revision": "483dbf5279",
-    
+
         "executable": "${prefix}\\bin\\julia.exe",
         "paths": ["${prefix}\\bin"],
         "post_install": []
     }
 
-When installed, jaguar will automatically fillup the ``${}`` variables from the
+When installed, edm will automatically fillup the ``${}`` variables from the
 installation prefix.
