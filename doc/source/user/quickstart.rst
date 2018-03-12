@@ -62,8 +62,8 @@ you should use the EggRewriter class::
     with EggRewriter(metadata, "foo-2.3-py2.7.egg") as rewriter:
         rewriter.add_file("dummy.txt", "EGG-INFO/dummy.txt")
 
-Querying a jaguar runtime
-~~~~~~~~~~~~~~~~~~~~~~~~~
+Querying a edm runtime
+~~~~~~~~~~~~~~~~~~~~~~
 
 .. module:: okonomiyaki.file_formats
 

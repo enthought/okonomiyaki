@@ -51,7 +51,7 @@ Runtimes
 Runtime metadata factory
 ------------------------
 
-This class allows you to parse jaguar runtime format, through its factory class
+This class allows you to parse edm runtime format, through its factory class
 methods.
 
 .. autoclass:: IRuntimeMetadata
