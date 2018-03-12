@@ -15,7 +15,7 @@ from .runtime_info import IRuntimeInfoV1, PythonRuntimeInfoV1
 
 # Those *Runtime classes are not very useful at the moment, and don't really
 # belong in okonomiyaki. We need them here as they are required for enstaller,
-# but will be removed once jaguar and enstaller are merged together.
+# but will be removed once edm and enstaller are merged together.
 @attributes
 class Runtime(object):
     """ Runtime instances are used to manipulate installed runtimes.
