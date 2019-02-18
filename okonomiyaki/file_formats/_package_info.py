@@ -59,13 +59,20 @@ HEADER_ATTRS_1_2 = HEADER_ATTRS_1_1 + (  # PEP 345
 
 # 2.0 not formalized, but seen in wheels produced by wheel as recent as 0.30.0.
 # See PEP 426, and the PyPI pkginfo project.
+# According to PEP 426, version 2.0 has now been withdrawn in favor of version 2.1.
 HEADER_ATTRS_2_0 = HEADER_ATTRS_1_2
+
+HEADER_ATTRS_2_1 = HEADER_ATTRS_1_2 + (  # PEP 566
+    ('Description-Content-Type', 'description_content_type', False),
+    ('Provides-Extra', 'provides_extra', True),
+)
 
 HEADER_ATTRS = {
     (1, 0): HEADER_ATTRS_1_0,
     (1, 1): HEADER_ATTRS_1_1,
     (1, 2): HEADER_ATTRS_1_2,
     (2, 0): HEADER_ATTRS_2_0,
+    (2, 1): HEADER_ATTRS_2_1,
 }
 
 MAX_SUPPORTED_VERSION = max(HEADER_ATTRS.keys())
@@ -176,6 +183,15 @@ class PackageInfo(object):
                     if value != 'UNKNOWN':
                         kw[attr_name] = value
 
+        if metadata_version_info >= (2, 1):
+            msg_body = msg.get_body()
+            if msg_body is not None:
+                if 'description' in kw:
+                    raise ValueError('Description defined with header '
+                                     'and in body of metadata.')
+                else:
+                    kw['description'] = msg_body
+
         name = kw.pop("name")
         version = kw.pop("version")
         return cls(metadata_version, name, version, **kw)
@@ -187,7 +203,8 @@ class PackageInfo(object):
                  provides=None, obsoletes=None, maintainer="",
                  maintainer_email="", requires_python=None,
                  requires_external=None, requires_dist=None,
-                 provides_dist=None, obsoletes_dist=None, projects_urls=None):
+                 provides_dist=None, obsoletes_dist=None, projects_urls=None,
+                 description_content_type="", provides_extra=None):
         _ensure_supported_version(metadata_version)
 
         self.metadata_version = metadata_version
@@ -221,6 +238,10 @@ class PackageInfo(object):
         self.provides_dist = provides_dist or ()
         self.obsoletes_dist = obsoletes_dist or ()
         self.project_urls = projects_urls or ()
+
+        # version 2.1
+        self.description_content_type = description_content_type or ""
+        self.provides_extra = provides_extra or ()
 
     def to_string(self, metadata_version_info=MAX_SUPPORTED_VERSION):
         s = py3compat.StringIO()
