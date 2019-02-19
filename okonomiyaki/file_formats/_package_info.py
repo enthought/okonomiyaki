@@ -184,11 +184,14 @@ class PackageInfo(object):
                         kw[attr_name] = value
 
         if metadata_version_info >= (2, 1):
-            msg_body = msg.get_body()
-            if msg_body is not None:
+            msg_body = msg.get_payload()
+            if msg_body is not None and msg_body != '':
                 if 'description' in kw:
-                    raise ValueError('Description defined with header '
-                                     'and in body of metadata.')
+                    raise ValueError(
+                        'Description defined with header and in body '
+                        'of metadata.\nDescription header: "{}"\nBody: "{}"'
+                        .format(kw['description'], msg_body)
+                    )
                 else:
                     kw['description'] = msg_body
 
@@ -203,7 +206,7 @@ class PackageInfo(object):
                  provides=None, obsoletes=None, maintainer="",
                  maintainer_email="", requires_python=None,
                  requires_external=None, requires_dist=None,
-                 provides_dist=None, obsoletes_dist=None, projects_urls=None,
+                 provides_dist=None, obsoletes_dist=None, project_urls=None,
                  description_content_type="", provides_extra=None):
         _ensure_supported_version(metadata_version)
 
@@ -237,7 +240,7 @@ class PackageInfo(object):
         self.requires_dist = requires_dist or ()
         self.provides_dist = provides_dist or ()
         self.obsoletes_dist = obsoletes_dist or ()
-        self.project_urls = projects_urls or ()
+        self.project_urls = project_urls or ()
 
         # version 2.1
         self.description_content_type = description_content_type or ""
