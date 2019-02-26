@@ -255,6 +255,12 @@ class PackageInfo(object):
         self._write_field(s, 'Home-page', self.home_page)
         self._write_field(s, 'Author', self.author)
         self._write_field(s, 'Author-email', self.author_email)
+        if metadata_version_info >= (1, 2):
+            if self.maintainer:
+                self._write_field(s, 'Maintainer', self.maintainer)
+            if self.maintainer_email:
+                self._write_field(s, 'Maintainer-email', self.maintainer_email)
+
         self._write_field(s, 'License', self.license)
         if metadata_version_info >= (1, 1):
             if self.download_url:
@@ -275,9 +281,25 @@ class PackageInfo(object):
         if metadata_version_info >= (1, 1):
             self._write_list(s, 'Classifier', self.classifiers)
 
+        if metadata_version_info == (1, 1):
+            # These fields are deprecated in 1.2
+            # and changed to the corresponding field names that follow.
             self._write_list(s, 'Requires', self.requires)
             self._write_list(s, 'Provides', self.provides)
             self._write_list(s, 'Obsoletes', self.obsoletes)
+
+        if metadata_version_info >= (1, 2):
+            self._write_list(s, 'Requires-Dist', self.requires_dist)
+            self._write_list(s, 'Provides-Dist', self.provides_dist)
+            self._write_list(s, 'Obsoletes-Dist', self.obsoletes_dist)
+
+            if self.requires_python:
+                self._write_field(s, 'Requires-Python', self.requires_python)
+            self._write_list(s, 'Requires-External', self.requires_external)
+            self._write_list(s, 'Project-URL', self.project_urls)
+
+        if metadata_version_info >= (2, 1):
+            self._write_list(s, 'Provides-Extra', self.provides_extra)
 
         return s.getvalue()
 
