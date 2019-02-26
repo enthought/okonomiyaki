@@ -261,10 +261,16 @@ class PackageInfo(object):
             if self.maintainer_email:
                 self._write_field(s, 'Maintainer-email', self.maintainer_email)
 
-        self._write_field(s, 'License', self.license)
+        if self.license:
+            self._write_field(s, 'License', self.license)
+        else:
+            self._write_field(s, 'License', "UNKNOWN")
+
         if metadata_version_info >= (1, 1):
             if self.download_url:
                 self._write_field(s, 'Download-URL', self.download_url)
+        if metadata_version_info >= (1, 2):
+            self._write_list(s, 'Project-URL', self.project_urls)
 
         description = _rfc822_escape(self.description)
         self._write_field(s, 'Description', description)
@@ -281,24 +287,25 @@ class PackageInfo(object):
         if metadata_version_info >= (1, 1):
             self._write_list(s, 'Classifier', self.classifiers)
 
-        if metadata_version_info == (1, 1):
-            # These fields are deprecated in 1.2
-            # and changed to the corresponding field names that follow.
-            self._write_list(s, 'Requires', self.requires)
-            self._write_list(s, 'Provides', self.provides)
-            self._write_list(s, 'Obsoletes', self.obsoletes)
-
         if metadata_version_info >= (1, 2):
+            if self.requires_python:
+                self._write_field(s, 'Requires-Python', self.requires_python)
+            self._write_list(s, 'Requires-External', self.requires_external)
+
             self._write_list(s, 'Requires-Dist', self.requires_dist)
             self._write_list(s, 'Provides-Dist', self.provides_dist)
             self._write_list(s, 'Obsoletes-Dist', self.obsoletes_dist)
 
-            if self.requires_python:
-                self._write_field(s, 'Requires-Python', self.requires_python)
-            self._write_list(s, 'Requires-External', self.requires_external)
-            self._write_list(s, 'Project-URL', self.project_urls)
+        if metadata_version_info == (1, 1):
+            # These fields are deprecated in 1.2
+            # and changed to the corresponding field names from section above.
+            self._write_list(s, 'Requires', self.requires)
+            self._write_list(s, 'Provides', self.provides)
+            self._write_list(s, 'Obsoletes', self.obsoletes)
 
         if metadata_version_info >= (2, 1):
+            if self.description_content_type:
+                self._write_field(s, 'Description-Content-Type', self.description_content_type)
             self._write_list(s, 'Provides-Extra', self.provides_extra)
 
         return s.getvalue()

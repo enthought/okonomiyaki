@@ -21,7 +21,7 @@ from .common import (
     PIP_PKG_INFO, PKG_INFO_ENSTALLER_1_0, PYMULTINEST_EGG, SUPERVISOR_EGG,
     UNICODE_DESCRIPTION_EGG, UNICODE_DESCRIPTION_TEXT, FAKE_PYSIDE_1_1_0_EGG,
     FAKE_PYSIDE_1_1_0_EGG_PKG_INFO, SETUPTOOLS_PKG_INFO_1_2,
-    SETUPTOOLS_PKG_INFO_2_1,
+    SETUPTOOLS_PKG_INFO_2_1, SETUPTOOLS_40_8_0_EGG,
 )
 
 
@@ -174,6 +174,17 @@ class TestPackageInfo(unittest.TestCase):
         # Given
         egg = PIP_EGG
         r_pkg_info_s = PIP_PKG_INFO
+
+        # When
+        pkg_info = PackageInfo.from_egg(egg)
+
+        # Then
+        self.assertMultiLineEqual(pkg_info.to_string(), r_pkg_info_s)
+
+    def test_metadata_2_1_to_string(self):
+        # Given
+        egg = SETUPTOOLS_40_8_0_EGG
+        r_pkg_info_s = SETUPTOOLS_PKG_INFO_2_1
 
         # When
         pkg_info = PackageInfo.from_egg(egg)
