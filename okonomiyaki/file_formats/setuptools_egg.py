@@ -20,7 +20,7 @@ _R_EGG_NAME = re.compile("""
         (-py(?P<pyver>(\d+\.\d+)))
         (-(?P<platform>.+))?
         \.egg$
-""", re.VERBOSE)
+""", re.VERBOSE) # noqa: W605
 
 
 def parse_filename(path):

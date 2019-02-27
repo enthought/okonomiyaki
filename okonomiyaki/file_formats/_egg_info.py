@@ -39,7 +39,7 @@ _EGG_NAME_RE = re.compile("""
     (?P<version>[^-]+)
     -
     (?P<build>\d+)
-    \.egg$""", re.VERBOSE)
+    \.egg$""", re.VERBOSE) # noqa: W605
 
 EGG_INFO_PREFIX = "EGG-INFO"
 
@@ -78,8 +78,8 @@ _METADATA_VERSION_TO_KEYS[M("1.2")] = \
     _METADATA_VERSION_TO_KEYS[M("1.1")] + (_TAG_PYTHON_PEP425_TAG, )
 
 _METADATA_VERSION_TO_KEYS[M("1.3")] = (
-    _METADATA_VERSION_TO_KEYS[M("1.2")] +
-    (_TAG_ABI_PEP425_TAG, _TAG_PLATFORM_PEP425_TAG)
+    _METADATA_VERSION_TO_KEYS[M("1.2")]
+    + (_TAG_ABI_PEP425_TAG, _TAG_PLATFORM_PEP425_TAG)
 )
 
 _METADATA_VERSION_TO_KEYS[M("1.4")] = (
@@ -890,8 +890,8 @@ class EggMetadata(object):
         is sorted as None."""
 
         if (
-            platform_abi is not None and
-            isinstance(platform_abi, six.string_types)
+            platform_abi is not None
+            and isinstance(platform_abi, six.string_types)
         ):
             platform_abi = PlatformABI(platform_abi)
         self.platform_abi = platform_abi
@@ -947,8 +947,8 @@ class EggMetadata(object):
         """
         max_supported = EggMetadata.HIGHEST_SUPPORTED_METADATA_VERSION
         return (
-            _are_compatible(self.metadata_version, max_supported) and
-            self.metadata_version.minor <= max_supported.minor
+            _are_compatible(self.metadata_version, max_supported)
+            and self.metadata_version.minor <= max_supported.minor
         )
 
     @property
@@ -1092,9 +1092,9 @@ class EggMetadata(object):
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return (
-                self.spec_depend_string == other.spec_depend_string and
-                self.summary == other.summary and
-                self.pkg_info == other.pkg_info
+                self.spec_depend_string == other.spec_depend_string
+                and self.summary == other.summary
+                and self.pkg_info == other.pkg_info
             )
         else:
             raise TypeError(
