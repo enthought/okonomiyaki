@@ -255,39 +255,56 @@ class PackageInfo(object):
         self._write_field(s, 'Home-page', self.home_page)
         self._write_field(s, 'Author', self.author)
         self._write_field(s, 'Author-email', self.author_email)
+
+        # Maintainer
         if metadata_version_info >= (1, 2):
             if self.maintainer:
                 self._write_field(s, 'Maintainer', self.maintainer)
             if self.maintainer_email:
                 self._write_field(s, 'Maintainer-email', self.maintainer_email)
 
+        # License
         if self.license:
             self._write_field(s, 'License', self.license)
         else:
             self._write_field(s, 'License', "UNKNOWN")
 
+        # Download-URL
         if metadata_version_info >= (1, 1):
             if self.download_url:
                 self._write_field(s, 'Download-URL', self.download_url)
+
+        # Project-URL
         if metadata_version_info >= (1, 2):
             self._write_list(s, 'Project-URL', self.project_urls)
 
+        # Description
         description = _rfc822_escape(self.description)
         self._write_field(s, 'Description', description)
 
+        # Keywords
         keywords = ' '.join(self.keywords)
         if keywords:
             self._write_field(s, 'Keywords', keywords)
 
+        # Platform
         if len(self.platforms) == 0:
             self._write_list(s, 'Platform', ("UNKNOWN",))
         else:
             self._write_list(s, 'Platform', self.platforms)
 
+        # Classifier
         if metadata_version_info >= (1, 1):
             self._write_list(s, 'Classifier', self.classifiers)
 
-        if metadata_version_info >= (1, 2):
+        # Requires-*, Provides-*, Obsoletes-*
+        if metadata_version_info == (1, 1):
+            # These fields are deprecated in 1.2
+            # and changed to the corresponding field names in section below.
+            self._write_list(s, 'Requires', self.requires)
+            self._write_list(s, 'Provides', self.provides)
+            self._write_list(s, 'Obsoletes', self.obsoletes)
+        elif metadata_version_info >= (1, 2):
             if self.requires_python:
                 self._write_field(s, 'Requires-Python', self.requires_python)
             self._write_list(s, 'Requires-External', self.requires_external)
@@ -296,13 +313,7 @@ class PackageInfo(object):
             self._write_list(s, 'Provides-Dist', self.provides_dist)
             self._write_list(s, 'Obsoletes-Dist', self.obsoletes_dist)
 
-        if metadata_version_info == (1, 1):
-            # These fields are deprecated in 1.2
-            # and changed to the corresponding field names from section above.
-            self._write_list(s, 'Requires', self.requires)
-            self._write_list(s, 'Provides', self.provides)
-            self._write_list(s, 'Obsoletes', self.obsoletes)
-
+        # New to 2.1
         if metadata_version_info >= (2, 1):
             if self.description_content_type:
                 self._write_field(s, 'Description-Content-Type', self.description_content_type)
