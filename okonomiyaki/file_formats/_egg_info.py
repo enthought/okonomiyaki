@@ -33,13 +33,13 @@ from ._package_info import (
 )
 
 
-_EGG_NAME_RE = re.compile("""
+_EGG_NAME_RE = re.compile(r"""
     (?P<name>[\.\w]+)
     -
     (?P<version>[^-]+)
     -
     (?P<build>\d+)
-    \.egg$""", re.VERBOSE)  # noqa: W605
+    \.egg$""", re.VERBOSE)
 
 EGG_INFO_PREFIX = "EGG-INFO"
 

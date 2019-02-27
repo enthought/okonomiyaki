@@ -4,7 +4,7 @@ from ..errors import InvalidSemanticVersion
 from ..utils.py3compat import long
 
 
-_SEMVER_R = re.compile("""\
+_SEMVER_R = re.compile(r"""\
     (?P<major>\d+)
     \.
     (?P<minor>\d+)
@@ -13,7 +13,7 @@ _SEMVER_R = re.compile("""\
     (?P<pre_release>-[0-9a-zA-Z-\.]+)?
     (?P<build>\+[0-9a-zA-Z-\.]+)?
     $
-""", flags=re.VERBOSE)  # noqa: W605
+""", flags=re.VERBOSE)
 
 
 _PART_R = re.compile("[0-9a-zA-Z-]+")

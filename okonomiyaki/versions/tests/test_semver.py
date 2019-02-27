@@ -185,9 +185,9 @@ class TestSemanticVersion(unittest.TestCase):
         # Given
         version_string = "1.2.03"
         r_output = re.compile(
-            "Invalid semantic version '1.2.03' \(Patch number "
-            "cannot have leading 0: '03'\)$"
-        )  # noqa: W605
+            r"Invalid semantic version '1.2.03' \(Patch number "
+            r"cannot have leading 0: '03'\)$"
+        )
 
         # When/Then
         with self.assertRaisesRegexp(InvalidSemanticVersion, r_output):

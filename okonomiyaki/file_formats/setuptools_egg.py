@@ -14,13 +14,13 @@ from ._egg_info import _guess_python_tag
 from ._package_info import PackageInfo
 
 
-_R_EGG_NAME = re.compile("""
+_R_EGG_NAME = re.compile(r"""
         (?P<name>^[^.-]+)
         (-(?P<version>[^-]+))
         (-py(?P<pyver>(\d+\.\d+)))
         (-(?P<platform>.+))?
         \.egg$
-""", re.VERBOSE)  # noqa: W605
+""", re.VERBOSE)
 
 
 def parse_filename(path):

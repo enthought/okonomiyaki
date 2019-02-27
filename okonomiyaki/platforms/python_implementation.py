@@ -19,10 +19,10 @@ _KIND_TO_ABBREVIATED = {
 
 _ABBREVIATED_TO_KIND = dict((v, k) for k, v in _KIND_TO_ABBREVIATED.items())
 
-_TAG_RE = re.compile("""
+_TAG_RE = re.compile(r"""
     (?P<interpreter>([^\d]+))
     (?P<version>([\d_]+))
-""", flags=re.VERBOSE)  # noqa: W605
+""", flags=re.VERBOSE)
 
 _ABI_NONE = u'none'
 _PYTHON_TAG_NONE = u'none'
