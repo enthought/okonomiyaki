@@ -275,8 +275,8 @@ class PackageInfo(object):
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return (
-                self.metadata_version == other.metadata_version and
-                self.to_string() == other.to_string()
+                self.metadata_version == other.metadata_version
+                and self.to_string() == other.to_string()
             )
         elif other is None:
             # We special-case None because EggMetadata.pkg_info may be None,
@@ -371,9 +371,9 @@ def _read_pkg_info_wheel(fp, name_version=None):
         for arcname in fp.namelist():
             parts = arcname.split("/")
             if (
-                len(parts) == 2 and
-                parts[0].endswith(".dist-info") and
-                parts[1] == "METADATA"
+                len(parts) == 2
+                and parts[0].endswith(".dist-info")
+                and parts[1] == "METADATA"
             ):
                 candidate = arcname
                 break

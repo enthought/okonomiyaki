@@ -350,8 +350,7 @@ class TestEggRewriter(unittest.TestCase):
 
                 is_one_symlink = (
                     first_info.external_attr == ZIP_SOFTLINK_ATTRIBUTE_MAGIC
-                    or
-                    second_info.external_attr == ZIP_SOFTLINK_ATTRIBUTE_MAGIC
+                    or second_info.external_attr == ZIP_SOFTLINK_ATTRIBUTE_MAGIC
                 )
                 if is_one_symlink:
                     self.assertEqual(

@@ -109,24 +109,24 @@ class TestSemanticVersion(unittest.TestCase):
 
         # Then
         self.assertTrue(
-            versions[0] < versions[1] < versions[2] < versions[3] <
-            versions[4] < versions[5] < versions[6] < versions[7] <
-            versions[8]
+            versions[0] < versions[1] < versions[2] < versions[3]
+            < versions[4] < versions[5] < versions[6] < versions[7]
+            < versions[8]
         )
         self.assertTrue(
-            versions[0] <= versions[1] <= versions[2] <= versions[3] <=
-            versions[4] <= versions[5] <= versions[6] <= versions[7] <=
-            versions[8]
+            versions[0] <= versions[1] <= versions[2] <= versions[3]
+            <= versions[4] <= versions[5] <= versions[6] <= versions[7]
+            <= versions[8]
         )
         self.assertTrue(
-            versions[8] >= versions[7] >= versions[6] >= versions[5] >=
-            versions[4] >= versions[3] >= versions[2] >= versions[1] >=
-            versions[0]
+            versions[8] >= versions[7] >= versions[6] >= versions[5]
+            >= versions[4] >= versions[3] >= versions[2] >= versions[1]
+            >= versions[0]
         )
         self.assertTrue(
-            versions[8] > versions[7] > versions[6] > versions[5] >
-            versions[4] > versions[3] > versions[2] > versions[1] >
-            versions[0]
+            versions[8] > versions[7] > versions[6] > versions[5]
+            > versions[4] > versions[3] > versions[2] > versions[1]
+            > versions[0]
         )
 
         # Given
@@ -185,8 +185,8 @@ class TestSemanticVersion(unittest.TestCase):
         # Given
         version_string = "1.2.03"
         r_output = re.compile(
-            "Invalid semantic version '1.2.03' \(Patch number "
-            "cannot have leading 0: '03'\)$"
+            r"Invalid semantic version '1.2.03' \(Patch number "
+            r"cannot have leading 0: '03'\)$"
         )
 
         # When/Then

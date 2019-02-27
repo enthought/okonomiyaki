@@ -108,10 +108,10 @@ class TestPEP386Workaround(unittest.TestCase):
                          version_strings)
 
         # When/Then
-        self.assertTrue(versions[0] < versions[1] < versions[2] < versions[3] <
-                        versions[4] < versions[5] < versions[6] < versions[7])
-        self.assertTrue(versions[7] > versions[6] > versions[5] > versions[4] >
-                        versions[3] > versions[2] > versions[1] > versions[0])
+        self.assertTrue(versions[0] < versions[1] < versions[2] < versions[3]
+                        < versions[4] < versions[5] < versions[6] < versions[7])
+        self.assertTrue(versions[7] > versions[6] > versions[5] > versions[4]
+                        > versions[3] > versions[2] > versions[1] > versions[0])
 
     def test_incorrect_equal(self):
         # Given

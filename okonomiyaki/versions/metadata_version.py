@@ -3,7 +3,7 @@ import re
 from ..errors import InvalidMetadataVersion
 
 
-_VERSION_R = re.compile("(?P<major>\d+)\.(?P<minor>\d+)$")
+_VERSION_R = re.compile(r"(?P<major>\d+)\.(?P<minor>\d+)$")
 
 
 class MetadataVersion(object):

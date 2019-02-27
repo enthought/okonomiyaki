@@ -19,7 +19,7 @@ _KIND_TO_ABBREVIATED = {
 
 _ABBREVIATED_TO_KIND = dict((v, k) for k, v in _KIND_TO_ABBREVIATED.items())
 
-_TAG_RE = re.compile("""
+_TAG_RE = re.compile(r"""
     (?P<interpreter>([^\d]+))
     (?P<version>([\d_]+))
 """, flags=re.VERBOSE)

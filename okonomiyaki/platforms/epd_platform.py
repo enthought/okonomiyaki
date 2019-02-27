@@ -55,7 +55,7 @@ EPD_PLATFORM_SHORT_NAMES = (
 
 VALID_PLATFORMS_FILTER = PLATFORM_NAMES + ("all", "rh",)
 
-_EPD_PLATFORM_STRING_RE = re.compile("""
+_EPD_PLATFORM_STRING_RE = re.compile(r"""
     ^
     (?P<os>[^-_]+)
     [_-]
@@ -63,9 +63,9 @@ _EPD_PLATFORM_STRING_RE = re.compile("""
     $
     """, flags=re.VERBOSE)
 
-_LINUX_TAG_R = re.compile("^linux_(?P<arch>\S+)$")
-_MACOSX_TAG_R = re.compile("^macosx_([^_]+)_([^_]+)_(?P<arch>\S+)$")
-_WINDOWS_TAG_R = re.compile("^win_*(?P<arch>\S+)$")
+_LINUX_TAG_R = re.compile(r"^linux_(?P<arch>\S+)$")
+_MACOSX_TAG_R = re.compile(r"^macosx_([^_]+)_([^_]+)_(?P<arch>\S+)$")
+_WINDOWS_TAG_R = re.compile(r"^win_*(?P<arch>\S+)$")
 
 _ANY_PLATFORM_STRING = u'any'
 
@@ -340,8 +340,8 @@ def applies(platform_string, to='current'):
                 )
         elif len(parts) == 2:
             if (
-                parts[0] not in VALID_PLATFORMS_FILTER or
-                parts[1] not in _ARCHBITS_TO_ARCH
+                parts[0] not in VALID_PLATFORMS_FILTER
+                or parts[1] not in _ARCHBITS_TO_ARCH
             ):
                 raise ValueError(
                     "Invalid filter string: '{}'".format(component)

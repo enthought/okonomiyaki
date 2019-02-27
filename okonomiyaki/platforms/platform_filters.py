@@ -131,9 +131,9 @@ class PlatformFilter(object):
         for platform_label in self.platform_labels:
             if (
                 (platform_label.is_true
-                 and not platform_label.label.matches(platform)) or
-                (not platform_label.is_true
-                 and platform_label.label.matches(platform))
+                 and not platform_label.label.matches(platform))
+                or (not platform_label.is_true
+                    and platform_label.label.matches(platform))
             ):
                 return False
 
