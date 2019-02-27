@@ -63,9 +63,9 @@ _EPD_PLATFORM_STRING_RE = re.compile("""
     $
     """, flags=re.VERBOSE)
 
-_LINUX_TAG_R = re.compile("^linux_(?P<arch>\S+)$") # noqa: W605
-_MACOSX_TAG_R = re.compile("^macosx_([^_]+)_([^_]+)_(?P<arch>\S+)$") # noqa: W605
-_WINDOWS_TAG_R = re.compile("^win_*(?P<arch>\S+)$") # noqa: W605
+_LINUX_TAG_R = re.compile("^linux_(?P<arch>\S+)$")  # noqa: W605
+_MACOSX_TAG_R = re.compile("^macosx_([^_]+)_([^_]+)_(?P<arch>\S+)$")  # noqa: W605
+_WINDOWS_TAG_R = re.compile("^win_*(?P<arch>\S+)$")  # noqa: W605
 
 _ANY_PLATFORM_STRING = u'any'
 

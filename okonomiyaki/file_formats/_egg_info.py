@@ -39,7 +39,7 @@ _EGG_NAME_RE = re.compile("""
     (?P<version>[^-]+)
     -
     (?P<build>\d+)
-    \.egg$""", re.VERBOSE) # noqa: W605
+    \.egg$""", re.VERBOSE)  # noqa: W605
 
 EGG_INFO_PREFIX = "EGG-INFO"
 

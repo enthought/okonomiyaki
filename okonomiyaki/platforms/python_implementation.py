@@ -22,7 +22,7 @@ _ABBREVIATED_TO_KIND = dict((v, k) for k, v in _KIND_TO_ABBREVIATED.items())
 _TAG_RE = re.compile("""
     (?P<interpreter>([^\d]+))
     (?P<version>([\d_]+))
-""", flags=re.VERBOSE) # noqa: W605
+""", flags=re.VERBOSE)  # noqa: W605
 
 _ABI_NONE = u'none'
 _PYTHON_TAG_NONE = u'none'

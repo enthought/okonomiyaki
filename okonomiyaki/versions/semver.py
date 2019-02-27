@@ -13,7 +13,7 @@ _SEMVER_R = re.compile("""\
     (?P<pre_release>-[0-9a-zA-Z-\.]+)?
     (?P<build>\+[0-9a-zA-Z-\.]+)?
     $
-""", flags=re.VERBOSE) # noqa: W605
+""", flags=re.VERBOSE)  # noqa: W605
 
 
 _PART_R = re.compile("[0-9a-zA-Z-]+")

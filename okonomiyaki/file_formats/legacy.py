@@ -8,13 +8,13 @@ from ..platforms import PythonImplementation, default_abi
 
 
 # To parse the python field in our index and spec/depend
-_PYVER_RE = re.compile("(?P<major>\d+)\.(?P<minor>\d+)") # noqa: W605
+_PYVER_RE = re.compile("(?P<major>\d+)\.(?P<minor>\d+)")  # noqa: W605
 
 # To parse python_tag
 _TAG_RE = re.compile("""
     (?P<interpreter>(cp|pp|cpython|py))
     (?P<version>([\d_]+))
-""", flags=re.VERBOSE) # noqa: W605
+""", flags=re.VERBOSE)  # noqa: W605
 
 
 def _guess_abi_tag(epd_platform, python_tag):
