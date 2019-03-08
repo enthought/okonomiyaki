@@ -21,6 +21,7 @@ from .common import (
     PIP_PKG_INFO, PKG_INFO_ENSTALLER_1_0, PYMULTINEST_EGG, SUPERVISOR_EGG,
     UNICODE_DESCRIPTION_EGG, UNICODE_DESCRIPTION_TEXT, FAKE_PYSIDE_1_1_0_EGG,
     FAKE_PYSIDE_1_1_0_EGG_PKG_INFO, SETUPTOOLS_PKG_INFO_1_2,
+    SETUPTOOLS_PKG_INFO_2_1, SETUPTOOLS_40_8_0_EGG,
 )
 
 
@@ -173,6 +174,17 @@ class TestPackageInfo(unittest.TestCase):
         # Given
         egg = PIP_EGG
         r_pkg_info_s = PIP_PKG_INFO
+
+        # When
+        pkg_info = PackageInfo.from_egg(egg)
+
+        # Then
+        self.assertMultiLineEqual(pkg_info.to_string(), r_pkg_info_s)
+
+    def test_metadata_2_1_to_string(self):
+        # Given
+        egg = SETUPTOOLS_40_8_0_EGG
+        r_pkg_info_s = SETUPTOOLS_PKG_INFO_2_1
 
         # When
         pkg_info = PackageInfo.from_egg(egg)
@@ -403,3 +415,67 @@ class TestPackageInfo(unittest.TestCase):
         self.assertEqual(pkg_info.obsoletes, ())
 
         self.assertEqual(pkg_info.requires_python, r_requires_python)
+
+    def test_metadata_2_1_from_string(self):
+        # Given
+        data = SETUPTOOLS_PKG_INFO_2_1
+        r_project_urls = [u'Documentation, https://setuptools.readthedocs.io/']
+        r_classifiers = [
+            u'Development Status :: 5 - Production/Stable',
+            u'Intended Audience :: Developers', u'License :: OSI Approved :: MIT License',
+            u'Operating System :: OS Independent',
+            u'Programming Language :: Python :: 2',
+            u'Programming Language :: Python :: 2.7',
+            u'Programming Language :: Python :: 3',
+            u'Programming Language :: Python :: 3.4',
+            u'Programming Language :: Python :: 3.5',
+            u'Programming Language :: Python :: 3.6',
+            u'Programming Language :: Python :: 3.7',
+            u'Topic :: Software Development :: Libraries :: Python Modules',
+            u'Topic :: System :: Archiving :: Packaging',
+            u'Topic :: System :: Systems Administration',
+            u'Topic :: Utilities'
+        ]
+        r_requires_python = u'>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*'
+        r_description_content_type = u'text/x-rst; charset=UTF-8'
+        r_provides_extra = [
+            u'ssl',
+            u'certs',
+        ]
+
+        # When
+        pkg_info = PackageInfo.from_string(data)
+
+        # Then
+        self.assertEqual(pkg_info.name, "setuptools")
+        self.assertEqual(pkg_info.version, "40.8.0")
+        self.assertEqual(pkg_info.platforms, ())
+        self.assertEqual(pkg_info.supported_platforms, ())
+        self.assertEqual(
+            pkg_info.summary,
+            ("Easily download, build, install, upgrade, and uninstall Python "
+             "packages"),
+        )
+        self.assertEqual(
+            pkg_info.keywords,
+            (u"CPAN", u"PyPI", u"distutils", u"eggs", u"package",
+             u"management"),
+        )
+        self.assertEqual(
+            pkg_info.home_page, "https://github.com/pypa/setuptools"
+        )
+        self.assertEqual(pkg_info.download_url, "")
+        self.assertEqual(pkg_info.author, "Python Packaging Authority")
+        self.assertEqual(pkg_info.author_email, "distutils-sig@python.org")
+        self.assertEqual(pkg_info.license, "")
+
+        self.assertEqual(pkg_info.project_urls, r_project_urls)
+        self.assertEqual(pkg_info.classifiers, r_classifiers)
+        self.assertEqual(pkg_info.requires, ())
+        self.assertEqual(pkg_info.provides, ())
+        self.assertEqual(pkg_info.obsoletes, ())
+
+        self.assertEqual(pkg_info.requires_python, r_requires_python)
+
+        self.assertEqual(pkg_info.description_content_type, r_description_content_type)
+        self.assertEqual(pkg_info.provides_extra, r_provides_extra)

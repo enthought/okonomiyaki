@@ -5,6 +5,7 @@ We support 1.0, 1.1, 1.2 and 2.0.
 """
 import contextlib
 import os.path
+import warnings
 
 import zipfile2
 
@@ -59,13 +60,20 @@ HEADER_ATTRS_1_2 = HEADER_ATTRS_1_1 + (  # PEP 345
 
 # 2.0 not formalized, but seen in wheels produced by wheel as recent as 0.30.0.
 # See PEP 426, and the PyPI pkginfo project.
+# According to PEP 426, version 2.0 has now been withdrawn in favor of version 2.1.
 HEADER_ATTRS_2_0 = HEADER_ATTRS_1_2
+
+HEADER_ATTRS_2_1 = HEADER_ATTRS_1_2 + (  # PEP 566
+    ('Description-Content-Type', 'description_content_type', False),
+    ('Provides-Extra', 'provides_extra', True),
+)
 
 HEADER_ATTRS = {
     (1, 0): HEADER_ATTRS_1_0,
     (1, 1): HEADER_ATTRS_1_1,
     (1, 2): HEADER_ATTRS_1_2,
     (2, 0): HEADER_ATTRS_2_0,
+    (2, 1): HEADER_ATTRS_2_1,
 }
 
 MAX_SUPPORTED_VERSION = max(HEADER_ATTRS.keys())
@@ -176,6 +184,18 @@ class PackageInfo(object):
                     if value != 'UNKNOWN':
                         kw[attr_name] = value
 
+        if metadata_version_info >= (2, 1):
+            msg_body = msg.get_payload()
+            if msg_body is not None and msg_body != '':
+                if 'description' in kw:
+                    warnings.warn(
+                        'Description defined with header and in body '
+                        'of metadata. Using description with header.',
+                        RuntimeWarning
+                    )
+                else:
+                    kw['description'] = msg_body
+
         name = kw.pop("name")
         version = kw.pop("version")
         return cls(metadata_version, name, version, **kw)
@@ -187,7 +207,8 @@ class PackageInfo(object):
                  provides=None, obsoletes=None, maintainer="",
                  maintainer_email="", requires_python=None,
                  requires_external=None, requires_dist=None,
-                 provides_dist=None, obsoletes_dist=None, projects_urls=None):
+                 provides_dist=None, obsoletes_dist=None, project_urls=None,
+                 description_content_type="", provides_extra=None):
         _ensure_supported_version(metadata_version)
 
         self.metadata_version = metadata_version
@@ -220,7 +241,11 @@ class PackageInfo(object):
         self.requires_dist = requires_dist or ()
         self.provides_dist = provides_dist or ()
         self.obsoletes_dist = obsoletes_dist or ()
-        self.project_urls = projects_urls or ()
+        self.project_urls = project_urls or ()
+
+        # version 2.1
+        self.description_content_type = description_content_type or ""
+        self.provides_extra = provides_extra or ()
 
     def to_string(self, metadata_version_info=MAX_SUPPORTED_VERSION):
         s = py3compat.StringIO()
@@ -231,10 +256,24 @@ class PackageInfo(object):
         self._write_field(s, 'Home-page', self.home_page)
         self._write_field(s, 'Author', self.author)
         self._write_field(s, 'Author-email', self.author_email)
-        self._write_field(s, 'License', self.license)
+
+        if metadata_version_info >= (1, 2):
+            if self.maintainer:
+                self._write_field(s, 'Maintainer', self.maintainer)
+            if self.maintainer_email:
+                self._write_field(s, 'Maintainer-email', self.maintainer_email)
+
+        if self.license:
+            self._write_field(s, 'License', self.license)
+        else:
+            self._write_field(s, 'License', "UNKNOWN")
+
         if metadata_version_info >= (1, 1):
             if self.download_url:
                 self._write_field(s, 'Download-URL', self.download_url)
+
+        if metadata_version_info >= (1, 2):
+            self._write_list(s, 'Project-URL', self.project_urls)
 
         description = _rfc822_escape(self.description)
         self._write_field(s, 'Description', description)
@@ -251,9 +290,25 @@ class PackageInfo(object):
         if metadata_version_info >= (1, 1):
             self._write_list(s, 'Classifier', self.classifiers)
 
+        if metadata_version_info == (1, 1):
+            # These fields are deprecated in 1.2
+            # and changed to the corresponding field names in section below.
             self._write_list(s, 'Requires', self.requires)
             self._write_list(s, 'Provides', self.provides)
             self._write_list(s, 'Obsoletes', self.obsoletes)
+        elif metadata_version_info >= (1, 2):
+            if self.requires_python:
+                self._write_field(s, 'Requires-Python', self.requires_python)
+            self._write_list(s, 'Requires-External', self.requires_external)
+
+            self._write_list(s, 'Requires-Dist', self.requires_dist)
+            self._write_list(s, 'Provides-Dist', self.provides_dist)
+            self._write_list(s, 'Obsoletes-Dist', self.obsoletes_dist)
+
+        if metadata_version_info >= (2, 1):
+            if self.description_content_type:
+                self._write_field(s, 'Description-Content-Type', self.description_content_type)
+            self._write_list(s, 'Provides-Extra', self.provides_extra)
 
         return s.getvalue()
 
