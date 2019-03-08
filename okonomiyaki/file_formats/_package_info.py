@@ -190,8 +190,7 @@ class PackageInfo(object):
                 if 'description' in kw:
                     warnings.warn(
                         'Description defined with header and in body '
-                        'of metadata.\nDescription header: "{}"\nBody: "{}"'
-                        .format(kw['description'], msg_body),
+                        'of metadata. Using description with header.',
                         RuntimeWarning
                     )
                 else:
