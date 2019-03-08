@@ -1,6 +1,5 @@
 language: python
 os: linux
-sudo: false
 
 env:
   global:
@@ -24,7 +23,8 @@ branches:
     - maint/*
 
 install:
-  - pip install -q -U pip wheel coveralls;
+  - pip list
+  - pip install -q -U pip attrs wheel coveralls;
   - pip install -q .
   - pip install -q -rdev_requirements.txt
 
