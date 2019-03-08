@@ -1,6 +1,5 @@
 language: python
 os: linux
-sudo: false
 
 env:
   global:
