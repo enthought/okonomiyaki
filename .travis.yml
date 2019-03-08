@@ -23,6 +23,7 @@ branches:
     - maint/*
 
 install:
+  - pip list
   - pip install -q -U pip wheel coveralls;
   - pip install -q .
   - pip install -q -rdev_requirements.txt
