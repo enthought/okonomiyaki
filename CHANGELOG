@@ -3,12 +3,22 @@
 
 Enhancements:
 
-* Add ability to parse package metadata version 2.1 (#312)
+* Add ability to parse setuptools eggs and wheels with metadata version 2.1 (#312)
 
-bug fixes:
+Bug fixes:
 
-* Use a python3 compatible fix_scripts.py module (#303) 
-* Remove osx files from the windows runtime (#304)
+* Improve error message when hyphens are used in spec requirement string (#319)
+* Fix CI errors with jasonschema and attrs incompatibility (#318)
+* Fix Travis CI flake8 errors (#316)
+
+
+2018-03-12    0.17.4
+--------------------
+
+Bug fixes:
+
+* fix test data dummy runtime for python 2.7.9 that contained osx system files. (#304)
+* fix test data dummy windows runtimes fix_scripts to support python 2 and python 3. (#303)
 
 
 2017-12-13    0.17.3
