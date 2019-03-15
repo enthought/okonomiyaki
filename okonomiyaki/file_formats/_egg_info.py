@@ -8,7 +8,8 @@ from attr import attr, attributes
 from attr.validators import instance_of, optional
 
 from ..errors import (
-    InvalidRequirementString, InvalidEggName, InvalidMetadataField,
+    InvalidRequirementString, InvalidRequirementStringHyphen,
+    InvalidEggName, InvalidMetadataField,
     MissingMetadata, UnsupportedMetadata
 )
 from ..platforms import (
@@ -258,7 +259,7 @@ class Requirement(object):
         if len(parts) == 1:
             name = parts[0]
             if "-" in name:
-                raise InvalidRequirementString(name)
+                raise InvalidRequirementStringHyphen(name)
             return cls(name=name)
         elif len(parts) == 2:
             name, version = parts
