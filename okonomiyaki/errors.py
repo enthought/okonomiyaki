@@ -60,10 +60,18 @@ class MissingMetadata(InvalidMetadata):
 
 
 class InvalidRequirementString(InvalidPackageFormat):
-    def __init__(self, requirement_string):
+    def __init__(self, requirement_string, add_msg=None):
         self.requirement_string = requirement_string
         msg = "Invalid requirement string {0!r}".format(requirement_string)
+        if add_msg is not None:
+            msg += ": {}".format(add_msg)
         super(InvalidRequirementString, self).__init__(msg)
+
+
+class InvalidRequirementStringHyphen(InvalidRequirementString):
+    def __init__(self, requirement_string):
+        msg = "Package versions should be separated by whitespace instead of a hyphen."
+        super(InvalidRequirementStringHyphen, self).__init__(requirement_string, add_msg=msg)
 
 
 class InvalidVersion(OkonomiyakiError):

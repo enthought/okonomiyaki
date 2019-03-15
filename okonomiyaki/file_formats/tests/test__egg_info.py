@@ -14,7 +14,8 @@ else:
     import unittest
 
 from ...errors import (
-    InvalidEggName, InvalidMetadataField, MissingMetadata, UnsupportedMetadata
+    InvalidEggName, InvalidMetadataField, MissingMetadata, UnsupportedMetadata,
+    InvalidRequirementStringHyphen
 )
 from ...utils import tempdir
 from ...utils.test_data import (
@@ -81,6 +82,13 @@ class TestRequirement(unittest.TestCase):
         self.assertEqual(dependency.version_string, "1.7.1")
         self.assertEqual(dependency.build_number, 2)
         self.assertEqual(dependency.strictness, 3)
+
+        with self.assertRaisesRegexp(
+                InvalidRequirementStringHyphen,
+                "Invalid requirement string {0!r}:"
+                " Package versions should be separated by whitespace"
+                " instead of a hyphen.".format(u"numpy-1.7.1-2")):
+            Requirement.from_spec_string(u"numpy-1.7.1-2")
 
     def test_from_string(self):
         dependency = Requirement.from_string(u"numpy-1.7.1-2", 3)
