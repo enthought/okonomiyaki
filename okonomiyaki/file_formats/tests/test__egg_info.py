@@ -19,7 +19,7 @@ from ...errors import (
 )
 from ...utils import tempdir
 from ...utils.test_data import (
-    MKL_10_3_RH5_X86_64, NOSE_1_3_4_OSX_X86_64, NOSE_1_3_4_RH5_X86_64
+    MKL_10_3_RH5_X86_64, NOSE_1_3_4_RH6_X86_64, NOSE_1_3_4_RH5_X86_64
 )
 from ...platforms import EPDPlatform, PlatformABI
 from ...platforms.legacy import LegacyEPDPlatform
@@ -1229,11 +1229,11 @@ class TestEggMetadata(unittest.TestCase):
 
             arch = 'amd64'
             platform = 'linux2'
-            osdist = 'RedHat_5'
+            osdist = 'RedHat_6'
             python = '2.7'
             packages = []\n""")
 
-        egg = NOSE_1_3_4_OSX_X86_64
+        egg = NOSE_1_3_4_RH6_X86_64
         metadata = EggMetadata.from_egg(egg)
 
         # When
