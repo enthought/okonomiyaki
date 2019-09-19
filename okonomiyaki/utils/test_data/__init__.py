@@ -9,6 +9,12 @@ DUMMY_RUNTIMES_DIRECTORY = _HERE = os.path.dirname(__file__)
 PYTHON_CPYTHON_2_7_9_RH5_X86_64 = os.path.join(
     _HERE, "cpython-2.7.9+1-rh5_x86_64-gnu.runtime",
 )
+PYTHON_CPYTHON_2_7_9_RH6_X86_64 = os.path.join(
+    _HERE, "cpython-2.7.9+1-rh6_x86_64-gnu.runtime",
+)
+PYTHON_CPYTHON_2_7_9_RH7_X86_64 = os.path.join(
+    _HERE, "cpython-2.7.9+1-rh7_x86_64-gnu.runtime",
+)
 PYTHON_CPYTHON_2_7_9_OSX_X86_64 = os.path.join(
     _HERE, "cpython-2.7.9+1-osx_x86_64-darwin.runtime"
 )
@@ -22,6 +28,12 @@ PYTHON_CPYTHON_2_7_9_WIN_X86_64 = os.path.join(
 # 2.7.10
 PYTHON_CPYTHON_2_7_10_RH5_X86_64 = os.path.join(
     _HERE, "cpython-2.7.10+1-rh5_x86_64-gnu.runtime",
+)
+PYTHON_CPYTHON_2_7_10_RH65_X86_64 = os.path.join(
+    _HERE, "cpython-2.7.10+1-rh6_x86_64-gnu.runtime",
+)
+PYTHON_CPYTHON_2_7_10_RH7_X86_64 = os.path.join(
+    _HERE, "cpython-2.7.10+1-rh7_x86_64-gnu.runtime",
 )
 PYTHON_CPYTHON_2_7_10_OSX_X86_64 = os.path.join(
     _HERE, "cpython-2.7.10+1-osx_x86_64-darwin.runtime"
@@ -37,6 +49,12 @@ PYTHON_CPYTHON_2_7_10_WIN_X86_64 = os.path.join(
 PYTHON_CPYTHON_3_4_1_RH5_X86_64 = os.path.join(
     _HERE, "cpython-3.4.1+1-rh5_x86_64-gnu.runtime",
 )
+PYTHON_CPYTHON_3_4_1_RH6_X86_64 = os.path.join(
+    _HERE, "cpython-3.4.1+1-rh6_x86_64-gnu.runtime",
+)
+PYTHON_CPYTHON_3_4_1_RH7_X86_64 = os.path.join(
+    _HERE, "cpython-3.4.1+1-rh7_x86_64-gnu.runtime",
+)
 PYTHON_CPYTHON_3_4_1_OSX_X86_64 = os.path.join(
     _HERE, "cpython-3.4.1+1-osx_x86_64-darwin.runtime",
 )
@@ -51,6 +69,12 @@ PYTHON_CPYTHON_3_4_1_WIN_X86_64 = os.path.join(
 PYTHON_CPYTHON_3_5_1_RH5_X86_64 = os.path.join(
     _HERE, "cpython-3.5.1+1-rh5_x86_64-gnu.runtime",
 )
+PYTHON_CPYTHON_3_5_1_RH6_X86_64 = os.path.join(
+    _HERE, "cpython-3.5.1+1-rh6_x86_64-gnu.runtime",
+)
+PYTHON_CPYTHON_3_5_1_RH7_X86_64 = os.path.join(
+    _HERE, "cpython-3.5.1+1-rh7_x86_64-gnu.runtime",
+)
 PYTHON_CPYTHON_3_5_1_OSX_X86_64 = os.path.join(
     _HERE, "cpython-3.5.1+1-osx_x86_64-darwin.runtime",
 )
@@ -60,6 +84,27 @@ PYTHON_CPYTHON_3_5_1_WIN_X86 = os.path.join(
 PYTHON_CPYTHON_3_5_1_WIN_X86_64 = os.path.join(
     _HERE, "cpython-3.5.1+1-win_x86_64-msvc2008.runtime",
 )
+
+# 3.6.5
+PYTHON_CPYTHON_3_6_5_RH5_X86_64 = os.path.join(
+    _HERE, "cpython-3.6.5+1-rh5_x86_64-gnu.runtime",
+)
+PYTHON_CPYTHON_3_6_5_RH6_X86_64 = os.path.join(
+    _HERE, "cpython-3.6.5+1-rh6_x86_64-gnu.runtime",
+)
+PYTHON_CPYTHON_3_6_5_RH7_X86_64 = os.path.join(
+    _HERE, "cpython-3.6.5+1-rh7_x86_64-gnu.runtime",
+)
+PYTHON_CPYTHON_3_6_5_OSX_X86_64 = os.path.join(
+    _HERE, "cpython-3.6.5+1-osx_x86_64-darwin.runtime",
+)
+PYTHON_CPYTHON_3_6_5_WIN_X86 = os.path.join(
+    _HERE, "cpython-3.6.5+1-win_x86-msvc2015.runtime",
+)
+PYTHON_CPYTHON_3_6_5_WIN_X86_64 = os.path.join(
+    _HERE, "cpython-3.6.5+1-win_x86_64-msvc2015.runtime",
+)
+
 
 PYTHON_CPYTHON_2_7_10_RH5_X86_64_INVALID = os.path.join(
     _HERE, "cpython-2.7.10+1-rh5_x86_64-gnu.runtime.invalid",
@@ -89,13 +134,25 @@ NOSE_1_3_4_RH5_X86_64 = os.path.join(_RH5_X86_64, "nose-1.3.4-1.egg")
 MKL_10_3_RH5_X86_64 = os.path.join(_RH5_X86_64, "MKL-10.3-1.egg")
 NUMPY_1_9_2_RH5_X86_64 = os.path.join(_RH5_X86_64, "numpy-1.9.2-1.egg")
 
-_WIN_X86_64 = os.path.join(_HERE, "eggs", "rh5_x86_64")
+_RH6_X86_64 = os.path.join(_HERE, "eggs", "rh6_x86_64")
+
+NOSE_1_3_4_RH6_X86_64 = os.path.join(_RH6_X86_64, "nose-1.3.4-1.egg")
+MKL_10_3_RH6_X86_64 = os.path.join(_RH6_X86_64, "MKL-10.3-1.egg")
+NUMPY_1_9_2_RH6_X86_64 = os.path.join(_RH6_X86_64, "numpy-1.9.2-1.egg")
+
+_RH7_X86_64 = os.path.join(_HERE, "eggs", "rh7_x86_64")
+
+NOSE_1_3_4_RH7_X86_64 = os.path.join(_RH7_X86_64, "nose-1.3.4-1.egg")
+MKL_10_3_RH7_X86_64 = os.path.join(_RH7_X86_64, "MKL-10.3-1.egg")
+NUMPY_1_9_2_RH7_X86_64 = os.path.join(_RH7_X86_64, "numpy-1.9.2-1.egg")
+
+_WIN_X86_64 = os.path.join(_HERE, "eggs", "win_x86_64")
 
 NOSE_1_3_4_WIN_X86_64 = os.path.join(_WIN_X86_64, "nose-1.3.4-1.egg")
 MKL_10_3_WIN_X86_64 = os.path.join(_WIN_X86_64, "MKL-10.3-1.egg")
 NUMPY_1_9_2_WIN_X86_64 = os.path.join(_WIN_X86_64, "numpy-1.9.2-1.egg")
 
-_OSX_X86_64 = os.path.join(_HERE, "eggs", "rh5_x86_64")
+_OSX_X86_64 = os.path.join(_HERE, "eggs", "osx_x86_64")
 
 NOSE_1_3_4_OSX_X86_64 = os.path.join(_OSX_X86_64, "nose-1.3.4-1.egg")
 MKL_10_3_OSX_X86_64 = os.path.join(_OSX_X86_64, "MKL-10.3-1.egg")
