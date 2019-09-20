@@ -29,7 +29,7 @@ PYTHON_CPYTHON_2_7_9_WIN_X86_64 = os.path.join(
 PYTHON_CPYTHON_2_7_10_RH5_X86_64 = os.path.join(
     _HERE, "cpython-2.7.10+1-rh5_x86_64-gnu.runtime",
 )
-PYTHON_CPYTHON_2_7_10_RH65_X86_64 = os.path.join(
+PYTHON_CPYTHON_2_7_10_RH6_X86_64 = os.path.join(
     _HERE, "cpython-2.7.10+1-rh6_x86_64-gnu.runtime",
 )
 PYTHON_CPYTHON_2_7_10_RH7_X86_64 = os.path.join(
