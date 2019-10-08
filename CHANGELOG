@@ -1,3 +1,10 @@
+2019-10-08     1.1.2
+--------------------
+
+Big fixes:
+
+* Add missing rh6 and rh7 egg data folder into the sdist. (#345)
+
 2019-09-20     1.1.1
 --------------------
 
