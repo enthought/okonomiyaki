@@ -154,6 +154,7 @@ def _guess_platform_details(os_kind):
         return FamilyKind.mac_os_x, NameKind.mac_os_x, platform.mac_ver()[0]
     elif os_kind == OSKind.linux:
         name = platform.linux_distribution()[0].lower()
+        name = name.split()[0]
         _, release, _ = platform.dist()
         try:
             name_kind = NameKind[name]

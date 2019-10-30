@@ -16,7 +16,8 @@ from .._arch import Arch
 from .common import (
     mock_architecture_32bit, mock_architecture_64bit, mock_centos_5_8,
     mock_centos_6_3, mock_darwin, mock_machine_x86, mock_machine_x86_64,
-    mock_solaris, mock_ubuntu_raring, mock_windows, mock_x86, mock_x86_64
+    mock_solaris, mock_ubuntu_raring, mock_windows, mock_x86, mock_x86_64,
+    mock_centos_7_6
 )
 
 if sys.version_info < (2, 7):
@@ -197,6 +198,10 @@ class TestEPDPlatform(unittest.TestCase):
 
             epd_platform = EPDPlatform.from_running_system("amd64")
             self.assertEqual(epd_platform.short, "rh5-64")
+
+        with mock_centos_7_6:
+            epd_platform = EPDPlatform.from_running_system("amd64")
+            self.assertEqual(epd_platform.short, "rh7-64")
 
     def test_str(self):
         # Given
@@ -433,6 +438,10 @@ class TestGuessEPDPlatform(unittest.TestCase):
 
             epd_platform = _guess_epd_platform(Arch.from_name("amd64"))
             self.assertEqual(epd_platform.short, "rh6-64")
+
+        with mock_centos_7_6:
+            epd_platform = _guess_epd_platform(Arch.from_name("amd64"))
+            self.assertEqual(epd_platform.short, "rh7-64")
 
     def test_guess_linux2_unsupported(self):
         with mock_ubuntu_raring:

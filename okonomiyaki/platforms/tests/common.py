@@ -84,6 +84,12 @@ mock_centos_7_0 = MultiPatcher([
     _mock_platform_linux_distribution(("CentOS", "7.0", "Final"))
 ])
 
+mock_centos_7_6 = MultiPatcher([
+    mock_linux,
+    _mock_platform_dist(("centos", "7.6.1810", "Core")),
+    _mock_platform_linux_distribution(("CentOS Linux", "7.6.1810", "Core"))
+])
+
 mock_ubuntu_raring = MultiPatcher([
     _mock_platform_dist(("Ubuntu", "13.04", "raring")),
     _mock_platform_linux_distribution(("Ubuntu", "13.04", "raring")),
