@@ -209,7 +209,7 @@ def _compute_variables(metadata, prefix, name):
     variables = dict(
         (k, v) for k, v in data.items() if isinstance(v, six.string_types)
     )
-    variables["prefix"] = prefix
+    variables["prefix"] = prefix.replace('$', '$$')
     variables["name"] = name
 
     return substitute_variables(variables, variables)

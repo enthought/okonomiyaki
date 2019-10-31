@@ -39,6 +39,27 @@ class TestPythonRuntimeInfoV1(unittest.TestCase):
         self.assertEqual(runtime_info.name, name)
         self.assertEqual(runtime_info.executable, r_executable)
 
+    @unittest.skipIf(not sys.platform.startswith('win'), 'Test case unique to Windows')
+    def test_dollar_in_prefix(self):
+        # Given
+        name = u"test"
+        prefix = os.path.abspath(os.path.join(u"$foo", u"bar$"))
+
+        path = PYTHON_CPYTHON_2_7_10_WIN_X86_64
+        r_executable = os.path.join(prefix, "python.exe")
+
+        metadata = IRuntimeMetadata.factory_from_path(path)
+
+        # When
+        runtime_info = IRuntimeInfo.factory_from_metadata(
+            metadata, prefix, name
+        )
+
+        # Then
+        self.assertEqual(runtime_info.prefix, prefix)
+        self.assertEqual(runtime_info.name, name)
+        self.assertEqual(runtime_info.executable, r_executable)
+
     def test_json_round_trip(self):
         # Given
         path = PYTHON_CPYTHON_2_7_10_RH5_X86_64

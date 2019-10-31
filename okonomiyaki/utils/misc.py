@@ -64,7 +64,7 @@ def tempdir():
         shutil.rmtree(d)
 
 
-def substitute_variables(d, local_vars):
+def substitute_variables(d, in_vars):
     """Perform shell/Perl-style variable substitution.
 
     Every occurrence of '${name}' name is considered a variable, and variable
@@ -86,11 +86,20 @@ def substitute_variables(d, local_vars):
             ret[k] = substitute_variable(v, local_vars)
         return ret
 
+    def _replace(d, old, new):
+        ret = {}
+        for k, v in d.items():
+            ret[k] = v.replace(old, new)
+        return ret
+
+    placeholder = 'ENTHOUGHT_OKONOMIYAKI_DOLLAR_PLACEHOLDER'
+    local_vars = _replace(in_vars, '$$', placeholder)
+    d = _replace(d, '$$', placeholder)
     ret = _resolve(d)
     while not ret == d:
         d = ret
         ret = _resolve(d)
-    return ret
+    return _replace(ret, placeholder, '$')
 
 
 def substitute_variable(v, local_vars):
