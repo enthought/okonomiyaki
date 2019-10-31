@@ -151,6 +151,7 @@ _WIN_X86_64 = os.path.join(_HERE, "eggs", "win_x86_64")
 NOSE_1_3_4_WIN_X86_64 = os.path.join(_WIN_X86_64, "nose-1.3.4-1.egg")
 MKL_10_3_WIN_X86_64 = os.path.join(_WIN_X86_64, "MKL-10.3-1.egg")
 NUMPY_1_9_2_WIN_X86_64 = os.path.join(_WIN_X86_64, "numpy-1.9.2-1.egg")
+PSUTIL_0_7_1_WIN_X86_64 = os.path.join(_WIN_X86_64, "psutil-0.7.1-1.egg")
 
 _OSX_X86_64 = os.path.join(_HERE, "eggs", "osx_x86_64")
 

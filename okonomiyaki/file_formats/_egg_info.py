@@ -1,3 +1,4 @@
+import os.path
 import posixpath
 import re
 
@@ -479,12 +480,6 @@ class LegacySpecDepend(object):
     @classmethod
     def _from_egg(cls, path_or_file, sha256):
         def _create_spec_depend(zp):
-            epd_platform_string = EGG_PLATFORM_BLACK_LIST.get(sha256)
-            if epd_platform_string is None:
-                epd_platform = None
-            else:
-                epd_platform = EPDPlatform.from_epd_string(epd_platform_string)
-
             try:
                 spec_depend_string = zp.read(_SPEC_DEPEND_LOCATION).decode()
             except KeyError:
@@ -492,8 +487,27 @@ class LegacySpecDepend(object):
                        .format(path_or_file, _SPEC_DEPEND_LOCATION))
                 raise MissingMetadata(msg)
             else:
+                black_list_sha = sha256
+                if spec_depend_string.startswith(u"metadata_version = '1.1'"):
+                    old_data = parse_rawspec(spec_depend_string)
+                    expected_filename = '{}-{}-{}.egg'.format(
+                        old_data['name'], old_data['version'], old_data['build']
+                    )
+                    if isinstance(path_or_file, string_types):
+                        filepath = path_or_file
+                    else:
+                        filepath = path_or_file.filename
+                    if os.path.basename(filepath) != expected_filename:
+                        black_list_sha = compute_sha256(filepath)
+
+                epd_platform_str = EGG_PLATFORM_BLACK_LIST.get(black_list_sha)
+                if epd_platform_str is None:
+                    epd_platform = None
+                else:
+                    epd_platform = EPDPlatform.from_epd_string(epd_platform_str)
+
                 data, epd_platform = _normalized_info_from_string(
-                    spec_depend_string, epd_platform, sha256
+                    spec_depend_string, epd_platform, black_list_sha
                 )
                 return cls._from_data(data, epd_platform)
 

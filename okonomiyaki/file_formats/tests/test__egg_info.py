@@ -19,7 +19,8 @@ from ...errors import (
 )
 from ...utils import tempdir
 from ...utils.test_data import (
-    MKL_10_3_RH5_X86_64, NOSE_1_3_4_RH6_X86_64, NOSE_1_3_4_RH5_X86_64
+    MKL_10_3_RH5_X86_64, NOSE_1_3_4_RH6_X86_64, NOSE_1_3_4_RH5_X86_64,
+    PSUTIL_0_7_1_WIN_X86_64
 )
 from ...platforms import EPDPlatform, PlatformABI
 from ...platforms.legacy import LegacyEPDPlatform
@@ -1645,6 +1646,66 @@ class TestEggMetadata(unittest.TestCase):
 
         # Then
         self.assertEqual(metadata, r_metadata)
+
+    def test_old_egg_with_original_file_name(self):
+        # Given
+        egg = PSUTIL_0_7_1_WIN_X86_64
+        sha256sum = ("779e56014506b3f555771fa6734a26eaea1684cccf728f47d17ecd"
+                     "da50dd33d0")
+        r_json_dict = {
+            "metadata_version": u"1.1",
+            "_raw_name": u"psutil",
+            "version": u"0.7.1-1",
+            "epd_platform": u"win_x86_64",
+            "python_tag": u"cp27",
+            "abi_tag": u"cp27m",
+            "platform_tag": u"win_amd64",
+            "platform_abi_tag": u"msvc2008",
+            "runtime_dependencies": [],
+            "summary": u"OS interface to processes and tasks\n"
+        }
+
+        # When
+        with mock.patch(
+            "okonomiyaki.file_formats._egg_info.compute_sha256",
+            return_value=sha256sum
+        ):
+            metadata = EggMetadata.from_egg(egg)
+        json_dict = metadata.to_json_dict()
+
+        # Then
+        self.assertEqual(json_dict, r_json_dict)
+
+    def test_old_egg_with_temp_file_name(self):
+        # Given
+        original_egg = PSUTIL_0_7_1_WIN_X86_64
+        egg = os.path.join(self.tempdir, "foo.egg")
+        shutil.copy(original_egg, egg)
+        sha256sum = ("779e56014506b3f555771fa6734a26eaea1684cccf728f47d17ecd"
+                     "da50dd33d0")
+        r_json_dict = {
+            "metadata_version": u"1.1",
+            "_raw_name": u"psutil",
+            "version": u"0.7.1-1",
+            "epd_platform": u"win_x86_64",
+            "python_tag": u"cp27",
+            "abi_tag": u"cp27m",
+            "platform_tag": u"win_amd64",
+            "platform_abi_tag": u"msvc2008",
+            "runtime_dependencies": [],
+            "summary": u"OS interface to processes and tasks\n"
+        }
+
+        # When
+        with mock.patch(
+            "okonomiyaki.file_formats._egg_info.compute_sha256",
+            return_value=sha256sum
+        ):
+            metadata = EggMetadata.from_egg(egg)
+        json_dict = metadata.to_json_dict()
+
+        # Then
+        self.assertEqual(json_dict, r_json_dict)
 
     def _test_roundtrip(self, egg):
         r_metadata = EggMetadata.from_egg(egg)
