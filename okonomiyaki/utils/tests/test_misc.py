@@ -74,3 +74,27 @@ class TestSubstitute(unittest.TestCase):
 
         # Then
         self.assertEqual(rendered, r_data)
+
+    def test_without_curly_braces(self):
+        # Given
+        data = {
+            "foo": "$yolo",
+            "bar": "$foo/bin",
+        }
+
+        variables = {
+            "yolo": "/foo/bar",
+        }
+        variables.update(data)
+
+        r_data = {
+            "foo": "$yolo",
+            "bar": "$foo/bin",
+        }
+
+        # When
+        variables = substitute_variables(variables, variables)
+        rendered = substitute_variables(data, variables)
+
+        # Then
+        self.assertEqual(rendered, r_data)
