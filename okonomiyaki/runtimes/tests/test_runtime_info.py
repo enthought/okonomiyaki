@@ -44,8 +44,12 @@ class TestPythonRuntimeInfoV1(unittest.TestCase):
         name = u"test"
         prefix = os.path.abspath(os.path.join(u"$foo", u"bar$"))
 
-        path = PYTHON_CPYTHON_2_7_10_WIN_X86_64
-        r_executable = os.path.join(prefix, "python.exe")
+        if sys.platform == "win32":
+            path = PYTHON_CPYTHON_2_7_10_WIN_X86_64
+            r_executable = os.path.join(prefix, "python.exe")
+        else:
+            path = PYTHON_CPYTHON_2_7_10_RH5_X86_64
+            r_executable = os.path.join(prefix, "bin", "python")
 
         metadata = IRuntimeMetadata.factory_from_path(path)
 
