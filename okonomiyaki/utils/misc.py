@@ -64,14 +64,15 @@ def tempdir():
         shutil.rmtree(d)
 
 
-def substitute_variables(d, in_vars):
+def substitute_variables(d, local_vars):
     """Perform shell/Perl-style variable substitution.
 
     Every occurrence of '${name}' name is considered a variable, and variable
     is substituted by the value found in the `local_vars' dictionary.  Raise
     ValueError for any variables not found in `local_vars'.
 
-    '$' may be escaped by using '$$'
+    There is no escape using '$$' because the curly braces are required for
+    substitution.
 
     Parameters
     ----------
@@ -86,21 +87,25 @@ def substitute_variables(d, in_vars):
             ret[k] = substitute_variable(v, local_vars)
         return ret
 
-    def _replace(d, old, new):
-        ret = {}
-        for k, v in d.items():
-            ret[k] = v.replace(old, new)
-        return ret
-
-    placeholder = 'ENTHOUGHT_OKONOMIYAKI_DOLLAR_PLACEHOLDER'
-    local_vars = _replace(in_vars, '$$', placeholder)
-    d = _replace(d, '$$', placeholder)
     ret = _resolve(d)
     while not ret == d:
         d = ret
         ret = _resolve(d)
-    return _replace(ret, placeholder, '$')
+    return ret
+
+
+class RequireCurlyTemplate(string.Template):
+    """This class inheriting from Template requires curly braces.
+       A '$' without curly braces will not be substituted.
+    """
+    delimiter = '$'
+    pattern = r"""
+    \$(?:
+      {(?P<braced>[_a-z][_a-z0-9]*)} |  # Delimiter and braced identifier
+      {(?P<invalid>[^}]*)}              # Other ill-formed delimiter expr
+    )(?P<escaped>)(?P<named>)           # escaped and named groups are empty
+    """
 
 
 def substitute_variable(v, local_vars):
-    return string.Template(v).substitute(local_vars)
+    return RequireCurlyTemplate(v).substitute(local_vars)
