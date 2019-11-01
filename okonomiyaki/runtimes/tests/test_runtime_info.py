@@ -39,7 +39,6 @@ class TestPythonRuntimeInfoV1(unittest.TestCase):
         self.assertEqual(runtime_info.name, name)
         self.assertEqual(runtime_info.executable, r_executable)
 
-    @unittest.skipIf(not sys.platform.startswith('win'), 'Test case unique to Windows')
     def test_dollar_in_prefix(self):
         # Given
         name = u"test"
