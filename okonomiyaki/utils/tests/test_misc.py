@@ -98,3 +98,73 @@ class TestSubstitute(unittest.TestCase):
 
         # Then
         self.assertEqual(rendered, r_data)
+
+    def test_empty_substitution(self):
+        # Given
+        # Empty variable name is invalid
+        data = {
+            "foo": "${}yolo",
+            "bar": "/bin",
+        }
+
+        variables = {
+            "yolo": "/foo/bar",
+        }
+        variables.update(data)
+
+        r_data = {
+            "foo": "$yolo",
+            "bar": "$foo/bin",
+        }
+
+        # When/Then
+        with self.assertRaises(ValueError):
+            variables = substitute_variables(variables, variables)
+            rendered = substitute_variables(data, variables)
+
+    def test_invalid_substitution(self):
+        # Given
+        # idpattern = r'[_a-z][_a-z0-9]*'
+        # Characters not matching idpattern are invalid
+        data = {
+            "foo": "${yo-lo}",
+            "bar": "/bin",
+        }
+
+        variables = {
+            "yo-lo": "/foo/bar",
+        }
+        variables.update(data)
+
+        r_data = {
+            "foo": "$yolo",
+            "bar": "$foo/bin",
+        }
+
+        # When/Then
+        with self.assertRaises(ValueError):
+            variables = substitute_variables(variables, variables)
+            rendered = substitute_variables(data, variables)
+
+    def test_key_error_substitution(self):
+        # Given
+        # Nonexistent variable name gives key error
+        data = {
+            "foo": "${nonexistent}yolo",
+            "bar": "/bin",
+        }
+
+        variables = {
+            "yolo": "/foo/bar",
+        }
+        variables.update(data)
+
+        r_data = {
+            "foo": "$yolo",
+            "bar": "$foo/bin",
+        }
+
+        # When/Then
+        with self.assertRaises(KeyError):
+            variables = substitute_variables(variables, variables)
+            rendered = substitute_variables(data, variables)
