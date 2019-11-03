@@ -112,15 +112,10 @@ class TestSubstitute(unittest.TestCase):
         }
         variables.update(data)
 
-        r_data = {
-            "foo": "$yolo",
-            "bar": "$foo/bin",
-        }
-
         # When/Then
         with self.assertRaises(ValueError):
             variables = substitute_variables(variables, variables)
-            rendered = substitute_variables(data, variables)
+            substitute_variables(data, variables)
 
     def test_invalid_substitution(self):
         # Given
@@ -136,15 +131,10 @@ class TestSubstitute(unittest.TestCase):
         }
         variables.update(data)
 
-        r_data = {
-            "foo": "$yolo",
-            "bar": "$foo/bin",
-        }
-
         # When/Then
         with self.assertRaises(ValueError):
             variables = substitute_variables(variables, variables)
-            rendered = substitute_variables(data, variables)
+            substitute_variables(data, variables)
 
     def test_key_error_substitution(self):
         # Given
@@ -159,12 +149,7 @@ class TestSubstitute(unittest.TestCase):
         }
         variables.update(data)
 
-        r_data = {
-            "foo": "$yolo",
-            "bar": "$foo/bin",
-        }
-
         # When/Then
         with self.assertRaises(KeyError):
             variables = substitute_variables(variables, variables)
-            rendered = substitute_variables(data, variables)
+            substitute_variables(data, variables)
