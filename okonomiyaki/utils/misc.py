@@ -99,11 +99,18 @@ class RequireCurlyTemplate(string.Template):
        A '$' without curly braces will not be substituted.
     """
     delimiter = '$'
+    # named and escaped groups are always None
+    # This is because their patterns are a subset of the invalid group,
+    # i.e. the invalid group will always match first.
+    # According to the Python re documentation the "|" operator is never greedy,
+    # so the named and escaped groups will always be None.
     pattern = r"""
     \$(?:
       {(?P<braced>[_a-z][_a-z0-9]*)} |  # Delimiter and braced identifier
-      {(?P<invalid>[^}]*)}              # Other ill-formed delimiter expr
-    )(?P<escaped>)(?P<named>)           # escaped and named groups are empty
+      {(?P<invalid>[^}]*)}           |  # Other ill-formed delimiter expr
+      {(?P<named>)}                  |  # named group is always None
+      {(?P<escaped>)}                   # escaped group is always None
+    )
     """
 
 
