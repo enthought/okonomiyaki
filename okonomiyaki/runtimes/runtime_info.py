@@ -110,13 +110,16 @@ class IRuntimeInfoV1(IRuntimeInfo):
 
         variables = _compute_variables(metadata, prefix, name)
 
-        executable = substitute_variable(metadata.executable, variables)
+        executable = substitute_variable(
+            metadata.executable, variables, template='curly_braces_only'
+        )
 
         paths = tuple(
-            substitute_variable(path, variables) for path in metadata.paths
+            substitute_variable(path, variables, template='curly_braces_only')
+            for path in metadata.paths
         )
         post_install = tuple(
-            substitute_variable(part, variables)
+            substitute_variable(part, variables, template='curly_braces_only')
             for part in metadata.post_install
         )
 
@@ -157,9 +160,15 @@ class PythonRuntimeInfoV1(IRuntimeInfoV1):
             metadata, prefix, name
         )
         variables = _compute_variables(metadata, prefix, name)
-        scriptsdir = substitute_variable(metadata.scriptsdir, variables)
-        site_packages = substitute_variable(metadata.site_packages, variables)
-        python_tag = substitute_variable(metadata.python_tag, variables)
+        scriptsdir = substitute_variable(
+            metadata.scriptsdir, variables, template='curly_braces_only'
+        )
+        site_packages = substitute_variable(
+            metadata.site_packages, variables, template='curly_braces_only'
+        )
+        python_tag = substitute_variable(
+            metadata.python_tag, variables, template='curly_braces_only'
+        )
 
         return args + (scriptsdir, site_packages, python_tag)
 

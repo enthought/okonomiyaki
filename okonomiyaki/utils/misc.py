@@ -84,7 +84,7 @@ def substitute_variables(d, local_vars):
     def _resolve(d):
         ret = {}
         for k, v in d.items():
-            ret[k] = substitute_variable(v, local_vars)
+            ret[k] = substitute_variable(v, local_vars, template='curly_braces_only')
         return ret
 
     ret = _resolve(d)
@@ -114,5 +114,13 @@ class RequireCurlyTemplate(string.Template):
     """
 
 
-def substitute_variable(v, local_vars):
-    return RequireCurlyTemplate(v).substitute(local_vars)
+def substitute_variable(v, local_vars, template='standard'):
+    if template == 'curly_braces_only':
+        template_substitute = RequireCurlyTemplate(v).substitute
+    elif template == 'standard':
+        template_substitute = string.Template(v).substitute
+    else:
+        raise ValueError(
+            'Template option must be "standard" or "curly_braces_only"'
+        )
+    return template_substitute(local_vars)
