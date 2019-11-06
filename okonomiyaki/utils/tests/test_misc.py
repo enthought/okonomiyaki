@@ -2,7 +2,7 @@ import sys
 import textwrap
 
 from ...errors import OkonomiyakiError
-from ..misc import parse_assignments, substitute_variables
+from ..misc import parse_assignments, substitute_variables, substitute_variable
 from ..py3compat import StringIO
 
 if sys.version_info < (2, 7):
@@ -51,6 +51,30 @@ class TestSubstitute(unittest.TestCase):
         # Then
         self.assertEqual(rendered, r_data)
 
+    def test_recursive(self):
+        # Given
+        data = {
+            "foo": "${yolo}",
+            "bar": "${foo}/bin",
+        }
+
+        variables = {
+            "yolo": "/foo/bar",
+        }
+        variables.update(data)
+
+        r_data = {
+            "foo": "/foo/bar",
+            "bar": "/foo/bar/bin",
+        }
+
+        # When
+        variables = substitute_variables(variables, variables)
+        rendered = substitute_variables(data, variables)
+
+        # Then
+        self.assertEqual(rendered, r_data)
+
     def test_escape(self):
         # Given
         data = {
@@ -67,13 +91,24 @@ class TestSubstitute(unittest.TestCase):
             "foo": "$${yolo}",
             "bar": "$${foo}/bin",
         }
+        r_foo_ignore_escape = "$${yolo}"
+        r_foo_escape = "${yolo}"
 
         # When
         variables = substitute_variables(variables, variables)
         rendered = substitute_variables(data, variables)
+        render_foo_ignore_escape = substitute_variable(
+            data["foo"], variables, template="curly_braces_only",
+            ignore_escape=True
+        )
+        render_foo_escape = substitute_variable(
+            data["foo"], variables, template="curly_braces_only"
+        )
 
         # Then
         self.assertEqual(rendered, r_data)
+        self.assertEqual(render_foo_ignore_escape, r_foo_ignore_escape)
+        self.assertEqual(render_foo_escape, r_foo_escape)
 
     def test_without_curly_braces(self):
         # Given
