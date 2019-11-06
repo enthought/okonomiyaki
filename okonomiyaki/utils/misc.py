@@ -72,8 +72,9 @@ def substitute_variables(d, local_vars):
     is substituted by the value found in the `local_vars' dictionary.  Raise
     ValueError for any variables not found in `local_vars'.
 
-    There is no escape using '$$' because the curly braces are required for
-    substitution.
+    Escapes using '$${name}' are ignored here and not translated to '${name}'.
+    The function 'substitute_variable' does translate '$${name}' to '${name}'
+    by default.
 
     Parameters
     ----------
@@ -85,8 +86,10 @@ def substitute_variables(d, local_vars):
     def _resolve(d):
         ret = {}
         for k, v in d.items():
+            # Ignoring the escape sequence with ignore_escape=True allows
+            # substitute_variable to be run repeatedly over the same data
             ret[k] = substitute_variable(
-                v, local_vars, template='curly_braces_only'
+                v, local_vars, template='curly_braces_only', ignore_escape=True
             )
         return ret
 
