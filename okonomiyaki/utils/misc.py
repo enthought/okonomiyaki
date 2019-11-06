@@ -1,5 +1,6 @@
 import ast
 import contextlib
+import re
 import shutil
 import string
 import tempfile
@@ -84,7 +85,9 @@ def substitute_variables(d, local_vars):
     def _resolve(d):
         ret = {}
         for k, v in d.items():
-            ret[k] = substitute_variable(v, local_vars, template='curly_braces_only')
+            ret[k] = substitute_variable(
+                v, local_vars, template='curly_braces_only'
+            )
         return ret
 
     ret = _resolve(d)
@@ -104,19 +107,37 @@ class RequireCurlyTemplate(string.Template):
     # i.e. the invalid group will always match first.
     # According to the Python re documentation the "|" operator is never greedy,
     # so the named and escaped groups will always be None.
-    pattern = r"""
-    \$(?:
+    ignore_escape_pattern_str = r"""
+    (?<!\$)\$(?:                        # Only match single dollar signs
       {(?P<braced>[_a-z][_a-z0-9]*)} |  # Delimiter and braced identifier
       {(?P<invalid>[^}]*)}           |  # Other ill-formed delimiter expr
       {(?P<named>)}                  |  # named group is always None
       {(?P<escaped>)}                   # escaped group is always None
     )
     """
+    ignore_escape_pattern = re.compile(
+        ignore_escape_pattern_str, re.IGNORECASE | re.VERBOSE
+    )
+    pattern = r"""
+    \$(?:
+      (?P<escaped>\$)(?={[^}]*})     |  # Extra delimiter followed by braces
+      {(?P<braced>[_a-z][_a-z0-9]*)} |  # Delimiter and braced identifier
+      {(?P<invalid>[^}]*)}           |  # Other ill-formed delimiter expr
+      {(?P<named>)}                     # named group is always None
+    )
+    """
+
+    def __init__(self, template, ignore_escape=False):
+        super(RequireCurlyTemplate, self).__init__(template)
+        if ignore_escape:
+            self.pattern = self.ignore_escape_pattern
 
 
-def substitute_variable(v, local_vars, template='standard'):
+def substitute_variable(v, local_vars,
+                        template='standard',
+                        ignore_escape=False):
     if template == 'curly_braces_only':
-        template_substitute = RequireCurlyTemplate(v).substitute
+        template_substitute = RequireCurlyTemplate(v, ignore_escape).substitute
     elif template == 'standard':
         template_substitute = string.Template(v).substitute
     else:
