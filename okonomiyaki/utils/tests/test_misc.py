@@ -51,11 +51,11 @@ class TestSubstitute(unittest.TestCase):
         # Then
         self.assertEqual(rendered, r_data)
 
-    def test_recursive(self):
+    def test_escape(self):
         # Given
         data = {
-            "foo": "${yolo}",
-            "bar": "${foo}/bin",
+            "foo": "$${yolo}",
+            "bar": "$${foo}/bin",
         }
 
         variables = {
@@ -64,8 +64,8 @@ class TestSubstitute(unittest.TestCase):
         variables.update(data)
 
         r_data = {
-            "foo": "/foo/bar",
-            "bar": "/foo/bar/bin",
+            "foo": "$${yolo}",
+            "bar": "$${foo}/bin",
         }
 
         # When
