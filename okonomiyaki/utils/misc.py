@@ -75,8 +75,8 @@ def substitute_variables(d, local_vars, template='standard'):
     resolved.
 
     If the 'standard' template is used, $name will also be substituted. There
-    is a bug with escapes using the 'standard' template because $$name is
-    translated to $name and because the substitution is applied repeatedly
+    is a bug with escapes using the 'standard' template. This occurs because
+    substitution is applied repeatedly and after $$name is translated to $name,
     variable substitution is performed on $name.
 
     With the 'curly_braces_only' template $name will not be substituted. Also
