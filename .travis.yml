@@ -20,7 +20,8 @@ cache:
 branches:
   only:
     - master
-    - maint/*
+    - /^maintenance\/.*$/
+    - /^v\d+\.\d+\.\d+.*$/
 
 install:
   - pip list
