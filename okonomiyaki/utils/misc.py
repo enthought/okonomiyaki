@@ -65,16 +65,25 @@ def tempdir():
         shutil.rmtree(d)
 
 
-def substitute_variables(d, local_vars):
-    """Perform shell/Perl-style variable substitution.
+def substitute_variables(d, local_vars, template='standard'):
+    """Perform repeated shell/Perl-style variable substitution to dict values
 
-    Every occurrence of '${name}' name is considered a variable, and variable
-    is substituted by the value found in the `local_vars' dictionary.  Raise
-    ValueError for any variables not found in `local_vars'.
+    Every occurrence of '${name}' in the values of dict 'd' is considered a
+    variable, and the variable is substituted by the value found in the
+    'local_vars' dictionary. A ValueError is raised for any variable not found
+    in 'local_vars'. This is applied repeatedly until all nested variables are
+    resolved.
 
-    Escapes using '$${name}' are ignored here and not translated to '${name}'.
-    The function 'substitute_variable' does translate '$${name}' to '${name}'
-    by default.
+    If the 'standard' template is used, $name will also be substituted. There
+    is a bug with escapes using the 'standard' template because $$name is
+    translated to $name and because the substitution is applied repeatedly
+    variable substitution is performed on $name.
+
+    With the 'curly_braces_only' template $name will not be substituted. Also
+    escapes using '$${name}' are ignored and not translated to '${name}'. This
+    allows the variable substitution to be applied repeatedly. The function
+    'substitute_variable' should be applied to the data after this function
+    which does translate the escape '$${name}' to '${name}' by default.
 
     Parameters
     ----------
@@ -82,14 +91,17 @@ def substitute_variables(d, local_vars):
         (str: str) mapping, where each value will be substituted.
     local_vars: dict
         dict of variables
+    template: ('standard' | 'curly_braces_only')
+        whether to use 'standard' string.Template or RequireCurlyTemplate
     """
     def _resolve(d):
         ret = {}
         for k, v in d.items():
             # Ignoring the escape sequence with ignore_escape=True allows
             # substitute_variable to be run repeatedly over the same data
+            # ignore_escape=True has no effect with the old 'standard' template
             ret[k] = substitute_variable(
-                v, local_vars, template='curly_braces_only', ignore_escape=True
+                v, local_vars, template=template, ignore_escape=True
             )
         return ret
 
@@ -136,9 +148,34 @@ class RequireCurlyTemplate(string.Template):
             self.pattern = self.ignore_escape_pattern
 
 
-def substitute_variable(v, local_vars,
-                        template='standard',
-                        ignore_escape=False):
+def substitute_variable(v, local_vars, template='standard',
+        ignore_escape=False):
+    """Perform shell/Perl-style variable substitution to a string 'v'
+
+    Every occurrence of '${name}' in the value of string 'v' is considered a
+    variable, and the variable is substituted by the value found in the
+    'local_vars' dictionary. A ValueError is raised for any variable not found
+    in 'local_vars'. This is only applied once unlike 'substitute_variables',
+    so nested variables will not be resolved.
+
+    If the 'standard' template is used, $name will also be substituted.
+
+    Escapes using '$${name}' are translated to '${name}'.
+
+    If the 'curly_braces_only' template is used and 'ignore_escape' is True,
+    escapes using '$${name}' will be ignored.
+
+    Parameters
+    ----------
+    v: string
+        string where each value will be substituted.
+    local_vars: dict
+        dict of variables
+    template: ('standard' | 'curly_braces_only')
+        whether to use 'standard' string.Template or RequireCurlyTemplate
+    ignore_escape: boolean
+        whether or not to ignore '$${name}' with RequireCurlyTemplate only
+    """
     if template == 'curly_braces_only':
         template_substitute = RequireCurlyTemplate(v, ignore_escape).substitute
     elif template == 'standard':
