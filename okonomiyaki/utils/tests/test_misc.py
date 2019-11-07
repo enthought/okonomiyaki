@@ -46,10 +46,14 @@ class TestSubstitute(unittest.TestCase):
         }
 
         # When
-        rendered = substitute_variables(data, variables)
+        rendered_standard = substitute_variables(data, variables)
+        rendered_curly_only = substitute_variables(
+            data, variables, template='curly_braces_only'
+        )
 
         # Then
-        self.assertEqual(rendered, r_data)
+        self.assertEqual(rendered_standard, r_data)
+        self.assertEqual(rendered_curly_only, r_data)
 
     def test_recursive(self):
         # Given
@@ -69,11 +73,18 @@ class TestSubstitute(unittest.TestCase):
         }
 
         # When
-        variables = substitute_variables(variables, variables)
-        rendered = substitute_variables(data, variables)
+        variables_standard = substitute_variables(variables, variables)
+        variables_curly_only = substitute_variables(
+            variables, variables
+        )
+        rendered_standard = substitute_variables(data, variables_standard)
+        rendered_curly_only = substitute_variables(
+            data, variables_curly_only, template='curly_braces_only'
+        )
 
         # Then
-        self.assertEqual(rendered, r_data)
+        self.assertEqual(rendered_standard, r_data)
+        self.assertEqual(rendered_curly_only, r_data)
 
     def test_escape(self):
         # Given
@@ -95,8 +106,12 @@ class TestSubstitute(unittest.TestCase):
         r_foo_escape = "${yolo}"
 
         # When
-        variables = substitute_variables(variables, variables)
-        rendered = substitute_variables(data, variables)
+        variables = substitute_variables(
+            variables, variables, template="curly_braces_only"
+        )
+        rendered = substitute_variables(
+            data, variables, template="curly_braces_only"
+        )
         render_foo_ignore_escape = substitute_variable(
             data["foo"], variables, template="curly_braces_only",
             ignore_escape=True
@@ -128,8 +143,12 @@ class TestSubstitute(unittest.TestCase):
         }
 
         # When
-        variables = substitute_variables(variables, variables)
-        rendered = substitute_variables(data, variables)
+        variables = substitute_variables(
+            variables, variables, template="curly_braces_only"
+        )
+        rendered = substitute_variables(
+            data, variables, template="curly_braces_only"
+        )
 
         # Then
         self.assertEqual(rendered, r_data)
@@ -149,8 +168,12 @@ class TestSubstitute(unittest.TestCase):
 
         # When/Then
         with self.assertRaises(ValueError):
-            variables = substitute_variables(variables, variables)
-            substitute_variables(data, variables)
+            variables = substitute_variables(
+                variables, variables, template="curly_braces_only"
+            )
+            substitute_variables(
+                data, variables, template="curly_braces_only"
+            )
 
     def test_invalid_substitution(self):
         # Given
@@ -168,8 +191,12 @@ class TestSubstitute(unittest.TestCase):
 
         # When/Then
         with self.assertRaises(ValueError):
-            variables = substitute_variables(variables, variables)
-            substitute_variables(data, variables)
+            variables = substitute_variables(
+                variables, variables, template="curly_braces_only"
+            )
+            substitute_variables(
+                data, variables, template="curly_braces_only"
+            )
 
     def test_key_error_substitution(self):
         # Given
@@ -186,5 +213,9 @@ class TestSubstitute(unittest.TestCase):
 
         # When/Then
         with self.assertRaises(KeyError):
-            variables = substitute_variables(variables, variables)
-            substitute_variables(data, variables)
+            variables = substitute_variables(
+                variables, variables, template="curly_braces_only"
+            )
+            substitute_variables(
+                data, variables, template="curly_braces_only"
+            )
