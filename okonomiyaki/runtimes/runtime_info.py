@@ -221,4 +221,6 @@ def _compute_variables(metadata, prefix, name):
     variables["prefix"] = prefix
     variables["name"] = name
 
-    return substitute_variables(variables, variables)
+    return substitute_variables(
+        variables, variables, template='curly_braces_only'
+    )
