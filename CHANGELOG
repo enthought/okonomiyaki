@@ -6,6 +6,10 @@ Enhancements:
 * Run tests against Centos 7. (#359)
 * Run Travis CI on maintenance and tagged branches. (#352)
 
+Maintenance:
+
+* Only test branch builds on Appveyor for master and maintenance branches. (#364)
+
 Big fixes:
 
 * Add the license to the manifest. (#354)
