@@ -2,7 +2,7 @@
 // Build the current branch into any of the supported platforms
 
 // Global variables
-def oses = ['osx', 'win', 'rh6']
+def oses = ['osx', 'win', 'rh6', 'rh7']
 def archs = ['x86_64', 'x86']
 def configurations = []
 def builders = [:]
@@ -22,6 +22,7 @@ for (x in oses) {
 	// There are no 32bit runtimes for osx and rh6
 	if (os == 'osx' && arch == 'x86') continue
 	if (os == 'rh6' && arch == 'x86') continue
+	if (os == 'rh7' && arch == 'x86') continue
 
 	// Add configuration parameters
 	configurations.add(booleanParam(defaultValue: true, name: key))
