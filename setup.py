@@ -6,10 +6,10 @@ from setuptools import setup
 
 
 MAJOR = 1
-MINOR = 2
+MINOR = 3
 MICRO = 0
 
-IS_RELEASED = True
+IS_RELEASED = False
 
 VERSION = '%d.%d.%d' % (MAJOR, MINOR, MICRO)
 
