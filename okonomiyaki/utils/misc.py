@@ -148,8 +148,8 @@ class RequireCurlyTemplate(string.Template):
             self.pattern = self.ignore_escape_pattern
 
 
-def substitute_variable(v, local_vars, template='standard',
-        ignore_escape=False):
+def substitute_variable(
+        v, local_vars, template='standard', ignore_escape=False):
     """Perform shell/Perl-style variable substitution to a string 'v'
 
     Every occurrence of '${name}' in the value of string 'v' is considered a
