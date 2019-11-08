@@ -1,9 +1,29 @@
+2019-11-08     1.2.0
+--------------------
+
+Enhancements:
+
+* Run tests against Centos 7. (#359)
+
+Maintenance:
+
+* Run Travis CI on maintenance and tagged branches. (#352)
+* Only test branch builds on Appveyor for master and maintenance branches. (#364)
+
+Big fixes:
+
+* Add the license to the manifest. (#354)
+* Fix platform detection on Centos 7. (#161)
+* Fix error when '$' is in the Python runtime prefix. (#309)
+
+
 2019-09-20     1.1.1
 --------------------
 
 Big fixes:
 
 * Fix name of the 2.7.10 dummy runtime for rh6. (#341)
+
 
 2019-09-19     1.1.0
 --------------------
