@@ -1,0 +1,108 @@
+#!/usr/bin/env groovy
+
+pipeline {
+    environment {
+        PYTHONUNBUFFERED = 'yes'
+        GITHUB_OAUTH_TOKEN = credentials('okonomiyaki-github-credentials')
+    }
+    parameters {
+        string(name: 'builder', defaultValue: 'rh6 && 64bit')
+        string(name: 'name', defaultValue: 'rh6')
+        string(name: 'commit', defaultValue: 'master')
+    }
+    options {
+        timeout(activity: true, time: 10)
+        timestamps()
+        buildDiscarder(logRotator(daysToKeepStr: '7', artifactDaysToKeepStr: '7'))
+        skipDefaultCheckout()
+    }
+    agent { node { label "${params.builder}" } }
+    stages {
+        stage('Start') {
+            steps {
+                githubNotify(
+                    [
+                        status: 'PENDING',
+                        description: 'Jenkins build started',
+                        account: 'enthought',
+                        context: 'continuous-integration/jenkins/' + "${params.name}",
+                        credentialsId: 'okonomiyaki-github-credentials',
+                        sha: "${params.commit}",
+                        repo: 'okonomiyaki'
+                    ]
+                )
+            }
+        }
+        stage('checkout') {
+            steps {
+                deleteDir()
+                execute "git clone https://github.com/enthought/okonomiyaki.git ."
+                execute "git clean -xdf"
+                execute "git checkout ${params.commit}"
+                execute "git log -2"
+            }
+        }
+        stage('setup') {
+            steps {
+                execute "edm envs create okonomiyaki-dev --force"
+                execute "edm install -e okonomiyaki-dev -y haas mock testfixtures"
+                execute "edm run -e okonomiyaki-dev -- pip install -e ."
+            }
+        }
+
+        stage('test') {
+            steps {
+                execute "edm run -e okonomiyaki-dev -- haas -v okonomiyaki"
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'One way or another, I have finished'
+        }
+        success {
+            githubNotify([
+                status: 'SUCCESS',
+                description: 'Jenkins build passed',
+                account: 'enthought',
+                context: 'continuous-integration/jenkins/' + "${params.name}",
+                credentialsId: 'okonomiyaki-github-credentials',
+                sha: "${params.commit}",
+                repo: 'okononomiyaki'
+            ])
+        }
+        unstable {
+            githubNotify([
+                status: 'ERROR',
+                description: 'Jenkins build finished',
+                account: 'enthought',
+                context: 'continuous-integration/jenkins/' + "${params.name}",
+                credentialsId: 'okonomiyaki-github-credentials',
+                sha: "${params.commit}",
+                repo: 'okonomiyaki'
+            ])
+        }
+        failure {
+            githubNotify([
+                status: 'FAILURE',
+                description: 'Jenkins build failed',
+                account: 'enthought',
+                context: 'continuous-integration/jenkins/' + "${params.name}",
+                credentialsId: 'okonomiyaki-github-credentials',
+                sha: "${params.commit}",
+                repo: 'okonomiyaki'
+            ])
+        }
+    }
+}
+
+
+def execute(command) {
+    if (isUnix()) {
+       sh command
+    } else {
+       def cleaned = command.replace('\'','\"')
+       bat cleaned
+    }
+}
