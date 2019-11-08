@@ -121,7 +121,10 @@ def main():
         "okonomiyaki.utils.test_data": [
             "*.runtime", "*.runtime.invalid",
             "eggs/osx_x86_64/*.egg",
-            "eggs/rh5_x86_64/*.egg", "eggs/win_x86_64/*.egg",
+            "eggs/rh5_x86_64/*.egg",
+            "eggs/rh6_x86_64/*.egg",
+            "eggs/rh7_x86_64/*.egg",
+            "eggs/win_x86_64/*.egg",
             "wheels/*.whl",
         ],
     }
