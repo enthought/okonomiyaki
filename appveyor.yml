@@ -15,6 +15,11 @@ environment:
     - python: "C:/Python36-x64"
     - python: "C:/Python36"
 
+branches:
+  only:
+  - master
+  - /^maintenance\/.*$/
+
 cache:
   - C:\Users\appveyor\AppData\Local\pip\Cache
 
