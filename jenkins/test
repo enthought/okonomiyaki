@@ -69,7 +69,7 @@ pipeline {
                 context: 'continuous-integration/jenkins/' + "${params.name}",
                 credentialsId: 'okonomiyaki-github-credentials',
                 sha: "${params.commit}",
-                repo: 'okononomiyaki'
+                repo: 'okonomiyaki'
             ])
         }
         unstable {
