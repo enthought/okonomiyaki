@@ -219,7 +219,7 @@ def update_eggs_for_repository(platform_repo, target_directory, org_name,
 
 
 def update_test_data(target_directory, repositories, token, use_md5):
-    python_tag = 'cp27'
+    python_tag = 'cp36'
     auth = BroodBearerTokenAuth(token)
     client = BroodClient.from_url('https://packages.enthought.com', auth=auth)
 
