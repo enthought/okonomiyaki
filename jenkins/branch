@@ -8,7 +8,7 @@ def configurations = []
 def builders = [:]
 def jobBuilds = [:]
 def activeBuilders = [:]
-def jobName = 'okonomiyaki/test'
+def jobName = 'Buildsystem/okonomiyaki/test'
 def repoUrl = 'https://github.com/enthought/okonomiyaki/'
 
 // Prepare parameters and builders
