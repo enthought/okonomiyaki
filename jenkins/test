@@ -3,7 +3,7 @@
 pipeline {
     environment {
         PYTHONUNBUFFERED = 'yes'
-        GITHUB_OAUTH_TOKEN = credentials('okonomiyaki-github-credentials')
+        GITHUB_OAUTH_TOKEN = credentials('buildsystem-github-token')
     }
     parameters {
         string(name: 'builder', defaultValue: 'rh6 && 64bit')
@@ -26,7 +26,7 @@ pipeline {
                         description: 'Jenkins build started',
                         account: 'enthought',
                         context: 'continuous-integration/jenkins/' + "${params.name}",
-                        credentialsId: 'okonomiyaki-github-credentials',
+                        credentialsId: 'buildsysyem-github-token',
                         sha: "${params.commit}",
                         repo: 'okonomiyaki'
                     ]
@@ -36,7 +36,7 @@ pipeline {
         stage('checkout') {
             steps {
                 deleteDir()
-                execute "git clone https://github.com/enthought/okonomiyaki.git ."
+                git credentialsId: 'buildsystem-github-token', url: 'https://github.com/enthought/okonomiyaki'
                 execute "git clean -xdf"
                 execute "git checkout ${params.commit}"
                 execute "git log -2"
@@ -67,7 +67,7 @@ pipeline {
                 description: 'Jenkins build passed',
                 account: 'enthought',
                 context: 'continuous-integration/jenkins/' + "${params.name}",
-                credentialsId: 'okonomiyaki-github-credentials',
+                credentialsId: 'buildsystem-github-token',
                 sha: "${params.commit}",
                 repo: 'okonomiyaki'
             ])
@@ -78,7 +78,7 @@ pipeline {
                 description: 'Jenkins build finished',
                 account: 'enthought',
                 context: 'continuous-integration/jenkins/' + "${params.name}",
-                credentialsId: 'okonomiyaki-github-credentials',
+                credentialsId: 'buildsystem-github-token',
                 sha: "${params.commit}",
                 repo: 'okonomiyaki'
             ])
@@ -89,7 +89,7 @@ pipeline {
                 description: 'Jenkins build failed',
                 account: 'enthought',
                 context: 'continuous-integration/jenkins/' + "${params.name}",
-                credentialsId: 'okonomiyaki-github-credentials',
+                credentialsId: 'buildsystem-github-token',
                 sha: "${params.commit}",
                 repo: 'okonomiyaki'
             ])
