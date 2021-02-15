@@ -20,10 +20,6 @@ INSTALL_REQUIRES = [
     "zipfile2 >= 0.0.12",
 ]
 
-EXTRAS_REQUIRE = {
-    ':python_version=="2.7"': ['enum34'],
-}
-
 
 # Return the git revision as a string
 def git_version():
@@ -157,7 +153,6 @@ def main():
         license="BSD",
         version=__version__,
         classifiers=[
-            "Programming Language :: Python :: 2.7",
             "Programming Language :: Python :: 3",
         ],
         description=(
