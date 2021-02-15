@@ -149,7 +149,6 @@ def main():
         ],
         package_data=package_data,
         install_requires=INSTALL_REQUIRES,
-        extras_require=EXTRAS_REQUIRE,
         license="BSD",
         version=__version__,
         classifiers=[
