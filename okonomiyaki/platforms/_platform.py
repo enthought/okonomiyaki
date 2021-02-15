@@ -2,9 +2,7 @@ from __future__ import absolute_import
 
 import platform
 import sys
-
 import enum
-import six
 
 from attr import attr, attributes
 from attr.validators import instance_of
@@ -52,7 +50,6 @@ NAME_KIND_TO_PRETTY_NAMES = {
 }
 
 
-@six.python_2_unicode_compatible
 @attributes(repr=False, frozen=True)
 class Platform(object):
     """
@@ -75,7 +72,7 @@ class Platform(object):
     share the same kind, 'debian'.
     """
 
-    release = attr(validator=instance_of(six.string_types))
+    release = attr(validator=instance_of(str))
     """
     The release string. May be an empty string
     """

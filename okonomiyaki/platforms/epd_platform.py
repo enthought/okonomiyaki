@@ -3,8 +3,6 @@ from __future__ import absolute_import
 import re
 import warnings
 
-import six
-
 from attr import attributes, attr
 from attr.validators import instance_of
 
@@ -80,7 +78,6 @@ def platform_validator():
     return wrapper
 
 
-@six.python_2_unicode_compatible
 @attributes(frozen=True)
 class EPDPlatform(object):
     """

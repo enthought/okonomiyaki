@@ -5,8 +5,7 @@ import sys
 import tempfile
 import textwrap
 import zipfile2
-
-import mock
+from unittest import mock
 
 if sys.version_info < (2, 7):  # noqa
     import unittest2 as unittest

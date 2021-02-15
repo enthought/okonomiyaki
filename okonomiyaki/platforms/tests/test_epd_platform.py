@@ -1,7 +1,5 @@
-import mock
+from unittest import mock
 import sys
-
-import six
 
 from ...errors import OkonomiyakiError
 
@@ -48,19 +46,19 @@ class TestEPDPlatform(unittest.TestCase):
         # When/Then
         for platform_string in self.platform_strings:
             platform = EPDPlatform.from_string(platform_string)
-            self.assertIsInstance(platform.pep425_tag, six.text_type)
+            self.assertIsInstance(platform.pep425_tag, str)
 
     def test_platform_name(self):
         # When/Then
         for platform_string in self.platform_strings:
             platform = EPDPlatform.from_string(platform_string)
-            self.assertIsInstance(platform.platform_name, six.text_type)
+            self.assertIsInstance(platform.platform_name, str)
 
     def test_str_is_unicode(self):
         # When/Then
         for platform_string in self.platform_strings:
             platform = EPDPlatform.from_string(platform_string)
-            self.assertIsInstance(six.text_type(platform), six.text_type)
+            self.assertIsInstance(str(platform), str)
 
     def test_over_complete_strings(self):
         # When/Then
@@ -215,8 +213,8 @@ class TestEPDPlatform(unittest.TestCase):
 
         # When/Then
         self.assertEqual(str(epd_platform), "osx_x86")
-        self.assertEqual(six.text_type(epd_platform), u"osx_x86")
-        self.assertIsInstance(six.text_type(epd_platform), six.text_type)
+        self.assertEqual(str(epd_platform), u"osx_x86")
+        self.assertIsInstance(str(epd_platform), str)
 
         # Given
         s = "osx_x86"

@@ -1,5 +1,5 @@
 import collections
-import mock
+from unittest import mock
 import sys
 
 from ...utils.testing import MultiPatcher, Patcher

@@ -1,7 +1,6 @@
 import sys
 
-import mock
-import six
+from unittest import mock
 
 from ..python_implementation import PythonABI, PythonImplementation
 from ...errors import InvalidMetadataField
@@ -93,7 +92,7 @@ class TestPythonImplementation(unittest.TestCase):
         # Then
         self.assertEqual(tag.abbreviated_implementation, "cp")
         self.assertEqual(str(tag), "cp27")
-        self.assertIsInstance(six.text_type(tag), six.text_type)
+        self.assertIsInstance(str(tag), str)
 
     def test_abbreviations(self):
         # Given
@@ -161,7 +160,7 @@ class TestPythonABI(unittest.TestCase):
 
         # Then
         self.assertEqual(abi_tag_string, u"none")
-        self.assertIsInstance(abi_tag_string, six.text_type)
+        self.assertIsInstance(abi_tag_string, str)
 
     def test_pep425_tag_string(self):
         # Given
@@ -172,4 +171,4 @@ class TestPythonABI(unittest.TestCase):
 
         # Then
         self.assertEqual(abi_tag_string, u"cp27mu")
-        self.assertIsInstance(abi_tag_string, six.text_type)
+        self.assertIsInstance(abi_tag_string, str)

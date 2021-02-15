@@ -3,8 +3,7 @@ import shutil
 import sys
 import tempfile
 import zipfile2
-
-import mock
+from unittest import mock
 
 from .._blacklist.pkg_info_data import PYSIDE_1_1_0_PKG_INFO
 from .._package_info import PKG_INFO_ENCODING, _PKG_INFO_LOCATION, PackageInfo
