@@ -16,9 +16,7 @@ from ..platforms import (
     EPDPlatform, PlatformABI, PythonABI, PythonImplementation
 )
 from ..platforms.legacy import LegacyEPDPlatform
-from ..utils import (
-    compute_sha256, decode_if_needed, encode_if_needed, parse_assignments
-)
+from ..utils import compute_sha256, decode_if_needed, parse_assignments
 from ..versions import EnpkgVersion, MetadataVersion
 from .legacy import (
     _guess_abi_tag, _guess_platform_abi, _guess_platform_tag, _guess_python_tag

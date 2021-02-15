@@ -3,8 +3,8 @@ from __future__ import absolute_import
 import hashlib
 
 from .misc import (
-    parse_assignments, substitute_variable, substitute_variables, tempdir
-)
+    parse_assignments, substitute_variable, substitute_variables, tempdir)
+
 
 def decode_if_needed(value):
     if isinstance(value, bytes):
