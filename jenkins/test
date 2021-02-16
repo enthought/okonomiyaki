@@ -26,7 +26,7 @@ pipeline {
                         description: 'Jenkins build started',
                         account: 'enthought',
                         context: 'continuous-integration/jenkins/' + "${params.name}",
-                        credentialsId: 'buildsysyem-github-token',
+                        credentialsId: 'buildsystem-github-token',
                         sha: "${params.commit}",
                         repo: 'okonomiyaki'
                     ]
