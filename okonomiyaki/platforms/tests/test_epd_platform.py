@@ -15,7 +15,7 @@ from .._arch import Arch
 from .common import (
     mock_architecture_32bit, mock_architecture_64bit, mock_centos_5_8,
     mock_centos_6_3, mock_darwin, mock_machine_x86, mock_machine_x86_64,
-    mock_solaris, mock_ubuntu_raring, mock_windows, mock_x86, mock_x86_64,
+    mock_solaris, mock_ubuntu, mock_windows, mock_x86, mock_x86_64,
     mock_centos_7_6
 )
 
@@ -438,7 +438,7 @@ class TestGuessEPDPlatform(unittest.TestCase):
             self.assertEqual(epd_platform.short, "rh7-64")
 
     def test_guess_linux2_unsupported(self):
-        with mock_ubuntu_raring:
+        with mock_ubuntu:
             with self.assertRaises(OkonomiyakiError):
                 _guess_epd_platform()
 

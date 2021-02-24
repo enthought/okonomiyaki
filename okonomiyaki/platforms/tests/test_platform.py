@@ -9,7 +9,7 @@ from .common import (mock_machine_armv71, mock_x86, mock_x86_64,
                      mock_machine_x86_64)
 from .common import (mock_architecture_64bit, mock_centos_3_5, mock_centos_5_8,
                      mock_centos_6_3, mock_osx_10_7, mock_solaris,
-                     mock_ubuntu_raring, mock_windows_7)
+                     mock_ubuntu, mock_windows_7)
 
 
 class TestPlatformRunningPython(unittest.TestCase):
@@ -31,9 +31,9 @@ class TestPlatformRunningPython(unittest.TestCase):
             "machine='x86')"
         )
 
-    @mock_ubuntu_raring
+    @mock_ubuntu
     @mock_x86
-    def test_ubuntu_raring(self):
+    def test_ubuntu(self):
         # When
         platform = Platform.from_running_python()
 
@@ -169,8 +169,8 @@ class TestEpdPlatform(unittest.TestCase):
         with self.assertRaises(OkonomiyakiError):
             Platform.from_running_python()
 
-    @mock_ubuntu_raring
-    def test_ubuntu_raring(self):
+    @mock_ubuntu
+    def test_ubuntu(self):
         # When
         with mock_x86:
             platform = Platform.from_running_python()
