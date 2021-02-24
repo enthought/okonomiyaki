@@ -5,13 +5,8 @@ import sys
 import tempfile
 import textwrap
 import zipfile2
-
-import mock
-
-if sys.version_info < (2, 7):  # noqa
-    import unittest2 as unittest
-else:
-    import unittest
+import unittest
+from unittest import mock
 
 from okonomiyaki.errors import (
     InvalidEggName, InvalidMetadataField, MissingMetadata, UnsupportedMetadata,

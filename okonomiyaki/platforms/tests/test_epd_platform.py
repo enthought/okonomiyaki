@@ -1,4 +1,6 @@
 import sys
+import unittest
+from unittest import mock
 
 import six
 from hypothesis import given
@@ -18,11 +20,6 @@ from .common import (
     mock_centos_6_3, mock_darwin, mock_machine_x86, mock_machine_x86_64,
     mock_solaris, mock_ubuntu_raring, mock_x86, mock_x86_64,
     mock_centos_7_6, mock_windows_10, mock_windows_11, mock_windows_7)
-
-if sys.version_info < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
 
 
 class TestEPDPlatform(unittest.TestCase):

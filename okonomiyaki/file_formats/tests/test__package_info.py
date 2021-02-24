@@ -3,16 +3,12 @@ import shutil
 import sys
 import tempfile
 import zipfile2
-
-import mock
+import unittest
+from unittest import mock
 
 from .._blacklist.pkg_info_data import PYSIDE_1_1_0_PKG_INFO
 from .._package_info import PKG_INFO_ENCODING, _PKG_INFO_LOCATION, PackageInfo
 
-if sys.version_info < (2, 7):  # noqa
-    import unittest2 as unittest
-else:
-    import unittest
 
 from okonomiyaki.utils.test_data import OKONOMIYAKI_0_17_0_PY2
 from okonomiyaki.errors import OkonomiyakiError
