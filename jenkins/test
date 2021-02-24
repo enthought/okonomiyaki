@@ -45,13 +45,15 @@ pipeline {
         stage('setup') {
             steps {
                 execute "edm envs create okonomiyaki-dev --force --version 3.6"
-                execute "edm install -e okonomiyaki-dev -y haas mock testfixtures"
+                execute "edm install -e okonomiyaki-dev -y haas testfixtures"
                 execute "edm run -e okonomiyaki-dev -- pip install -e ."
+
             }
         }
 
         stage('test') {
             steps {
+		execute 'python -c "import distro; print(distro.info())'
                 execute "edm run -e okonomiyaki-dev -- haas -v okonomiyaki"
             }
         }
