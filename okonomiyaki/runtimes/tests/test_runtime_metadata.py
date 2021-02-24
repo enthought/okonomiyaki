@@ -1,6 +1,7 @@
 import os.path
 import shutil
 import sys
+import unittest
 
 import zipfile2
 
@@ -19,10 +20,6 @@ from ..runtime_metadata import (
     is_runtime_path_valid, runtime_metadata_factory
 )
 
-if sys.version_info < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
 
 
 class TestPythonMetadataV1(unittest.TestCase):
