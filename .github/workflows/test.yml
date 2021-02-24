@@ -29,8 +29,7 @@ jobs:
         python -m pip install .
     - name: Install test dependencies
       run: |
-        python -m pip install haas
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        python -m pip install -rdev_requirements.txt
     - name: Test with haas
       run: |
-        haas okonomiyaki
+        python -m haas okonomiyaki
