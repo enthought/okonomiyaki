@@ -151,26 +151,27 @@ def _guess_platform_details(os_kind):
     elif os_kind == OSKind.darwin:
         return FamilyKind.mac_os_x, NameKind.mac_os_x, platform.mac_ver()[0]
     elif os_kind == OSKind.linux:
-        name = distro.id()[0].lower()
+        name = distro.id().lower()
         release = distro.version()
         try:
             name_kind = NameKind[name]
         except KeyError:
-            for compatible in distro.like().lower().split():
+            compatibles = distro.like().lower().split()
+            for compatible in compatibles:
                 try:
                     name_kind = NameKind[compatible]
                 except KeyError:
                     continue
             else:
                 raise OkonomiyakiError(
-                    "Unsupported platform: {0!r}".format(name))
+                    "Unsupported compatible platform: {0!r}".format(name))
 
         if name_kind in (NameKind.ubuntu, NameKind.debian):
             family_kind = FamilyKind.debian
         elif name_kind in (NameKind.centos, NameKind.rhel):
             family_kind = FamilyKind.rhel
         else:
-            raise OkonomiyakiError("Unsupported platform: {0!r}".format(name))
+            raise OkonomiyakiError("Unsupported compatible platform: {0!r}".format(name))
         return family_kind, name_kind, release
 
 
