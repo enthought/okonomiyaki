@@ -53,11 +53,11 @@ mock_windows = MultiPatcher([
 
 # OS Version mocking
 def _mock_platform_dist(info):
-    return Patcher(mock.patch("platform.dist", lambda: info))
+    return Patcher(mock.patch("distro.dist", lambda: info))
 
 
 def _mock_platform_linux_distribution(info):
-    return Patcher(mock.patch("platform.linux_distribution", lambda: info))
+    return Patcher(mock.patch("distro.linux_distribution", lambda: info))
 
 
 mock_centos_3_5 = MultiPatcher([
