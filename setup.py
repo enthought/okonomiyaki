@@ -16,13 +16,9 @@ VERSION = '%d.%d.%d' % (MAJOR, MINOR, MICRO)
 INSTALL_REQUIRES = [
     "attrs >= 16.1.0",
     "jsonschema >= 2.5.1",
-    "six >= 1.9.0",
     "zipfile2 >= 0.0.12",
+    "distro",
 ]
-
-EXTRAS_REQUIRE = {
-    ':python_version=="2.7"': ['enum34'],
-}
 
 
 # Return the git revision as a string
@@ -153,11 +149,9 @@ def main():
         ],
         package_data=package_data,
         install_requires=INSTALL_REQUIRES,
-        extras_require=EXTRAS_REQUIRE,
         license="BSD",
         version=__version__,
         classifiers=[
-            "Programming Language :: Python :: 2.7",
             "Programming Language :: Python :: 3",
         ],
         description=(

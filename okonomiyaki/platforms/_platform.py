@@ -2,12 +2,11 @@ from __future__ import absolute_import
 
 import platform
 import sys
-
 import enum
-import six
 
 from attr import attr, attributes
 from attr.validators import instance_of
+import distro
 
 from ..errors import OkonomiyakiError
 
@@ -52,7 +51,6 @@ NAME_KIND_TO_PRETTY_NAMES = {
 }
 
 
-@six.python_2_unicode_compatible
 @attributes(repr=False, frozen=True)
 class Platform(object):
     """
@@ -75,7 +73,7 @@ class Platform(object):
     share the same kind, 'debian'.
     """
 
-    release = attr(validator=instance_of(six.string_types))
+    release = attr(validator=instance_of(str))
     """
     The release string. May be an empty string
     """
@@ -153,23 +151,28 @@ def _guess_platform_details(os_kind):
     elif os_kind == OSKind.darwin:
         return FamilyKind.mac_os_x, NameKind.mac_os_x, platform.mac_ver()[0]
     elif os_kind == OSKind.linux:
-        name = platform.linux_distribution()[0].lower()
-        name = name.split()[0]
-        _, release, _ = platform.dist()
+        name = distro.id().lower()
+        release = distro.version()
         try:
             name_kind = NameKind[name]
         except KeyError:
-            raise OkonomiyakiError(
-                "Unsupported platform: {0!r}".format(name)
-            )
-        else:
-            if name_kind in (NameKind.ubuntu, NameKind.debian):
-                family_kind = FamilyKind.debian
-            elif name_kind in (NameKind.centos, NameKind.rhel):
-                family_kind = FamilyKind.rhel
+            compatibles = distro.like().lower().split()
+            for compatible in compatibles:
+                try:
+                    name_kind = NameKind[compatible]
+                except KeyError:
+                    continue
             else:
-                raise OkonomiyakiError("Unsupported platform: {0!r}".format(name))
-            return family_kind, name_kind, release
+                raise OkonomiyakiError(
+                    "Unsupported compatible platform: {0!r}".format(name))
+
+        if name_kind in (NameKind.ubuntu, NameKind.debian):
+            family_kind = FamilyKind.debian
+        elif name_kind in (NameKind.centos, NameKind.rhel):
+            family_kind = FamilyKind.rhel
+        else:
+            raise OkonomiyakiError("Unsupported compatible platform: {0!r}".format(name))
+        return family_kind, name_kind, release
 
 
 def _guess_platform(arch_string=None):

@@ -1,15 +1,11 @@
 import os.path
 import re
 import sys
-try:
-    import sysconfig
-except ImportError:  # Python 2.6 support
-    sysconfig = None
+import sysconfig
 import warnings
 
 from ..errors import OkonomiyakiError
 from ..platforms import PythonImplementation
-from ..utils import py3compat
 from ._egg_info import _guess_python_tag
 from ._package_info import PackageInfo
 
@@ -47,32 +43,6 @@ def parse_filename(path):
         raise OkonomiyakiError("Invalid egg name: {0}".format(path))
 
 
-def _get_default_setuptools_abi(platform_string, pyver):
-    """ Try to guess the ABI for setuptools eggs from the platform_string
-    and pyver parts.
-
-    Parameters
-    ----------
-    platform_string: str
-        The platform part of the setuptools egg filename as a string. If
-        None, understood as a cross platform egg (pure python).
-    pyver: str
-        The python version
-    """
-    assert pyver in ("2.6", "2.7")
-
-    if platform_string is None:
-        return None
-    else:
-        if (platform_string.startswith("linux")
-                or platform_string.startswith("win")
-                or platform_string.startswith("macosx")):
-            return 'cp{0}{1}m'.format(pyver[0], pyver[2])
-        else:
-            msg = "Platform string {0!r} not supported".format(platform_string)
-            raise ValueError(msg)
-
-
 _UNSPECIFIED = object()
 
 
@@ -86,14 +56,11 @@ def _guess_abi_from_python(python):
 
 
 def _guess_abi_from_running_python():
-    if sysconfig is None:
+    try:
+        soabi = sysconfig.get_config_var('SOABI')
+    except IOError as e:  # pip issue #1074
+        warnings.warn("{0}".format(e), RuntimeWarning)
         soabi = None
-    else:
-        try:
-            soabi = sysconfig.get_config_var('SOABI')
-        except IOError as e:  # pip issue #1074
-            warnings.warn("{0}".format(e), RuntimeWarning)
-            soabi = None
 
     if soabi and soabi.startswith('cpython-'):
         return 'cp' + soabi.split('-', 1)[-1]
@@ -167,7 +134,7 @@ class SetuptoolsEggMetadata(object):
         self.version = version
 
         self.platform = platform
-        if isinstance(python, py3compat.string_types):
+        if isinstance(python, str):
             python = PythonImplementation.from_string(python)
         self.python = python
         self.abi_tag = abi_tag

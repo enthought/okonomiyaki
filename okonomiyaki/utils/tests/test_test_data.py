@@ -1,6 +1,7 @@
 import glob
 from os.path import join
 import sys
+import unittest
 import zipfile2
 
 from okonomiyaki.runtimes.runtime_metadata import IRuntimeMetadata
@@ -8,10 +9,6 @@ from okonomiyaki.errors import UnsupportedMetadata
 
 from ..test_data import DUMMY_RUNTIMES_DIRECTORY
 
-if sys.version_info < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
 
 
 class TestDummyPythonRuntimes(unittest.TestCase):

@@ -1,8 +1,8 @@
 import posixpath
 import re
 
-import six
 import zipfile2
+from io import StringIO
 
 from attr import attr, attributes
 from attr.validators import instance_of, optional
@@ -16,10 +16,7 @@ from ..platforms import (
     EPDPlatform, PlatformABI, PythonABI, PythonImplementation
 )
 from ..platforms.legacy import LegacyEPDPlatform
-from ..utils import (
-    compute_sha256, decode_if_needed, encode_if_needed, parse_assignments
-)
-from ..utils.py3compat import StringIO, string_types
+from ..utils import compute_sha256, decode_if_needed, parse_assignments
 from ..versions import EnpkgVersion, MetadataVersion
 from .legacy import (
     _guess_abi_tag, _guess_platform_abi, _guess_platform_tag, _guess_python_tag
@@ -151,7 +148,7 @@ def parse_rawspec(spec_string):
     for k, v in res.items():
         # Some values are not string-like, so filter on the type that needs
         # conversion
-        if isinstance(v, six.binary_type):
+        if isinstance(v, (bytes,)):
             res[k] = decode_if_needed(v)
 
     res[_TAG_PACKAGES] = [decode_if_needed(v) for v in res[_TAG_PACKAGES]]
@@ -189,7 +186,7 @@ def text_attr(**kw):
     for k in ("validator", ):
         if k in kw:
             raise ValueError("Cannot pass '{0}' argument".format(k))
-    return attr(validator=instance_of(six.text_type), **kw)
+    return attr(validator=instance_of(str), **kw)
 
 
 def text_or_none_attr(**kw):
@@ -199,10 +196,9 @@ def text_or_none_attr(**kw):
     for k in ("validator", ):
         if k in kw:
             raise ValueError("Cannot pass '{0}' argument".format(k))
-    return attr(validator=optional(instance_of(six.text_type)), **kw)
+    return attr(validator=optional(instance_of(str)), **kw)
 
 
-@six.python_2_unicode_compatible
 @attributes(frozen=True)
 class Requirement(object):
     """
@@ -465,7 +461,7 @@ class LegacySpecDepend(object):
     @classmethod
     def from_egg(cls, path_or_file):
         sha256 = None
-        if isinstance(path_or_file, string_types):
+        if isinstance(path_or_file, (str,)):
             if (
                 may_be_in_platform_blacklist(path_or_file)
                 or may_be_in_python_tag_blacklist(path_or_file)
@@ -497,7 +493,7 @@ class LegacySpecDepend(object):
                 )
                 return cls._from_data(data, epd_platform)
 
-        if isinstance(path_or_file, string_types):
+        if isinstance(path_or_file, (str,)):
             with zipfile2.ZipFile(path_or_file) as zp:
                 return _create_spec_depend(zp)
         else:
@@ -577,20 +573,12 @@ class LegacySpecDepend(object):
         template = _METADATA_TEMPLATES.get(self.metadata_version, None)
         data = self._to_dict()
 
-        if six.PY2:
-            # Hack to avoid the 'u' prefix to appear in the spec/depend entries
-            for k, v in data.items():
-                data[k] = encode_if_needed(v)
-
         # This is just to ensure the exact same string as the produced by the
         # legacy buildsystem
         if len(self.packages) == 0:
             data[_TAG_PACKAGES] = "[]"
         else:
-            if six.PY2:
-                packages = [decode_if_needed(p) for p in self.packages]
-            else:
-                packages = self.packages
+            packages = self.packages
             data[_TAG_PACKAGES] = (
                 u"[\n{0}\n]".format(
                     "\n".join("  '{0}',".format(p) for p in packages)
@@ -713,7 +701,7 @@ class EggMetadata(object):
             errors, at the risk of data loss.
         """
         sha256 = None
-        if isinstance(path_or_file, string_types):
+        if isinstance(path_or_file, (str,)):
             if cls._may_be_in_blacklist(path_or_file):
                 sha256 = compute_sha256(path_or_file)
         else:
@@ -773,7 +761,7 @@ class EggMetadata(object):
 
             return summary, pkg_info_string, spec_depend
 
-        if isinstance(path_or_file, string_types):
+        if isinstance(path_or_file, (str,)):
             with zipfile2.ZipFile(path_or_file) as zp:
                 summary, pkg_info_string, spec_depend = _compute_all_metadata(zp)
         else:
@@ -878,12 +866,12 @@ class EggMetadata(object):
         self.platform = platform
         """ The platform, as a Platform instance."""
 
-        if isinstance(python, string_types):
+        if isinstance(python, (str,)):
             python = PythonImplementation.from_string(python)
         self.python = python
         """ The python implementation."""
 
-        if abi_tag is not None and isinstance(abi_tag, six.string_types):
+        if abi_tag is not None and isinstance(abi_tag, (str,)):
             abi_tag = PythonABI(abi_tag)
 
         self.abi = abi_tag
@@ -892,7 +880,7 @@ class EggMetadata(object):
 
         if (
             platform_abi is not None
-            and isinstance(platform_abi, six.string_types)
+            and isinstance(platform_abi, (str,))
         ):
             platform_abi = PlatformABI(platform_abi)
         self.platform_abi = platform_abi
@@ -963,7 +951,7 @@ class EggMetadata(object):
 
     @property
     def pkg_info(self):
-        if isinstance(self._pkg_info, six.string_types):
+        if isinstance(self._pkg_info, (str,)):
             self._pkg_info = PackageInfo.from_string(self._pkg_info)
 
         return self._pkg_info
@@ -1009,7 +997,7 @@ class EggMetadata(object):
 
     @property
     def upstream_version(self):
-        return six.text_type(self.version.upstream)
+        return str(self.version.upstream)
 
     @property
     def _python(self):
@@ -1041,8 +1029,8 @@ class EggMetadata(object):
             "abi_tag": self.abi_tag,
             "platform_tag": self.platform_tag,
             "platform_abi": self.platform_abi_tag,
-            "packages": [six.text_type(p) for p in self.runtime_dependencies],
-            "metadata_version": six.text_type(self.metadata_version),
+            "packages": [str(p) for p in self.runtime_dependencies],
+            "metadata_version": str(self.metadata_version),
         }
         return LegacySpecDepend._from_data(args, epd_platform)
 
@@ -1072,20 +1060,18 @@ class EggMetadata(object):
         if self.platform is None:
             epd_platform = None
         else:
-            epd_platform = six.text_type(self.platform)
+            epd_platform = str(self.platform)
 
         return {
-            _JSON_METADATA_VERSION: six.text_type(self.metadata_version),
+            _JSON_METADATA_VERSION: str(self.metadata_version),
             _JSON__RAW_NAME: self._raw_name,
-            _JSON_VERSION: six.text_type(self.version),
+            _JSON_VERSION: str(self.version),
             _JSON_EPD_PLATFORM: epd_platform,
             _JSON_PYTHON_TAG: self.python_tag,
             _JSON_ABI_TAG: self.abi_tag,
             _JSON_PLATFORM_TAG: self.platform_tag,
             _JSON_PLATFORM_ABI_TAG: self.platform_abi_tag,
-            _JSON_RUNTIME_DEPENDENCIES: [
-                six.text_type(p) for p in self.runtime_dependencies
-            ],
+            _JSON_RUNTIME_DEPENDENCIES: [str(p) for p in self.runtime_dependencies],
             _JSON_SUMMARY: self.summary,
         }
 

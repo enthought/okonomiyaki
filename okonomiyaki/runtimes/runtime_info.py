@@ -50,7 +50,7 @@ class IRuntimeInfo(six.with_metaclass(abc.ABCMeta)):
 class IRuntimeInfoV1(IRuntimeInfo):
     # Note: the attributes in IRuntimeInfoV1 need to be synchronized with
     # IRuntimeMetadataV1
-    implementation = attr(validator=instance_of(six.text_type))
+    implementation = attr(validator=instance_of(str))
     "The implementation (e.g. 'cpython')"
 
     version = attr(validator=instance_of(RuntimeVersion))
@@ -64,14 +64,14 @@ class IRuntimeInfoV1(IRuntimeInfo):
     platform = attr(validator=instance_of(Platform))
     "The platform on which this runtime may run."
 
-    abi = attr(validator=instance_of(six.text_type))
+    abi = attr(validator=instance_of(str))
     "The ABI of this runtime."
 
-    build_revision = attr(validator=instance_of(six.text_type))
+    build_revision = attr(validator=instance_of(str))
     """The internal version. Informative only, has no semantices and my be
     empty."""
 
-    executable = attr(validator=instance_of(six.text_type))
+    executable = attr(validator=instance_of(str))
     """Executable path. May be a templated variable.
     """
 
@@ -81,10 +81,10 @@ class IRuntimeInfoV1(IRuntimeInfo):
     post_install = attr(validator=instance_of(tuple))
     """Command to execute as part of post installation."""
 
-    prefix = attr(validator=instance_of(six.text_type))
+    prefix = attr(validator=instance_of(str))
     """ Full path to the installed prefix."""
 
-    name = attr(validator=instance_of(six.text_type))
+    name = attr(validator=instance_of(str))
 
     _metadata_klass = None
 
@@ -148,9 +148,9 @@ class JuliaRuntimeInfoV1(IRuntimeInfoV1):
 class PythonRuntimeInfoV1(IRuntimeInfoV1):
     """ Class representing the metadata of an installed python runtime.
     """
-    scriptsdir = attr(validator=instance_of(six.text_type))
-    site_packages = attr(validator=instance_of(six.text_type))
-    python_tag = attr(validator=instance_of(six.text_type))
+    scriptsdir = attr(validator=instance_of(str))
+    site_packages = attr(validator=instance_of(str))
+    python_tag = attr(validator=instance_of(str))
 
     _metadata_klass = PythonRuntimeMetadataV1
 
@@ -216,7 +216,7 @@ def _compute_variables(metadata, prefix, name):
     )
 
     variables = dict(
-        (k, v) for k, v in data.items() if isinstance(v, six.string_types)
+        (k, v) for k, v in data.items() if isinstance(v, (str,))
     )
     variables["prefix"] = prefix
     variables["name"] = name

@@ -1,7 +1,6 @@
-import mock
+import unittest
+from unittest import mock
 import sys
-
-import six
 
 from ...errors import OkonomiyakiError
 
@@ -16,14 +15,9 @@ from .._arch import Arch
 from .common import (
     mock_architecture_32bit, mock_architecture_64bit, mock_centos_5_8,
     mock_centos_6_3, mock_darwin, mock_machine_x86, mock_machine_x86_64,
-    mock_solaris, mock_ubuntu_raring, mock_windows, mock_x86, mock_x86_64,
+    mock_solaris, mock_ubuntu, mock_windows, mock_x86, mock_x86_64,
     mock_centos_7_6
 )
-
-if sys.version_info < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
 
 
 class TestEPDPlatform(unittest.TestCase):
@@ -48,19 +42,19 @@ class TestEPDPlatform(unittest.TestCase):
         # When/Then
         for platform_string in self.platform_strings:
             platform = EPDPlatform.from_string(platform_string)
-            self.assertIsInstance(platform.pep425_tag, six.text_type)
+            self.assertIsInstance(platform.pep425_tag, str)
 
     def test_platform_name(self):
         # When/Then
         for platform_string in self.platform_strings:
             platform = EPDPlatform.from_string(platform_string)
-            self.assertIsInstance(platform.platform_name, six.text_type)
+            self.assertIsInstance(platform.platform_name, str)
 
     def test_str_is_unicode(self):
         # When/Then
         for platform_string in self.platform_strings:
             platform = EPDPlatform.from_string(platform_string)
-            self.assertIsInstance(six.text_type(platform), six.text_type)
+            self.assertIsInstance(str(platform), str)
 
     def test_over_complete_strings(self):
         # When/Then
@@ -215,8 +209,8 @@ class TestEPDPlatform(unittest.TestCase):
 
         # When/Then
         self.assertEqual(str(epd_platform), "osx_x86")
-        self.assertEqual(six.text_type(epd_platform), u"osx_x86")
-        self.assertIsInstance(six.text_type(epd_platform), six.text_type)
+        self.assertEqual(str(epd_platform), u"osx_x86")
+        self.assertIsInstance(str(epd_platform), str)
 
         # Given
         s = "osx_x86"
@@ -444,7 +438,7 @@ class TestGuessEPDPlatform(unittest.TestCase):
             self.assertEqual(epd_platform.short, "rh7-64")
 
     def test_guess_linux2_unsupported(self):
-        with mock_ubuntu_raring:
+        with mock_ubuntu:
             with self.assertRaises(OkonomiyakiError):
                 _guess_epd_platform()
 

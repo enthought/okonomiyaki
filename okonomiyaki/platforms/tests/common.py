@@ -1,5 +1,5 @@
 import collections
-import mock
+from unittest import mock
 import sys
 
 from ...utils.testing import MultiPatcher, Patcher
@@ -52,49 +52,54 @@ mock_windows = MultiPatcher([
 
 
 # OS Version mocking
-def _mock_platform_dist(info):
-    return Patcher(mock.patch("platform.dist", lambda: info))
+def _mock_distro_id(info):
+    return Patcher(mock.patch("distro.id", lambda: info))
 
 
-def _mock_platform_linux_distribution(info):
-    return Patcher(mock.patch("platform.linux_distribution", lambda: info))
+def _mock_distro_version(info):
+    return Patcher(mock.patch("distro.version", lambda: info))
+
+def _mock_distro_like(info):
+    return Patcher(mock.patch("distro.like", lambda: info))
 
 
 mock_centos_3_5 = MultiPatcher([
     mock_linux,
-    _mock_platform_dist(("redhat", "3.5", "Final")),
-    _mock_platform_linux_distribution(("CentOS", "3.5", "Final"))
-])
+    _mock_distro_id("centos"), _mock_distro_version("3.5")])
 
 mock_centos_5_8 = MultiPatcher([
     mock_linux,
-    _mock_platform_dist(("redhat", "5.8", "Final")),
-    _mock_platform_linux_distribution(("CentOS", "5.8", "Final"))
-])
+    _mock_distro_id("centos"), _mock_distro_version("5.8")])
 
 mock_centos_6_3 = MultiPatcher([
     mock_linux,
-    _mock_platform_dist(("redhat", "6.3", "Final")),
-    _mock_platform_linux_distribution(("CentOS", "6.3", "Final"))
-])
+    _mock_distro_id("centos"), _mock_distro_version("6.3")])
+
+mock_rhel_6_3 = MultiPatcher([
+    mock_linux,
+    _mock_distro_id("rhel"), _mock_distro_version("6.3")])
 
 mock_centos_7_0 = MultiPatcher([
     mock_linux,
-    _mock_platform_dist(("redhat", "7.0", "Final")),
-    _mock_platform_linux_distribution(("CentOS", "7.0", "Final"))
-])
+    _mock_distro_id("centos"), _mock_distro_version("7.0")])
 
 mock_centos_7_6 = MultiPatcher([
     mock_linux,
-    _mock_platform_dist(("centos", "7.6.1810", "Core")),
-    _mock_platform_linux_distribution(("CentOS Linux", "7.6.1810", "Core"))
-])
+    _mock_distro_id("centos"), _mock_distro_version("7.6.1810")])
 
-mock_ubuntu_raring = MultiPatcher([
-    _mock_platform_dist(("Ubuntu", "13.04", "raring")),
-    _mock_platform_linux_distribution(("Ubuntu", "13.04", "raring")),
+mock_ubuntu = MultiPatcher([
     mock_linux,
-])
+    _mock_distro_id("ubuntu"), _mock_distro_version("13.04")])
+
+mock_mint = MultiPatcher([
+    mock_linux,
+    _mock_distro_id("linuxmint"),
+    _mock_distro_version("14.08"),
+    _mock_distro_like("ubuntu")])
+
+mock_debian = MultiPatcher([
+    mock_linux,
+    _mock_distro_id("debian"), _mock_distro_version("13.04")])
 
 mock_windows_7 = MultiPatcher([
     mock.patch("sys.platform", "win32"),

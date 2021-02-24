@@ -1,5 +1,6 @@
 import os.path
 import sys
+import unittest
 
 from okonomiyaki.utils.test_data import (
     JULIA_DEFAULT_0_3_11_RH5_X86_64, JULIA_DEFAULT_0_3_11_WIN_X86_64,
@@ -8,10 +9,6 @@ from okonomiyaki.utils.test_data import (
 from ..runtime_metadata import IRuntimeMetadata
 from ..runtime_info import IRuntimeInfo
 
-if sys.version_info < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
 
 
 class TestPythonRuntimeInfoV1(unittest.TestCase):

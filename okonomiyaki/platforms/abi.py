@@ -1,5 +1,3 @@
-import six
-
 from attr import attributes, attr
 from attr.validators import instance_of
 
@@ -15,7 +13,7 @@ _PLATFORM_ABI_NONE = u'none'
 
 @attributes
 class PlatformABI(object):
-    pep425_tag = attr(validator=instance_of(six.text_type))
+    pep425_tag = attr(validator=instance_of(str))
 
     @staticmethod
     def pep425_tag_string(abi):
