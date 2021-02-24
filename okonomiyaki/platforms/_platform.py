@@ -6,6 +6,7 @@ import enum
 
 from attr import attr, attributes
 from attr.validators import instance_of
+import distro
 
 from ..errors import OkonomiyakiError
 
@@ -150,7 +151,7 @@ def _guess_platform_details(os_kind):
     elif os_kind == OSKind.darwin:
         return FamilyKind.mac_os_x, NameKind.mac_os_x, platform.mac_ver()[0]
     elif os_kind == OSKind.linux:
-        name = platform.linux_distribution()[0].lower()
+        name = distro.linux_distribution()[0].lower()
         name = name.split()[0]
         _, release, _ = platform.dist()
         try:
