@@ -36,7 +36,7 @@ pipeline {
         stage('checkout') {
             steps {
                 deleteDir()
-                git credentialsId: 'okonomiyaki-github-token', url: 'https://github.com/enthought/okonomiyaki'
+                git credentialsId: 'okonomiyaki-github-credentials', url: 'https://github.com/enthought/okonomiyaki'
 
                 execute "git clean -xdf"
                 execute "git checkout ${params.commit}"
