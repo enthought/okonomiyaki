@@ -25,7 +25,7 @@ pipeline {
                         status: 'PENDING',
                         description: 'Jenkins build started',
                         account: 'enthought',
-                        context: 'continuous-integration/jenkins/' + "${params.name}",
+                        context: 'CI/jenkins/' + "${params.name}",
                         credentialsId: 'okonomiyaki-github-credentials',
                         sha: "${params.commit}",
                         repo: 'okonomiyaki'
@@ -67,7 +67,7 @@ pipeline {
                 status: 'SUCCESS',
                 description: 'Jenkins build passed',
                 account: 'enthought',
-                context: 'continuous-integration/jenkins/' + "${params.name}",
+                context: 'jenkins/' + "${params.name}",
                 credentialsId: 'okonomiyaki-github-credentials',
                 sha: "${params.commit}",
                 repo: 'okonomiyaki'
@@ -78,7 +78,7 @@ pipeline {
                 status: 'ERROR',
                 description: 'Jenkins build finished',
                 account: 'enthought',
-                context: 'continuous-integration/jenkins/' + "${params.name}",
+                context: 'jenkins/' + "${params.name}",
                 credentialsId: 'okonomiyaki-github-credentials',
                 sha: "${params.commit}",
                 repo: 'okonomiyaki'
@@ -89,7 +89,7 @@ pipeline {
                 status: 'FAILURE',
                 description: 'Jenkins build failed',
                 account: 'enthought',
-                context: 'continuous-integration/jenkins/' + "${params.name}",
+                context: 'jenkins/' + "${params.name}",
                 credentialsId: 'okonomiyaki-github-credentials',
                 sha: "${params.commit}",
                 repo: 'okonomiyaki'
