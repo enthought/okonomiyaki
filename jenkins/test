@@ -36,7 +36,8 @@ pipeline {
         stage('checkout') {
             steps {
                 deleteDir()
-                execute "git clone https://github.com/enthought/okonomiyaki.git ."
+                git credentialsId: 'okonomiyaki-github-token', url: 'https://github.com/enthought/okonomiyaki'
+
                 execute "git clean -xdf"
                 execute "git checkout ${params.commit}"
                 execute "git log -2"
