@@ -20,8 +20,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install okonomiyaki
-      run: |
-        python -m pip install .
+      run: python -m pip install .
     - name: Install test dependencies
       run: python -m pip install -r "dev_requirements.txt"
     - name: Test with haas
