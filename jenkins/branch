@@ -35,7 +35,7 @@ for (x in oses) {
                     status: 'PENDING',
                     description: 'Jenkins build starting',
                     account: 'enthought',
-                    context: 'continuous-integration/jenkins/' + key,
+                    context: 'jenkins/' + key,
                     credentialsId: 'okonomiyaki-github-credentials',
                     sha: "${params.commit}",
                     repo: 'okonomiyaki'

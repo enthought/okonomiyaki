@@ -20,14 +20,14 @@ if PY2:
             _locs_ = _globs_
         exec("""exec _code_ in _globs_, _locs_""")
 
-    long = long
-    string_types = basestring,
+    long = long  # noqa
+    string_types = basestring,  # noqa
 
-    binary_type = str
-    text_type = unicode
+    binary_type = str  # noqa
+    text_type = unicode  # noqa
 
     def u(s):
-        return unicode(s.replace(r'\\', r'\\\\'), "unicode_escape")
+        return unicode(s.replace(r'\\', r'\\\\'), "unicode_escape")  # noqa
 
     def iterkeys(d, **kw):
         return iter(d.iterkeys(**kw))
