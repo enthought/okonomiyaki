@@ -25,7 +25,7 @@ pipeline {
                         status: 'PENDING',
                         description: 'Jenkins build started',
                         account: 'enthought',
-                        context: 'CI/jenkins/' + "${params.name}",
+                        context: 'jenkins/' + "${params.name}",
                         credentialsId: 'okonomiyaki-github-credentials',
                         sha: "${params.commit}",
                         repo: 'okonomiyaki'
