@@ -10,9 +10,12 @@ from okonomiyaki.utils import tempdir
 from okonomiyaki.utils.test_data import (
     INVALID_RUNTIME_NO_METADATA_VERSION, JULIA_DEFAULT_0_3_11_RH5_X86_64,
     PYTHON_CPYTHON_2_7_10_RH5_X86_64, PYTHON_CPYTHON_2_7_10_RH5_X86_64_INVALID,
-    PYTHON_PYPY_2_6_0_RH5_X86_64, R_DEFAULT_3_0_0_RH5_X86_64
+    PYTHON_PYPY_2_6_0_RH5_X86_64, R_DEFAULT_3_0_0_RH5_X86_64,
+    PYTHON_CPYTHON_3_8_8_RH7_X86_64, PYTHON_CPYTHON_3_8_8_OSX_X86_64
+
 )
 from okonomiyaki.versions import MetadataVersion
+from okonomiyaki.platforms import Platform, OSKind, FamilyKind, NameKind, X86, X86_64
 
 from ..runtime_metadata import (
     JuliaRuntimeMetadataV1, PythonRuntimeMetadataV1, RuntimeVersion,
@@ -36,34 +39,33 @@ class TestPythonMetadataV1(unittest.TestCase):
         # Then
         self.assertTrue(is_runtime_path_valid(path))
         self.assertEqual(metadata.filename, os.path.basename(path))
-
         self.assertEqual(
-            metadata.metadata_version,
-            MetadataVersion.from_string("1.0")
-        )
+            metadata.metadata_version, MetadataVersion.from_string("1.0"))
         self.assertEqual(metadata.implementation, "cpython")
         self.assertEqual(
-            metadata.version,
-            RuntimeVersion.from_string("2.7.10+1")
-        )
+            metadata.version, RuntimeVersion.from_string("2.7.10+1"))
         self.assertEqual(
-            metadata.language_version,
-            RuntimeVersion.from_string("2.7.10")
-        )
+            metadata.language_version, RuntimeVersion.from_string("2.7.10"))
         self.assertEqual(metadata.build_revision, "2.1.0-dev570")
         self.assertEqual(metadata.executable, "${prefix}/bin/python")
         self.assertEqual(metadata.paths, ("${prefix}/bin",))
         self.assertEqual(
             metadata.post_install,
             ("${executable}",
-             "${prefix}/lib/python2.7/custom_tools/fix-scripts.py")
-        )
+             "${prefix}/lib/python2.7/custom_tools/fix-scripts.py"))
         self.assertEqual(metadata.scriptsdir, "${prefix}/bin")
         self.assertEqual(
-            metadata.site_packages,
-            "${prefix}/lib/python2.7/site-packages"
-        )
+            metadata.site_packages, "${prefix}/lib/python2.7/site-packages")
         self.assertEqual(metadata.python_tag, "cp27")
+        self.assertEqual(
+            metadata.platform,
+            Platform(
+                os_kind=OSKind.linux,
+                family_kind=FamilyKind.rhel,
+                name_kind=NameKind.rhel,
+                release='5.8',
+                arch=X86_64,
+                machine=X86_64))
 
     def test_simple_pypy(self):
         # Given
@@ -140,6 +142,85 @@ class TestPythonMetadataV1(unittest.TestCase):
             with zipfile2.ZipFile(path, "w") as zp:
                 with self.assertRaises(InvalidMetadata):
                     PythonRuntimeMetadataV1._from_path(zp)
+
+
+class TestCPython38RuntimeMetadataV1(unittest.TestCase):
+
+    def test_gnu(self):
+        # Given
+        path = PYTHON_CPYTHON_3_8_8_RH7_X86_64
+
+        # When
+        metadata = PythonRuntimeMetadataV1._from_path(path)
+
+        # Then
+        self.assertTrue(is_runtime_path_valid(path))
+        self.assertEqual(metadata.filename, os.path.basename(path))
+        self.assertEqual(
+            metadata.metadata_version, MetadataVersion.from_string("1.0"))
+        self.assertEqual(metadata.implementation, "cpython")
+        self.assertEqual(
+            metadata.version, RuntimeVersion.from_string("3.8.8+1"))
+        self.assertEqual(
+            metadata.language_version, RuntimeVersion.from_string("3.8.8"))
+        self.assertEqual(metadata.build_revision, "2.1.0-dev570")
+        self.assertEqual(metadata.executable, "${prefix}/bin/python")
+        self.assertEqual(metadata.paths, ("${prefix}/bin",))
+        self.assertEqual(
+            metadata.post_install,
+            ("${executable}",
+             "${prefix}/lib/python3.8/custom_tools/fix-scripts.py"))
+        self.assertEqual(metadata.scriptsdir, "${prefix}/bin")
+        self.assertEqual(
+            metadata.site_packages, "${prefix}/lib/python3.8/site-packages")
+        self.assertEqual(metadata.python_tag, "cp38")
+        self.assertEqual(
+            metadata.platform,
+            Platform(
+                os_kind=OSKind.linux,
+                family_kind=FamilyKind.rhel,
+                name_kind=NameKind.rhel,
+                release='7.1',
+                arch=X86_64,
+                machine=X86_64))
+
+    def test_darwin(self):
+        # Given
+        path = PYTHON_CPYTHON_3_8_8_OSX_X86_64
+
+        # When
+        metadata = PythonRuntimeMetadataV1._from_path(path)
+
+        # Then
+        self.assertTrue(is_runtime_path_valid(path))
+        self.assertEqual(metadata.filename, os.path.basename(path))
+        self.assertEqual(
+            metadata.metadata_version, MetadataVersion.from_string("1.0"))
+        self.assertEqual(metadata.implementation, "cpython")
+        self.assertEqual(
+            metadata.version, RuntimeVersion.from_string("3.8.8+1"))
+        self.assertEqual(
+            metadata.language_version, RuntimeVersion.from_string("3.8.8"))
+        self.assertEqual(metadata.build_revision, "2.1.0-dev570")
+        self.assertEqual(metadata.executable, "${prefix}/bin/python")
+        self.assertEqual(metadata.paths, ("${prefix}/bin",))
+        self.assertEqual(
+            metadata.post_install,
+            ("${executable}",
+             "${prefix}/lib/python3.8/custom_tools/fix-scripts.py"))
+        self.assertEqual(metadata.scriptsdir, "${prefix}/bin")
+        self.assertEqual(
+            metadata.site_packages, "${prefix}/lib/python3.8/site-packages")
+        self.assertEqual(metadata.python_tag, "cp38")
+        self.assertEqual(
+            metadata.platform,
+            Platform(
+                os_kind=OSKind.darwin,
+                family_kind=FamilyKind.mac_os_x,
+                name_kind=NameKind.mac_os_x,
+                release='10.6',
+                arch=X86_64,
+                machine=X86_64))
 
 
 class TestJuliaRuntimeMetadataV1(unittest.TestCase):
