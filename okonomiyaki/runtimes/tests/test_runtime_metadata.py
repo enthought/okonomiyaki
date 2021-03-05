@@ -15,7 +15,7 @@ from okonomiyaki.utils.test_data import (
 
 )
 from okonomiyaki.versions import MetadataVersion
-from okonomiyaki.platforms import Platform, OSKind, FamilyKind, NameKind, X86, X86_64
+from okonomiyaki.platforms import Platform, OSKind, FamilyKind, NameKind, X86_64
 
 from ..runtime_metadata import (
     JuliaRuntimeMetadataV1, PythonRuntimeMetadataV1, RuntimeVersion,
