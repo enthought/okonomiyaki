@@ -31,8 +31,8 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(str(platform), "CentOS 5.8 on x86")
         self.assertEqual(
             repr(platform),
-            "Platform(os='linux', name='centos', family='rhel', arch='x86', "
-            "machine='x86')"
+            "Platform(os='linux', name='centos', family='rhel', release='5.8', "
+            "arch='x86', machine='x86')"
         )
 
     @mock_ubuntu_raring
@@ -48,8 +48,8 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(str(platform), "Ubuntu 13.04 on x86")
         self.assertEqual(
             repr(platform),
-            "Platform(os='linux', name='ubuntu', family='debian', arch='x86', "
-            "machine='x86')"
+            "Platform(os='linux', name='ubuntu', family='debian', release='13.04', "
+            "arch='x86', machine='x86')"
         )
 
         with self.assertRaises(OkonomiyakiError):
