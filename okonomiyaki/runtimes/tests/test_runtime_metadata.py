@@ -11,11 +11,12 @@ from okonomiyaki.utils.test_data import (
     INVALID_RUNTIME_NO_METADATA_VERSION, JULIA_DEFAULT_0_3_11_RH5_X86_64,
     PYTHON_CPYTHON_2_7_10_RH5_X86_64, PYTHON_CPYTHON_2_7_10_RH5_X86_64_INVALID,
     PYTHON_PYPY_2_6_0_RH5_X86_64, R_DEFAULT_3_0_0_RH5_X86_64,
-    PYTHON_CPYTHON_3_8_8_RH7_X86_64, PYTHON_CPYTHON_3_8_8_OSX_X86_64
+    PYTHON_CPYTHON_3_8_8_RH7_X86_64, PYTHON_CPYTHON_3_8_8_OSX_X86_64,
+    PYTHON_CPYTHON_3_8_8_WIN_X86_64, PYTHON_CPYTHON_3_8_8_WIN_X86
 
 )
 from okonomiyaki.versions import MetadataVersion
-from okonomiyaki.platforms import Platform, OSKind, FamilyKind, NameKind, X86_64
+from okonomiyaki.platforms import Platform, OSKind, FamilyKind, NameKind, X86_64, X86
 
 from ..runtime_metadata import (
     JuliaRuntimeMetadataV1, PythonRuntimeMetadataV1, RuntimeVersion,
@@ -218,9 +219,85 @@ class TestCPython38RuntimeMetadataV1(unittest.TestCase):
                 os_kind=OSKind.darwin,
                 family_kind=FamilyKind.mac_os_x,
                 name_kind=NameKind.mac_os_x,
-                release='10.6',
+                release='10.14',
                 arch=X86_64,
                 machine=X86_64))
+
+    def test_win64(self):
+        # Given
+        path = PYTHON_CPYTHON_3_8_8_WIN_X86_64
+
+        # When
+        metadata = PythonRuntimeMetadataV1._from_path(path)
+
+        # Then
+        self.assertTrue(is_runtime_path_valid(path))
+        self.assertEqual(metadata.filename, os.path.basename(path))
+        self.assertEqual(
+            metadata.metadata_version, MetadataVersion.from_string("1.0"))
+        self.assertEqual(metadata.implementation, "cpython")
+        self.assertEqual(
+            metadata.version, RuntimeVersion.from_string("3.8.8+1"))
+        self.assertEqual(
+            metadata.language_version, RuntimeVersion.from_string("3.8.8"))
+        self.assertEqual(metadata.build_revision, "2.1.0-dev570")
+        self.assertEqual(metadata.executable, "${prefix}\\python.exe")
+        self.assertEqual(metadata.paths, ("${prefix}","${prefix}\\Scripts"))
+        self.assertEqual(
+            metadata.post_install,
+            ("${executable}",
+             "${prefix}\\Lib\\custom_tools\\fix-scripts.py"))
+        self.assertEqual(metadata.scriptsdir, "${prefix}\\Scripts")
+        self.assertEqual(
+            metadata.site_packages, "${prefix}\\Lib\\site-packages")
+        self.assertEqual(metadata.python_tag, "cp38")
+        self.assertEqual(
+            metadata.platform,
+            Platform(
+                os_kind=OSKind.windows,
+                family_kind=FamilyKind.windows,
+                name_kind=NameKind.windows,
+                release='10',
+                arch=X86_64,
+                machine=X86_64))
+
+    def test_win32(self):
+        # Given
+        path = PYTHON_CPYTHON_3_8_8_WIN_X86
+
+        # When
+        metadata = PythonRuntimeMetadataV1._from_path(path)
+
+        # Then
+        self.assertTrue(is_runtime_path_valid(path))
+        self.assertEqual(metadata.filename, os.path.basename(path))
+        self.assertEqual(
+            metadata.metadata_version, MetadataVersion.from_string("1.0"))
+        self.assertEqual(metadata.implementation, "cpython")
+        self.assertEqual(
+            metadata.version, RuntimeVersion.from_string("3.8.8+1"))
+        self.assertEqual(
+            metadata.language_version, RuntimeVersion.from_string("3.8.8"))
+        self.assertEqual(metadata.build_revision, "2.1.0-dev570")
+        self.assertEqual(metadata.executable, "${prefix}\\python.exe")
+        self.assertEqual(metadata.paths, ("${prefix}","${prefix}\\Scripts"))
+        self.assertEqual(
+            metadata.post_install,
+            ("${executable}",
+             "${prefix}\\Lib\\custom_tools\\fix-scripts.py"))
+        self.assertEqual(metadata.scriptsdir, "${prefix}\\Scripts")
+        self.assertEqual(
+            metadata.site_packages, "${prefix}\\Lib\\site-packages")
+        self.assertEqual(metadata.python_tag, "cp38")
+        self.assertEqual(
+            metadata.platform,
+            Platform(
+                os_kind=OSKind.windows,
+                family_kind=FamilyKind.windows,
+                name_kind=NameKind.windows,
+                release='10',
+                arch=X86,
+                machine=X86))
 
 
 class TestJuliaRuntimeMetadataV1(unittest.TestCase):

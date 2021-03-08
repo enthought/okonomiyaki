@@ -112,6 +112,12 @@ PYTHON_CPYTHON_3_8_8_RH7_X86_64 = os.path.join(
 PYTHON_CPYTHON_3_8_8_OSX_X86_64 = os.path.join(
     _HERE, "cpython-3.8.8+1-osx_x86_64-darwin.runtime",
 )
+PYTHON_CPYTHON_3_8_8_WIN_X86_64 = os.path.join(
+    _HERE, "cpython-3.8.8+1-win_x86_64-msvc2019.runtime",
+)
+PYTHON_CPYTHON_3_8_8_WIN_X86 = os.path.join(
+    _HERE, "cpython-3.8.8+1-win_x86-msvc2019.runtime",
+)
 
 
 PYTHON_CPYTHON_2_7_10_RH5_X86_64_INVALID = os.path.join(

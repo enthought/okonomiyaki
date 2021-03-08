@@ -110,7 +110,6 @@ class IRuntimeMetadataV1(IRuntimeMetadata):
         except jsonschema.ValidationError as e:
             msg = "Invalid metadata: {0!r}".format(e.message)
             raise InvalidMetadata(msg)
-
         metadata_version = metadata_dict["metadata_version"]
         if metadata_version != "1.0":
             raise UnsupportedMetadata(metadata_version)
@@ -130,7 +129,7 @@ class IRuntimeMetadataV1(IRuntimeMetadata):
         implementation = data["implementation"]
         version = RuntimeVersion.from_string(data["version"])
         language_version = RuntimeVersion.from_string(data["language_version"])
-        platform = EPDPlatform.from_epd_string(data["platform"]).platform
+        platform = EPDPlatform.from_string(data["platform"], version).platform
         abi = data["abi"]
 
         build_revision = data["build_revision"]
