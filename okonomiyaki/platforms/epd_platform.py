@@ -422,17 +422,17 @@ def _epd_name_and_python_to_quadruplet(name, runtime_version=None):
     elif name == "rh3":
         return (OSKind.linux, NameKind.rhel, FamilyKind.rhel, "3.8")
     elif name == "osx":
-      if runtime_version is not None and runtime_version >= py38:
-        return (OSKind.darwin, NameKind.mac_os_x, FamilyKind.mac_os_x, "10.14")
-      else:
-        return (OSKind.darwin, NameKind.mac_os_x, FamilyKind.mac_os_x, "10.6")
+        if runtime_version is not None and runtime_version >= py38:
+            return (OSKind.darwin, NameKind.mac_os_x, FamilyKind.mac_os_x, "10.14")
+        else:
+            return (OSKind.darwin, NameKind.mac_os_x, FamilyKind.mac_os_x, "10.6")
     elif name == "sol":
         return (OSKind.solaris, NameKind.solaris, FamilyKind.solaris, "")
     elif name == "win":
-      if runtime_version is not None and runtime_version >= py38:
-        return (OSKind.windows, NameKind.windows, FamilyKind.windows, "10")
-      else:
-        return (OSKind.windows, NameKind.windows, FamilyKind.windows, "")
+        if runtime_version is not None and runtime_version >= py38:
+            return (OSKind.windows, NameKind.windows, FamilyKind.windows, "10")
+        else:
+            return (OSKind.windows, NameKind.windows, FamilyKind.windows, "")
     else:
         msg = "Invalid epd platform string name: {0!r}".format(name)
         raise OkonomiyakiError(msg)

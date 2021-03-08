@@ -242,7 +242,7 @@ class TestCPython38RuntimeMetadataV1(unittest.TestCase):
             metadata.language_version, RuntimeVersion.from_string("3.8.8"))
         self.assertEqual(metadata.build_revision, "2.1.0-dev570")
         self.assertEqual(metadata.executable, "${prefix}\\python.exe")
-        self.assertEqual(metadata.paths, ("${prefix}","${prefix}\\Scripts"))
+        self.assertEqual(metadata.paths, ("${prefix}", "${prefix}\\Scripts"))
         self.assertEqual(
             metadata.post_install,
             ("${executable}",
@@ -280,7 +280,7 @@ class TestCPython38RuntimeMetadataV1(unittest.TestCase):
             metadata.language_version, RuntimeVersion.from_string("3.8.8"))
         self.assertEqual(metadata.build_revision, "2.1.0-dev570")
         self.assertEqual(metadata.executable, "${prefix}\\python.exe")
-        self.assertEqual(metadata.paths, ("${prefix}","${prefix}\\Scripts"))
+        self.assertEqual(metadata.paths, ("${prefix}", "${prefix}\\Scripts"))
         self.assertEqual(
             metadata.post_install,
             ("${executable}",
