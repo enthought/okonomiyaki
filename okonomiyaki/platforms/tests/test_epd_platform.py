@@ -2,6 +2,8 @@ import mock
 import sys
 
 import six
+from hypothesis import given
+from hypothesis.strategies import sampled_from
 
 from okonomiyaki.errors import OkonomiyakiError
 from okonomiyaki.versions import RuntimeVersion
@@ -246,23 +248,30 @@ class TestEPDPlatform(unittest.TestCase):
         # Then
         self.assertEqual(str(epd_platform), s)
 
-    def test_pep425_tag(self):
+    @given(
+        sampled_from(
+            [
+                ("rh5_x86", None, "linux_i686"),
+                ("rh5_x86_64", None, "linux_x86_64"),
+                ("osx_x86", None, "macosx_10_6_i386"),
+                ("osx_x86", '3.8.9+1', "macosx_10_14_i386"),
+                ("osx_x86_64", None, "macosx_10_6_x86_64"),
+                ("osx_x86_64", '3.8.9+1', "macosx_10_14_x86_64"),
+                ("win_x86", None, "win32"),
+                ("win_x86_64", None, "win_amd64"),
+                ("win_x86_64", '3.9.1', "win_amd64"),
+            ]))
+    def test_pep425_tag(self, arguments):
         # Given
-        epd_string_to_pep425 = (
-            ("rh5_x86", "linux_i686"),
-            ("rh5_x86_64", "linux_x86_64"),
-            ("osx_x86", "macosx_10_6_i386"),
-            ("osx_x86_64", "macosx_10_6_x86_64"),
-            ("win_x86", "win32"),
-            ("win_x86_64", "win_amd64"),
-        )
+        platform_tag, version, expected = arguments
+        if version is not None:
+            runtime_version = RuntimeVersion.from_string(version)
+        else:
+            runtime_version = None
+        epd_platform = EPDPlatform.from_string(platform_tag, runtime_version)
 
         # When/Then
-        for epd_string, platform_tag in epd_string_to_pep425:
-            self.assertEqual(
-                EPDPlatform.from_string(epd_string).pep425_tag,
-                platform_tag,
-            )
+        self.assertEqual(epd_platform.pep425_tag, expected)
 
 
 class TestEPDPlatformApplies(unittest.TestCase):

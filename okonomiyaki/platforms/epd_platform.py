@@ -251,29 +251,31 @@ class EPDPlatform(object):
     def pep425_tag(self):
         msg = "Cannot guess platform tag for platform {0!r}"
 
-        if self.platform.os_kind == OSKind.darwin:
-            if self.platform.arch == X86:
-                return u"macosx_10_6_i386"
-            elif self.platform.arch == X86_64:
-                return u"macosx_10_6_x86_64"
+        platform = self.platform
+        if platform.os_kind == OSKind.darwin:
+            release = platform.release.replace('.', '_')
+            if platform.arch == X86:
+                return u"macosx_{}_i386".format(release)
+            elif platform.arch == X86_64:
+                return u"macosx_{}_x86_64".format(release)
             else:
-                raise OkonomiyakiError(msg.format(self.platform))
-        elif self.platform.os_kind == OSKind.linux:
-            if self.platform.arch == X86:
+                raise OkonomiyakiError(msg.format(platform))
+        elif platform.os_kind == OSKind.linux:
+            if platform.arch == X86:
                 return u"linux_i686"
-            elif self.platform.arch == X86_64:
+            elif platform.arch == X86_64:
                 return u"linux_x86_64"
             else:
-                raise OkonomiyakiError(msg.format(self.platform))
-        elif self.platform.os_kind == OSKind.windows:
-            if self.platform.arch == X86:
+                raise OkonomiyakiError(msg.format(platform))
+        elif platform.os_kind == OSKind.windows:
+            if platform.arch == X86:
                 return u"win32"
-            elif self.platform.arch == X86_64:
+            elif platform.arch == X86_64:
                 return u"win_amd64"
             else:
-                raise OkonomiyakiError(msg.format(self.platform))
+                raise OkonomiyakiError(msg.format(platform))
         else:
-            raise OkonomiyakiError(msg.format(self.platform))
+            raise OkonomiyakiError(msg.format(platform))
 
     @property
     def platform_name(self):
