@@ -3,12 +3,12 @@ import sys
 
 import six
 
-from ...errors import OkonomiyakiError
+from okonomiyaki.errors import OkonomiyakiError
+from okonomiyaki.versions import RuntimeVersion
 
 from .. import EPDPlatform
 from ..epd_platform import (
-    _guess_epd_platform, EPD_PLATFORM_SHORT_NAMES, X86, X86_64, applies
-)
+    _guess_epd_platform, EPD_PLATFORM_SHORT_NAMES, X86, X86_64, applies)
 from ..legacy import _SUBDIR
 from .._platform import OSKind, FamilyKind, NameKind
 from .._arch import Arch
@@ -139,6 +139,25 @@ class TestEPDPlatform(unittest.TestCase):
         # Then
         for epd_platform in epd_platforms:
             self.assertEqual(epd_platform.arch_bits, "64")
+
+    def test_epd_platform_from_string_with_runtime_version(self):
+        # given
+        version = RuntimeVersion.from_string('3.6.5+6')
+
+        # when/then
+        epd_platform = EPDPlatform.from_string('osx-64', version)
+        self.assertEqual(epd_platform.platform.release, '10.6')
+        epd_platform = EPDPlatform.from_string('win-64', version)
+        self.assertEqual(epd_platform.platform.release, '')
+
+        # given
+        version = RuntimeVersion.from_string('3.8.8+2')
+
+        # when/then
+        epd_platform = EPDPlatform.from_string('osx-64', version)
+        self.assertEqual(epd_platform.platform.release, '10.14')
+        epd_platform = EPDPlatform.from_string('win-64', version)
+        self.assertEqual(epd_platform.platform.release, '10')
 
     @mock_darwin
     @mock_machine_x86_64
