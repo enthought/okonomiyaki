@@ -7,8 +7,6 @@ import textwrap
 import zipfile2
 
 import mock
-from hypothesis import given
-from hypothesis.strategies import sampled_from
 
 if sys.version_info < (2, 7):  # noqa
     import unittest2 as unittest
@@ -29,7 +27,7 @@ from ...versions import EnpkgVersion, MetadataVersion
 
 from .._egg_info import (
     Requirement, EggMetadata, LegacySpecDepend, parse_rawspec,
-    split_egg_name, _guess_platform_abi
+    split_egg_name
 )
 
 from .common import (
