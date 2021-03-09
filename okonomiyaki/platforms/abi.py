@@ -46,6 +46,8 @@ def _default_cpython_abi(platform, implementation_version):
                 abi = u"msvc2010"
             elif implementation_version.minor <= 6:
                 abi = u"msvc2015"
+            elif implementation_version.minor <= 8:
+                abi = u"msvc2019"
 
         if abi is None:
             raise OkonomiyakiError(msg)
@@ -73,16 +75,16 @@ def default_abi(platform, implementation, implementation_version):
     For arguments accepting both object and str arguments, the str is
     automatically converted into an instance of the corresponding class.
     """
-    if isinstance(platform, str):
-        platform = EPDPlatform.from_epd_string(platform).platform
     if isinstance(implementation_version, str):
         implementation_version = RuntimeVersion.from_string(
-            implementation_version
-        )
+            implementation_version)
+    if isinstance(platform, str):
+        epd_platform = EPDPlatform.from_epd_string(
+            platform, implementation_version)
+        platform = epd_platform.platform
 
     msg = "Unsupported platform/version combo for {0!r}: {1!r}/{2!r}".format(
-        implementation, platform, str(implementation_version)
-    )
+        implementation, platform, str(implementation_version))
 
     if implementation == "cpython":
         return _default_cpython_abi(platform, implementation_version)
