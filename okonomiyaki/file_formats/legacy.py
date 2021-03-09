@@ -61,16 +61,13 @@ def _guess_platform_abi(epd_platform, python_tag):
 
     if epd_platform is None:
         return None
+    elif implementation.kind == "python":
+        return None
     else:
-        if implementation.kind == "python":
-            return None
-
         implementation_version = "{0}.{1}".format(
-            implementation.major, implementation.minor
-        )
+            implementation.major, implementation.minor)
         return default_abi(
-            epd_platform.platform, implementation.kind, implementation_version
-        )
+            epd_platform.platform, implementation.kind, implementation_version)
 
 
 def _guess_platform_tag(epd_platform):
