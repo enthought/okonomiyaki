@@ -101,3 +101,51 @@ class TestGuessPlatformABI(unittest.TestCase):
             result, expected,
             msg="{} gives {} instead of {}".format(
                 configuration, result, expected))
+
+    def test_no_platform(self):
+        # Given
+        platform = None
+        python_tag = "cp27"
+
+        # When
+        abi = _guess_platform_abi(platform, python_tag)
+
+        # Then
+        self.assertIsNone(abi)
+
+        # Given
+        python_tag = "cp34"
+
+        # When
+        abi = _guess_platform_abi(platform, python_tag)
+
+        # Then
+        self.assertIsNone(abi)
+
+    def test_no_python_implementation(self):
+        # Given
+        platform = EPDPlatform.from_epd_string("rh5-64")
+
+        # When
+        abi = _guess_platform_abi(platform, None)
+
+        # Then
+        self.assertEqual(abi, "gnu")
+
+        # Given
+        platform = EPDPlatform.from_epd_string("osx-64")
+
+        # When
+        abi = _guess_platform_abi(platform, None)
+
+        # Then
+        self.assertEqual(abi, "darwin")
+
+        # Given
+        platform = EPDPlatform.from_epd_string("win-64")
+
+        # When
+        abi = _guess_platform_abi(platform, None)
+
+        # Then
+        self.assertEqual(abi, "msvc2008")
