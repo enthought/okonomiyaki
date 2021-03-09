@@ -46,7 +46,7 @@ pipeline {
         stage('setup') {
             steps {
                 execute "edm envs create okonomiyaki-dev --force"
-                execute "edm install -e okonomiyaki-dev -y haas mock testfixtures"
+                execute "edm install -e okonomiyaki-dev -y haas mock testfixtures hypothesis"
                 execute "edm run -e okonomiyaki-dev -- pip install -e ."
             }
         }

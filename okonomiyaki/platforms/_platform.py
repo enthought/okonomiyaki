@@ -125,7 +125,7 @@ class Platform(object):
     def __repr__(self):
         return (
             "Platform(os={0.os!r}, name={0.name!r}, family={0.family!r}, "
-            "arch='{0.arch}', machine='{0.machine}')".format(self)
+            "release='{0.release}', arch='{0.arch}', machine='{0.machine}')".format(self)
         )
 
     def __str__(self):

@@ -8,6 +8,7 @@ import six
 from attr import attributes, attr
 from attr.validators import instance_of
 
+from ..versions import RuntimeVersion
 from ..errors import OkonomiyakiError
 from ._arch import Arch, ArchitectureKind
 from ._platform import OSKind, FamilyKind, NameKind, Platform
@@ -133,12 +134,18 @@ class EPDPlatform(object):
         return _guess_epd_platform(arch)
 
     @classmethod
-    def from_string(cls, s):
-        """
-        Create a new instance from an epd platform string (e.g. 'win-32')
+    def from_string(cls, s, runtime_version=None):
+        """ Create a new instance from an epd platform string.
 
-        Note: new, more explicit architecture names are also supported, e.g.
-        'win-x86' or 'win-x86_64' are supported.
+        Parameters:
+        s : string
+           The platform string e.g. win-32. New, more explicit
+           architecture names are also supported, e.g. 'win-x86' or
+           'win-x86_64' are supported.
+        runtime_version: RuntimeVersion
+           Passing the runtime version will result in more precise Platform
+           description taking into account the historical records of the
+           Enthought python runtime releases.
         """
         m = _EPD_PLATFORM_STRING_RE.match(s)
         if m is None:
@@ -152,12 +159,13 @@ class EPDPlatform(object):
             else:
                 arch_name = _ARCHBITS_TO_ARCH[arch_bits]
                 arch = machine = Arch.from_name(arch_name)
-            os, name, family, release = _epd_name_to_quadruplet(platform_name)
+            os, name, family, release = _epd_name_and_python_to_quadruplet(
+                platform_name, runtime_version)
             platform = Platform(os, name, family, release, arch, machine)
             return cls(platform)
 
     @classmethod
-    def from_epd_string(cls, s):
+    def from_epd_string(cls, s, runtime_version=None):
         """
         Create a new instance from an epd platform string (e.g. 'win-32')
 
@@ -167,13 +175,12 @@ class EPDPlatform(object):
             "Deprecated: use EPDPlatform.from_string instead",
             DeprecationWarning
         )
-        return cls.from_string(s)
+        return cls.from_string(s, runtime_version)
 
     @classmethod
     def _from_spec_depend_data(cls, platform, osdist, arch_name):
         msg = ("Unrecognized platform/osdist combination: {0!r}/{1!r}"
                .format(platform, osdist))
-
         arch = Arch.from_name(arch_name)
         if platform == "darwin":
             epd_name = "osx"
@@ -244,29 +251,31 @@ class EPDPlatform(object):
     def pep425_tag(self):
         msg = "Cannot guess platform tag for platform {0!r}"
 
-        if self.platform.os_kind == OSKind.darwin:
-            if self.platform.arch == X86:
-                return u"macosx_10_6_i386"
-            elif self.platform.arch == X86_64:
-                return u"macosx_10_6_x86_64"
+        platform = self.platform
+        if platform.os_kind == OSKind.darwin:
+            release = platform.release.replace('.', '_')
+            if platform.arch == X86:
+                return u"macosx_{}_i386".format(release)
+            elif platform.arch == X86_64:
+                return u"macosx_{}_x86_64".format(release)
             else:
-                raise OkonomiyakiError(msg.format(self.platform))
-        elif self.platform.os_kind == OSKind.linux:
-            if self.platform.arch == X86:
+                raise OkonomiyakiError(msg.format(platform))
+        elif platform.os_kind == OSKind.linux:
+            if platform.arch == X86:
                 return u"linux_i686"
-            elif self.platform.arch == X86_64:
+            elif platform.arch == X86_64:
                 return u"linux_x86_64"
             else:
-                raise OkonomiyakiError(msg.format(self.platform))
-        elif self.platform.os_kind == OSKind.windows:
-            if self.platform.arch == X86:
+                raise OkonomiyakiError(msg.format(platform))
+        elif platform.os_kind == OSKind.windows:
+            if platform.arch == X86:
                 return u"win32"
-            elif self.platform.arch == X86_64:
+            elif platform.arch == X86_64:
                 return u"win_amd64"
             else:
-                raise OkonomiyakiError(msg.format(self.platform))
+                raise OkonomiyakiError(msg.format(platform))
         else:
-            raise OkonomiyakiError(msg.format(self.platform))
+            raise OkonomiyakiError(msg.format(platform))
 
     @property
     def platform_name(self):
@@ -402,7 +411,8 @@ def applies(platform_string, to='current'):
         return any(conditions)
 
 
-def _epd_name_to_quadruplet(name):
+def _epd_name_and_python_to_quadruplet(name, runtime_version=None):
+    py38 = RuntimeVersion.from_string('3.8.8+1')
     if name == "rh7":
         return (OSKind.linux, NameKind.rhel, FamilyKind.rhel, "7.1")
     if name == "rh6":
@@ -412,11 +422,17 @@ def _epd_name_to_quadruplet(name):
     elif name == "rh3":
         return (OSKind.linux, NameKind.rhel, FamilyKind.rhel, "3.8")
     elif name == "osx":
-        return (OSKind.darwin, NameKind.mac_os_x, FamilyKind.mac_os_x, "10.6")
+        if runtime_version is not None and runtime_version >= py38:
+            return (OSKind.darwin, NameKind.mac_os_x, FamilyKind.mac_os_x, "10.14")
+        else:
+            return (OSKind.darwin, NameKind.mac_os_x, FamilyKind.mac_os_x, "10.6")
     elif name == "sol":
         return (OSKind.solaris, NameKind.solaris, FamilyKind.solaris, "")
     elif name == "win":
-        return (OSKind.windows, NameKind.windows, FamilyKind.windows, "")
+        if runtime_version is not None and runtime_version >= py38:
+            return (OSKind.windows, NameKind.windows, FamilyKind.windows, "10")
+        else:
+            return (OSKind.windows, NameKind.windows, FamilyKind.windows, "")
     else:
         msg = "Invalid epd platform string name: {0!r}".format(name)
         raise OkonomiyakiError(msg)
