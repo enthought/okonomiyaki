@@ -173,6 +173,24 @@ MKL_10_3_OSX_X86_64 = os.path.join(_OSX_X86_64, "MKL-10.3-1.egg")
 NUMPY_1_9_2_OSX_X86_64 = os.path.join(_OSX_X86_64, "numpy-1.9.2-1.egg")
 
 
+CP27_EGGS = [
+    NOSE_1_3_4_RH5_X86_64,
+    MKL_10_3_RH5_X86_64,
+    NUMPY_1_9_2_RH5_X86_64,
+    NOSE_1_3_4_RH6_X86_64,
+    MKL_10_3_RH6_X86_64,
+    NUMPY_1_9_2_RH6_X86_64,
+    NOSE_1_3_4_RH7_X86_64,
+    MKL_10_3_RH7_X86_64,
+    NUMPY_1_9_2_RH7_X86_64,
+    NOSE_1_3_4_WIN_X86_64,
+    MKL_10_3_WIN_X86_64,
+    NUMPY_1_9_2_WIN_X86_64,
+    NOSE_1_3_4_OSX_X86_64,
+    MKL_10_3_OSX_X86_64,
+    NUMPY_1_9_2_OSX_X86_64]
+
+
 _WHEELS_DIR = os.path.join(_HERE, "wheels")
 
 OKONOMIYAKI_0_17_0_PY2 = os.path.join(

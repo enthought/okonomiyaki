@@ -1,0 +1,56 @@
+import unittest
+
+from hypothesis import given
+from hypothesis.strategies import sampled_from
+
+from okonomiyaki.file_formats import EggMetadata
+from okonomiyaki.platforms import PlatformABI
+
+from ..test_data import CP38_EGGS, CP27_EGGS
+
+
+class TestDummyEggs(unittest.TestCase):
+
+    @given(sampled_from(CP38_EGGS))
+    def test_cp38_egg_metadata_valid(self, filepath):
+        # when
+        metadata = EggMetadata.from_egg(filepath)
+
+        # then
+        if 'mkl' in metadata.name:
+            self.assertEqual(metadata.python_tag, None)
+            self.assertEqual(metadata.abi_tag, None)
+        else:
+            self.assertEqual(metadata.python_tag, 'cp38')
+            self.assertEqual(metadata.abi_tag, 'cp38m')
+        if 'osx' in filepath:
+            self.assertEqual(metadata.platform_tag, 'macosx_10_14_x86_64')
+            self.assertEqual(metadata.platform_abi, PlatformABI('darwin'))
+        elif 'rh7' in filepath:
+            self.assertEqual(metadata.platform_tag, 'linux_x86_64')
+            self.assertEqual(metadata.platform_abi, PlatformABI('gnu'))
+        elif 'win' in filepath:
+            self.assertEqual(metadata.platform_tag, 'win_amd64')
+            self.assertEqual(metadata.platform_abi, PlatformABI('msvc2019'))
+
+    @given(sampled_from(CP27_EGGS))
+    def test_cp27_egg_metadata_valid(self, filepath):
+        # when
+        metadata = EggMetadata.from_egg(filepath)
+
+        # then
+        if 'mkl' in metadata.name:
+            self.assertEqual(metadata.python_tag, None)
+            self.assertEqual(metadata.abi_tag, None)
+        else:
+            self.assertIn(metadata.python_tag, 'cp27')
+            self.assertIn(metadata.abi_tag, 'cp27m')
+        if 'osx' in filepath:
+            self.assertEqual(metadata.platform_tag, 'macosx_10_6_x86_64')
+            self.assertEqual(metadata.platform_abi, PlatformABI('darwin'))
+        elif 'rh7' in filepath:
+            self.assertEqual(metadata.platform_tag, 'linux_x86_64')
+            self.assertEqual(metadata.platform_abi, PlatformABI('gnu'))
+        elif 'win' in filepath:
+            self.assertEqual(metadata.platform_tag, 'win_amd64')
+            self.assertEqual(metadata.platform_abi, PlatformABI('msvc2008'))
