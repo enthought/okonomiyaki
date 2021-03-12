@@ -9,7 +9,7 @@ from attr import attributes, attr
 from attr.validators import instance_of
 
 from ..versions import RuntimeVersion
-from ..errors import OkonomiyakiError
+from ..errors import OkonomiyakiError, InvalidPEP440Version
 from ._arch import Arch, ArchitectureKind
 from ._platform import OSKind, FamilyKind, NameKind, Platform
 
@@ -178,7 +178,9 @@ class EPDPlatform(object):
         return cls.from_string(s, runtime_version)
 
     @classmethod
-    def _from_spec_depend_data(cls, platform, osdist, arch_name):
+    def _from_spec_depend_data(
+            cls, platform, osdist, arch_name,
+            platform_tag, python_version, platform_abi):
         msg = ("Unrecognized platform/osdist combination: {0!r}/{1!r}"
                .format(platform, osdist))
         arch = Arch.from_name(arch_name)
@@ -199,7 +201,25 @@ class EPDPlatform(object):
                 raise ValueError(msg)
         else:
             raise ValueError(msg)
-        return cls.from_epd_string(u"{0}-{1}".format(epd_name, arch._arch_bits))
+
+        if python_version is None or python_version.lower() == 'none':
+            python_version = None
+        else:
+            try:
+                python_version = RuntimeVersion.from_string(python_version)
+            except InvalidPEP440Version:
+                python_version = None
+
+        os_kind, name_kind, family_kind, release = _epd_name_and_python_to_quadruplet(
+            epd_name, python_version)
+
+        if 'osx' in platform_tag.lower():
+            release = '.'.join(platform_tag.split('_')[1:3])
+
+        platform = Platform(
+            os_kind=os_kind, name_kind=name_kind, family_kind=family_kind,
+            release=release, arch=arch, machine=arch)
+        return cls(platform)
 
     @classmethod
     def _from_platform_tag(cls, platform_tag):
@@ -412,7 +432,7 @@ def applies(platform_string, to='current'):
 
 
 def _epd_name_and_python_to_quadruplet(name, runtime_version=None):
-    py38 = RuntimeVersion.from_string('3.8.8+1')
+    py38 = RuntimeVersion.from_string('3.8')
     if name == "rh7":
         return (OSKind.linux, NameKind.rhel, FamilyKind.rhel, "7.1")
     if name == "rh6":

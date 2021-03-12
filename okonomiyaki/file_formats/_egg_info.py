@@ -20,7 +20,7 @@ from ..utils import (
     compute_sha256, decode_if_needed, encode_if_needed, parse_assignments
 )
 from ..utils.py3compat import StringIO, string_types
-from ..versions import EnpkgVersion, MetadataVersion
+from ..versions import EnpkgVersion, MetadataVersion, RuntimeVersion
 from .legacy import (
     _guess_abi_tag, _guess_platform_abi, _guess_platform_tag, _guess_python_tag
 )
@@ -362,15 +362,18 @@ def _epd_platform_from_raw_spec(raw_spec):
     if no platform is defined ('platform' and 'osdist' set to None), then
     None is returned.
     """
-    arch_string = raw_spec[_TAG_ARCH]
-    platform_string = raw_spec[_TAG_PLATFORM]
-    osdist_string = raw_spec[_TAG_OSDIST]
-    if platform_string is None and osdist_string is None:
+    platform = raw_spec[_TAG_PLATFORM]
+    osdist = raw_spec[_TAG_OSDIST]
+    if platform is None and osdist is None:
         return None
     else:
         return EPDPlatform._from_spec_depend_data(
-            platform_string, osdist_string, arch_string
-        )
+            platform=platform,
+            osdist=osdist,
+            arch_name=raw_spec[_TAG_ARCH],
+            platform_abi=raw_spec.get(_TAG_PLATFORM_ABI, 'None'),
+            platform_tag=raw_spec.get(_TAG_PLATFORM_PEP425_TAG, 'None'),
+            python_version=raw_spec[_TAG_PYTHON])
 
 
 @attributes
@@ -630,7 +633,8 @@ def _normalized_info_from_string(spec_depend_string, epd_platform=None,
               _TAG_PYTHON, _TAG_PACKAGES):
         data[k] = raw_data[k]
 
-    epd_platform = epd_platform or _epd_platform_from_raw_spec(data)
+    epd_platform = epd_platform or _epd_platform_from_raw_spec(raw_data)
+
     for k in (_TAG_ARCH, _TAG_PLATFORM, _TAG_OSDIST):
         data.pop(k)
 
@@ -798,8 +802,7 @@ class EggMetadata(object):
         if spec_depend._epd_legacy_platform is None:
             platform = None
         else:
-            platform_string = str(spec_depend._epd_legacy_platform)
-            platform = EPDPlatform.from_epd_string(platform_string)
+            platform = spec_depend._epd_legacy_platform._epd_platform
 
         dependencies = Dependencies(
             tuple(dep for dep in spec_depend.packages)
@@ -892,8 +895,7 @@ class EggMetadata(object):
 
         if (
             platform_abi is not None
-            and isinstance(platform_abi, six.string_types)
-        ):
+            and isinstance(platform_abi, six.string_types)):
             platform_abi = PlatformABI(platform_abi)
         self.platform_abi = platform_abi
 
