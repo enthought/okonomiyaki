@@ -93,7 +93,8 @@ def make_test(organization, repository, platform, python_tag, path, strict):
         name, version, build, strictness).replace('-', '_').replace('.', '_')
 
     def test(self):
-        EggMetadata.from_egg(path, strict=strict)
+        metadata = EggMetadata.from_egg(path, strict=strict)
+        metadata.pkg_info.to_string()
 
     return test_name, test
 
