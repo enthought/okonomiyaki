@@ -231,7 +231,6 @@ def main(ctx, target_directory, repositories, python, token, verbose, strict):
     eggs_directory = os.path.join(target_directory, python)
     if not os.path.exists(eggs_directory):
         os.makedirs(eggs_directory)
-    print(eggs_directory)
     update_test_data(eggs_directory, repositories, token, python)
     successful = run_test(eggs_directory, repositories, verbose, strict)
     ctx.exit(0 if successful else 1)
