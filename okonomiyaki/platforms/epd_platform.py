@@ -202,9 +202,7 @@ class EPDPlatform(object):
         else:
             raise ValueError(msg)
 
-        if python_version is None or python_version.lower() == 'none':
-            python_version = None
-        else:
+        if python_version is not None:
             try:
                 python_version = RuntimeVersion.from_string(python_version)
             except InvalidPEP440Version:
