@@ -20,7 +20,7 @@ from ..utils import (
     compute_sha256, decode_if_needed, encode_if_needed, parse_assignments
 )
 from ..utils.py3compat import StringIO, string_types
-from ..versions import EnpkgVersion, MetadataVersion, RuntimeVersion
+from ..versions import EnpkgVersion, MetadataVersion
 from .legacy import (
     _guess_abi_tag, _guess_platform_abi, _guess_platform_tag, _guess_python_tag
 )
@@ -894,8 +894,8 @@ class EggMetadata(object):
         is sorted as None."""
 
         if (
-            platform_abi is not None
-            and isinstance(platform_abi, six.string_types)):
+                platform_abi is not None
+                and isinstance(platform_abi, six.string_types)):
             platform_abi = PlatformABI(platform_abi)
         self.platform_abi = platform_abi
 
