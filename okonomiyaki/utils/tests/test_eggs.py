@@ -25,13 +25,13 @@ class TestDummyEggs(unittest.TestCase):
             self.assertEqual(metadata.abi_tag, 'cp38m')
         if 'osx' in filepath:
             self.assertEqual(metadata.platform_tag, 'macosx_10_14_x86_64')
-            self.assertEqual(metadata.platform_abi, PlatformABI('darwin'))
+            self.assertEqual(metadata.platform_abi, PlatformABI(u'darwin'))
         elif 'rh7' in filepath:
             self.assertEqual(metadata.platform_tag, 'linux_x86_64')
-            self.assertEqual(metadata.platform_abi, PlatformABI('gnu'))
+            self.assertEqual(metadata.platform_abi, PlatformABI(u'gnu'))
         elif 'win' in filepath:
             self.assertEqual(metadata.platform_tag, 'win_amd64')
-            self.assertEqual(metadata.platform_abi, PlatformABI('msvc2019'))
+            self.assertEqual(metadata.platform_abi, PlatformABI(u'msvc2019'))
 
     @given(sampled_from(CP27_EGGS))
     def test_cp27_egg_metadata_valid(self, filepath):
@@ -47,10 +47,10 @@ class TestDummyEggs(unittest.TestCase):
             self.assertIn(metadata.abi_tag, 'cp27m')
         if 'osx' in filepath:
             self.assertEqual(metadata.platform_tag, 'macosx_10_6_x86_64')
-            self.assertEqual(metadata.platform_abi, PlatformABI('darwin'))
+            self.assertEqual(metadata.platform_abi, PlatformABI(u'darwin'))
         elif 'rh7' in filepath:
             self.assertEqual(metadata.platform_tag, 'linux_x86_64')
-            self.assertEqual(metadata.platform_abi, PlatformABI('gnu'))
+            self.assertEqual(metadata.platform_abi, PlatformABI(u'gnu'))
         elif 'win' in filepath:
             self.assertEqual(metadata.platform_tag, 'win_amd64')
-            self.assertEqual(metadata.platform_abi, PlatformABI('msvc2008'))
+            self.assertEqual(metadata.platform_abi, PlatformABI(u'msvc2008'))
