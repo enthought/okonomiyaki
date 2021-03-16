@@ -248,19 +248,16 @@ class TestEPDPlatform(unittest.TestCase):
         # Then
         self.assertEqual(str(epd_platform), s)
 
-    @given(
-        sampled_from(
-            [
-                ("rh5_x86", None, "linux_i686"),
-                ("rh5_x86_64", None, "linux_x86_64"),
-                ("osx_x86", None, "macosx_10_6_i386"),
-                ("osx_x86", '3.8.9+1', "macosx_10_14_i386"),
-                ("osx_x86_64", None, "macosx_10_6_x86_64"),
-                ("osx_x86_64", '3.8.9+1', "macosx_10_14_x86_64"),
-                ("win_x86", None, "win32"),
-                ("win_x86_64", None, "win_amd64"),
-                ("win_x86_64", '3.9.1', "win_amd64"),
-            ]))
+    @given(sampled_from((
+        ("rh5_x86", None, "linux_i686"),
+        ("rh5_x86_64", None, "linux_x86_64"),
+        ("osx_x86", None, "macosx_10_6_i386"),
+        ("osx_x86", '3.8.9+1', "macosx_10_14_i386"),
+        ("osx_x86_64", None, "macosx_10_6_x86_64"),
+        ("osx_x86_64", '3.8.9+1', "macosx_10_14_x86_64"),
+        ("win_x86", None, "win32"),
+        ("win_x86_64", None, "win_amd64"),
+        ("win_x86_64", '3.9.1', "win_amd64"))))
     def test_pep425_tag(self, arguments):
         # Given
         platform_tag, version, expected = arguments
@@ -272,6 +269,41 @@ class TestEPDPlatform(unittest.TestCase):
 
         # When/Then
         self.assertEqual(epd_platform.pep425_tag, expected)
+
+    @given(sampled_from((
+        ('linux2', None, 'i686', 'linux_i686', 'cp36', 'gnu'),
+        ('linux2', 'RedHat_3', 'i386', 'linux_i386', 'cp27', 'gnu'),
+        ('linux2', 'RedHat_5', 'x86', 'linux_i686', 'cp27', 'gnu'),
+        ('linux2', 'RedHat_5', 'amd64', 'linux_x86_64', 'cp27', 'gnu'),
+        ('linux2', 'RedHat_6', 'amd64', 'linux_x86_64', 'cp36', 'gnu'),
+        ('linux2', 'RedHat_7', 'amd64', 'linux_x86_64', 'cp38', 'gnu'),
+        ('darwin', None, 'x86', 'osx_10_6_x86', 'cp27', 'darwin'),
+        ('darwin', None, 'amd64', 'osx_10_6_x86_64', 'cp27', 'darwin'),
+        ('darwin', None, 'amd64', 'osx_10_9_x86_64', 'cp36', 'darwin'),
+        ('darwin', None, 'amd64', 'osx_10_14_x86_64', 'cp38', 'darwin'),
+        ('win32', None, 'x86', 'win32', 'cp27', 'msvc2008'),
+        ('win32', None, 'amd64', 'win_amd64', 'cp27', 'msvc2008'),
+        ('win32', None, 'x86', 'win32', 'cp36', 'msvc2015'),
+        ('win32', None, 'amd64', 'win_amd64', 'cp36', 'msvc2015'),
+        ('win32', None, 'x86', 'win32', 'cp38', 'msvc2019'),
+        ('win32', None, 'amd64', 'win_amd64', 'cp38', 'msvc2019'),
+    )))
+    def test_from_spec_depend_data(self, arguments):
+        # when
+        epd_platform = EPDPlatform._from_spec_depend_data(*arguments)
+        platform, osdist, arch_name, platform_tag, python_version, platform_abi = arguments
+
+        # then
+        if '64' in arch_name:
+            self.assertEqual(epd_platform.arch, X86_64)
+        else:
+            self.assertEqual(epd_platform.arch, X86)
+        if 'linux' in platform:
+            self.assertIn('linux', epd_platform.pep425_tag)
+        elif 'win32' in platform:
+            self.assertIn('win', epd_platform.pep425_tag)
+        elif 'darwin' in platform:
+            self.assertIn('osx', epd_platform.pep425_tag)
 
 
 class TestEPDPlatformApplies(unittest.TestCase):
