@@ -10,10 +10,12 @@ from haas.plugins.result_handler import (
     VerboseTestResultHandler)
 from haas.plugins.runner import BaseTestRunner
 
-from hatcher.api import BroodClient, BroodBearerTokenAuth
+from hatcher.core.brood_url_handler import BroodURLHandler
+from hatcher.core.brood_client import BroodClient
+from hatcher.core.auth import BroodClientAuth
 from hatcher.errors import ChecksumMismatchError
 from okonomiyaki.file_formats import EggMetadata
-from okonomiyaki.utils import compute_md5
+from okonomiyaki.utils import compute_sha256
 
 
 class StandardTestResultHandler(BaseStandardTestResultHandler):
@@ -88,15 +90,11 @@ def make_test(organization, repository, platform, python_tag, path, strict):
     strictness = '' if strict else '_relaxed_unicode'
     test_name = 'test_{}_{}_{}_{}_{}_v{}_build{}{}'.format(
         organization, repository, platform, python_tag,
-        name, version, build, strictness,
-    ).replace(
-        '-', '_',
-    ).replace(
-        '.', '_',
-    )
+        name, version, build, strictness).replace('-', '_').replace('.', '_')
 
     def test(self):
-        EggMetadata.from_egg(path, strict=strict)
+        metadata = EggMetadata.from_egg(path, strict=strict)
+        metadata.pkg_info.to_string()
 
     return test_name, test
 
@@ -146,23 +144,8 @@ def existing_egg_names(repo_platform_path):
             yield filename, os.path.join(root, filename)
 
 
-def _stat_size(path):
-    st = os.stat(path)
-    return st.st_size
-
-
-def _egg_valid_by_size(egg_path, index_entry):
-    filesize = _stat_size(egg_path)
-    return filesize == index_entry['size']
-
-
-def _egg_valid_by_md5(egg_path, index_entry):
-    md5 = compute_md5(egg_path)
-    return md5 == index_entry['md5']
-
-
-def _retry_download_if_fails(platform_repo, python_tag, name, version,
-                             python_tag_dir, tries=3):
+def _retry_download_if_fails(
+        platform_repo, python_tag, name, version, python_tag_dir, tries=3):
     try_number = 0
     while try_number < tries:
         try:
@@ -179,8 +162,9 @@ def _retry_download_if_fails(platform_repo, python_tag, name, version,
             return
 
 
-def update_eggs_for_repository(platform_repo, target_directory, org_name,
-                               repo_name, platform, index, use_md5):
+def update_eggs_for_repository(
+        platform_repo, target_directory, org_name, repo_name, platform, index):
+
     if len(index) == 0:
         return
     repo_path = os.path.join(target_directory, org_name, repo_name, platform)
@@ -188,7 +172,6 @@ def update_eggs_for_repository(platform_repo, target_directory, org_name,
         os.makedirs(repo_path)
 
     repo_full = '{}/{}'.format(org_name, repo_name)
-
     existing_eggs = dict(existing_egg_names(repo_path))
     extra_eggs = set(existing_eggs) - set(index)
     for egg_name in extra_eggs:
@@ -202,11 +185,7 @@ def update_eggs_for_repository(platform_repo, target_directory, org_name,
             os.makedirs(python_tag_dir)
         egg_path = os.path.join(python_tag_dir, egg_name)
         if os.path.exists(egg_path):
-            if use_md5:
-                egg_valid = _egg_valid_by_md5(egg_path, index_entry)
-            else:
-                egg_valid = _egg_valid_by_size(egg_path, index_entry)
-            if not egg_valid:
+            if compute_sha256(egg_path) != index_entry['sha256']:
                 os.unlink(egg_path)
         if not os.path.exists(egg_path):
             name = index_entry['name']
@@ -217,13 +196,9 @@ def update_eggs_for_repository(platform_repo, target_directory, org_name,
                 platform_repo, python_tag, name, version, python_tag_dir)
 
 
-def update_test_data(target_directory, repositories, token, use_md5):
-    python_tag = 'cp27'
-    auth = BroodBearerTokenAuth(token)
-    client = BroodClient.from_url('https://packages.enthought.com', auth=auth)
-
+def update_test_data(target_directory, repositories, token, python_tag):
+    client = get_brood_client('https://packages.enthought.com', token)
     platforms = client.list_platforms()
-
     for repository in repositories:
         org_name, repo_name = repository.split('/')
         repo = client.organization(org_name).repository(repo_name)
@@ -233,23 +208,33 @@ def update_test_data(target_directory, repositories, token, use_md5):
             click.echo('Updating repository {!r} for platform {!r}'.format(
                 repository, platform))
             update_eggs_for_repository(
-                platform_repo, target_directory, org_name, repo_name, platform,
-                index, use_md5)
+                platform_repo, target_directory, org_name, repo_name, platform, index)
+
+
+def get_brood_client(url, token=None):
+    if token is None:
+        auth = None
+    else:
+        auth = BroodClientAuth(url, token)
+    url_handler = BroodURLHandler.from_auth(url, auth=auth)
+    return BroodClient(url_handler=url_handler, api_version=1)
 
 
 @click.command(context_settings=CONTEXT_SETTINGS)
 @click.argument('target_directory', nargs=1)
 @click.argument('repositories', nargs=-1)
+@click.option('--python', default='cp36')
 @click.option('-t', '--token', envvar='HATCHER_TOKEN')
 @click.option('-v', '--verbose', default=False, is_flag=True)
 @click.option('--strict/--no-strict', default=True)
-@click.option('--use-md5/--no-use-md5', default=True)
 @click.pass_context
-def main(ctx, target_directory, repositories, token, verbose, strict, use_md5):
-    update_test_data(target_directory, repositories, token, use_md5)
-    successful = run_test(target_directory, repositories, verbose, strict)
-    returncode = 0 if successful else 1
-    ctx.exit(returncode)
+def main(ctx, target_directory, repositories, python, token, verbose, strict):
+    eggs_directory = os.path.join(target_directory, python)
+    if not os.path.exists(eggs_directory):
+        os.makedirs(eggs_directory)
+    update_test_data(eggs_directory, repositories, token, python)
+    successful = run_test(eggs_directory, repositories, verbose, strict)
+    ctx.exit(0 if successful else 1)
 
 
 if __name__ == '__main__':
