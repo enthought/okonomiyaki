@@ -125,6 +125,11 @@ def main():
             "eggs/rh6_x86_64/*.egg",
             "eggs/rh7_x86_64/*.egg",
             "eggs/win_x86_64/*.egg",
+            "eggs/osx_x86_64/cp38/*.egg",
+            "eggs/rh5_x86_64/cp38/*.egg",
+            "eggs/rh6_x86_64/cp38/*.egg",
+            "eggs/rh7_x86_64/cp38/*.egg",
+            "eggs/win_x86_64/cp38/*.egg",
             "wheels/*.whl",
         ],
     }
