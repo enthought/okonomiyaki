@@ -1,3 +1,27 @@
+2021-03-21     1.3.0
+--------------------
+
+Enhancements:
+
+* Add cp38 dummy runtimes (#387)
+* Add cp38 dummy eggs (#395, #398)
+* Update default abi functions to support python 3.8 (#390)
+
+Maintenance:
+
+* Enable GitHub actions (#384)
+* Fix build badge to point to travis-ci.com (#376)
+* Fix path to the okonomiyaki test build project (#379)
+* Update script that verifies okonomiyaki can read eds eggs (#396)
+
+Big fixes:
+
+* Add rh6 and rh7 dummy eggs to setup.py (#369)
+* EPDPlatform.pep425_tag will always return 10.6 for macos platforms (#374, #387)
+* Fix older dummy windows runtime archives to work with recent EDM (#391, #397)
+* EPDPlatform.from_string will always return fixed release versions (#375, #387)
+
+
 2019-11-08     1.2.0
 --------------------
 
