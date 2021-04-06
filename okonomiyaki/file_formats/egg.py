@@ -228,7 +228,7 @@ class EggRewriter(_EggBuilderNoPkgInfo):
             tempdir = tempfile.mkdtemp()
             try:
                 nameset = set(source.namelist())
-                for f in source.namelist():
+                for f, date_time in source.infolist():
                     arcname = self._rename(f)
 
                     if self._allow_overwrite:
@@ -237,6 +237,8 @@ class EggRewriter(_EggBuilderNoPkgInfo):
 
                     if self._accept(f, nameset):
                         source_path = source.extract(f, tempdir)
+                        timestamp = time.mktime(date_time + (0, 0, -1))
+                        os.utime(source_path, (timestamp, timestamp))
                         self.add_file_as(source_path, arcname)
             finally:
                 shutil.rmtree(tempdir)
