@@ -16,8 +16,8 @@ else:
 import os.path as op
 
 from ...platforms import EPDPlatform
-from ...utils import compute_md5
-from ...utils import py3compat
+from ...utils import compute_md5, py3compat, pyc_checks
+from ...utils.test_data import DUMMY_PKG_VALID_EGG
 from ...versions import EnpkgVersion
 
 from ..egg import EggBuilder, EggRewriter
@@ -586,3 +586,22 @@ class TestEggRewriter(unittest.TestCase):
         with zipfile2.ZipFile(rewriter.path) as fp:
             self.assertFalse("EGG-INFO/pbr.json" in fp._filenames_set)
             self.assertTrue("EGG-INFO/pbr.json.bak" in fp._filenames_set)
+
+
+    def test_egg_with_valid_pyc_files(self):
+        # Given
+        # The metadata doesn't matter for this test
+        r_spec_depend = self._spec_depend_string()
+        metadata = self._create_metadata(r_spec_depend)
+
+        egg = DUMMY_PKG_VALID_EGG
+        egg_extract_dir = op.join(self.prefix, 'egg_extract_dir')
+        os.makedirs(egg_extract_dir)
+
+        # When
+        with EggRewriter(metadata, egg, cwd=self.prefix) as rewriter:
+            pass
+        failures = pyc_checks.check_egg_pyc_files(rewriter.path, egg_extract_dir)
+
+        # Then
+        self.assertEqual(0, len(failures))
