@@ -16,17 +16,14 @@ class TestPycChecks(unittest.TestCase):
         shutil.rmtree(self.tmpdir)
 
     def test_egg_with_valid_pyc(self):
-        # Given
-
         # When
         failures = check_egg_pyc_files(DUMMY_PKG_VALID_EGG, self.tmpdir)
 
         # Then
+        self.assertListEqual([], failures)
         self.assertEqual(0, len(failures))
 
     def test_egg_with_stale_pyc(self):
-        # Given
-
         # When
         failures = check_egg_pyc_files(DUMMY_PKG_STALE_EGG, self.tmpdir)
 
