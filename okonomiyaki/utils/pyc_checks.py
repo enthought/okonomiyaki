@@ -48,7 +48,7 @@ def check_bytecode_from_source_or_pyc(path):
     data = get_data(pyc_path)
     bytecode_mtime = time.ctime(int.from_bytes(data[4:8], 'little'))
     try:
-        bytes_data = importlib._bootstrap_external._validate_bytecode_header(
+        importlib._bootstrap_external._validate_bytecode_header(
             data, source_stats={'mtime': statinfo.st_mtime},
             path=pyc_path, name=os.path.basename(pyc_path)
         )
