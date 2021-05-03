@@ -44,9 +44,11 @@ def check_bytecode_from_source_or_pyc(path):
         source_path = importlib.util.source_from_cache(path)
         pyc_path = path
     statinfo = os.stat(source_path)
-    source_mtime = time.ctime(int(statinfo.st_mtime))
+    source_mtime_int = int(statinfo.st_mtime)
+    source_mtime = time.ctime(source_mtime_int)
     data = get_data(pyc_path)
-    bytecode_mtime = time.ctime(int.from_bytes(data[4:8], 'little'))
+    pyc_mtime_int = int.from_bytes(data[4:8], 'little')
+    pyc_mtime = time.ctime(pyc_mtime_int)
     try:
         importlib._bootstrap_external._validate_bytecode_header(
             data, source_stats={'mtime': statinfo.st_mtime},
@@ -56,8 +58,8 @@ def check_bytecode_from_source_or_pyc(path):
         err_msg = e.args[0]
         # Add time details to stale bytecode error message
         if err_msg.startswith('bytecode is stale'):
-            err_msg += ' (source_mtime={}, bytecode_mtime={})'.format(
-                source_mtime, bytecode_mtime
+            err_msg += ' (source_mtime={}, {}; bytecode_mtime={}, {})'.format(
+                source_mtime_int, source_mtime, pyc_mtime_int, pyc_mtime
             )
         return [ImportError(err_msg)]
     except EOFError as e:
