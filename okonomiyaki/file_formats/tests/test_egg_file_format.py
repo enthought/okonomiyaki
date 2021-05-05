@@ -605,4 +605,5 @@ class TestEggRewriter(unittest.TestCase):
         failures = pyc_checks.check_egg_pyc_files(rewriter.path, egg_extract_dir)
 
         # Then
+        self.assertListEqual([], failures)
         self.assertEqual(0, len(failures))

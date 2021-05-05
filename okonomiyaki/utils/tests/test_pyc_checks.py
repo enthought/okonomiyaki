@@ -17,7 +17,7 @@ class TestPycChecks(unittest.TestCase):
 
     def test_egg_with_valid_pyc(self):
         # When
-        failures = check_egg_pyc_files(DUMMY_PKG_VALID_EGG, self.tmpdir)
+        failures = check_egg_pyc_files(DUMMY_PKG_VALID_EGG, self.tmpdir, True)
 
         # Then
         self.assertListEqual([], failures)

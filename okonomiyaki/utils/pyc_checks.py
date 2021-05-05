@@ -22,7 +22,7 @@ def get_data(path):
         return file.read()
 
 
-def check_bytecode_from_source_or_pyc(path):
+def check_bytecode_from_source_or_pyc(path, force_fail=False):
     """Check the header of the bytecode obtained from pyc_path
     against source_stats obtained from source_path.
 
@@ -65,10 +65,16 @@ def check_bytecode_from_source_or_pyc(path):
     except EOFError as e:
         return [e]
     else:
-        return []
+        if force_fail:
+            timestamps = 'source_mtime={}, {}; bytecode_mtime={}, {}'.format(
+                source_mtime_int, source_mtime, pyc_mtime_int, pyc_mtime
+            )
+            return [ImportError(f'Forced failure ({timestamps})')]
+        else:
+            return []
 
 
-def check_folder_pyc_files(path):
+def check_folder_pyc_files(path, force_fail=False):
     """Run check_bytecode_from_source_or_pyc for all files in a folder
 
     Return empty list if check is successful and list with errors otherwise.
@@ -76,11 +82,11 @@ def check_folder_pyc_files(path):
     failures = []
     pyc_files = glob(os.path.join(path, '**', '*.pyc'), recursive=True)
     for pyc_file in pyc_files:
-        failures += check_bytecode_from_source_or_pyc(pyc_file)
+        failures += check_bytecode_from_source_or_pyc(pyc_file, force_fail=force_fail)
     return failures
 
 
-def check_egg_pyc_files(path, extractdir):
+def check_egg_pyc_files(path, extractdir, force_fail=False):
     """Run check_bytecode_from_source_or_pyc for all files in an egg
 
     Only .py or .pyc files are extracted from the egg.
@@ -94,4 +100,4 @@ def check_egg_pyc_files(path, extractdir):
                 filename = os.path.join(extractdir, f.filename)
                 timestamp = time.mktime(f.date_time + (0, 0, -1))
                 os.utime(filename, (timestamp, timestamp))
-    return check_folder_pyc_files(extractdir)
+    return check_folder_pyc_files(extractdir, force_fail=force_fail)
