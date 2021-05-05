@@ -7,12 +7,14 @@
 # This file and its contents are confidential information and NOT open source.
 # Distribution is prohibited.
 #
+import calendar
 import importlib
 import importlib.util
 import io
 import os
 import time
 import zipfile
+from datetime import datetime
 from glob import glob
 
 
@@ -44,11 +46,13 @@ def check_bytecode_from_source_or_pyc(path, force_fail=False):
         source_path = importlib.util.source_from_cache(path)
         pyc_path = path
     statinfo = os.stat(source_path)
-    source_mtime_int = int(statinfo.st_mtime)
-    source_mtime = time.ctime(source_mtime_int)
+    source_mtime_ts = int(statinfo.st_mtime)
+    source_mtime_utc = datetime.utcfromtimestamp(source_mtime_ts).timestamp()
+    source_mtime = time.ctime(source_mtime_utc)
     data = get_data(pyc_path)
-    pyc_mtime_int = int.from_bytes(data[4:8], 'little')
-    pyc_mtime = time.ctime(pyc_mtime_int)
+    pyc_mtime_ts = int.from_bytes(data[4:8], 'little')
+    pyc_mtime_utc = datetime.utcfromtimestamp(pyc_mtime_ts).timestamp()
+    pyc_mtime = time.ctime(pyc_mtime_utc)
     try:
         importlib._bootstrap_external._validate_bytecode_header(
             data, source_stats={'mtime': statinfo.st_mtime},
@@ -59,7 +63,7 @@ def check_bytecode_from_source_or_pyc(path, force_fail=False):
         # Add time details to stale bytecode error message
         if err_msg.startswith('bytecode is stale'):
             err_msg += ' (source_mtime={}, {}; bytecode_mtime={}, {})'.format(
-                source_mtime_int, source_mtime, pyc_mtime_int, pyc_mtime
+                source_mtime_ts, source_mtime, pyc_mtime_ts, pyc_mtime
             )
         return [ImportError(err_msg)]
     except EOFError as e:
@@ -67,7 +71,7 @@ def check_bytecode_from_source_or_pyc(path, force_fail=False):
     else:
         if force_fail:
             timestamps = 'source_mtime={}, {}; bytecode_mtime={}, {}'.format(
-                source_mtime_int, source_mtime, pyc_mtime_int, pyc_mtime
+                source_mtime_ts, source_mtime, pyc_mtime_ts, pyc_mtime
             )
             return [ImportError(f'Forced failure ({timestamps})')]
         else:
@@ -98,6 +102,7 @@ def check_egg_pyc_files(path, extractdir, force_fail=False):
             if ext in ('.py', '.pyc'):
                 zip.extract(f, extractdir)
                 filename = os.path.join(extractdir, f.filename)
-                timestamp = time.mktime(f.date_time + (0, 0, -1))
+                # We are expecting that the f.date_time values are in UTC
+                timestamp = calendar.timegm(f.date_time + (0, 0, -1))
                 os.utime(filename, (timestamp, timestamp))
     return check_folder_pyc_files(extractdir, force_fail=force_fail)
