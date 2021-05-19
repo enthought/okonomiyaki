@@ -94,7 +94,8 @@ def make_test(organization, repository, platform, python_tag, path, strict):
 
     def test(self):
         metadata = EggMetadata.from_egg(path, strict=strict)
-        metadata.pkg_info.to_string()
+        if metadata.pkg_info is not None:
+            metadata.pkg_info.to_string()
 
     return test_name, test
 
