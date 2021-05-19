@@ -1,4 +1,8 @@
 # coding=utf-8
+import glob
+import importlib
+import importlib.util
+import io
 import os
 import os.path
 import shutil
@@ -24,7 +28,7 @@ from ..egg import EggBuilder, EggRewriter
 from .._egg_info import Dependencies, EggMetadata, LegacySpecDepend
 from .._package_info import PackageInfo
 
-from .common import PIP_PKG_INFO, TRAITS_SETUPTOOLS_EGG
+from .common import DUMMY_PKG_VALID_EGG, PIP_PKG_INFO, TRAITS_SETUPTOOLS_EGG
 
 
 ZIP_SOFTLINK_ATTRIBUTE_MAGIC = 0xA1ED0000
@@ -586,3 +590,30 @@ class TestEggRewriter(unittest.TestCase):
         with zipfile2.ZipFile(rewriter.path) as fp:
             self.assertFalse("EGG-INFO/pbr.json" in fp._filenames_set)
             self.assertTrue("EGG-INFO/pbr.json.bak" in fp._filenames_set)
+
+
+    def test_egg_with_valid_pyc_files(self):
+        # Given
+        # The metadata doesn't matter for this test
+        r_spec_depend = self._spec_depend_string()
+        metadata = self._create_metadata(r_spec_depend)
+
+        egg = DUMMY_PKG_VALID_EGG
+        egg_extract_dir = op.join(self.prefix, 'egg_extract_dir')
+        os.makedirs(egg_extract_dir)
+
+        # When
+        with EggRewriter(metadata, egg, cwd=self.prefix) as rewriter:
+            pass
+
+        # Then
+        with zipfile2.ZipFile(rewriter.path) as zip:
+            zip.extractall(self.prefix)
+        pyc_file = glob.glob(os.path.join(self.prefix, '**', '*.pyc'))[0]
+        py_file = importlib.util.source_from_cache(pyc_file)
+        statinfo = os.stat(py_file)
+        importlib._bootstrap_external._validate_bytecode_header(
+            io.FileIO(pyc_file, 'rb').read(),
+            source_stats={'mtime': statinfo.st_mtime},
+            path=pyc_file, name=os.path.basename(pyc_file)
+        )
