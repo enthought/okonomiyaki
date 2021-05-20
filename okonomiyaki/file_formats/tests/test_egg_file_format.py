@@ -591,8 +591,10 @@ class TestEggRewriter(unittest.TestCase):
             self.assertFalse("EGG-INFO/pbr.json" in fp._filenames_set)
             self.assertTrue("EGG-INFO/pbr.json.bak" in fp._filenames_set)
 
-
-    def test_egg_with_valid_pyc_files(self):
+    @unittest.skipIf(
+        sys.version_info.major == 2, 'importlib is different in Python 2'
+    )
+    def test_egg_with_valid_pyc_file(self):
         # Given
         # The metadata doesn't matter for this test
         r_spec_depend = self._spec_depend_string()
@@ -612,8 +614,14 @@ class TestEggRewriter(unittest.TestCase):
         pyc_file = glob.glob(os.path.join(self.prefix, '**', '*.pyc'))[0]
         py_file = importlib.util.source_from_cache(pyc_file)
         statinfo = os.stat(py_file)
-        importlib._bootstrap_external._validate_bytecode_header(
-            io.FileIO(pyc_file, 'rb').read(),
-            source_stats={'mtime': statinfo.st_mtime},
-            path=pyc_file, name=os.path.basename(pyc_file)
-        )
+        try:
+            importlib._bootstrap_external._validate_bytecode_header(
+                io.FileIO(pyc_file, 'rb').read(),
+                source_stats={'mtime': statinfo.st_mtime},
+                path=pyc_file, name=os.path.basename(pyc_file)
+            )
+        except ImportError as e:
+            if e.msg.startswith('bytecode is stale'):
+                self.fail(e.msg)
+            else:
+                raise
