@@ -1,7 +1,6 @@
 # coding=utf-8
 import glob
 import importlib
-import importlib.util
 import io
 import os
 import os.path

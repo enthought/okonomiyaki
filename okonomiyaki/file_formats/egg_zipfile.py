@@ -1,4 +1,4 @@
-import importlib.util
+import importlib
 import io
 import os
 import sys
