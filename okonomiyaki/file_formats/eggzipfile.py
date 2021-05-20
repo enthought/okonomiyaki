@@ -19,7 +19,8 @@ class EggZipFile(zipfile2.ZipFile):
            directory. Overrides zipfile2.ZipFile extractall with the addition
            of force_valid_pyc_files parameter.
 
-        Parameters:
+        Parameters
+        ----------
         path: str
             path specifies a different directory to extract to.
         members: list
