@@ -45,22 +45,22 @@ class EggZipFile(zipfile2.ZipFile):
             if sys.version_info.major == 2:
                 force_valid_pyc_files = False
             else:
-                map_needed_to_existing_files = {}
+                map_need_to_exist_py_pyc_pairs = {}
 
         for zipinfo in members:
             target = self.extract(zipinfo, path, pwd, preserve_permissions)
             if force_valid_pyc_files:
                 if target.endswith('.py'):
-                    if target in map_needed_to_existing_files:
-                        pyc_file = map_needed_to_existing_files[target]
+                    if target in map_need_to_exist_py_pyc_pairs:
+                        pyc_file = map_need_to_exist_py_pyc_pairs.pop(target)
                         force_valid_pyc_file(target, pyc_file)
                     else:
                         pyc_file = importlib.util.cache_from_source(target)
-                        map_needed_to_existing_files[pyc_file] = target
+                        map_need_to_exist_py_pyc_pairs[pyc_file] = target
                 elif target.endswith('.pyc'):
-                    if target in map_needed_to_existing_files:
-                        py_file = map_needed_to_existing_files[target]
+                    if target in map_need_to_exist_py_pyc_pairs:
+                        py_file = map_need_to_exist_py_pyc_pairs.pop(target)
                         force_valid_pyc_file(py_file, target)
                     else:
                         py_file = importlib.util.source_from_cache(target)
-                        map_needed_to_existing_files[py_file] = target
+                        map_need_to_exist_py_pyc_pairs[py_file] = target
