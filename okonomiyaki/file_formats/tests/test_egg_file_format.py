@@ -25,6 +25,7 @@ from ...utils import py3compat
 from ...versions import EnpkgVersion
 
 from ..egg import EggBuilder, EggRewriter
+from ..egg_zipfile import EggZipFile
 from .._egg_info import Dependencies, EggMetadata, LegacySpecDepend
 from .._package_info import PackageInfo
 
@@ -611,6 +612,41 @@ class TestEggRewriter(unittest.TestCase):
         # Then
         with zipfile2.ZipFile(rewriter.path) as zip:
             zip.extractall(self.prefix)
+        pyc_file = glob.glob(os.path.join(self.prefix, '**', '*.pyc'))[0]
+        py_file = importlib.util.source_from_cache(pyc_file)
+        statinfo = os.stat(py_file)
+        try:
+            importlib._bootstrap_external._validate_bytecode_header(
+                io.FileIO(pyc_file, 'rb').read(),
+                source_stats={'mtime': statinfo.st_mtime},
+                path=pyc_file, name=os.path.basename(pyc_file)
+            )
+        except ImportError as e:
+            if e.msg.startswith('bytecode is stale'):
+                self.fail(e.msg)
+            else:
+                raise
+
+    @unittest.skipIf(
+        sys.version_info.major == 2, 'importlib is different in Python 2'
+    )
+    def test_egg_with_valid_pyc_file_using_egg_zipfile(self):
+        # Given
+        # The metadata doesn't matter for this test
+        r_spec_depend = self._spec_depend_string()
+        metadata = self._create_metadata(r_spec_depend)
+
+        egg = DUMMY_PKG_VALID_EGG
+        egg_extract_dir = op.join(self.prefix, 'egg_extract_dir')
+        os.makedirs(egg_extract_dir)
+
+        # When
+        with EggRewriter(metadata, egg, cwd=self.prefix) as rewriter:
+            pass
+
+        # Then
+        with EggZipFile(rewriter.path) as zip:
+            zip.extractall(self.prefix, force_valid_pyc_files=True)
         pyc_file = glob.glob(os.path.join(self.prefix, '**', '*.pyc'))[0]
         py_file = importlib.util.source_from_cache(pyc_file)
         statinfo = os.stat(py_file)
