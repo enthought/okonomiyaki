@@ -8,9 +8,9 @@ import tempfile
 import unittest
 import zipfile2
 
-from ..eggzipfile import EggZipFile
+from ..egg_zip_file import EggZipFile
 
-from .common import DUMMY_PKG_VALID_EGG
+from .common import DUMMY_PKG_VALID_EGG_36
 
 
 class TestEggZipFile(unittest.TestCase):
@@ -45,7 +45,7 @@ class TestEggZipFile(unittest.TestCase):
     )
     def test_valid_pyc_egg_with_zipfile2(self):
         # Given
-        egg = DUMMY_PKG_VALID_EGG
+        egg = DUMMY_PKG_VALID_EGG_36
 
         # When
         with zipfile2.ZipFile(egg) as zip:
@@ -60,7 +60,7 @@ class TestEggZipFile(unittest.TestCase):
     )
     def test_valid_pyc_egg_with_eggzipfile_default(self):
         # Given
-        egg = DUMMY_PKG_VALID_EGG
+        egg = DUMMY_PKG_VALID_EGG_36
 
         # When
         with EggZipFile(egg) as zip:
@@ -75,7 +75,7 @@ class TestEggZipFile(unittest.TestCase):
     )
     def test_valid_pyc_egg_with_eggzipfile_force(self):
         # Given
-        egg = DUMMY_PKG_VALID_EGG
+        egg = DUMMY_PKG_VALID_EGG_36
 
         # When
         with EggZipFile(egg) as zip:
