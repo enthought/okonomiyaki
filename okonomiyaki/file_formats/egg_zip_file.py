@@ -1,8 +1,15 @@
 import importlib
 import io
 import os
+import shutil
 import sys
+import zipfile
 import zipfile2
+from zipfile2 import (
+    PERMS_PRESERVE_NONE, PERMS_PRESERVE_SAFE, PERMS_PRESERVE_ALL
+)
+from zipfile2.common import text_type
+from zipfile2._zipfile import is_zipinfo_symlink, _unlink_if_exists
 
 
 def force_valid_pyc_file(py_file, pyc_file):
@@ -22,8 +29,26 @@ def force_valid_pyc_file(py_file, pyc_file):
 
 
 class EggZipFile(zipfile2.ZipFile):
+    def extract(self, member, path=None, pwd=None,
+                preserve_permissions=PERMS_PRESERVE_NONE,
+                force_valid_pyc_files=False):
+        # force_valid_pyc_files not available for Python 2 for now
+        if sys.version_info.major == 2:
+            if force_valid_pyc_files:
+                force_valid_pyc_files = False
+
+        if not isinstance(member, zipfile.ZipInfo):
+            member = self.getinfo(member)
+
+        if path is None:
+            path = os.getcwd()
+
+        return self._extract_member(
+            member, path, pwd, preserve_permissions, force_valid_pyc_files
+        )
+
     def extractall(self, path=None, members=None, pwd=None,
-                   preserve_permissions=zipfile2.PERMS_PRESERVE_NONE,
+                   preserve_permissions=PERMS_PRESERVE_NONE,
                    force_valid_pyc_files=False):
         """Extract all members from the archive to the current working
            directory. Overrides zipfile2.ZipFile extractall with the addition
@@ -51,26 +76,78 @@ class EggZipFile(zipfile2.ZipFile):
         if members is None:
             members = self.namelist()
 
-        if force_valid_pyc_files:
-            if sys.version_info.major == 2:
-                force_valid_pyc_files = False
-            else:
-                map_need_to_exist_py_pyc_pairs = {}
-
         for zipinfo in members:
-            target = self.extract(zipinfo, path, pwd, preserve_permissions)
-            if force_valid_pyc_files:
-                if target.endswith('.py'):
-                    if target in map_need_to_exist_py_pyc_pairs:
-                        pyc_file = map_need_to_exist_py_pyc_pairs.pop(target)
-                        force_valid_pyc_file(target, pyc_file)
-                    else:
-                        pyc_file = importlib.util.cache_from_source(target)
-                        map_need_to_exist_py_pyc_pairs[pyc_file] = target
-                elif target.endswith('.pyc'):
-                    if target in map_need_to_exist_py_pyc_pairs:
-                        py_file = map_need_to_exist_py_pyc_pairs.pop(target)
-                        force_valid_pyc_file(py_file, target)
-                    else:
-                        py_file = importlib.util.source_from_cache(target)
-                        map_need_to_exist_py_pyc_pairs[py_file] = target
+            target = self.extract(
+                zipinfo, path, pwd, preserve_permissions, force_valid_pyc_files
+            )
+
+    def _extract_member(self, member, targetpath, pwd, preserve_permissions,
+                        force_valid_pyc_files):
+        return self._extract_member_to(
+            member, member.filename, targetpath, pwd, preserve_permissions,
+            force_valid_pyc_files
+        )
+
+    def _extract_member_to(self, member, arcname, targetpath, pwd,
+                           preserve_permissions, force_valid_pyc_files):
+        """Extract the ZipInfo object 'member' to a physical
+           file on the path targetpath.
+        """
+        # build the destination pathname, replacing
+        # forward slashes to platform specific separators.
+        arcname = arcname.replace('/', os.path.sep)
+
+        if os.path.altsep:
+            arcname = arcname.replace(os.path.altsep, os.path.sep)
+        # interpret absolute pathname as relative, remove drive letter or
+        # UNC path, redundant separators, "." and ".." components.
+        arcname = os.path.splitdrive(arcname)[1]
+        arcname = os.path.sep.join(x for x in arcname.split(os.path.sep)
+                                   if x not in ('', os.path.curdir,
+                                                os.path.pardir))
+        if os.path.sep == '\\':
+            # filter illegal characters on Windows
+            illegal = ':<>|"?*'
+            if isinstance(arcname, text_type):
+                table = dict((ord(c), ord('_')) for c in illegal)
+            else:
+                table = string.maketrans(illegal, '_' * len(illegal))
+            arcname = arcname.translate(table)
+            # remove trailing dots
+            arcname = (x.rstrip('.') for x in arcname.split(os.path.sep))
+            arcname = os.path.sep.join(x for x in arcname if x)
+
+        targetpath = os.path.join(targetpath, arcname)
+        targetpath = os.path.normpath(targetpath)
+
+        # Create all upper directories if necessary.
+        upperdirs = os.path.dirname(targetpath)
+        if upperdirs and not os.path.exists(upperdirs):
+            os.makedirs(upperdirs)
+
+        if member.filename[-1] == '/':
+            if not os.path.isdir(targetpath):
+                os.mkdir(targetpath)
+            return targetpath
+        elif is_zipinfo_symlink(member):
+            return self._extract_symlink(member, targetpath, pwd)
+        else:
+            source = self.open(member, pwd=pwd)
+            try:
+                _unlink_if_exists(targetpath)
+                with open(targetpath, "wb") as target:
+                    shutil.copyfileobj(source, target)
+            finally:
+                source.close()
+
+            if preserve_permissions in (PERMS_PRESERVE_SAFE, PERMS_PRESERVE_ALL):
+                if preserve_permissions == PERMS_PRESERVE_ALL:
+                    # preserve bits 0-11: sugrwxrwxrwx, this include
+                    # sticky bit, uid bit, gid bit
+                    mode = member.external_attr >> 16 & 0xFFF
+                elif PERMS_PRESERVE_SAFE:
+                    # preserve bits 0-8 only: rwxrwxrwx
+                    mode = member.external_attr >> 16 & 0x1FF
+                os.chmod(targetpath, mode)
+
+            return targetpath
