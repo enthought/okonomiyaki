@@ -20,10 +20,16 @@ def force_valid_pyc_file(py_file, pyc_file):
     ----------
     py_file: str
         path to the .py file that corresponds to the .pyc file
-    pyc_file: str
+    pyc_file: str OR file-like object
         path to the .pyc file that corresponds to the .py file
+        OR
+        file-like bytecode object that corresponds to the .py file
     """
-    header = io.FileIO(pyc_file, 'rb').read(8)
+    if isinstance(pyc_file, str):
+        with io.FileIO(pyc_file, 'rb') as f:
+            header = f.read(8)
+    else:
+        header = pyc_file.read(8)
     timestamp = int.from_bytes(header[4:8], 'little')
     os.utime(py_file, (timestamp, timestamp))
 
@@ -149,5 +155,16 @@ class EggZipFile(zipfile2.ZipFile):
                     # preserve bits 0-8 only: rwxrwxrwx
                     mode = member.external_attr >> 16 & 0x1FF
                 os.chmod(targetpath, mode)
+
+            if force_valid_pyc_files and member.filename.endswith('.py'):
+                pyc_name = importlib.util.cache_from_source(member.filename)
+                if os.path.sep == '\\':
+                    pyc_name = pyc_name.replace('\\', '/')
+                if pyc_name in self.namelist():
+                    pyc_file = self.open(pyc_name, pwd=pwd)
+                    try:
+                        force_valid_pyc_file(targetpath, pyc_file)
+                    finally:
+                        pyc_file.close()
 
             return targetpath
