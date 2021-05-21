@@ -2,6 +2,7 @@ import importlib
 import io
 import os
 import shutil
+import string
 import sys
 import zipfile
 import zipfile2
