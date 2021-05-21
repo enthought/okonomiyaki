@@ -38,6 +38,12 @@ with io.open(
 ) as fp:
     UNICODE_DESCRIPTION_TEXT = fp.read()
 
+# Dummy eggs for testing .pyc files
+DUMMY_PKG_VALID_EGG_36 = os.path.join(
+    DATA_DIR, 'dummy_pkg_valid_pyc-0.1.0-py3.6.egg')
+DUMMY_PKG_STALE_EGG_36 = os.path.join(
+    DATA_DIR, 'dummy_pkg_stale_pyc-0.1.0-py3.6.egg')
+
 # flake8: noqa
 PKG_INFO_ENSTALLER_1_0 = u"""\
 Metadata-Version: 1.0
