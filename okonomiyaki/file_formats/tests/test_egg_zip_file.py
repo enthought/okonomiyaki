@@ -8,7 +8,10 @@ import tempfile
 import unittest
 import zipfile2
 
-from ..egg_zip_file import force_valid_pyc_file, EggZipFile
+from ..egg_zip_file import EggZipFile
+from ..pyc_utils import (
+    force_valid_pyc_file, cache_from_source, source_from_cache
+)
 
 from .common import DUMMY_PKG_VALID_EGG_36, DUMMY_PKG_STALE_EGG_36
 
@@ -22,7 +25,7 @@ class TestEggZipFile(unittest.TestCase):
         self.addCleanup(shutil.rmtree, self.tmpdir)
 
     def assertPycValid(self, pyc_file):
-        py_file = importlib.util.source_from_cache(pyc_file)
+        py_file = source_from_cache(pyc_file)
         statinfo = os.stat(py_file)
         try:
             importlib._bootstrap_external._validate_bytecode_header(
@@ -43,7 +46,7 @@ class TestEggZipFile(unittest.TestCase):
         with zipfile2.ZipFile(egg) as zip:
             zip.extractall(self.tmpdir)
         pyc_file = glob.glob(os.path.join(self.tmpdir, '**', '*.pyc'))[0]
-        py_file = importlib.util.source_from_cache(pyc_file)
+        py_file = source_from_cache(pyc_file)
         self.assertPycInvalid(pyc_file)
 
         # When

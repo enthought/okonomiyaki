@@ -5,6 +5,7 @@ import shutil
 import string
 import sys
 import zipfile
+
 import zipfile2
 from zipfile2 import (
     PERMS_PRESERVE_NONE, PERMS_PRESERVE_SAFE, PERMS_PRESERVE_ALL
@@ -12,27 +13,7 @@ from zipfile2 import (
 from zipfile2.common import text_type
 from zipfile2._zipfile import is_zipinfo_symlink, _unlink_if_exists
 
-
-def force_valid_pyc_file(py_file, pyc_file):
-    """Force a .pyc file to be valid by setting the timestamp of the
-       corresponding .py file to equal the timestamp in the .pyc header
-
-    Parameters
-    ----------
-    py_file: str
-        path to the .py file that corresponds to the .pyc file
-    pyc_file: str OR file-like object
-        path to the .pyc file that corresponds to the .py file
-        OR
-        file-like bytecode object that corresponds to the .py file
-    """
-    if isinstance(pyc_file, str):
-        with io.FileIO(pyc_file, 'rb') as f:
-            header = f.read(8)
-    else:
-        header = pyc_file.read(8)
-    timestamp = int.from_bytes(header[4:8], 'little')
-    os.utime(py_file, (timestamp, timestamp))
+from .pyc_utils import force_valid_pyc_file
 
 
 class EggZipFile(zipfile2.ZipFile):
