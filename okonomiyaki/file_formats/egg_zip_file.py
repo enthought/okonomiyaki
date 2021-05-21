@@ -83,7 +83,7 @@ class EggZipFile(zipfile2.ZipFile):
             members = self.namelist()
 
         for zipinfo in members:
-            target = self.extract(
+            self.extract(
                 zipinfo, path, pwd, preserve_permissions, force_valid_pyc_files
             )
 
