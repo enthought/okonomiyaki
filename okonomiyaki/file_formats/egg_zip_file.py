@@ -6,6 +6,16 @@ import zipfile2
 
 
 def force_valid_pyc_file(py_file, pyc_file):
+    """Force a .pyc file to be valid by setting the timestamp of the
+       corresponding .py file to equal the timestamp in the .pyc header
+
+    Parameters
+    ----------
+    py_file: str
+        path to the .py file that corresponds to the .pyc file
+    pyc_file: str
+        path to the .pyc file that corresponds to the .py file
+    """
     header = io.FileIO(pyc_file, 'rb').read(8)
     timestamp = int.from_bytes(header[4:8], 'little')
     os.utime(py_file, (timestamp, timestamp))
