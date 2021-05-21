@@ -41,7 +41,7 @@ class TestEggZipFile(unittest.TestCase):
             )
 
     @unittest.skipIf(
-        sys.version_info.major == 2, 'importlib is different in Python 2'
+        sys.version_info < (3, 6), 'only testing for Python 3.6 for now'
     )
     def test_valid_pyc_egg_with_zipfile2(self):
         # Given
@@ -56,7 +56,7 @@ class TestEggZipFile(unittest.TestCase):
         self.assertPycInvalid(pyc_file)
 
     @unittest.skipIf(
-        sys.version_info.major == 2, 'importlib is different in Python 2'
+        sys.version_info < (3, 6), 'only testing for Python 3.6 for now'
     )
     def test_valid_pyc_egg_with_eggzipfile_default(self):
         # Given
@@ -71,7 +71,7 @@ class TestEggZipFile(unittest.TestCase):
         self.assertPycInvalid(pyc_file)
 
     @unittest.skipIf(
-        sys.version_info.major == 2, 'importlib is different in Python 2'
+        sys.version_info < (3, 6), 'only testing for Python 3.6 for now'
     )
     def test_valid_pyc_egg_with_eggzipfile_force(self):
         # Given
