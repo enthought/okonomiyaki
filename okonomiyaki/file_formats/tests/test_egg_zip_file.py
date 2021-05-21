@@ -34,14 +34,8 @@ class TestEggZipFile(unittest.TestCase):
             self.fail(e.msg)
 
     def assertPycInvalid(self, pyc_file):
-        py_file = importlib.util.source_from_cache(pyc_file)
-        statinfo = os.stat(py_file)
-        with self.assertRaises(ImportError):
-            importlib._bootstrap_external._validate_bytecode_header(
-                io.FileIO(pyc_file, 'rb').read(),
-                source_stats={'mtime': statinfo.st_mtime},
-                path=pyc_file, name=os.path.basename(pyc_file)
-            )
+        with self.assertRaises(AssertionError):
+            self.assertPycValid(pyc_file)
 
     def test_force_valid_pyc_file(self):
         # Given
