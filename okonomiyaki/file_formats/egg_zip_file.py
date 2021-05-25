@@ -13,18 +13,13 @@ from zipfile2 import (
 from zipfile2.common import text_type
 from zipfile2._zipfile import is_zipinfo_symlink, _unlink_if_exists
 
-from .pyc_utils import force_valid_pyc_file
+from .pyc_utils import force_valid_pyc_file, cache_from_source
 
 
 class EggZipFile(zipfile2.ZipFile):
     def extract(self, member, path=None, pwd=None,
                 preserve_permissions=PERMS_PRESERVE_NONE,
                 force_valid_pyc_files=False):
-        # force_valid_pyc_files not available for Python 2 for now
-        if sys.version_info.major == 2:
-            if force_valid_pyc_files:
-                force_valid_pyc_files = False
-
         if not isinstance(member, zipfile.ZipInfo):
             member = self.getinfo(member)
 
@@ -58,8 +53,6 @@ class EggZipFile(zipfile2.ZipFile):
         force_valid_pyc_files: bool
             Forces valid .pyc files by setting the timestamp of the
             corresponding .py file to the timestamp of the bytecode header.
-            (This is only available for Python 3 because importlib is mostly
-             non-existent for Python 2.)
         """
         if members is None:
             members = self.namelist()
@@ -139,13 +132,13 @@ class EggZipFile(zipfile2.ZipFile):
                 os.chmod(targetpath, mode)
 
             if force_valid_pyc_files and member.filename.endswith('.py'):
-                pyc_name = importlib.util.cache_from_source(member.filename)
+                pyc_name = cache_from_source(member.filename, (3, 6))
                 if os.path.sep == '\\':
                     pyc_name = pyc_name.replace('\\', '/')
                 if pyc_name in self.namelist():
                     pyc_file = self.open(pyc_name, pwd=pwd)
                     try:
-                        force_valid_pyc_file(targetpath, pyc_file)
+                        force_valid_pyc_file(targetpath, pyc_file, (3, 6))
                     finally:
                         pyc_file.close()
 
