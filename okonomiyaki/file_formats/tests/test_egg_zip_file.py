@@ -1,7 +1,6 @@
 import glob
 import os
 import shutil
-import sys
 import tempfile
 import unittest
 import zipfile2
@@ -9,7 +8,7 @@ import zipfile2
 from ..egg_zip_file import EggZipFile
 from ..pyc_utils import validate_bytecode_header, source_from_cache
 
-from .common import DUMMY_PKG_VALID_EGG_36, DUMMY_PKG_STALE_EGG_36
+from .common import DUMMY_PKG_VALID_EGG_36
 
 
 class TestEggZipFile(unittest.TestCase):

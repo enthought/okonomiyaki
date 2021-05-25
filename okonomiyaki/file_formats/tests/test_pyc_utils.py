@@ -6,11 +6,10 @@ import unittest
 import zipfile2
 
 from ..pyc_utils import (
-    get_header, validate_bytecode_header, force_valid_pyc_file,
-    cache_from_source, source_from_cache
+    validate_bytecode_header, force_valid_pyc_file, source_from_cache
 )
 
-from .common import DUMMY_PKG_VALID_EGG_36, DUMMY_PKG_STALE_EGG_36
+from .common import DUMMY_PKG_STALE_EGG_36
 
 
 class TestPycUtils(unittest.TestCase):
