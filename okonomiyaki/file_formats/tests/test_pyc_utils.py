@@ -13,7 +13,8 @@ from ..pyc_utils import (
     validate_bytecode_header, force_valid_pyc_file, source_from_cache
 )
 from .common import (
-    DUMMY_PKG_STALE_EGG_36, DUMMY_PKG_STALE_EGG_35, DUMMY_PKG_STALE_EGG_27
+    DUMMY_PKG_STALE_EGG_27, DUMMY_PKG_STALE_EGG_35, DUMMY_PKG_STALE_EGG_36,
+    DUMMY_PKG_STALE_EGG_38
 )
 
 
@@ -21,6 +22,7 @@ TARGET_VERSION_TO_STALE_EGGS = {
     (2, 7): DUMMY_PKG_STALE_EGG_27,
     (3, 5): DUMMY_PKG_STALE_EGG_35,
     (3, 6): DUMMY_PKG_STALE_EGG_36,
+    (3, 8): DUMMY_PKG_STALE_EGG_38,
 }
 
 
@@ -49,7 +51,7 @@ class TestPycUtils(unittest.TestCase):
         with self.assertRaises(AssertionError):
             self.assertPycValid(pyc_file, target_version_info)
 
-    @given(sampled_from([(2, 7), (3, 5), (3, 6)]))
+    @given(sampled_from([(2, 7), (3, 5), (3, 6), (3, 8)]))
     def test_force_valid_pyc_file(self, target_version_info):
         # Given
         egg = TARGET_VERSION_TO_STALE_EGGS[target_version_info]
