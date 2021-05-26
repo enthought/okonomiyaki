@@ -43,6 +43,10 @@ DUMMY_PKG_VALID_EGG_36 = os.path.join(
     DATA_DIR, 'dummy_pkg_valid_pyc-0.1.0-py3.6.egg')
 DUMMY_PKG_STALE_EGG_36 = os.path.join(
     DATA_DIR, 'dummy_pkg_stale_pyc-0.1.0-py3.6.egg')
+DUMMY_PKG_STALE_EGG_35 = os.path.join(
+    DATA_DIR, 'dummy_pkg_stale_pyc-0.1.0-py3.5.egg')
+DUMMY_PKG_STALE_EGG_27 = os.path.join(
+    DATA_DIR, 'dummy_pkg_stale_pyc-0.1.0-py2.7.egg')
 
 # flake8: noqa
 PKG_INFO_ENSTALLER_1_0 = u"""\
