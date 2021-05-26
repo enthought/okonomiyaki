@@ -106,17 +106,17 @@ def validate_bytecode_header(py_file, pyc_file, egg_python):
     expected_magic_number = struct.pack('<H', base_magic_number) + b'\r\n'
     if header.magic_number != expected_magic_number:
         message = 'bad magic number in {}: {}'
-        raise ImportError(message.format(name, header.magic_number))
+        raise ValueError(message.format(name, header.magic_number))
 
     source_stats = os.stat(py_file)
     source_mtime = int(source_stats.st_mtime)
     if header.timestamp != source_mtime:
-        raise ImportError('bytecode is stale for {}'.format(name))
+        raise ValueError('bytecode is stale for {}'.format(name))
 
     if egg_python.startswith(u'3'):
         source_size = source_stats.st_size & 0xFFFFFFFF
         if header.source_size != source_size:
-            raise ImportError('bytecode has wrong size for {}'.format(name))
+            raise ValueError('bytecode has wrong size for {}'.format(name))
 
 
 def force_valid_pyc_file(py_file, pyc_file, egg_python):
