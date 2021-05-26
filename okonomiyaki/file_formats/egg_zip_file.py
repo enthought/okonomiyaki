@@ -27,6 +27,23 @@ class EggZipFile(zipfile2.ZipFile):
         ])
         return target_version_info
 
+    def force_valid_pyc_files(self, member, targetpath, pwd=None):
+        target_version = self.target_version_info
+        try:
+            pyc_name = cache_from_source(member.filename, target_version)
+        except Exception:
+            # Fail silently and continue for issues with .pyc files
+            return
+        if os.path.sep == '\\':
+            pyc_name = pyc_name.replace('\\', '/')
+        if pyc_name in self.namelist():
+            with self.open(pyc_name, pwd=pwd) as f:
+                try:
+                    force_valid_pyc_file(targetpath, f, target_version)
+                except Exception:
+                    # Fail silently and continue for .pyc file issues
+                    return
+
     def extract(self, member, path=None, pwd=None,
                 preserve_permissions=PERMS_PRESERVE_NONE,
                 force_valid_pyc_files=False):
@@ -142,12 +159,6 @@ class EggZipFile(zipfile2.ZipFile):
                 os.chmod(targetpath, mode)
 
             if force_valid_pyc_files and member.filename.endswith('.py'):
-                target_ver = self.target_version_info
-                pyc_name = cache_from_source(member.filename, target_ver)
-                if os.path.sep == '\\':
-                    pyc_name = pyc_name.replace('\\', '/')
-                if pyc_name in self.namelist():
-                    with self.open(pyc_name, pwd=pwd) as pyc_file:
-                        force_valid_pyc_file(targetpath, pyc_file, target_ver)
+                self.force_valid_pyc_files(member, targetpath, pwd)
 
             return targetpath
