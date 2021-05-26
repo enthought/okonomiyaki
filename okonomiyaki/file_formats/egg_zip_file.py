@@ -10,10 +10,23 @@ from zipfile2 import (
 from zipfile2.common import text_type
 from zipfile2._zipfile import is_zipinfo_symlink, _unlink_if_exists
 
+from ._egg_info import _SPEC_DEPEND_LOCATION, parse_rawspec
 from .pyc_utils import force_valid_pyc_file, cache_from_source
 
 
 class EggZipFile(zipfile2.ZipFile):
+    def __init__(self, *args, **kwargs):
+        super(EggZipFile, self).__init__(*args, **kwargs)
+        self.target_version_info = self.get_target_version_info()
+
+    def get_target_version_info(self):
+        with self.open(_SPEC_DEPEND_LOCATION) as spec_file:
+            spec_depend = parse_rawspec(spec_file.read().decode())
+        target_version_info = tuple([
+            int(i) for i in spec_depend['python'].split('.')
+        ])
+        return target_version_info
+
     def extract(self, member, path=None, pwd=None,
                 preserve_permissions=PERMS_PRESERVE_NONE,
                 force_valid_pyc_files=False):
@@ -129,14 +142,12 @@ class EggZipFile(zipfile2.ZipFile):
                 os.chmod(targetpath, mode)
 
             if force_valid_pyc_files and member.filename.endswith('.py'):
-                pyc_name = cache_from_source(member.filename, (3, 6))
+                target_ver = self.target_version_info
+                pyc_name = cache_from_source(member.filename, target_ver)
                 if os.path.sep == '\\':
                     pyc_name = pyc_name.replace('\\', '/')
                 if pyc_name in self.namelist():
-                    pyc_file = self.open(pyc_name, pwd=pwd)
-                    try:
-                        force_valid_pyc_file(targetpath, pyc_file, (3, 6))
-                    finally:
-                        pyc_file.close()
+                    with self.open(pyc_name, pwd=pwd) as pyc_file:
+                        force_valid_pyc_file(targetpath, pyc_file, target_ver)
 
             return targetpath
