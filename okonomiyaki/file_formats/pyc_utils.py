@@ -62,6 +62,9 @@ def get_header(pyc_file, egg_python):
         header_len = byte_slices.source_size.stop
     with io.FileIO(pyc_file, 'rb') as f:
         data = f.read(header_len)
+    if len(data) != header_len:
+        message = 'reached EOF while reading header in {}'.format(name)
+        raise EOFError(message)
 
     kwargs = {
         field: data[getattr(byte_slices, field)] for field in Header._fields
@@ -69,9 +72,6 @@ def get_header(pyc_file, egg_python):
     }
     for int_field in ('timestamp', 'source_size'):
         if int_field in kwargs:
-            if len(kwargs[int_field]) != 4:
-                message = 'reached EOF while reading {} in {}'
-                raise EOFError(message.format(int_field, name))
             kwargs[int_field] = struct.unpack('<I', kwargs[int_field])[0]
         else:
             kwargs[int_field] = None
