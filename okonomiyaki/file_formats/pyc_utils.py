@@ -1,8 +1,6 @@
-import importlib
 import io
 import os
 import struct
-import sys
 from collections import namedtuple
 
 
@@ -13,13 +11,16 @@ Header = namedtuple('Header', ['magic_number', 'timestamp', 'source_size'])
 # Map the Python major, minor version to magic number in .pyc header
 PYC_TARGET_VERSION_TO_MAGIC_NUMBER_BASE = {
     (2, 7): 62211,
-    (3, 5): 3351,
+    (3, 5): 3350,
     (3, 6): 3379,
     (3, 8): 3413
 }
 
 # Python byte slices for each section of the .pyc header
 PYC_PY2_HEADER_BYTE_SLICES = Header(
+    magic_number=slice(0, 4), timestamp=slice(4, 8), source_size=None
+)
+PYC_PY35_HEADER_BYTE_SLICES = Header(
     magic_number=slice(0, 4), timestamp=slice(4, 8), source_size=slice(8, 12)
 )
 PYC_PY37_HEADER_BYTE_SLICES = Header(
@@ -29,8 +30,8 @@ PYC_PY37_HEADER_BYTE_SLICES = Header(
 # Map the Python major, minor version to byte slices in .pyc header
 PYC_TARGET_VERSION_TO_HEADER_BYTE_SLICES = {
     (2, 7): PYC_PY2_HEADER_BYTE_SLICES,
-    (3, 5): PYC_PY2_HEADER_BYTE_SLICES,
-    (3, 6): PYC_PY2_HEADER_BYTE_SLICES,
+    (3, 5): PYC_PY35_HEADER_BYTE_SLICES,
+    (3, 6): PYC_PY35_HEADER_BYTE_SLICES,
     (3, 8): PYC_PY37_HEADER_BYTE_SLICES,
 }
 
@@ -56,18 +57,25 @@ def get_header(pyc_file, target_version_info):
     byte_slices = PYC_TARGET_VERSION_TO_HEADER_BYTE_SLICES.get(
         target_version_info[:2], PYC_PY37_HEADER_BYTE_SLICES
     )
-    header_len = byte_slices.source_size.stop
+    if byte_slices.source_size is None:
+        header_len = byte_slices.timestamp.stop
+    else:
+        header_len = byte_slices.source_size.stop
     with io.FileIO(pyc_file, 'rb') as f:
         data = f.read(header_len)
 
     kwargs = {
         field: data[getattr(byte_slices, field)] for field in Header._fields
+        if getattr(byte_slices, field) is not None
     }
     for int_field in ('timestamp', 'source_size'):
-        if len(kwargs[int_field]) != 4:
-            message = 'reached EOF while reading {} in {}'
-            raise EOFError(message.format(int_field, name))
-        kwargs[int_field] = struct.unpack('<i', kwargs[int_field])[0]
+        if int_field in kwargs:
+            if len(kwargs[int_field]) != 4:
+                message = 'reached EOF while reading {} in {}'
+                raise EOFError(message.format(int_field, name))
+            kwargs[int_field] = struct.unpack('<I', kwargs[int_field])[0]
+        else:
+            kwargs[int_field] = None
 
     return Header(**kwargs)
 
@@ -77,6 +85,7 @@ def validate_bytecode_header(py_file, pyc_file, target_version_info):
        - the .pyc magic number matches the magic number for the target version
        - the .pyc timestamp matches the timestamp of the corresponding .py file
        - the .pyc source size matches the source size of the .py file
+         (source size is not in the Python 2.7 .pyc header, so not checked)
 
        This code is similar to the Python 3.6 version of
        importlib._bootstrap_external._validate_bytecode_header. As in
@@ -98,7 +107,7 @@ def validate_bytecode_header(py_file, pyc_file, target_version_info):
     base_magic_number = PYC_TARGET_VERSION_TO_MAGIC_NUMBER_BASE.get(
         target_version_info[:2]
     )
-    expected_magic_number = struct.pack('<h', base_magic_number) + b'\r\n'
+    expected_magic_number = struct.pack('<H', base_magic_number) + b'\r\n'
     if header.magic_number != expected_magic_number:
         message = 'bad magic number in {}: {}'
         raise ImportError(message.format(name, header.magic_number))
@@ -107,9 +116,11 @@ def validate_bytecode_header(py_file, pyc_file, target_version_info):
     source_mtime = int(source_stats.st_mtime)
     if header.timestamp != source_mtime:
         raise ImportError('bytecode is stale for {}'.format(name))
-    source_size = source_stats.st_size & 0xFFFFFFFF
-    if header.source_size != source_size:
-        raise ImportError('bytecode is stale for {}'.format(name))
+
+    if target_version_info[0] == 3:
+        source_size = source_stats.st_size & 0xFFFFFFFF
+        if header.source_size != source_size:
+            raise ImportError('bytecode has wrong size for {}'.format(name))
 
 
 def force_valid_pyc_file(py_file, pyc_file, target_version_info):
@@ -139,7 +150,7 @@ def force_valid_pyc_file(py_file, pyc_file, target_version_info):
     else:
         data = pyc_file.read(header_len)
 
-    timestamp = struct.unpack('<i', data[byte_slices.timestamp])[0]
+    timestamp = struct.unpack('<I', data[byte_slices.timestamp])[0]
     os.utime(py_file, (timestamp, timestamp))
 
 
@@ -162,8 +173,9 @@ def cache_from_source(py_file, target_version_info):
     """
     if target_version_info[0] == 3:
         dirname, basename = os.path.split(py_file)
-        basename, _ = os.path.splitext(basename)
-        basename += '.cpython-{}{}.pyc'.format(*target_version_info[:2])
+        basename = '{}.cpython-{}{}.pyc'.format(
+            os.path.splitext(basename)[0], *target_version_info[:2]
+        )
         return os.path.join(dirname, '__pycache__', basename)
     else:
         return '{}c'.format(py_file)
@@ -187,13 +199,9 @@ def source_from_cache(pyc_file, target_version_info):
         Path to .py file
     """
     if target_version_info[0] == 3:
-        if sys.version_info.major == 3:
-            return importlib.util.source_from_cache(pyc_file)
-        else:
-            dirname, basename = os.path.split(pyc_file)
-            dirname = os.path.dirname(dirname)
-            basename_parts = basename.split('.')
-            basename = '.'.join(basename_parts[:-2]) + '.py'
-            return os.path.join(dirname, basename)
+        dirname, basename = os.path.split(pyc_file)
+        dirname = os.path.dirname(dirname)
+        basename = '.'.join(basename.split('.')[:-2]) + '.py'
+        return os.path.join(dirname, basename)
     else:
         return pyc_file[:-1]
