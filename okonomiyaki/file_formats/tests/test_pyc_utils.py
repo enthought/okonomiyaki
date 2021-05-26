@@ -38,7 +38,6 @@ class TestPycUtils(unittest.TestCase):
         f()
         shutil.rmtree(self.hypothesis_tmpdir)
 
-
     def assertPycValid(self, pyc_file, target_version_info):
         py_file = source_from_cache(pyc_file, target_version_info)
         try:
