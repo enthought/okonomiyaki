@@ -16,16 +16,16 @@ class TestEggZipFile(unittest.TestCase):
         self.tmpdir = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, self.tmpdir)
 
-    def assertPycValid(self, pyc_file):
-        py_file = source_from_cache(pyc_file, (3,))
+    def assertPycValid(self, pyc_file, egg_python):
+        py_file = source_from_cache(pyc_file, egg_python)
         try:
-            validate_bytecode_header(py_file, pyc_file, (3, 6))
+            validate_bytecode_header(py_file, pyc_file, egg_python)
         except ImportError as e:
             self.fail(str(e))
 
-    def assertPycInvalid(self, pyc_file):
+    def assertPycInvalid(self, pyc_file, egg_python):
         with self.assertRaises(AssertionError):
-            self.assertPycValid(pyc_file)
+            self.assertPycValid(pyc_file, egg_python)
 
     def test_valid_pyc_egg_with_zipfile2(self):
         # Given
@@ -37,7 +37,7 @@ class TestEggZipFile(unittest.TestCase):
 
         # Then
         pyc_file = glob.glob(os.path.join(self.tmpdir, '**', '*.pyc'))[0]
-        self.assertPycInvalid(pyc_file)
+        self.assertPycInvalid(pyc_file, u'3.6')
 
     def test_valid_pyc_egg_with_eggzipfile_default(self):
         # Given
@@ -49,7 +49,7 @@ class TestEggZipFile(unittest.TestCase):
 
         # Then
         pyc_file = glob.glob(os.path.join(self.tmpdir, '**', '*.pyc'))[0]
-        self.assertPycInvalid(pyc_file)
+        self.assertPycInvalid(pyc_file, u'3.6')
 
     def test_valid_pyc_egg_with_eggzipfile_force(self):
         # Given
@@ -61,4 +61,4 @@ class TestEggZipFile(unittest.TestCase):
 
         # Then
         pyc_file = glob.glob(os.path.join(self.tmpdir, '**', '*.pyc'))[0]
-        self.assertPycValid(pyc_file)
+        self.assertPycValid(pyc_file, u'3.6')

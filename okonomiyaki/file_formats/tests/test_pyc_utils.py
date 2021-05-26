@@ -19,10 +19,10 @@ from .common import (
 
 
 TARGET_VERSION_TO_STALE_EGGS = {
-    (2, 7): DUMMY_PKG_STALE_EGG_27,
-    (3, 5): DUMMY_PKG_STALE_EGG_35,
-    (3, 6): DUMMY_PKG_STALE_EGG_36,
-    (3, 8): DUMMY_PKG_STALE_EGG_38,
+    u'2.7': DUMMY_PKG_STALE_EGG_27,
+    u'3.5': DUMMY_PKG_STALE_EGG_35,
+    u'3.6': DUMMY_PKG_STALE_EGG_36,
+    u'3.8': DUMMY_PKG_STALE_EGG_38,
 }
 
 
@@ -37,24 +37,26 @@ class TestPycUtils(unittest.TestCase):
            (self.tmpdir doesn't change between hypothesis executions.)
         """
         self.hypothesis_tmpdir = tempfile.mkdtemp()
-        f()
-        shutil.rmtree(self.hypothesis_tmpdir)
-
-    def assertPycValid(self, pyc_file, target_version_info):
-        py_file = source_from_cache(pyc_file, target_version_info)
         try:
-            validate_bytecode_header(py_file, pyc_file, target_version_info)
+            f()
+        finally:
+            shutil.rmtree(self.hypothesis_tmpdir)
+
+    def assertPycValid(self, pyc_file, egg_python):
+        py_file = source_from_cache(pyc_file, egg_python)
+        try:
+            validate_bytecode_header(py_file, pyc_file, egg_python)
         except ImportError as e:
             self.fail(str(e))
 
-    def assertPycInvalid(self, pyc_file, target_version_info):
+    def assertPycInvalid(self, pyc_file, egg_python):
         with self.assertRaises(AssertionError):
-            self.assertPycValid(pyc_file, target_version_info)
+            self.assertPycValid(pyc_file, egg_python)
 
-    @given(sampled_from([(2, 7), (3, 5), (3, 6), (3, 8)]))
-    def test_force_valid_pyc_file(self, target_version_info):
+    @given(sampled_from([u'2.7', u'3.5', u'3.6', u'3.8']))
+    def test_force_valid_pyc_file(self, egg_python):
         # Given
-        egg = TARGET_VERSION_TO_STALE_EGGS[target_version_info]
+        egg = TARGET_VERSION_TO_STALE_EGGS[egg_python]
         with zipfile2.ZipFile(egg) as zip:
             zip.extractall(self.hypothesis_tmpdir)
 
@@ -62,18 +64,18 @@ class TestPycUtils(unittest.TestCase):
             search_path = os.path.join(self.hypothesis_tmpdir, '**', '*.pyc')
             pyc_file = glob.glob(search_path, recursive=True)[0]
         else:
-            if target_version_info[0] == 3:
+            if egg_python.startswith(u'3'):
                 search_path = os.path.join(
                     self.hypothesis_tmpdir, '__pycache__', '*.pyc'
                 )
             else:
                 search_path = os.path.join(self.hypothesis_tmpdir, '*.pyc')
             pyc_file = glob.glob(search_path)[0]
-        py_file = source_from_cache(pyc_file, target_version_info)
-        self.assertPycInvalid(pyc_file, target_version_info)
+        py_file = source_from_cache(pyc_file, egg_python)
+        self.assertPycInvalid(pyc_file, egg_python)
 
         # When
-        force_valid_pyc_file(py_file, pyc_file, target_version_info)
+        force_valid_pyc_file(py_file, pyc_file, egg_python)
 
         # Then
-        self.assertPycValid(pyc_file, target_version_info)
+        self.assertPycValid(pyc_file, egg_python)

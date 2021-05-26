@@ -17,20 +17,19 @@ from .pyc_utils import force_valid_pyc_file, cache_from_source
 class EggZipFile(zipfile2.ZipFile):
     def __init__(self, *args, **kwargs):
         super(EggZipFile, self).__init__(*args, **kwargs)
-        self.target_version_info = self.get_target_version_info()
+        self.egg_python = self._get_egg_python()
 
-    def get_target_version_info(self):
+    def _get_egg_python(self):
+        """
+
+        """
         with self.open(_SPEC_DEPEND_LOCATION) as spec_file:
             spec_depend = parse_rawspec(spec_file.read().decode())
-        target_version_info = tuple([
-            int(i) for i in spec_depend['python'].split('.')
-        ])
-        return target_version_info
+        return spec_depend['python']
 
-    def force_valid_pyc_files(self, member, targetpath, pwd=None):
-        target_version = self.target_version_info
+    def _force_valid_pyc_files(self, member, targetpath, pwd=None):
         try:
-            pyc_name = cache_from_source(member.filename, target_version)
+            pyc_name = cache_from_source(member.filename, self.egg_python)
         except Exception:
             # Fail silently and continue for issues with .pyc files
             return
@@ -39,7 +38,7 @@ class EggZipFile(zipfile2.ZipFile):
         if pyc_name in self.namelist():
             with self.open(pyc_name, pwd=pwd) as f:
                 try:
-                    force_valid_pyc_file(targetpath, f, target_version)
+                    force_valid_pyc_file(targetpath, f, self.egg_python)
                 except Exception:
                     # Fail silently and continue for .pyc file issues
                     return
@@ -159,6 +158,6 @@ class EggZipFile(zipfile2.ZipFile):
                 os.chmod(targetpath, mode)
 
             if force_valid_pyc_files and member.filename.endswith('.py'):
-                self.force_valid_pyc_files(member, targetpath, pwd)
+                self._force_valid_pyc_files(member, targetpath, pwd)
 
             return targetpath

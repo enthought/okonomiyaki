@@ -10,10 +10,10 @@ Header = namedtuple('Header', ['magic_number', 'timestamp', 'source_size'])
 
 # Map the Python major, minor version to magic number in .pyc header
 PYC_TARGET_VERSION_TO_MAGIC_NUMBER_BASE = {
-    (2, 7): 62211,
-    (3, 5): 3350,
-    (3, 6): 3379,
-    (3, 8): 3413
+    u'2.7': 62211,
+    u'3.5': 3350,
+    u'3.6': 3379,
+    u'3.8': 3413
 }
 
 # Python byte slices for each section of the .pyc header
@@ -29,14 +29,14 @@ PYC_PY37_HEADER_BYTE_SLICES = Header(
 
 # Map the Python major, minor version to byte slices in .pyc header
 PYC_TARGET_VERSION_TO_HEADER_BYTE_SLICES = {
-    (2, 7): PYC_PY2_HEADER_BYTE_SLICES,
-    (3, 5): PYC_PY35_HEADER_BYTE_SLICES,
-    (3, 6): PYC_PY35_HEADER_BYTE_SLICES,
-    (3, 8): PYC_PY37_HEADER_BYTE_SLICES,
+    u'2.7': PYC_PY2_HEADER_BYTE_SLICES,
+    u'3.5': PYC_PY35_HEADER_BYTE_SLICES,
+    u'3.6': PYC_PY35_HEADER_BYTE_SLICES,
+    u'3.8': PYC_PY37_HEADER_BYTE_SLICES,
 }
 
 
-def get_header(pyc_file, target_version_info):
+def get_header(pyc_file, egg_python):
     """Return a Header namedtuple with the magic_number, timestamp,
        and source_size from a .pyc file
 
@@ -44,9 +44,8 @@ def get_header(pyc_file, target_version_info):
     ----------
     pyc_file: str
         path to the .pyc file from which the header will be returned
-    target_version_info: tuple(int)
-        version_info tuple like sys.version_info but for target Python version
-        of .pyc file (Only first 2 items for major and minor version are used.)
+    egg_python: text
+        python attribute of egg spec depend, i.e. the Python version of the egg
 
     Returns
     -------
@@ -55,7 +54,7 @@ def get_header(pyc_file, target_version_info):
     """
     name = os.path.basename(pyc_file)
     byte_slices = PYC_TARGET_VERSION_TO_HEADER_BYTE_SLICES.get(
-        target_version_info[:2], PYC_PY37_HEADER_BYTE_SLICES
+        egg_python, PYC_PY37_HEADER_BYTE_SLICES
     )
     if byte_slices.source_size is None:
         header_len = byte_slices.timestamp.stop
@@ -80,7 +79,7 @@ def get_header(pyc_file, target_version_info):
     return Header(**kwargs)
 
 
-def validate_bytecode_header(py_file, pyc_file, target_version_info):
+def validate_bytecode_header(py_file, pyc_file, egg_python):
     """Validate a .pyc file by checking the following from the .pyc header:
        - the .pyc magic number matches the magic number for the target version
        - the .pyc timestamp matches the timestamp of the corresponding .py file
@@ -98,15 +97,12 @@ def validate_bytecode_header(py_file, pyc_file, target_version_info):
         path to the .py file that corresponds to the .pyc file
     pyc_file: str
         path to the .pyc file that corresponds to the .py file
-    target_version_info: tuple(int)
-        version_info tuple like sys.version_info but for target Python version
-        of .pyc file (Only first 2 items for major and minor version are used.)
+    egg_python: text
+        python attribute of egg spec depend, i.e. the Python version of the egg
     """
     name = os.path.basename(pyc_file)
-    header = get_header(pyc_file, target_version_info)
-    base_magic_number = PYC_TARGET_VERSION_TO_MAGIC_NUMBER_BASE.get(
-        target_version_info[:2]
-    )
+    header = get_header(pyc_file, egg_python)
+    base_magic_number = PYC_TARGET_VERSION_TO_MAGIC_NUMBER_BASE.get(egg_python)
     expected_magic_number = struct.pack('<H', base_magic_number) + b'\r\n'
     if header.magic_number != expected_magic_number:
         message = 'bad magic number in {}: {}'
@@ -117,13 +113,13 @@ def validate_bytecode_header(py_file, pyc_file, target_version_info):
     if header.timestamp != source_mtime:
         raise ImportError('bytecode is stale for {}'.format(name))
 
-    if target_version_info[0] == 3:
+    if egg_python.startswith(u'3'):
         source_size = source_stats.st_size & 0xFFFFFFFF
         if header.source_size != source_size:
             raise ImportError('bytecode has wrong size for {}'.format(name))
 
 
-def force_valid_pyc_file(py_file, pyc_file, target_version_info):
+def force_valid_pyc_file(py_file, pyc_file, egg_python):
     """Force a .pyc file to be valid by setting the timestamp of the
        corresponding .py file to equal the timestamp in the .pyc header
        (This function should be Python version independent.)
@@ -136,12 +132,11 @@ def force_valid_pyc_file(py_file, pyc_file, target_version_info):
         path to the .pyc file that corresponds to the .py file
         OR
         file-like bytecode object that corresponds to the .py file
-    target_version_info: tuple(int)
-        version_info tuple like sys.version_info but for target Python version
-        of .pyc file (Only first 2 items for major and minor version are used.)
+    egg_python: text
+        python attribute of egg spec depend, i.e. the Python version of the egg
     """
     byte_slices = PYC_TARGET_VERSION_TO_HEADER_BYTE_SLICES.get(
-        target_version_info[:2], PYC_PY37_HEADER_BYTE_SLICES
+        egg_python, PYC_PY37_HEADER_BYTE_SLICES
     )
     header_len = byte_slices.timestamp.stop
     if isinstance(pyc_file, str):
@@ -154,7 +149,7 @@ def force_valid_pyc_file(py_file, pyc_file, target_version_info):
     os.utime(py_file, (timestamp, timestamp))
 
 
-def cache_from_source(py_file, target_version_info):
+def cache_from_source(py_file, egg_python):
     """Python 2 compatible function to return cache file (.pyc)
        from source file (.py)
 
@@ -162,26 +157,25 @@ def cache_from_source(py_file, target_version_info):
     ----------
     py_file: str
         Path to .py file
-    target_version_info: tuple(int)
-        version_info tuple like sys.version_info but for target Python version
-        of .pyc file (Only first 2 items for major and minor version are used.)
+    egg_python: text
+        python attribute of egg spec depend, i.e. the Python version of the egg
 
     Returns
     -------
     str
         Path to .pyc file
     """
-    if target_version_info[0] == 3:
+    if egg_python.startswith(u'3'):
         dirname, basename = os.path.split(py_file)
         basename = '{}.cpython-{}{}.pyc'.format(
-            os.path.splitext(basename)[0], *target_version_info[:2]
+            os.path.splitext(basename)[0], egg_python[0], egg_python[-1]
         )
         return os.path.join(dirname, '__pycache__', basename)
     else:
         return '{}c'.format(py_file)
 
 
-def source_from_cache(pyc_file, target_version_info):
+def source_from_cache(pyc_file, egg_python):
     """Python 2 compatible function to return source file (.py)
        from cache file (.pyc)
 
@@ -189,16 +183,15 @@ def source_from_cache(pyc_file, target_version_info):
     ----------
     pyc_file: str
         Path to .pyc file
-    target_version_info: tuple(int)
-        version_info tuple like sys.version_info but for target Python version
-        of .pyc file (Only first item for major version is used.)
+    egg_python: text
+        python attribute of egg spec depend, i.e. the Python version of the egg
 
     Returns
     -------
     str
         Path to .py file
     """
-    if target_version_info[0] == 3:
+    if egg_python.startswith(u'3'):
         dirname, basename = os.path.split(pyc_file)
         dirname = os.path.dirname(dirname)
         basename = '.'.join(basename.split('.')[:-2]) + '.py'
