@@ -24,14 +24,35 @@ class EggZipFile(zipfile2.ZipFile):
         self.egg_python = self._get_egg_python()
 
     def _get_egg_python(self):
-        """
+        """Get the Python version of the egg from the spec depend file
 
+        Returns
+        -------
+        str:
+            Major minor Python version, e.g. "3.6"
         """
-        with self.open(_SPEC_DEPEND_LOCATION) as spec_file:
-            spec_depend = parse_rawspec(spec_file.read().decode())
-        return spec_depend['python']
+        try:
+            with self.open(_SPEC_DEPEND_LOCATION) as spec_file:
+                spec_depend = parse_rawspec(spec_file.read().decode())
+            spec_depend_python = spec_depend['python']
+        except Exception:
+            # Fail silently and continue for .pyc file issues
+            spec_depend_python = None
+        return spec_depend_python
 
     def _force_valid_pyc_files(self, member, targetpath, pwd=None):
+        """Force the .pyc file to be valid by setting the mtime of the
+        corresponding .py file to the value in the .pyc header
+
+        Parameters
+        ----------
+        member: ZipInfo
+            The ZipFile member of the .py file
+        targetpath: str
+            The extracted path of the .py file
+        pwd: bytes
+            Optional password to decrypt files that is passed to ZipFile.open
+        """
         try:
             pyc_name = cache_from_source(member.filename, self.egg_python)
         except Exception:
@@ -74,6 +95,8 @@ class EggZipFile(zipfile2.ZipFile):
         members: list
             is optional and must be a subset of the list returned by
             namelist().
+        pwd: bytes
+            Optional password to decrypt files that is passed to ZipFile.open
         preserve_permissions: int
             controls whether permissions of zipped files are preserved or
             not. Default is PERMS_PRESERVE_NONE - do not preserve any
@@ -161,8 +184,12 @@ class EggZipFile(zipfile2.ZipFile):
                     mode = member.external_attr >> 16 & 0x1FF
                 os.chmod(targetpath, mode)
 
-            is_py_file = member.filename.endswith('.py')
-            if force_valid_pyc_files == FORCE_VALID_PYC and is_py_file:
+            use_force_valid_pyc_files = all((
+                force_valid_pyc_files == FORCE_VALID_PYC,
+                member.filename.endswith('.py'),
+                self.egg_python is not None
+            ))
+            if use_force_valid_pyc_files:
                 self._force_valid_pyc_files(member, targetpath, pwd)
 
             return targetpath
