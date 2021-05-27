@@ -166,11 +166,11 @@ def cache_from_source(py_file, egg_python):
         Path to .pyc file
     """
     if egg_python.startswith(u'3'):
-        dirname, basename = os.path.split(py_file)
-        basename = '{}.cpython-{}{}.pyc'.format(
-            os.path.splitext(basename)[0], egg_python[0], egg_python[-1]
+        dirname, py_basename = os.path.split(py_file)
+        pyc_basename = '{}.cpython-{}{}.pyc'.format(
+            os.path.splitext(py_basename)[0], egg_python[0], egg_python[-1]
         )
-        return os.path.join(dirname, '__pycache__', basename)
+        return os.path.join(dirname, '__pycache__', pyc_basename)
     else:
         return '{}c'.format(py_file)
 
@@ -192,9 +192,9 @@ def source_from_cache(pyc_file, egg_python):
         Path to .py file
     """
     if egg_python.startswith(u'3'):
-        dirname, basename = os.path.split(pyc_file)
-        dirname = os.path.dirname(dirname)
-        basename = '.'.join(basename.split('.')[:-2]) + '.py'
-        return os.path.join(dirname, basename)
+        pyc_dirname, pyc_basename = os.path.split(pyc_file)
+        py_dirname = os.path.dirname(pyc_dirname)
+        py_basename = '.'.join(pyc_basename.split('.')[:-2]) + '.py'
+        return os.path.join(py_dirname, py_basename)
     else:
         return pyc_file[:-1]
