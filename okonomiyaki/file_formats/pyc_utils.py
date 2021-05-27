@@ -44,7 +44,7 @@ def get_header(pyc_file, egg_python):
     ----------
     pyc_file: str
         path to the .pyc file from which the header will be returned
-    egg_python: text
+    egg_python: unicode string
         python attribute of egg spec depend, i.e. the Python version of the egg
 
     Returns
@@ -97,7 +97,7 @@ def validate_bytecode_header(py_file, pyc_file, egg_python):
         path to the .py file that corresponds to the .pyc file
     pyc_file: str
         path to the .pyc file that corresponds to the .py file
-    egg_python: text
+    egg_python: unicode string
         python attribute of egg spec depend, i.e. the Python version of the egg
     """
     name = os.path.basename(pyc_file)
@@ -128,11 +128,9 @@ def force_valid_pyc_file(py_file, pyc_file, egg_python):
     ----------
     py_file: str
         path to the .py file that corresponds to the .pyc file
-    pyc_file: str OR file-like object
-        path to the .pyc file that corresponds to the .py file
-        OR
+    pyc_file: file-like object
         file-like bytecode object that corresponds to the .py file
-    egg_python: text
+    egg_python: unicode string
         python attribute of egg spec depend, i.e. the Python version of the egg
     """
     byte_slices = PYC_TARGET_VERSION_TO_HEADER_BYTE_SLICES.get(
@@ -157,7 +155,7 @@ def cache_from_source(py_file, egg_python):
     ----------
     py_file: str
         Path to .py file
-    egg_python: text
+    egg_python: unicode string
         python attribute of egg spec depend, i.e. the Python version of the egg
 
     Returns
@@ -183,7 +181,7 @@ def source_from_cache(pyc_file, egg_python):
     ----------
     pyc_file: str
         Path to .pyc file
-    egg_python: text
+    egg_python: unicode string
         python attribute of egg spec depend, i.e. the Python version of the egg
 
     Returns
