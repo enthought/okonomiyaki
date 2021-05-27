@@ -6,7 +6,7 @@ from collections import namedtuple
 
 # Header is used to store data related to different sections of the .pyc header
 Header2 = namedtuple('Header2', ['magic', 'crlf', 'timestamp'])
-Header35 = namedtuple('Header35', ['magic', 'crlf', 'timestamp', 'source_size'])
+Header3 = namedtuple('Header3', ['magic', 'crlf', 'timestamp', 'source_size'])
 Header37 = namedtuple(
     'Header37', ['magic', 'crlf', 'flags', 'timestamp', 'source_size']
 )
@@ -14,30 +14,54 @@ Header37 = namedtuple(
 # Map the Python major, minor version to the corresponding Header namedtuple
 EGG_PYTHON_TO_HEADER_CLASS = {
     u'2.7': Header2,
-    u'3.5': Header35,
-    u'3.6': Header35,
+    u'3.0': Header3,
+    u'3.1': Header3,
+    u'3.2': Header3,
+    u'3.3': Header3,
+    u'3.4': Header3,
+    u'3.5': Header3,
+    u'3.6': Header3,
+    u'3.7': Header37,
     u'3.8': Header37,
+    u'3.9': Header37,
+    u'3.10': Header37,
 }
 
 # Map the Python major, minor version to magic number in .pyc header
 EGG_PYTHON_TO_MAGIC_NUMBER = {
     u'2.7': 62211,
+    u'3.0': 3131,
+    u'3.1': 3151,
+    u'3.2': 3180,
+    u'3.3': 3230,
+    u'3.4': 3310,
     u'3.5': 3350,
     u'3.6': 3379,
+    u'3.7': 3394,
     u'3.8': 3413,
+    u'3.9': 3425,
+    u'3.10': 3439,
 }
 
 # Python .pyc header formats
 PYC_PY2_HEADER_STRUCT_FORMAT = '<H2sI'
-PYC_PY35_HEADER_STRUCT_FORMAT = '<H2sII'
+PYC_PY3_HEADER_STRUCT_FORMAT = '<H2sII'
 PYC_PY37_HEADER_STRUCT_FORMAT = '<H2sIII'
 
 # Map the Python major, minor version to .pyc header format
 EGG_PYTHON_TO_STRUCT_FORMAT = {
     u'2.7': PYC_PY2_HEADER_STRUCT_FORMAT,
-    u'3.5': PYC_PY35_HEADER_STRUCT_FORMAT,
-    u'3.6': PYC_PY35_HEADER_STRUCT_FORMAT,
+    u'3.0': PYC_PY3_HEADER_STRUCT_FORMAT,
+    u'3.1': PYC_PY3_HEADER_STRUCT_FORMAT,
+    u'3.2': PYC_PY3_HEADER_STRUCT_FORMAT,
+    u'3.3': PYC_PY3_HEADER_STRUCT_FORMAT,
+    u'3.4': PYC_PY3_HEADER_STRUCT_FORMAT,
+    u'3.5': PYC_PY3_HEADER_STRUCT_FORMAT,
+    u'3.6': PYC_PY3_HEADER_STRUCT_FORMAT,
+    u'3.7': PYC_PY37_HEADER_STRUCT_FORMAT,
     u'3.8': PYC_PY37_HEADER_STRUCT_FORMAT,
+    u'3.9': PYC_PY37_HEADER_STRUCT_FORMAT,
+    u'3.10': PYC_PY37_HEADER_STRUCT_FORMAT,
 }
 
 
