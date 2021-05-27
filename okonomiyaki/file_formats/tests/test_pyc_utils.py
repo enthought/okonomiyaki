@@ -1,4 +1,5 @@
 import glob
+import io
 import os
 import shutil
 import sys
@@ -72,7 +73,8 @@ class TestPycUtils(unittest.TestCase):
             self.assert_pyc_valid(pyc_file, egg_python)
 
         # When
-        force_valid_pyc_file(py_file, pyc_file, egg_python)
+        with io.FileIO(pyc_file, 'rb') as pyc:
+            force_valid_pyc_file(py_file, pyc, egg_python)
 
         # Then
         self.assert_pyc_valid(pyc_file, egg_python)
