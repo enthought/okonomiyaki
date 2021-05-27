@@ -42,16 +42,12 @@ class TestPycUtils(unittest.TestCase):
         finally:
             shutil.rmtree(self.hypothesis_tmpdir)
 
-    def assertPycValid(self, pyc_file, egg_python):
+    def assert_pyc_valid(self, pyc_file, egg_python):
         py_file = source_from_cache(pyc_file, egg_python)
         try:
             validate_bytecode_header(py_file, pyc_file, egg_python)
         except ValueError as e:
             self.fail(str(e))
-
-    def assertPycInvalid(self, pyc_file, egg_python):
-        with self.assertRaises(AssertionError):
-            self.assertPycValid(pyc_file, egg_python)
 
     @given(sampled_from([u'2.7', u'3.5', u'3.6', u'3.8']))
     def test_force_valid_pyc_file(self, egg_python):
@@ -72,10 +68,11 @@ class TestPycUtils(unittest.TestCase):
                 search_path = os.path.join(self.hypothesis_tmpdir, '*.pyc')
             pyc_file = glob.glob(search_path)[0]
         py_file = source_from_cache(pyc_file, egg_python)
-        self.assertPycInvalid(pyc_file, egg_python)
+        with self.assertRaises(AssertionError):
+            self.assert_pyc_valid(pyc_file, egg_python)
 
         # When
         force_valid_pyc_file(py_file, pyc_file, egg_python)
 
         # Then
-        self.assertPycValid(pyc_file, egg_python)
+        self.assert_pyc_valid(pyc_file, egg_python)
