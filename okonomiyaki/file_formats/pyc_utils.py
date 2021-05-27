@@ -137,11 +137,7 @@ def force_valid_pyc_file(py_file, pyc_file, egg_python):
         egg_python, PYC_PY37_HEADER_BYTE_SLICES
     )
     header_len = byte_slices.timestamp.stop
-    if isinstance(pyc_file, str):
-        with io.FileIO(pyc_file, 'rb') as f:
-            data = f.read(header_len)
-    else:
-        data = pyc_file.read(header_len)
+    data = pyc_file.read(header_len)
 
     timestamp = struct.unpack('<I', data[byte_slices.timestamp])[0]
     os.utime(py_file, (timestamp, timestamp))
