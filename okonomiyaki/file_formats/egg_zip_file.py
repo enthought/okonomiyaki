@@ -14,6 +14,10 @@ from ._egg_info import _SPEC_DEPEND_LOCATION, parse_rawspec
 from .pyc_utils import force_valid_pyc_file, cache_from_source
 
 
+# Python 2 compatible enum for force_valid_pyc_files arg choices
+FORCE_VALID_PYC_NONE, FORCE_VALID_PYC = range(2)
+
+
 class EggZipFile(zipfile2.ZipFile):
     def __init__(self, *args, **kwargs):
         super(EggZipFile, self).__init__(*args, **kwargs)
@@ -45,7 +49,7 @@ class EggZipFile(zipfile2.ZipFile):
 
     def extract(self, member, path=None, pwd=None,
                 preserve_permissions=PERMS_PRESERVE_NONE,
-                force_valid_pyc_files=False):
+                force_valid_pyc_files=FORCE_VALID_PYC_NONE):
         if not isinstance(member, zipfile.ZipInfo):
             member = self.getinfo(member)
 
@@ -58,7 +62,7 @@ class EggZipFile(zipfile2.ZipFile):
 
     def extractall(self, path=None, members=None, pwd=None,
                    preserve_permissions=PERMS_PRESERVE_NONE,
-                   force_valid_pyc_files=False):
+                   force_valid_pyc_files=FORCE_VALID_PYC_NONE):
         """Extract all members from the archive to the current working
            directory. Overrides zipfile2.ZipFile extractall with the addition
            of force_valid_pyc_files parameter.
@@ -157,7 +161,8 @@ class EggZipFile(zipfile2.ZipFile):
                     mode = member.external_attr >> 16 & 0x1FF
                 os.chmod(targetpath, mode)
 
-            if force_valid_pyc_files and member.filename.endswith('.py'):
+            is_py_file = member.filename.endswith('.py')
+            if force_valid_pyc_files == FORCE_VALID_PYC and is_py_file:
                 self._force_valid_pyc_files(member, targetpath, pwd)
 
             return targetpath
