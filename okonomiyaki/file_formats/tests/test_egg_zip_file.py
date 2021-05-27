@@ -20,7 +20,7 @@ class TestEggZipFile(unittest.TestCase):
         py_file = source_from_cache(pyc_file, egg_python)
         try:
             validate_bytecode_header(py_file, pyc_file, egg_python)
-        except ImportError as e:
+        except ValueError as e:
             self.fail(str(e))
 
     def assertPycInvalid(self, pyc_file, egg_python):
