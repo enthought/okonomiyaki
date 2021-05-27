@@ -19,7 +19,7 @@ from .common import (
 )
 
 
-TARGET_VERSION_TO_STALE_EGGS = {
+EGG_PYTHON_TO_STALE_EGGS = {
     u'2.7': DUMMY_PKG_STALE_EGG_27,
     u'3.5': DUMMY_PKG_STALE_EGG_35,
     u'3.6': DUMMY_PKG_STALE_EGG_36,
@@ -53,7 +53,7 @@ class TestPycUtils(unittest.TestCase):
     @given(sampled_from([u'2.7', u'3.5', u'3.6', u'3.8']))
     def test_force_valid_pyc_file(self, egg_python):
         # Given
-        egg = TARGET_VERSION_TO_STALE_EGGS[egg_python]
+        egg = EGG_PYTHON_TO_STALE_EGGS[egg_python]
         with zipfile2.ZipFile(egg) as zip:
             zip.extractall(self.hypothesis_tmpdir)
 

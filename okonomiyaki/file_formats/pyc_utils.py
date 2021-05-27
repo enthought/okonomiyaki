@@ -5,34 +5,39 @@ from collections import namedtuple
 
 
 # Header is used to store data related to different sections of the .pyc header
-Header = namedtuple('Header', ['magic_number', 'timestamp', 'source_size'])
+Header2 = namedtuple('Header2', ['magic', 'crlf', 'timestamp'])
+Header35 = namedtuple('Header35', ['magic', 'crlf', 'timestamp', 'source_size'])
+Header37 = namedtuple(
+    'Header37', ['magic', 'crlf', 'flags', 'timestamp', 'source_size']
+)
 
+# Map the Python major, minor version to the corresponding Header namedtuple
+EGG_PYTHON_TO_HEADER_CLASS = {
+    u'2.7': Header2,
+    u'3.5': Header35,
+    u'3.6': Header35,
+    u'3.8': Header37,
+}
 
 # Map the Python major, minor version to magic number in .pyc header
-PYC_TARGET_VERSION_TO_MAGIC_NUMBER_BASE = {
+EGG_PYTHON_TO_MAGIC_NUMBER = {
     u'2.7': 62211,
     u'3.5': 3350,
     u'3.6': 3379,
-    u'3.8': 3413
+    u'3.8': 3413,
 }
 
-# Python byte slices for each section of the .pyc header
-PYC_PY2_HEADER_BYTE_SLICES = Header(
-    magic_number=slice(0, 4), timestamp=slice(4, 8), source_size=None
-)
-PYC_PY35_HEADER_BYTE_SLICES = Header(
-    magic_number=slice(0, 4), timestamp=slice(4, 8), source_size=slice(8, 12)
-)
-PYC_PY37_HEADER_BYTE_SLICES = Header(
-    magic_number=slice(0, 4), timestamp=slice(8, 12), source_size=slice(12, 16)
-)
+# Python .pyc header formats
+PYC_PY2_HEADER_STRUCT_FORMAT = '<H2sI'
+PYC_PY35_HEADER_STRUCT_FORMAT = '<H2sII'
+PYC_PY37_HEADER_STRUCT_FORMAT = '<H2sIII'
 
-# Map the Python major, minor version to byte slices in .pyc header
-PYC_TARGET_VERSION_TO_HEADER_BYTE_SLICES = {
-    u'2.7': PYC_PY2_HEADER_BYTE_SLICES,
-    u'3.5': PYC_PY35_HEADER_BYTE_SLICES,
-    u'3.6': PYC_PY35_HEADER_BYTE_SLICES,
-    u'3.8': PYC_PY37_HEADER_BYTE_SLICES,
+# Map the Python major, minor version to .pyc header format
+EGG_PYTHON_TO_STRUCT_FORMAT = {
+    u'2.7': PYC_PY2_HEADER_STRUCT_FORMAT,
+    u'3.5': PYC_PY35_HEADER_STRUCT_FORMAT,
+    u'3.6': PYC_PY35_HEADER_STRUCT_FORMAT,
+    u'3.8': PYC_PY37_HEADER_STRUCT_FORMAT,
 }
 
 
@@ -42,8 +47,8 @@ def get_header(pyc_file, egg_python):
 
     Parameters
     ----------
-    pyc_file: str
-        path to the .pyc file from which the header will be returned
+    pyc_file: file-like object
+        file-like bytecode object of the .pyc file
     egg_python: unicode string
         python attribute of egg spec depend, i.e. the Python version of the egg
 
@@ -52,31 +57,13 @@ def get_header(pyc_file, egg_python):
     Header:
         namedtuple of header values
     """
-    name = os.path.basename(pyc_file)
-    byte_slices = PYC_TARGET_VERSION_TO_HEADER_BYTE_SLICES.get(
-        egg_python, PYC_PY37_HEADER_BYTE_SLICES
-    )
-    if byte_slices.source_size is None:
-        header_len = byte_slices.timestamp.stop
-    else:
-        header_len = byte_slices.source_size.stop
-    with io.FileIO(pyc_file, 'rb') as f:
-        data = f.read(header_len)
-    if len(data) != header_len:
-        message = 'reached EOF while reading header in {}'.format(name)
-        raise EOFError(message)
+    header_struct = struct.Struct(EGG_PYTHON_TO_STRUCT_FORMAT.get(
+        egg_python, PYC_PY37_HEADER_STRUCT_FORMAT
+    ))
+    data = pyc_file.read(header_struct.size)
 
-    kwargs = {
-        field: data[getattr(byte_slices, field)] for field in Header._fields
-        if getattr(byte_slices, field) is not None
-    }
-    for int_field in ('timestamp', 'source_size'):
-        if int_field in kwargs:
-            kwargs[int_field] = struct.unpack('<I', kwargs[int_field])[0]
-        else:
-            kwargs[int_field] = None
-
-    return Header(**kwargs)
+    Header = EGG_PYTHON_TO_HEADER_CLASS.get(egg_python, Header37)
+    return Header(*header_struct.unpack(data))
 
 
 def validate_bytecode_header(py_file, pyc_file, egg_python):
@@ -101,12 +88,12 @@ def validate_bytecode_header(py_file, pyc_file, egg_python):
         python attribute of egg spec depend, i.e. the Python version of the egg
     """
     name = os.path.basename(pyc_file)
-    header = get_header(pyc_file, egg_python)
-    base_magic_number = PYC_TARGET_VERSION_TO_MAGIC_NUMBER_BASE.get(egg_python)
-    expected_magic_number = struct.pack('<H', base_magic_number) + b'\r\n'
-    if header.magic_number != expected_magic_number:
+    with io.FileIO(pyc_file, 'rb') as pyc:
+        header = get_header(pyc, egg_python)
+    magic_number = EGG_PYTHON_TO_MAGIC_NUMBER.get(egg_python)
+    if header.magic != magic_number or header.crlf != b'\r\n':
         message = 'bad magic number in {}: {}'
-        raise ValueError(message.format(name, header.magic_number))
+        raise ValueError(message.format(name, header.magic))
 
     source_stats = os.stat(py_file)
     source_mtime = int(source_stats.st_mtime)
@@ -133,14 +120,8 @@ def force_valid_pyc_file(py_file, pyc_file, egg_python):
     egg_python: unicode string
         python attribute of egg spec depend, i.e. the Python version of the egg
     """
-    byte_slices = PYC_TARGET_VERSION_TO_HEADER_BYTE_SLICES.get(
-        egg_python, PYC_PY37_HEADER_BYTE_SLICES
-    )
-    header_len = byte_slices.timestamp.stop
-    data = pyc_file.read(header_len)
-
-    timestamp = struct.unpack('<I', data[byte_slices.timestamp])[0]
-    os.utime(py_file, (timestamp, timestamp))
+    header = get_header(pyc_file, egg_python)
+    os.utime(py_file, (header.timestamp, header.timestamp))
 
 
 def cache_from_source(py_file, egg_python):
