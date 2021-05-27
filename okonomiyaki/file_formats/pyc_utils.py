@@ -100,7 +100,7 @@ def validate_bytecode_header(py_file, pyc_file, egg_python):
     if header.timestamp != source_mtime:
         raise ValueError('bytecode is stale for {}'.format(name))
 
-    if egg_python.startswith(u'3'):
+    if not egg_python.startswith(u'2.'):
         source_size = source_stats.st_size & 0xFFFFFFFF
         if header.source_size != source_size:
             raise ValueError('bytecode has wrong size for {}'.format(name))
