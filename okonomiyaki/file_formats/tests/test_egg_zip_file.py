@@ -96,7 +96,7 @@ class TestEggZipFile(unittest.TestCase):
         # When
         with EggZipFile(egg) as zip:
             zip.extractall(
-                self.hypothesis_tmpdir, force_valid_pyc_files=FORCE_VALID_PYC
+                self.hypothesis_tmpdir, validate_pyc_files=FORCE_VALID_PYC
             )
 
         # Then

@@ -14,7 +14,7 @@ from ._egg_info import _SPEC_DEPEND_LOCATION, parse_rawspec
 from .pyc_utils import force_valid_pyc_file, cache_from_source
 
 
-# Python 2 compatible enum for force_valid_pyc_files arg choices
+# Python 2 compatible enum for validate_pyc_files arg choices
 FORCE_VALID_PYC_NONE, FORCE_VALID_PYC = range(2)
 
 
@@ -40,7 +40,7 @@ class EggZipFile(zipfile2.ZipFile):
             spec_depend_python = None
         return spec_depend_python
 
-    def _force_valid_pyc_files(self, member, targetpath, pwd=None):
+    def _force_valid_pyc_file(self, member, targetpath, pwd=None):
         """Force the .pyc file to be valid by setting the mtime of the
         corresponding .py file to the value in the .pyc header
 
@@ -70,10 +70,10 @@ class EggZipFile(zipfile2.ZipFile):
 
     def extract(self, member, path=None, pwd=None,
                 preserve_permissions=PERMS_PRESERVE_NONE,
-                force_valid_pyc_files=FORCE_VALID_PYC_NONE):
+                validate_pyc_files=FORCE_VALID_PYC_NONE):
         """Extract member from the archive to the current working
            directory. Overrides zipfile2.ZipFile extract with the addition
-           of force_valid_pyc_files parameter.
+           of validate_pyc_files parameter.
 
         Parameters
         ----------
@@ -89,7 +89,7 @@ class EggZipFile(zipfile2.ZipFile):
             permissions. Other options are to preserve safe subset of
             permissions PERMS_PRESERVE_SAFE or all permissions
             PERMS_PRESERVE_ALL.
-        force_valid_pyc_files: bool
+        validate_pyc_files: FORCE_VALID_PYC_NONE or FORCE_VALID_PYC
             Forces valid .pyc files by setting the timestamp of the
             corresponding .py file to the timestamp of the bytecode header.
         """
@@ -100,15 +100,15 @@ class EggZipFile(zipfile2.ZipFile):
             path = os.getcwd()
 
         return self._extract_member(
-            member, path, pwd, preserve_permissions, force_valid_pyc_files
+            member, path, pwd, preserve_permissions, validate_pyc_files
         )
 
     def extractall(self, path=None, members=None, pwd=None,
                    preserve_permissions=PERMS_PRESERVE_NONE,
-                   force_valid_pyc_files=FORCE_VALID_PYC_NONE):
+                   validate_pyc_files=FORCE_VALID_PYC_NONE):
         """Extract all members from the archive to the current working
            directory. Overrides zipfile2.ZipFile extractall with the addition
-           of force_valid_pyc_files parameter.
+           of validate_pyc_files parameter.
 
         Parameters
         ----------
@@ -125,7 +125,7 @@ class EggZipFile(zipfile2.ZipFile):
             permissions. Other options are to preserve safe subset of
             permissions PERMS_PRESERVE_SAFE or all permissions
             PERMS_PRESERVE_ALL.
-        force_valid_pyc_files: bool
+        validate_pyc_files: FORCE_VALID_PYC_NONE or FORCE_VALID_PYC
             Forces valid .pyc files by setting the timestamp of the
             corresponding .py file to the timestamp of the bytecode header.
         """
@@ -134,18 +134,18 @@ class EggZipFile(zipfile2.ZipFile):
 
         for zipinfo in members:
             self.extract(
-                zipinfo, path, pwd, preserve_permissions, force_valid_pyc_files
+                zipinfo, path, pwd, preserve_permissions, validate_pyc_files
             )
 
     def _extract_member(self, member, targetpath, pwd, preserve_permissions,
-                        force_valid_pyc_files):
+                        validate_pyc_files):
         return self._extract_member_to(
             member, member.filename, targetpath, pwd, preserve_permissions,
-            force_valid_pyc_files
+            validate_pyc_files
         )
 
     def _extract_member_to(self, member, arcname, targetpath, pwd,
-                           preserve_permissions, force_valid_pyc_files):
+                           preserve_permissions, validate_pyc_files):
         """Extract the ZipInfo object 'member' to a physical
            file on the path targetpath.
         """
@@ -207,11 +207,11 @@ class EggZipFile(zipfile2.ZipFile):
                 os.chmod(targetpath, mode)
 
             use_force_valid_pyc_files = all((
-                force_valid_pyc_files == FORCE_VALID_PYC,
+                validate_pyc_files == FORCE_VALID_PYC,
                 member.filename.endswith('.py'),
                 self.egg_python is not None
             ))
             if use_force_valid_pyc_files:
-                self._force_valid_pyc_files(member, targetpath, pwd)
+                self._force_valid_pyc_file(member, targetpath, pwd)
 
             return targetpath
