@@ -71,6 +71,28 @@ class EggZipFile(zipfile2.ZipFile):
     def extract(self, member, path=None, pwd=None,
                 preserve_permissions=PERMS_PRESERVE_NONE,
                 force_valid_pyc_files=FORCE_VALID_PYC_NONE):
+        """Extract member from the archive to the current working
+           directory. Overrides zipfile2.ZipFile extract with the addition
+           of force_valid_pyc_files parameter.
+
+        Parameters
+        ----------
+        member: zipfile.ZipInfo or str
+            must be an item of the list returned by namelist() or infolist()
+        path: str
+            path specifies a different directory to extract to.
+        pwd: bytes
+            Optional password to decrypt files that is passed to ZipFile.open
+        preserve_permissions: int
+            controls whether permissions of zipped files are preserved or
+            not. Default is PERMS_PRESERVE_NONE - do not preserve any
+            permissions. Other options are to preserve safe subset of
+            permissions PERMS_PRESERVE_SAFE or all permissions
+            PERMS_PRESERVE_ALL.
+        force_valid_pyc_files: bool
+            Forces valid .pyc files by setting the timestamp of the
+            corresponding .py file to the timestamp of the bytecode header.
+        """
         if not isinstance(member, zipfile.ZipInfo):
             member = self.getinfo(member)
 
@@ -94,7 +116,7 @@ class EggZipFile(zipfile2.ZipFile):
             path specifies a different directory to extract to.
         members: list
             is optional and must be a subset of the list returned by
-            namelist().
+            namelist() or infolist().
         pwd: bytes
             Optional password to decrypt files that is passed to ZipFile.open
         preserve_permissions: int
