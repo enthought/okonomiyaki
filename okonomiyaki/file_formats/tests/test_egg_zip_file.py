@@ -1,3 +1,4 @@
+import os
 import shutil
 import tempfile
 import unittest
@@ -8,12 +9,14 @@ from hypothesis.strategies import sampled_from
 
 from ..egg_zip_file import EggZipFile, FORCE_VALID_PYC
 from ..pyc_utils import (
-    validate_bytecode_header, source_from_cache, get_pyc_files
+    validate_bytecode_header, cache_from_source, source_from_cache,
+    get_pyc_files
 )
 
 from .common import (
     DUMMY_PKG_VALID_EGG_27, DUMMY_PKG_VALID_EGG_35, DUMMY_PKG_VALID_EGG_36,
-    DUMMY_PKG_VALID_EGG_38,
+    DUMMY_PKG_VALID_EGG_38, DUMMY_PKG_STALE_EGG_27, DUMMY_PKG_STALE_EGG_35,
+    DUMMY_PKG_STALE_EGG_36, DUMMY_PKG_STALE_EGG_38,
 )
 
 
@@ -22,6 +25,12 @@ EGG_PYTHON_TO_VALID_EGGS = {
     u'3.5': DUMMY_PKG_VALID_EGG_35,
     u'3.6': DUMMY_PKG_VALID_EGG_36,
     u'3.8': DUMMY_PKG_VALID_EGG_38,
+}
+EGG_PYTHON_TO_STALE_EGGS = {
+    u'2.7': DUMMY_PKG_STALE_EGG_27,
+    u'3.5': DUMMY_PKG_STALE_EGG_35,
+    u'3.6': DUMMY_PKG_STALE_EGG_36,
+    u'3.8': DUMMY_PKG_STALE_EGG_38,
 }
 
 
@@ -59,6 +68,30 @@ class TestEggZipFile(unittest.TestCase):
 
         # Then
         self.assertEqual(egg_python, zip_egg_python)
+
+    @given(sampled_from([u'2.7', u'3.5', u'3.6', u'3.8']))
+    def test__force_valid_pyc_file(self, egg_python):
+        # Given
+        egg = EGG_PYTHON_TO_STALE_EGGS[egg_python]
+
+        with EggZipFile(egg) as zip:
+            py_files = [
+                f for f in zip.namelist() if f.endswith('.py')
+            ]
+            py_file = py_files[0]
+            py_file_info = zip.getinfo(py_file)
+            py_target_path = zip.extract(py_file_info, self.hypothesis_tmpdir)
+
+            pyc_file = cache_from_source(py_file, egg_python)
+            if os.path.sep == '\\':
+                pyc_file = pyc_file.replace('\\', '/')
+            pyc_target_path = zip.extract(pyc_file, self.hypothesis_tmpdir)
+
+            # When
+            zip._force_valid_pyc_file(py_file_info, py_target_path)
+
+        # Then
+        self.assert_pyc_valid(pyc_target_path, egg_python)
 
     @given(sampled_from([u'2.7', u'3.5', u'3.6', u'3.8']))
     def test_valid_pyc_egg_with_zipfile2(self, egg_python):
