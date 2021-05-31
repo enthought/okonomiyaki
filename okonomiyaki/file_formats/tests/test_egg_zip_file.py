@@ -13,7 +13,7 @@ from ..pyc_utils import (
 
 from .common import (
     DUMMY_PKG_VALID_EGG_27, DUMMY_PKG_VALID_EGG_35, DUMMY_PKG_VALID_EGG_36,
-    DUMMY_PKG_VALID_EGG_38
+    DUMMY_PKG_VALID_EGG_38,
 )
 
 
@@ -47,6 +47,18 @@ class TestEggZipFile(unittest.TestCase):
             validate_bytecode_header(py_file, pyc_file, egg_python)
         except ValueError as e:
             self.fail(str(e))
+
+    @given(sampled_from([u'2.7', u'3.5', u'3.6', u'3.8']))
+    def test__get_egg_python(self, egg_python):
+        # Given
+        egg = EGG_PYTHON_TO_VALID_EGGS[egg_python]
+
+        # When
+        with EggZipFile(egg) as zip:
+            zip_egg_python = zip.egg_python
+
+        # Then
+        self.assertEqual(egg_python, zip_egg_python)
 
     @given(sampled_from([u'2.7', u'3.5', u'3.6', u'3.8']))
     def test_valid_pyc_egg_with_zipfile2(self, egg_python):
