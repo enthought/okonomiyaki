@@ -35,10 +35,6 @@ EGG_PYTHON_TO_STALE_EGGS = {
 
 
 class TestEggZipFile(unittest.TestCase):
-    def setUp(self):
-        self.tmpdir = tempfile.mkdtemp()
-        self.addCleanup(shutil.rmtree, self.tmpdir)
-
     def execute_example(self, f):
         """Hypothesis custom function execution to allow a tmpdir with each
            execution of a given hypothesis value
