@@ -11,7 +11,8 @@ from hypothesis import given
 from hypothesis.strategies import sampled_from
 
 from ..pyc_utils import (
-    validate_bytecode_header, force_valid_pyc_file, source_from_cache
+    validate_bytecode_header, force_valid_pyc_file, source_from_cache,
+    get_pyc_files
 )
 from .common import (
     DUMMY_PKG_STALE_EGG_27, DUMMY_PKG_STALE_EGG_35, DUMMY_PKG_STALE_EGG_36,
@@ -57,17 +58,7 @@ class TestPycUtils(unittest.TestCase):
         with zipfile2.ZipFile(egg) as zip:
             zip.extractall(self.hypothesis_tmpdir)
 
-        if sys.version_info.major == 3:
-            search_path = os.path.join(self.hypothesis_tmpdir, '**', '*.pyc')
-            pyc_file = glob.glob(search_path, recursive=True)[0]
-        else:
-            if egg_python.startswith(u'3'):
-                search_path = os.path.join(
-                    self.hypothesis_tmpdir, '__pycache__', '*.pyc'
-                )
-            else:
-                search_path = os.path.join(self.hypothesis_tmpdir, '*.pyc')
-            pyc_file = glob.glob(search_path)[0]
+        pyc_file = get_pyc_files(self.hypothesis_tmpdir)[0]
         py_file = source_from_cache(pyc_file, egg_python)
         with self.assertRaises(AssertionError):
             self.assert_pyc_valid(pyc_file, egg_python)

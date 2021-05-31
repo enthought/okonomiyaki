@@ -197,3 +197,12 @@ def source_from_cache(pyc_file, egg_python):
         return os.path.join(py_dirname, py_basename)
     else:
         return pyc_file[:-1]
+
+
+def get_pyc_files(search_path):
+    pyc_files = []
+    for root, dirs, files in os.walk(search_path):
+        pyc_files.extend([
+            os.path.join(root, f) for f in files if f.endswith('.pyc')
+        ])
+    return pyc_files
