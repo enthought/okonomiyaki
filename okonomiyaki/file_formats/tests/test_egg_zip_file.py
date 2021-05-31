@@ -1,5 +1,3 @@
-import glob
-import os
 import shutil
 import tempfile
 import unittest
@@ -8,7 +6,7 @@ import zipfile2
 from hypothesis import given
 from hypothesis.strategies import sampled_from
 
-from ..egg_zip_file import EggZipFile, FORCE_VALID_PYC_NONE, FORCE_VALID_PYC
+from ..egg_zip_file import EggZipFile, FORCE_VALID_PYC
 from ..pyc_utils import (
     validate_bytecode_header, source_from_cache, get_pyc_files
 )

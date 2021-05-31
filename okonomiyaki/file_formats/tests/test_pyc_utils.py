@@ -1,8 +1,5 @@
-import glob
 import io
-import os
 import shutil
-import sys
 import tempfile
 import unittest
 import zipfile2
