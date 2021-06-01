@@ -200,6 +200,18 @@ def source_from_cache(pyc_file, egg_python):
 
 
 def get_pyc_files(search_path):
+    """Return list of .pyc files by recursively searching through search_path
+
+    Parameters
+    ----------
+    search_path: str
+        Path to search for .pyc files
+
+    Returns
+    -------
+    list (str):
+        List of paths to .pyc files
+    """
     pyc_files = []
     for root, dirs, files in os.walk(search_path):
         pyc_files.extend([
