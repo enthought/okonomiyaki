@@ -2,10 +2,12 @@ import glob
 import io
 import os
 import shutil
+import sys
 import tempfile
 import unittest
 import zipfile2
-from datetime import datetime, timezone
+if sys.version_info.major > 2:
+    from datetime import datetime, timezone
 
 from hypothesis import given
 from hypothesis.strategies import sampled_from
@@ -55,6 +57,10 @@ class TestPycUtils(unittest.TestCase):
         except ValueError as e:
             self.fail(str(e))
 
+    # TODO: Find an alternative for test using timezone on Python 2.7
+    @unittest.skipIf(
+        sys.version_info.major == 2, "timezone isn't available for Python 2"
+    )
     @given(sampled_from([u'2.7', u'3.5', u'3.6', u'3.8']))
     def test_get_header(self, egg_python):
         # Given
@@ -85,6 +91,10 @@ class TestPycUtils(unittest.TestCase):
         if egg_python == u'3.8':
             self.assertEqual(0, header.flags)
 
+    # TODO: Find an alternative for test using timezone on Python 2.7
+    @unittest.skipIf(
+        sys.version_info.major == 2, "timezone isn't available for Python 2"
+    )
     @given(sampled_from([u'2.7', u'3.5', u'3.6', u'3.8']))
     def test_validate_bytecode_header_valid(self, egg_python):
         # Given
@@ -110,6 +120,10 @@ class TestPycUtils(unittest.TestCase):
         except ValueError as e:
             self.fail(str(e))
 
+    # TODO: Find an alternative for test using timezone on Python 2.7
+    @unittest.skipIf(
+        sys.version_info.major == 2, "timezone isn't available for Python 2"
+    )
     @given(sampled_from([u'2.7', u'3.5', u'3.6', u'3.8']))
     def test_validate_bytecode_header_stale(self, egg_python):
         # Given
