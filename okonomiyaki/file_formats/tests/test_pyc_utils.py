@@ -110,7 +110,6 @@ class TestPycUtils(unittest.TestCase):
         except ValueError as e:
             self.fail(str(e))
 
-
     @given(sampled_from([u'2.7', u'3.5', u'3.6', u'3.8']))
     def test_validate_bytecode_header_stale(self, egg_python):
         # Given
