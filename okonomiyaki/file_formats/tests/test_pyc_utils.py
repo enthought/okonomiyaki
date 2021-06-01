@@ -184,3 +184,24 @@ class TestPycUtils(unittest.TestCase):
 
         # Then
         self.assertEqual(py_file, result)
+
+    @given(sampled_from([u'2.7', u'3.5', u'3.6', u'3.8']))
+    def test_get_pyc_files(self, egg_python):
+        # Given
+        egg = EGG_PYTHON_TO_STALE_EGGS[egg_python]
+        with zipfile2.ZipFile(egg) as zip:
+            zip.extractall(self.hypothesis_tmpdir)
+
+        if egg_python.startswith(u'2.'):
+            search_path = os.path.join(self.hypothesis_tmpdir, '*.pyc')
+        else:
+            search_path = os.path.join(
+                self.hypothesis_tmpdir, '__pycache__', '*.pyc'
+            )
+        pyc_files = glob.glob(search_path)
+
+        # When
+        result = get_pyc_files(self.hypothesis_tmpdir)
+
+        # Then
+        self.assertListEqual(pyc_files, result)
