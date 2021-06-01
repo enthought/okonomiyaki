@@ -11,8 +11,9 @@ from hypothesis import given
 from hypothesis.strategies import sampled_from
 
 from ..pyc_utils import (
-    validate_bytecode_header, force_valid_pyc_file, cache_from_source,
-    source_from_cache, get_pyc_files
+    EGG_PYTHON_TO_MAGIC_NUMBER,
+    get_header, validate_bytecode_header, force_valid_pyc_file,
+    cache_from_source, source_from_cache, get_pyc_files
 )
 from .common import (
     DUMMY_PKG_VALID_EGG_27, DUMMY_PKG_VALID_EGG_35, DUMMY_PKG_VALID_EGG_36,
@@ -36,10 +37,6 @@ EGG_PYTHON_TO_STALE_EGGS = {
 
 
 class TestPycUtils(unittest.TestCase):
-    def setUp(self):
-        self.tmpdir = tempfile.mkdtemp()
-        self.addCleanup(shutil.rmtree, self.tmpdir)
-
     def execute_example(self, f):
         """Hypothesis custom function execution to allow a tmpdir with each
            execution of a given hypothesis value
@@ -57,6 +54,36 @@ class TestPycUtils(unittest.TestCase):
             validate_bytecode_header(py_file, pyc_file, egg_python)
         except ValueError as e:
             self.fail(str(e))
+
+    @given(sampled_from([u'2.7', u'3.5', u'3.6', u'3.8']))
+    def test_get_header(self, egg_python):
+        # Given
+        valid_egg = EGG_PYTHON_TO_VALID_EGGS[egg_python]
+        with zipfile2.ZipFile(valid_egg) as zip:
+            py_files = [
+                f for f in zip.namelist() if f.endswith('.py')
+            ]
+            py_file = py_files[0]
+            zip_info = zip.getinfo(py_file)
+            ts = datetime(*zip_info.date_time, tzinfo=timezone.utc).timestamp()
+
+            pyc_file = cache_from_source(py_file, egg_python)
+            if os.path.sep == '\\':
+                pyc_file = pyc_file.replace('\\', '/')
+            pyc_path = zip.extract(pyc_file, self.hypothesis_tmpdir)
+
+        # When
+        with io.FileIO(pyc_path, 'rb') as pyc:
+            header = get_header(pyc, egg_python)
+
+        # Then
+        self.assertEqual(EGG_PYTHON_TO_MAGIC_NUMBER[egg_python], header.magic)
+        self.assertEqual(b'\r\n', header.crlf)
+        self.assertEqual(ts, header.timestamp)
+        if not egg_python.startswith(u'2.'):
+            self.assertEqual(zip_info.file_size, header.source_size)
+        if egg_python == u'3.8':
+            self.assertEqual(0, header.flags)
 
     @given(sampled_from([u'2.7', u'3.5', u'3.6', u'3.8']))
     def test_validate_bytecode_header_valid(self, egg_python):
