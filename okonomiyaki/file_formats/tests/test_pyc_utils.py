@@ -1,4 +1,6 @@
+import glob
 import io
+import os
 import shutil
 import tempfile
 import unittest
@@ -8,8 +10,8 @@ from hypothesis import given
 from hypothesis.strategies import sampled_from
 
 from ..pyc_utils import (
-    validate_bytecode_header, force_valid_pyc_file, source_from_cache,
-    get_pyc_files
+    validate_bytecode_header, force_valid_pyc_file, cache_from_source,
+    source_from_cache, get_pyc_files
 )
 from .common import (
     DUMMY_PKG_STALE_EGG_27, DUMMY_PKG_STALE_EGG_35, DUMMY_PKG_STALE_EGG_36,
@@ -66,3 +68,35 @@ class TestPycUtils(unittest.TestCase):
 
         # Then
         self.assert_pyc_valid(pyc_file, egg_python)
+
+    @given(sampled_from([u'2.7', u'3.5', u'3.6', u'3.8']))
+    def test_cache_from_source(self, egg_python):
+        # Given
+        egg = EGG_PYTHON_TO_STALE_EGGS[egg_python]
+        with zipfile2.ZipFile(egg) as zip:
+            zip.extractall(self.hypothesis_tmpdir)
+
+        pyc_file = get_pyc_files(self.hypothesis_tmpdir)[0]
+        py_file = glob.glob(os.path.join(self.hypothesis_tmpdir, '*.py'))[0]
+
+        # When
+        result = cache_from_source(py_file, egg_python)
+
+        # Then
+        self.assertEqual(pyc_file, result)
+
+    @given(sampled_from([u'2.7', u'3.5', u'3.6', u'3.8']))
+    def test_source_from_cache(self, egg_python):
+        # Given
+        egg = EGG_PYTHON_TO_STALE_EGGS[egg_python]
+        with zipfile2.ZipFile(egg) as zip:
+            zip.extractall(self.hypothesis_tmpdir)
+
+        pyc_file = get_pyc_files(self.hypothesis_tmpdir)[0]
+        py_file = glob.glob(os.path.join(self.hypothesis_tmpdir, '*.py'))[0]
+
+        # When
+        result = source_from_cache(pyc_file, egg_python)
+
+        # Then
+        self.assertEqual(py_file, result)
