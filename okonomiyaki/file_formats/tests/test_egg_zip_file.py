@@ -70,13 +70,11 @@ class TestEggZipFile(unittest.TestCase):
         # Given
         py_file = 'dummy_pkg.py'
         egg = EGG_PYTHON_TO_STALE_EGGS[egg_python]
-        pyc_file = cache_from_source(py_file, egg_python)
+        pyc_file = cache_from_source(py_file, egg_python).replace('\\', '/')
 
         with EggZipFile(egg) as zip_:
             py_file_info = zip_.getinfo(py_file)
             py_target_path = zip_.extract(py_file_info, self.tmpdir)
-            if os.path.sep == '\\':
-                pyc_file = pyc_file.replace('\\', '/')
             pyc_target_path = zip_.extract(pyc_file, self.tmpdir)
 
             # When

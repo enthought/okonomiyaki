@@ -93,12 +93,10 @@ class TestPycUtils(unittest.TestCase):
         # Given
         py_file = 'dummy_pkg.py'
         valid_egg = EGG_PYTHON_TO_VALID_EGGS[egg_python]
+        pyc_file = cache_from_source(py_file, egg_python).replace('\\', '/')
         with zipfile2.ZipFile(valid_egg) as zip_:
             zip_info = zip_.getinfo(py_file)
             ts = _timestamp(datetime(*zip_info.date_time, tzinfo=utc))
-            pyc_file = cache_from_source(py_file, egg_python)
-            if os.path.sep == '\\':
-                pyc_file = pyc_file.replace('\\', '/')
             pyc_path = zip_.extract(pyc_file, self.tmpdir)
 
         # When
@@ -119,15 +117,12 @@ class TestPycUtils(unittest.TestCase):
         # Given
         py_file = 'dummy_pkg.py'
         valid_egg = EGG_PYTHON_TO_VALID_EGGS[egg_python]
+        pyc_file = cache_from_source(py_file, egg_python).replace('\\', '/')
         with zipfile2.ZipFile(valid_egg) as zip_:
             zip_info = zip_.getinfo(py_file)
             ts = _timestamp(datetime(*zip_info.date_time, tzinfo=utc))
             py_path = zip_.extract(zip_info, self.tmpdir)
             os.utime(py_path, (ts, ts))
-
-            pyc_file = cache_from_source(py_file, egg_python)
-            if os.path.sep == '\\':
-                pyc_file = pyc_file.replace('\\', '/')
             pyc_path = zip_.extract(pyc_file, self.tmpdir)
 
         # When/Then
@@ -141,15 +136,12 @@ class TestPycUtils(unittest.TestCase):
         # Given
         py_file = 'dummy_pkg.py'
         stale_egg = EGG_PYTHON_TO_STALE_EGGS[egg_python]
+        pyc_file = cache_from_source(py_file, egg_python).replace('\\', '/')
         with zipfile2.ZipFile(stale_egg) as zip_:
             zip_info = zip_.getinfo(py_file)
             ts = _timestamp(datetime(*zip_info.date_time, tzinfo=utc))
             py_path = zip_.extract(zip_info, self.tmpdir)
             os.utime(py_path, (ts, ts))
-
-            pyc_file = cache_from_source(py_file, egg_python)
-            if os.path.sep == '\\':
-                pyc_file = pyc_file.replace('\\', '/')
             pyc_path = zip_.extract(pyc_file, self.tmpdir)
 
         # When/Then
