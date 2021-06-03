@@ -2,7 +2,6 @@ import glob
 import io
 import os
 import shutil
-import sys
 import tempfile
 import unittest
 import zipfile2
@@ -11,7 +10,8 @@ try:
     from datetime import timezone
 except ImportError:
     # Support runnint the tests on python 2.7
-    from datetime import tzinfo
+    from datetime import tzinfo, timedelta
+
     class UTC(tzinfo):
         """UTC"""
 
