@@ -63,12 +63,9 @@ class TestPycUtils(unittest.TestCase):
     @given(sampled_from([u'2.7', u'3.5', u'3.6', u'3.8']))
     def test_get_header(self, egg_python):
         # Given
+        py_file = 'dummy_pkg.py'
         valid_egg = EGG_PYTHON_TO_VALID_EGGS[egg_python]
         with zipfile2.ZipFile(valid_egg) as zip:
-            py_files = [
-                f for f in zip.namelist() if f.endswith('.py')
-            ]
-            py_file = py_files[0]
             zip_info = zip.getinfo(py_file)
             ts = datetime(*zip_info.date_time, tzinfo=timezone.utc).timestamp()
 
@@ -97,12 +94,9 @@ class TestPycUtils(unittest.TestCase):
     @given(sampled_from([u'2.7', u'3.5', u'3.6', u'3.8']))
     def test_validate_bytecode_header_valid(self, egg_python):
         # Given
+        py_file = 'dummy_pkg.py'
         valid_egg = EGG_PYTHON_TO_VALID_EGGS[egg_python]
         with zipfile2.ZipFile(valid_egg) as zip:
-            py_files = [
-                f for f in zip.namelist() if f.endswith('.py')
-            ]
-            py_file = py_files[0]
             zip_info = zip.getinfo(py_file)
             ts = datetime(*zip_info.date_time, tzinfo=timezone.utc).timestamp()
             py_path = zip.extract(zip_info, self.tmpdir)
@@ -126,12 +120,9 @@ class TestPycUtils(unittest.TestCase):
     @given(sampled_from([u'2.7', u'3.5', u'3.6', u'3.8']))
     def test_validate_bytecode_header_stale(self, egg_python):
         # Given
+        py_file = 'dummy_pkg.py'
         stale_egg = EGG_PYTHON_TO_STALE_EGGS[egg_python]
         with zipfile2.ZipFile(stale_egg) as zip:
-            py_files = [
-                f for f in zip.namelist() if f.endswith('.py')
-            ]
-            py_file = py_files[0]
             zip_info = zip.getinfo(py_file)
             ts = datetime(*zip_info.date_time, tzinfo=timezone.utc).timestamp()
             py_path = zip.extract(zip_info, self.tmpdir)
