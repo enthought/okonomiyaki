@@ -42,13 +42,12 @@ class TestPycUtils(unittest.TestCase):
     def execute_example(self, f):
         """Hypothesis custom function execution to allow a tmpdir with each
            execution of a given hypothesis value
-           (self.tmpdir doesn't change between hypothesis executions.)
         """
-        self.hypothesis_tmpdir = tempfile.mkdtemp()
+        self.tmpdir = tempfile.mkdtemp()
         try:
             f()
         finally:
-            shutil.rmtree(self.hypothesis_tmpdir)
+            shutil.rmtree(self.tmpdir)
 
     def assert_pyc_valid(self, pyc_file, egg_python):
         py_file = source_from_cache(pyc_file, egg_python)
@@ -76,7 +75,7 @@ class TestPycUtils(unittest.TestCase):
             pyc_file = cache_from_source(py_file, egg_python)
             if os.path.sep == '\\':
                 pyc_file = pyc_file.replace('\\', '/')
-            pyc_path = zip.extract(pyc_file, self.hypothesis_tmpdir)
+            pyc_path = zip.extract(pyc_file, self.tmpdir)
 
         # When
         with io.FileIO(pyc_path, 'rb') as pyc:
@@ -105,14 +104,14 @@ class TestPycUtils(unittest.TestCase):
             ]
             py_file = py_files[0]
             zip_info = zip.getinfo(py_file)
-            py_path = zip.extract(zip_info, self.hypothesis_tmpdir)
             ts = datetime(*zip_info.date_time, tzinfo=timezone.utc).timestamp()
+            py_path = zip.extract(zip_info, self.tmpdir)
             os.utime(py_path, (ts, ts))
 
             pyc_file = cache_from_source(py_file, egg_python)
             if os.path.sep == '\\':
                 pyc_file = pyc_file.replace('\\', '/')
-            pyc_path = zip.extract(pyc_file, self.hypothesis_tmpdir)
+            pyc_path = zip.extract(pyc_file, self.tmpdir)
 
         # When/Then
         try:
@@ -134,14 +133,14 @@ class TestPycUtils(unittest.TestCase):
             ]
             py_file = py_files[0]
             zip_info = zip.getinfo(py_file)
-            py_path = zip.extract(zip_info, self.hypothesis_tmpdir)
             ts = datetime(*zip_info.date_time, tzinfo=timezone.utc).timestamp()
+            py_path = zip.extract(zip_info, self.tmpdir)
             os.utime(py_path, (ts, ts))
 
             pyc_file = cache_from_source(py_file, egg_python)
             if os.path.sep == '\\':
                 pyc_file = pyc_file.replace('\\', '/')
-            pyc_path = zip.extract(pyc_file, self.hypothesis_tmpdir)
+            pyc_path = zip.extract(pyc_file, self.tmpdir)
 
         # When/Then
         with self.assertRaises(ValueError):
@@ -152,9 +151,9 @@ class TestPycUtils(unittest.TestCase):
         # Given
         egg = EGG_PYTHON_TO_STALE_EGGS[egg_python]
         with zipfile2.ZipFile(egg) as zip:
-            zip.extractall(self.hypothesis_tmpdir)
+            zip.extractall(self.tmpdir)
 
-        pyc_file = get_pyc_files(self.hypothesis_tmpdir)[0]
+        pyc_file = get_pyc_files(self.tmpdir)[0]
         py_file = source_from_cache(pyc_file, egg_python)
         with self.assertRaises(AssertionError):
             self.assert_pyc_valid(pyc_file, egg_python)
@@ -171,10 +170,10 @@ class TestPycUtils(unittest.TestCase):
         # Given
         egg = EGG_PYTHON_TO_STALE_EGGS[egg_python]
         with zipfile2.ZipFile(egg) as zip:
-            zip.extractall(self.hypothesis_tmpdir)
+            zip.extractall(self.tmpdir)
 
-        pyc_file = get_pyc_files(self.hypothesis_tmpdir)[0]
-        py_file = glob.glob(os.path.join(self.hypothesis_tmpdir, '*.py'))[0]
+        pyc_file = get_pyc_files(self.tmpdir)[0]
+        py_file = glob.glob(os.path.join(self.tmpdir, '*.py'))[0]
 
         # When
         result = cache_from_source(py_file, egg_python)
@@ -187,10 +186,10 @@ class TestPycUtils(unittest.TestCase):
         # Given
         egg = EGG_PYTHON_TO_STALE_EGGS[egg_python]
         with zipfile2.ZipFile(egg) as zip:
-            zip.extractall(self.hypothesis_tmpdir)
+            zip.extractall(self.tmpdir)
 
-        pyc_file = get_pyc_files(self.hypothesis_tmpdir)[0]
-        py_file = glob.glob(os.path.join(self.hypothesis_tmpdir, '*.py'))[0]
+        pyc_file = get_pyc_files(self.tmpdir)[0]
+        py_file = glob.glob(os.path.join(self.tmpdir, '*.py'))[0]
 
         # When
         result = source_from_cache(pyc_file, egg_python)
@@ -203,18 +202,17 @@ class TestPycUtils(unittest.TestCase):
         # Given
         egg = EGG_PYTHON_TO_STALE_EGGS[egg_python]
         with zipfile2.ZipFile(egg) as zip:
-            zip.extractall(self.hypothesis_tmpdir)
+            zip.extractall(self.tmpdir)
 
         if egg_python.startswith(u'2.'):
-            search_path = os.path.join(self.hypothesis_tmpdir, '*.pyc')
+            search_path = os.path.join(self.tmpdir, '*.pyc')
         else:
             search_path = os.path.join(
-                self.hypothesis_tmpdir, '__pycache__', '*.pyc'
-            )
+                self.tmpdir, '__pycache__', '*.pyc')
         pyc_files = glob.glob(search_path)
 
         # When
-        result = get_pyc_files(self.hypothesis_tmpdir)
+        result = get_pyc_files(self.tmpdir)
 
         # Then
         self.assertListEqual(pyc_files, result)
