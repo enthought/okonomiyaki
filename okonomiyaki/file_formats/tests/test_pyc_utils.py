@@ -6,8 +6,27 @@ import sys
 import tempfile
 import unittest
 import zipfile2
-if sys.version_info.major > 2:
-    from datetime import datetime, timezone
+from datetime import datetime
+try:
+    from datetime import timezone
+except ImportError:
+    # Support runnint the tests on python 2.7
+    from datetime import tzinfo
+    class UTC(tzinfo):
+        """UTC"""
+
+        def utcoffset(self, dt):
+            return timedelta(hours=1)
+
+        def tzname(self, dt):
+            return "UTC"
+
+        def dst(self, dt):
+            return timedelta(0)
+    utc = UTC()
+else:
+    utc = timezone.utc
+
 
 from hypothesis import given
 from hypothesis.strategies import sampled_from
@@ -38,7 +57,20 @@ EGG_PYTHON_TO_STALE_EGGS = {
 }
 
 
+def _timestamp(dt):
+    _EPOCH = datetime(1970, 1, 1, tzinfo=utc)
+    if hasattr(dt, '_tzinfo') and dt._tzinfo is None:
+        s = datetime._mktime()
+        return s + dt.microsecond / 1e6
+    elif hasattr(dt, 'tzinfo') and dt.tzinfo is None:
+        s = dt.mktime()
+        return s + dt.microsecond / 1e6
+    else:
+        return (dt - _EPOCH).total_seconds()
+
+
 class TestPycUtils(unittest.TestCase):
+
     def execute_example(self, f):
         """Hypothesis custom function execution to allow a tmpdir with each
            execution of a given hypothesis value
@@ -56,10 +88,6 @@ class TestPycUtils(unittest.TestCase):
         except ValueError as e:
             self.fail(str(e))
 
-    # TODO: Find an alternative for test using timezone on Python 2.7
-    @unittest.skipIf(
-        sys.version_info.major == 2, "timezone isn't available for Python 2"
-    )
     @given(sampled_from([u'2.7', u'3.5', u'3.6', u'3.8']))
     def test_get_header(self, egg_python):
         # Given
@@ -67,8 +95,7 @@ class TestPycUtils(unittest.TestCase):
         valid_egg = EGG_PYTHON_TO_VALID_EGGS[egg_python]
         with zipfile2.ZipFile(valid_egg) as zip:
             zip_info = zip.getinfo(py_file)
-            ts = datetime(*zip_info.date_time, tzinfo=timezone.utc).timestamp()
-
+            ts = _timestamp(datetime(*zip_info.date_time, tzinfo=utc))
             pyc_file = cache_from_source(py_file, egg_python)
             if os.path.sep == '\\':
                 pyc_file = pyc_file.replace('\\', '/')
@@ -87,10 +114,6 @@ class TestPycUtils(unittest.TestCase):
         if egg_python == u'3.8':
             self.assertEqual(0, header.flags)
 
-    # TODO: Find an alternative for test using timezone on Python 2.7
-    @unittest.skipIf(
-        sys.version_info.major == 2, "timezone isn't available for Python 2"
-    )
     @given(sampled_from([u'2.7', u'3.5', u'3.6', u'3.8']))
     def test_validate_bytecode_header_valid(self, egg_python):
         # Given
@@ -98,7 +121,7 @@ class TestPycUtils(unittest.TestCase):
         valid_egg = EGG_PYTHON_TO_VALID_EGGS[egg_python]
         with zipfile2.ZipFile(valid_egg) as zip:
             zip_info = zip.getinfo(py_file)
-            ts = datetime(*zip_info.date_time, tzinfo=timezone.utc).timestamp()
+            ts = _timestamp(datetime(*zip_info.date_time, tzinfo=utc))
             py_path = zip.extract(zip_info, self.tmpdir)
             os.utime(py_path, (ts, ts))
 
@@ -113,10 +136,6 @@ class TestPycUtils(unittest.TestCase):
         except ValueError as e:
             self.fail(str(e))
 
-    # TODO: Find an alternative for test using timezone on Python 2.7
-    @unittest.skipIf(
-        sys.version_info.major == 2, "timezone isn't available for Python 2"
-    )
     @given(sampled_from([u'2.7', u'3.5', u'3.6', u'3.8']))
     def test_validate_bytecode_header_stale(self, egg_python):
         # Given
@@ -124,7 +143,7 @@ class TestPycUtils(unittest.TestCase):
         stale_egg = EGG_PYTHON_TO_STALE_EGGS[egg_python]
         with zipfile2.ZipFile(stale_egg) as zip:
             zip_info = zip.getinfo(py_file)
-            ts = datetime(*zip_info.date_time, tzinfo=timezone.utc).timestamp()
+            ts = _timestamp(datetime(*zip_info.date_time, tzinfo=utc))
             py_path = zip.extract(zip_info, self.tmpdir)
             os.utime(py_path, (ts, ts))
 
