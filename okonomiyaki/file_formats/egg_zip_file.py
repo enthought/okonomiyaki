@@ -34,11 +34,10 @@ class EggZipFile(zipfile2.ZipFile):
         try:
             with self.open(_SPEC_DEPEND_LOCATION) as spec_file:
                 spec_depend = parse_rawspec(spec_file.read().decode())
-            spec_depend_python = spec_depend['python']
+                return spec_depend['python']
         except Exception:
             # Fail silently and continue for .pyc file issues
-            spec_depend_python = None
-        return spec_depend_python
+            return None
 
     def _force_valid_pyc_file(self, member, targetpath, pwd=None):
         """Force the .pyc file to be valid by setting the mtime of the
