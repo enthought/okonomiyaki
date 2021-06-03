@@ -21,7 +21,9 @@ INSTALL_REQUIRES = [
 ]
 
 EXTRAS_REQUIRE = {
-    ':python_version=="2.7"': ['enum34'],
+    # We add pyrsistent because it is a dependency of jsonschema
+    # and we need a version that is compatible with python 2.7
+    ':python_version=="2.7"': ['enum34', 'pyrsistent<=0.15.7'],
 }
 
 
