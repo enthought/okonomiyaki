@@ -40,11 +40,11 @@ class TestEggZipFile(unittest.TestCase):
            execution of a given hypothesis value
            (self.tmpdir doesn't change between hypothesis executions.)
         """
-        self.hypothesis_tmpdir = tempfile.mkdtemp()
+        self.tmpdir = tempfile.mkdtemp()
         try:
             f()
         finally:
-            shutil.rmtree(self.hypothesis_tmpdir)
+            shutil.rmtree(self.tmpdir)
 
     def assert_pyc_valid(self, pyc_file, egg_python):
         py_file = source_from_cache(pyc_file, egg_python)
@@ -59,8 +59,8 @@ class TestEggZipFile(unittest.TestCase):
         egg = EGG_PYTHON_TO_VALID_EGGS[egg_python]
 
         # When
-        with EggZipFile(egg) as zip:
-            zip_egg_python = zip.egg_python
+        with EggZipFile(egg) as zip_:
+            zip_egg_python = zip_.egg_python
 
         # Then
         self.assertEqual(egg_python, zip_egg_python)
@@ -68,23 +68,19 @@ class TestEggZipFile(unittest.TestCase):
     @given(sampled_from([u'2.7', u'3.5', u'3.6', u'3.8']))
     def test__force_valid_pyc_file(self, egg_python):
         # Given
+        py_file = 'dummy_pkg.py'
         egg = EGG_PYTHON_TO_STALE_EGGS[egg_python]
+        pyc_file = cache_from_source(py_file, egg_python)
 
-        with EggZipFile(egg) as zip:
-            py_files = [
-                f for f in zip.namelist() if f.endswith('.py')
-            ]
-            py_file = py_files[0]
-            py_file_info = zip.getinfo(py_file)
-            py_target_path = zip.extract(py_file_info, self.hypothesis_tmpdir)
-
-            pyc_file = cache_from_source(py_file, egg_python)
+        with EggZipFile(egg) as zip_:
+            py_file_info = zip_.getinfo(py_file)
+            py_target_path = zip_.extract(py_file_info, self.tmpdir)
             if os.path.sep == '\\':
                 pyc_file = pyc_file.replace('\\', '/')
-            pyc_target_path = zip.extract(pyc_file, self.hypothesis_tmpdir)
+            pyc_target_path = zip_.extract(pyc_file, self.tmpdir)
 
             # When
-            zip._force_valid_pyc_file(py_file_info, py_target_path)
+            zip_._force_valid_pyc_file(py_file_info, py_target_path)
 
         # Then
         self.assert_pyc_valid(pyc_target_path, egg_python)
@@ -95,11 +91,11 @@ class TestEggZipFile(unittest.TestCase):
         egg = EGG_PYTHON_TO_VALID_EGGS[egg_python]
 
         # When
-        with zipfile2.ZipFile(egg) as zip:
-            zip.extractall(self.hypothesis_tmpdir)
+        with zipfile2.ZipFile(egg) as zip_:
+            zip_.extractall(self.tmpdir)
 
         # Then
-        pyc_file = get_pyc_files(self.hypothesis_tmpdir)[0]
+        pyc_file = get_pyc_files(self.tmpdir)[0]
         with self.assertRaises(AssertionError):
             self.assert_pyc_valid(pyc_file, egg_python)
 
@@ -109,11 +105,11 @@ class TestEggZipFile(unittest.TestCase):
         egg = EGG_PYTHON_TO_VALID_EGGS[egg_python]
 
         # When
-        with EggZipFile(egg) as zip:
-            zip.extractall(self.hypothesis_tmpdir)
+        with EggZipFile(egg) as zip_:
+            zip_.extractall(self.tmpdir)
 
         # Then
-        pyc_file = get_pyc_files(self.hypothesis_tmpdir)[0]
+        pyc_file = get_pyc_files(self.tmpdir)[0]
         with self.assertRaises(AssertionError):
             self.assert_pyc_valid(pyc_file, egg_python)
 
@@ -123,11 +119,11 @@ class TestEggZipFile(unittest.TestCase):
         egg = EGG_PYTHON_TO_VALID_EGGS[egg_python]
 
         # When
-        with EggZipFile(egg) as zip:
-            zip.extractall(
-                self.hypothesis_tmpdir, validate_pyc_files=FORCE_VALID_PYC
+        with EggZipFile(egg) as zip_:
+            zip_.extractall(
+                self.tmpdir, validate_pyc_files=FORCE_VALID_PYC
             )
 
         # Then
-        pyc_file = get_pyc_files(self.hypothesis_tmpdir)[0]
+        pyc_file = get_pyc_files(self.tmpdir)[0]
         self.assert_pyc_valid(pyc_file, egg_python)

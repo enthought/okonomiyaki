@@ -93,13 +93,13 @@ class TestPycUtils(unittest.TestCase):
         # Given
         py_file = 'dummy_pkg.py'
         valid_egg = EGG_PYTHON_TO_VALID_EGGS[egg_python]
-        with zipfile2.ZipFile(valid_egg) as zip:
-            zip_info = zip.getinfo(py_file)
+        with zipfile2.ZipFile(valid_egg) as zip_:
+            zip_info = zip_.getinfo(py_file)
             ts = _timestamp(datetime(*zip_info.date_time, tzinfo=utc))
             pyc_file = cache_from_source(py_file, egg_python)
             if os.path.sep == '\\':
                 pyc_file = pyc_file.replace('\\', '/')
-            pyc_path = zip.extract(pyc_file, self.tmpdir)
+            pyc_path = zip_.extract(pyc_file, self.tmpdir)
 
         # When
         with io.FileIO(pyc_path, 'rb') as pyc:
@@ -119,16 +119,16 @@ class TestPycUtils(unittest.TestCase):
         # Given
         py_file = 'dummy_pkg.py'
         valid_egg = EGG_PYTHON_TO_VALID_EGGS[egg_python]
-        with zipfile2.ZipFile(valid_egg) as zip:
-            zip_info = zip.getinfo(py_file)
+        with zipfile2.ZipFile(valid_egg) as zip_:
+            zip_info = zip_.getinfo(py_file)
             ts = _timestamp(datetime(*zip_info.date_time, tzinfo=utc))
-            py_path = zip.extract(zip_info, self.tmpdir)
+            py_path = zip_.extract(zip_info, self.tmpdir)
             os.utime(py_path, (ts, ts))
 
             pyc_file = cache_from_source(py_file, egg_python)
             if os.path.sep == '\\':
                 pyc_file = pyc_file.replace('\\', '/')
-            pyc_path = zip.extract(pyc_file, self.tmpdir)
+            pyc_path = zip_.extract(pyc_file, self.tmpdir)
 
         # When/Then
         try:
@@ -141,16 +141,16 @@ class TestPycUtils(unittest.TestCase):
         # Given
         py_file = 'dummy_pkg.py'
         stale_egg = EGG_PYTHON_TO_STALE_EGGS[egg_python]
-        with zipfile2.ZipFile(stale_egg) as zip:
-            zip_info = zip.getinfo(py_file)
+        with zipfile2.ZipFile(stale_egg) as zip_:
+            zip_info = zip_.getinfo(py_file)
             ts = _timestamp(datetime(*zip_info.date_time, tzinfo=utc))
-            py_path = zip.extract(zip_info, self.tmpdir)
+            py_path = zip_.extract(zip_info, self.tmpdir)
             os.utime(py_path, (ts, ts))
 
             pyc_file = cache_from_source(py_file, egg_python)
             if os.path.sep == '\\':
                 pyc_file = pyc_file.replace('\\', '/')
-            pyc_path = zip.extract(pyc_file, self.tmpdir)
+            pyc_path = zip_.extract(pyc_file, self.tmpdir)
 
         # When/Then
         with self.assertRaises(ValueError):
@@ -160,8 +160,8 @@ class TestPycUtils(unittest.TestCase):
     def test_force_valid_pyc_file(self, egg_python):
         # Given
         egg = EGG_PYTHON_TO_STALE_EGGS[egg_python]
-        with zipfile2.ZipFile(egg) as zip:
-            zip.extractall(self.tmpdir)
+        with zipfile2.ZipFile(egg) as zip_:
+            zip_.extractall(self.tmpdir)
 
         pyc_file = get_pyc_files(self.tmpdir)[0]
         py_file = source_from_cache(pyc_file, egg_python)
@@ -179,8 +179,8 @@ class TestPycUtils(unittest.TestCase):
     def test_cache_from_source(self, egg_python):
         # Given
         egg = EGG_PYTHON_TO_STALE_EGGS[egg_python]
-        with zipfile2.ZipFile(egg) as zip:
-            zip.extractall(self.tmpdir)
+        with zipfile2.ZipFile(egg) as zip_:
+            zip_.extractall(self.tmpdir)
 
         pyc_file = get_pyc_files(self.tmpdir)[0]
         py_file = glob.glob(os.path.join(self.tmpdir, '*.py'))[0]
@@ -195,8 +195,8 @@ class TestPycUtils(unittest.TestCase):
     def test_source_from_cache(self, egg_python):
         # Given
         egg = EGG_PYTHON_TO_STALE_EGGS[egg_python]
-        with zipfile2.ZipFile(egg) as zip:
-            zip.extractall(self.tmpdir)
+        with zipfile2.ZipFile(egg) as zip_:
+            zip_.extractall(self.tmpdir)
 
         pyc_file = get_pyc_files(self.tmpdir)[0]
         py_file = glob.glob(os.path.join(self.tmpdir, '*.py'))[0]
@@ -211,8 +211,8 @@ class TestPycUtils(unittest.TestCase):
     def test_get_pyc_files(self, egg_python):
         # Given
         egg = EGG_PYTHON_TO_STALE_EGGS[egg_python]
-        with zipfile2.ZipFile(egg) as zip:
-            zip.extractall(self.tmpdir)
+        with zipfile2.ZipFile(egg) as zip_:
+            zip_.extractall(self.tmpdir)
 
         if egg_python.startswith(u'2.'):
             search_path = os.path.join(self.tmpdir, '*.pyc')
