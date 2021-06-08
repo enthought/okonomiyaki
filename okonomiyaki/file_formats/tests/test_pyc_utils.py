@@ -2,6 +2,7 @@ import glob
 import io
 import os
 import shutil
+import sys
 import tempfile
 import unittest
 import zipfile2
@@ -33,8 +34,8 @@ from hypothesis.strategies import sampled_from
 
 from ..pyc_utils import (
     EGG_PYTHON_TO_MAGIC_NUMBER,
-    get_header, validate_bytecode_header, force_valid_pyc_file,
-    cache_from_source, source_from_cache, get_pyc_files
+    get_header, validate_bytecode_header, validate_bytecode,
+    force_valid_pyc_file, cache_from_source, source_from_cache, get_pyc_files
 )
 from .common import (
     DUMMY_PKG_VALID_EGG_27, DUMMY_PKG_VALID_EGG_35, DUMMY_PKG_VALID_EGG_36,
@@ -70,6 +71,10 @@ def _timestamp(dt):
 
 
 class TestPycUtils(unittest.TestCase):
+
+    def setUp(self):
+        self.single_tmpdir = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.single_tmpdir)
 
     def execute_example(self, f):
         """Hypothesis custom function execution to allow a tmpdir with each
@@ -147,6 +152,30 @@ class TestPycUtils(unittest.TestCase):
         # When/Then
         with self.assertRaises(ValueError):
             validate_bytecode_header(py_path, pyc_path, egg_python)
+
+    def test_validate_bytecode(self):
+        # Given
+        egg_python = '{}.{}'.format(*sys.version_info[:2])
+        py_file = 'dummy_pkg.py'
+        pyc_file = cache_from_source(py_file, egg_python).replace('\\', '/')
+
+        # Valid or stale doesn't matter because bytecode checked and not header
+        valid_egg = EGG_PYTHON_TO_VALID_EGGS[egg_python]
+        valid_dir = os.path.join(self.single_tmpdir, 'valid')
+        with zipfile2.ZipFile(valid_egg) as zip_:
+            valid_py_path = zip_.extract(py_file, valid_dir)
+            valid_pyc_path = zip_.extract(pyc_file, valid_dir)
+        stale_egg = EGG_PYTHON_TO_STALE_EGGS[egg_python]
+        stale_dir = os.path.join(self.single_tmpdir, 'stale')
+        with zipfile2.ZipFile(stale_egg) as zip_:
+            stale_py_path = zip_.extract(py_file, stale_dir)
+            stale_pyc_path = zip_.extract(pyc_file, stale_dir)
+
+        # When/Then
+        validate_bytecode(valid_py_path, valid_pyc_path, egg_python)
+
+        # When/Then
+        validate_bytecode(stale_py_path, stale_pyc_path, egg_python)
 
     @given(sampled_from([u'2.7', u'3.5', u'3.6', u'3.8']))
     def test_force_valid_pyc_file(self, egg_python):

@@ -1,8 +1,12 @@
+import imp
 import io
+import marshal
 import os
 import struct
+import sys
 from collections import namedtuple
-
+if sys.version_info.major > 2:
+    import importlib
 
 # Header is used to store data related to different sections of the .pyc header
 Header2 = namedtuple('Header2', ['magic', 'crlf', 'timestamp'])
@@ -128,6 +132,44 @@ def validate_bytecode_header(py_file, pyc_file, egg_python):
         source_size = source_stats.st_size & 0xFFFFFFFF
         if header.source_size != source_size:
             raise ValueError('bytecode has wrong size for {}'.format(name))
+
+
+def validate_bytecode(py_file, pyc_file, egg_python):
+    """Validate the bytecode of a .pyc file by compiling from the .py source
+       and comparing
+
+    Parameters
+    ----------
+    py_file: str
+        path to the .py file that corresponds to the .pyc file
+    pyc_file: str
+        path to the .pyc file that corresponds to the .py file
+    egg_python: unicode string
+        python attribute of egg spec depend, i.e. the Python version of the egg
+    """
+    # Can only check bytecode for eggs with same version as system
+    assert egg_python == '{}.{}'.format(*sys.version_info[:2])
+
+    with io.FileIO(pyc_file, 'rb') as pyc:
+        data = pyc.read()
+    # Egg header magic should be same as system
+    assert data[:4] == imp.get_magic()
+
+    header_struct = struct.Struct(EGG_PYTHON_TO_STRUCT_FORMAT[egg_python])
+    pyc_bytecode = data[header_struct.size:]
+
+    if sys.version_info.major > 2:
+        loader = importlib.machinery.SourceFileLoader('<py_compile>', py_file)
+        source_bytes = loader.get_data(py_file)
+        code = loader.source_to_code(source_bytes, py_file)
+        py_bytecode = marshal.dumps(code)
+    else:
+        with open(py_file, 'U') as f:
+            codestring = f.read()
+        codeobject = compile(codestring, py_file)
+        py_bytecode = marshal.dumps(codeobject)
+    if pyc_bytecode != py_bytecode:
+        raise ValueError('bytecode different from source')
 
 
 def force_valid_pyc_file(py_file, pyc_file, egg_python):
