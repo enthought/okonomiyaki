@@ -166,7 +166,7 @@ def validate_bytecode(py_file, pyc_file, egg_python):
     else:
         with open(py_file, 'U') as f:
             codestring = f.read()
-        codeobject = compile(codestring, py_file)
+        codeobject = compile(codestring, py_file, 'exec')
         py_bytecode = marshal.dumps(codeobject)
     if pyc_bytecode != py_bytecode:
         raise ValueError('bytecode different from source')
