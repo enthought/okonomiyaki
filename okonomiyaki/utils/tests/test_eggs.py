@@ -22,7 +22,7 @@ class TestDummyEggs(unittest.TestCase):
             self.assertEqual(metadata.abi_tag, None)
         else:
             self.assertEqual(metadata.python_tag, 'cp38')
-            self.assertEqual(metadata.abi_tag, 'cp38m')
+            self.assertEqual(metadata.abi_tag, 'cp38')
         if 'osx' in filepath:
             self.assertEqual(metadata.platform_tag, 'macosx_10_14_x86_64')
             self.assertEqual(metadata.platform_abi, PlatformABI(u'darwin'))
