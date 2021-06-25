@@ -255,7 +255,7 @@ def _parse_from_path(path):
         abi = abi_string
 
     version = RuntimeVersion.from_string(version_string)
-    epd_platform = EPDPlatform.from_epd_string(platform_string)
+    epd_platform = EPDPlatform.from_epd_string(platform_string, version)
 
     return implementation, version, epd_platform.platform, abi
 
