@@ -13,7 +13,6 @@ from okonomiyaki.platforms import EPDPlatform
 from ..legacy import _guess_platform_abi, _guess_abi_tag
 
 
-
 class TestGuessPlatformABI(unittest.TestCase):
 
     #: Known platforms that at some point have been uploaded into an EDS
@@ -230,8 +229,8 @@ class TestGuessABITag(unittest.TestCase):
             msg="{} gives {} instead of {}".format(
                 configuration, result, expected))
 
-
-    @given(sampled_from(['cp27', 'cp30', 'cp31', 'cp34', 'cp36', 'cp38']))
+    @given(sampled_from(
+        ['cp27', 'cp30', 'cp31', 'cp34', 'cp36', 'cp38']))
     def test_no_platform(self, python_tag):
         # When
         abi = _guess_abi_tag(None, python_tag)
@@ -239,7 +238,8 @@ class TestGuessABITag(unittest.TestCase):
         # Then
         self.assertIsNone(abi)
 
-    @given(sampled_from(['rh5-64', 'rh6-64', 'rh7-64', 'win-32', 'win-64', 'osx-64']))
+    @given(sampled_from(
+        ['rh5-64', 'rh6-64', 'rh7-64', 'win-32', 'win-64', 'osx-64']))
     def test_no_python_implementation(self, platform_tag):
         # Given
         platform = EPDPlatform.from_epd_string(platform_tag)
