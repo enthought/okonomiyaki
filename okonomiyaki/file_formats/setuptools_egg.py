@@ -82,8 +82,7 @@ def _guess_abi_from_python(python):
     #
     # In those cases, the mapping (platform pyver) -> ABI is unambiguous,
     # as we only ever used one ABI for a given python version/platform.
-
-    if python.major >= 8 and python.minor >= 0:
+    if python.major >= 3 and python.minor >= 8:
         # Python 3.8 has removed the `m` from the abi tag
         return u"cp{0}{1}".format(python.major, python.minor)
     else:
@@ -109,7 +108,6 @@ def _guess_abi_from_running_python():
 def _guess_abi(platform, python):
     if platform is None:
         return None
-
     if python is not None:
         if (python.major, python.minor) != sys.version_info[:2]:
             return _guess_abi_from_python(python)
@@ -133,7 +131,6 @@ class SetuptoolsEggMetadata(object):
                  abi_tag=_UNSPECIFIED):
         filename = os.path.basename(path)
         name, version, pyver, platform_string = parse_filename(filename)
-
         if platform is None and platform_string is not None:
             msg = ("Platform-specific egg detected: you need to specify a "
                    "platform argument that is not None to from_egg")
