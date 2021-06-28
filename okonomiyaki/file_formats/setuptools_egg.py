@@ -82,7 +82,12 @@ def _guess_abi_from_python(python):
     #
     # In those cases, the mapping (platform pyver) -> ABI is unambiguous,
     # as we only ever used one ABI for a given python version/platform.
-    return "cp{0}{1}m".format(python.major, python.minor)
+
+    if python.major >= 8 and python.minor >= 0:
+        # Python 3.8 has removed the `m` from the abi tag
+        return u"cp{0}{1}".format(python.major, python.minor)
+    else:
+        return u"cp{0}{1}m".format(python.major, python.minor)
 
 
 def _guess_abi_from_running_python():
