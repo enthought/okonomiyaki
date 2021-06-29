@@ -1,3 +1,12 @@
+2021-06-29     1.3.1
+--------------------
+
+Big fixes:
+
+* Update dummy eggs to hold the correct abi tag for Python 3.8 (#413)
+* Pass the runtime version to from_epd_string (#414)
+* Fix _guess_abi_tag and _guess_abi_from_python to support python 3.8 (#418)
+
 2021-03-21     1.3.0
 --------------------
 
