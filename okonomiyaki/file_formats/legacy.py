@@ -5,7 +5,7 @@ import re
 
 from ..errors import InvalidMetadataField
 from ..platforms import PythonImplementation, default_abi
-
+from ..versions import RuntimeVersion
 
 # To parse the python field in our index and spec/depend
 _PYVER_RE = re.compile(r"(?P<major>\d+)\.(?P<minor>\d+)")
@@ -35,8 +35,11 @@ def _guess_abi_tag(epd_platform, python_tag):
     #
     # In those cases, the mapping (platform pyver) -> ABI is unambiguous,
     # as we only ever used one ABI for a given python version/platform.
-    pyver = _python_tag_to_python(python_tag)
-    return u"cp{0}{1}m".format(pyver[0], pyver[2])
+    pyver = RuntimeVersion.from_string(_python_tag_to_python(python_tag))
+    if pyver >= RuntimeVersion.from_string('3.8'):
+        return u"cp{0}{1}".format(pyver.major, pyver.minor)
+    else:
+        return u"cp{0}{1}m".format(pyver.major, pyver.minor)
 
 
 def _guess_platform_abi(epd_platform, python_tag):
