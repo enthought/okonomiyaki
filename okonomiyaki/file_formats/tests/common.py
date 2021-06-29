@@ -4,8 +4,8 @@ import os.path
 
 from ... import repositories
 
-DATA_DIR = os.path.join(os.path.dirname(repositories.__file__),
-                        "tests", "data")
+DATA_DIR = os.path.join(
+    os.path.dirname(repositories.__file__), "tests", "data")
 
 ENSTALLER_EGG = os.path.join(DATA_DIR, "enstaller-4.5.0-1.egg")
 ETS_EGG = os.path.join(DATA_DIR, "ets-4.3.0-3.egg")
@@ -476,6 +476,13 @@ TRAITS_SETUPTOOLS_EGG = os.path.join(
 )
 
 PIP_SETUPTOOLS_EGG = os.path.join(DATA_DIR, "pip-7.0.3-py3.4.egg")
+
+TRAITS_SETUPTOOLS_OSX_cp38_EGG = os.path.join(
+    DATA_DIR, "traits-6.3.0.dev1702-py3.8-macosx-10.14-x86_64.egg")
+TRAITS_SETUPTOOLS_LINUX_cp38_EGG = os.path.join(
+    DATA_DIR, "traits-6.3.0.dev1702-py3.8-linux-x86_64.egg")
+TRAITS_SETUPTOOLS_WIN_cp38_EGG = os.path.join(
+    DATA_DIR, "traits-6.3.0.dev1702-py3.8-win-amd64.egg")
 
 FAKE_PYSIDE_1_1_0_EGG_PKG_INFO = u"""\
 ============

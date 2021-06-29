@@ -5,10 +5,13 @@ if sys.version_info < (2, 7):  # noqa
 else:
     import unittest
 
-from ...errors import OkonomiyakiError
-from ...platforms import EPDPlatform
+from okonomiyaki.errors import OkonomiyakiError
+from okonomiyaki.platforms import EPDPlatform
+from okonomiyaki.versions import RuntimeVersion
 from ..setuptools_egg import SetuptoolsEggMetadata, parse_filename
-from .common import PIP_SETUPTOOLS_EGG, TRAITS_SETUPTOOLS_EGG
+from .common import (
+    PIP_SETUPTOOLS_EGG, TRAITS_SETUPTOOLS_EGG, TRAITS_SETUPTOOLS_OSX_cp38_EGG,
+    TRAITS_SETUPTOOLS_WIN_cp38_EGG, TRAITS_SETUPTOOLS_LINUX_cp38_EGG)
 
 
 class TestParseFilename(unittest.TestCase):
@@ -92,8 +95,7 @@ class TestSetuptoolsEggMetadata(unittest.TestCase):
 
         # When
         metadata = SetuptoolsEggMetadata.from_egg(
-            path, platform, python_tag, abi_tag,
-        )
+            path, platform, python_tag, abi_tag)
 
         # Then
         self.assertEqual(metadata.name, "pip")
@@ -105,9 +107,9 @@ class TestSetuptoolsEggMetadata(unittest.TestCase):
     def test_platform_specific(self):
         # Given
         path = TRAITS_SETUPTOOLS_EGG
+        platform = EPDPlatform.from_epd_string("osx-64")
 
         # When
-        platform = EPDPlatform.from_epd_string("osx-64")
         metadata = SetuptoolsEggMetadata.from_egg(path, platform)
 
         # Then
@@ -116,6 +118,66 @@ class TestSetuptoolsEggMetadata(unittest.TestCase):
         self.assertEqual(metadata.python_tag, "cp27")
         self.assertEqual(metadata.abi_tag, "cp27m")
         self.assertEqual(metadata.platform_tag, "macosx_10_6_x86_64")
+
+        # When/Then
+        with self.assertRaises(OkonomiyakiError):
+            SetuptoolsEggMetadata.from_egg(path)
+
+    def test_macos_cp38_egg(self):
+        # Given
+        path = TRAITS_SETUPTOOLS_OSX_cp38_EGG
+        python = RuntimeVersion.from_string('3.8.10')
+        platform = EPDPlatform.from_epd_string("osx-64", python)
+
+        # When
+        metadata = SetuptoolsEggMetadata.from_egg(path, platform)
+
+        # Then
+        self.assertEqual(metadata.name, "traits")
+        self.assertEqual(metadata.version, "6.3.0.dev1702")
+        self.assertEqual(metadata.python_tag, "cp38")
+        self.assertEqual(metadata.abi_tag, "cp38")
+        self.assertEqual(metadata.platform_tag, "macosx_10_14_x86_64")
+
+        # When/Then
+        with self.assertRaises(OkonomiyakiError):
+            SetuptoolsEggMetadata.from_egg(path)
+
+    def test_linux_cp38_egg(self):
+        # Given
+        path = TRAITS_SETUPTOOLS_LINUX_cp38_EGG
+        python = RuntimeVersion.from_string('3.8.10')
+        platform = EPDPlatform.from_epd_string("rh7-64", python)
+
+        # When
+        metadata = SetuptoolsEggMetadata.from_egg(path, platform)
+
+        # Then
+        self.assertEqual(metadata.name, "traits")
+        self.assertEqual(metadata.version, "6.3.0.dev1702")
+        self.assertEqual(metadata.python_tag, "cp38")
+        self.assertEqual(metadata.abi_tag, "cp38")
+        self.assertEqual(metadata.platform_tag, "linux_x86_64")
+
+        # When/Then
+        with self.assertRaises(OkonomiyakiError):
+            SetuptoolsEggMetadata.from_egg(path)
+
+    def test_windows_cp38_egg(self):
+        # Given
+        path = TRAITS_SETUPTOOLS_WIN_cp38_EGG
+        python = RuntimeVersion.from_string('3.8.10')
+        platform = EPDPlatform.from_epd_string("win-64", python)
+
+        # When
+        metadata = SetuptoolsEggMetadata.from_egg(path, platform)
+
+        # Then
+        self.assertEqual(metadata.name, "traits")
+        self.assertEqual(metadata.version, "6.3.0.dev1702")
+        self.assertEqual(metadata.python_tag, "cp38")
+        self.assertEqual(metadata.abi_tag, "cp38")
+        self.assertEqual(metadata.platform_tag, "win_amd64")
 
         # When/Then
         with self.assertRaises(OkonomiyakiError):
