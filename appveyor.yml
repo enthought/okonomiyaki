@@ -40,4 +40,5 @@ install:
   - cmd: pip install .
   - cmd: pip install -r dev_requirements.txt
 test_script:
+  - cmd: cd jenkins
   - cmd: coverage run -m %RUNNER% okonomiyaki
