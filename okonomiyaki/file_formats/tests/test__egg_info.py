@@ -13,29 +13,25 @@ if sys.version_info < (2, 7):  # noqa
 else:
     import unittest
 
-from ...errors import (
+from okonomiyaki.errors import (
     InvalidEggName, InvalidMetadataField, MissingMetadata, UnsupportedMetadata,
-    InvalidRequirementStringHyphen
-)
-from ...utils import tempdir
-from ...utils.test_data import (
-    MKL_10_3_RH5_X86_64, NOSE_1_3_4_RH6_X86_64, NOSE_1_3_4_RH5_X86_64
-)
-from ...platforms import EPDPlatform, PlatformABI
-from ...platforms.legacy import LegacyEPDPlatform
-from ...versions import EnpkgVersion, MetadataVersion
+    InvalidRequirementStringHyphen)
+from okonomiyaki.utils import tempdir
+from okonomiyaki.utils.test_data import (
+    MKL_10_3_RH5_X86_64, NOSE_1_3_4_RH6_X86_64, NOSE_1_3_4_RH5_X86_64)
+from okonomiyaki.platforms import EPDPlatform, PlatformABI
+from okonomiyaki.platforms.legacy import LegacyEPDPlatform
+from okonomiyaki.versions import EnpkgVersion, MetadataVersion
 
 from .._egg_info import (
     Requirement, EggMetadata, LegacySpecDepend, parse_rawspec,
-    split_egg_name
-)
+    split_egg_name)
 
 from .common import (
     BROKEN_MCCABE_EGG, DATA_DIR, ENSTALLER_EGG, ETS_EGG,
     FAKE_MEDIALOG_BOARDFILE_1_6_1_EGG, FAKE_MEDIALOG_BOARDFILE_1_6_1_PKG_INFO,
     MKL_EGG, NUMEXPR_2_2_2_EGG, PYMULTINEST_EGG, _OSX64APP_EGG,
-    PYSIDE_1_0_3_EGG, XZ_5_2_0_EGG
-)
+    PYSIDE_1_0_3_EGG, XZ_5_2_0_EGG)
 
 
 M = MetadataVersion.from_string

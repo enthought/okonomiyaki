@@ -5,7 +5,7 @@ import six
 from attr import attr, attributes
 from attr.validators import instance_of, optional
 
-from ..errors import OkonomiyakiError
+from okonomiyaki.errors import OkonomiyakiError
 
 from ._arch import Arch
 from .epd_platform import EPDPlatform

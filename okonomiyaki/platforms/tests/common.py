@@ -2,7 +2,7 @@ import collections
 import mock
 import sys
 
-from ...utils.testing import MultiPatcher, Patcher
+from okonomiyaki.utils.testing import MultiPatcher, Patcher
 
 
 # OS mocking

@@ -3,8 +3,8 @@ import six
 from attr import attributes, attr
 from attr.validators import instance_of
 
-from ..errors import OkonomiyakiError
-from ..versions import RuntimeVersion
+from okonomiyaki.errors import OkonomiyakiError
+from okonomiyaki.versions import RuntimeVersion
 
 from .epd_platform import EPDPlatform
 from ._platform import OSKind

@@ -1,5 +1,4 @@
-from ..errors import InvalidEnpkgVersion
-
+from okonomiyaki.errors import InvalidEnpkgVersion
 from .pep386_workaround import IrrationalVersionError, PEP386WorkaroundVersion
 
 

@@ -8,7 +8,7 @@ else:
 from hypothesis import given
 from hypothesis.strategies import sampled_from
 
-from ...errors import OkonomiyakiError
+from okonomiyaki.errors import OkonomiyakiError
 from ..abi import default_abi
 
 

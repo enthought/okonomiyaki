@@ -7,9 +7,9 @@ except ImportError:  # Python 2.6 support
     sysconfig = None
 import warnings
 
-from ..errors import OkonomiyakiError
-from ..platforms import PythonImplementation
-from ..utils import py3compat
+from okonomiyaki.errors import OkonomiyakiError
+from okonomiyaki.platforms import PythonImplementation
+from okonomiyaki.utils import py3compat
 from ._egg_info import _guess_python_tag
 from ._package_info import PackageInfo
 
