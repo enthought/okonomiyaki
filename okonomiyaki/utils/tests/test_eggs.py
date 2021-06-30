@@ -24,10 +24,10 @@ class TestDummyEggs(unittest.TestCase):
         else:
             self.assertEqual(metadata.python_tag, 'cp38')
             self.assertEqual(metadata.abi_tag, 'cp38')
-        if 'osx' in filepath:
+        if 'osx_x86_64' in filepath:
             self.assertEqual(metadata.platform_tag, 'macosx_10_14_x86_64')
             self.assertEqual(metadata.platform_abi, PlatformABI(u'darwin'))
-        elif 'win' in filepath:
+        elif 'win_x86_64' in filepath:
             self.assertEqual(metadata.platform_tag, 'win_amd64')
             self.assertEqual(metadata.platform_abi, PlatformABI(u'msvc2019'))
         else:
@@ -47,10 +47,10 @@ class TestDummyEggs(unittest.TestCase):
         else:
             self.assertIn(metadata.python_tag, 'cp27')
             self.assertIn(metadata.abi_tag, 'cp27m')
-        if 'osx' in filepath:
+        if 'osx_x86_64' in filepath:
             self.assertEqual(metadata.platform_tag, 'macosx_10_6_x86_64')
             self.assertEqual(metadata.platform_abi, PlatformABI(u'darwin'))
-        elif 'win' in filepath:
+        elif 'win_x86_64' in filepath:
             self.assertEqual(metadata.platform_tag, 'win_amd64')
             self.assertEqual(metadata.platform_abi, PlatformABI(u'msvc2008'))
         else:
