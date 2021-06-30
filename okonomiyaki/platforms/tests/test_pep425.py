@@ -17,65 +17,61 @@ def _system_tags():
 
 
 class TestPEP425(unittest.TestCase):
+
+    def setUp(self):
+        self.tag = next(
+            tag for tag in
+            _system_tags()
+            # We do not support the manylinux tag
+            if 'manylinux' not in tag.platform)
+
     def test_abi_tag(self):
         # Given
         executable = sys.executable
-        tag = next(_system_tags())
 
         # When
         abi_tag = compute_abi_tag(executable)
 
         # Then
-        self.assertEqual(abi_tag, tag.abi)
+        self.assertEqual(abi_tag, self.tag.abi)
 
     def test_abi_tag_default(self):
-        # Given
-        tag = next(_system_tags())
-
         # When
         abi_tag = compute_abi_tag()
 
         # Then
-        self.assertEqual(abi_tag, tag.abi)
+        self.assertEqual(abi_tag, self.tag.abi)
 
     def test_python_tag(self):
         # Given
         executable = sys.executable
-        tag = next(_system_tags())
 
         # When
         python_tag = compute_python_tag(executable)
 
         # Then
-        self.assertEqual(python_tag, tag.interpreter)
+        self.assertEqual(python_tag, self.tag.interpreter)
 
     def test_python_tag_default(self):
-        # Given
-        tag = next(_system_tags())
-
         # When
         python_tag = compute_python_tag()
 
         # Then
-        self.assertEqual(python_tag, tag.interpreter)
+        self.assertEqual(python_tag, self.tag.interpreter)
 
     def test_platform_tag(self):
         # Given
         executable = sys.executable
-        tag = next(_system_tags())
 
         # When
         platform_tag = compute_platform_tag(executable)
 
         # Then
-        self.assertEqual(platform_tag, tag.platform)
+        self.assertEqual(platform_tag, self.tag.platform)
 
     def test_platform_tag_default(self):
-        # Given
-        tag = next(_system_tags())
-
         # When
         platform_tag = compute_platform_tag()
 
         # Then
-        self.assertEqual(platform_tag, tag.platform)
+        self.assertEqual(platform_tag, self.tag.platform)
