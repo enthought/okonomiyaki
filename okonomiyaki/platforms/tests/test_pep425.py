@@ -5,12 +5,16 @@ from packaging import tags
 
 from ..pep425 import compute_abi_tag, compute_python_tag, compute_platform_tag
 
+
 def _system_tags():
     interp_name = tags.interpreter_name()
     if interp_name == "cp":
-        yield from tags.cpython_tags()
+        for tag in tags.cpython_tags():
+            yield tag
     else:
-        yield from tags.generic_tags()
+        for tag in tags.generic_tags():
+            yield tag
+
 
 class TestPEP425(unittest.TestCase):
     def test_abi_tag(self):
