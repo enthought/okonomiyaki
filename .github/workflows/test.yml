@@ -24,7 +24,9 @@ jobs:
     - name: Install test dependencies
       run: python -m pip install -r "dev_requirements.txt"
     - name: Test with haas
-      run: python -m haas okonomiyaki
+      run: |
+        cd jenkins
+        python -m haas okonomiyaki
   code-lint:
     runs-on: ubuntu-latest
     steps:
