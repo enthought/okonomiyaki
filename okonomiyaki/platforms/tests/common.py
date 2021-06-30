@@ -70,7 +70,7 @@ mock_centos_5_8 = MultiPatcher([
 
 mock_centos_6_3 = MultiPatcher([
     mock_linux,
-   _mock_linux_distribution(("CentOS", "6.3", "Final"))
+    _mock_linux_distribution(("CentOS", "6.3", "Final"))
 ])
 
 mock_centos_7_0 = MultiPatcher([
