@@ -7,6 +7,7 @@ environment:
   global:
     PYTHONUNBUFFERED: "1"
     runner: "haas"
+    LANG: "ENG"
 
   matrix:
     - python: "C:/Python27-x64"
