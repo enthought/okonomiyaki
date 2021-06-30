@@ -153,9 +153,7 @@ def _guess_platform_details(os_kind):
     elif os_kind == OSKind.darwin:
         return FamilyKind.mac_os_x, NameKind.mac_os_x, platform.mac_ver()[0]
     elif os_kind == OSKind.linux:
-        name = platform.linux_distribution()[0].lower()
-        name = name.split()[0]
-        _, release, _ = platform.dist()
+        name, release = _linux_distribution()
         try:
             name_kind = NameKind[name]
         except KeyError:
@@ -183,3 +181,18 @@ def _guess_platform(arch_string=None):
     family_kind, name_kind, release = _guess_platform_details(os_kind)
 
     return Platform(os_kind, name_kind, family_kind, release, arch, machine)
+
+
+def _linux_distribution():
+    """ Get the linux distribution of the running system.
+
+    """
+    try:
+        name, release, _ = platform.linux_distribution()
+    except AttributeError:
+        # We are probably running on Python > 3.8
+        # see https://docs.python.org/3.6/library/platform.html?highlight=linux_distribution#unix-platforms
+        import distro
+        name, release, _ = distro.linux_distribution()
+    name = name.lower().split()[0]
+    return name, release
