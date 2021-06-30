@@ -194,5 +194,5 @@ def _linux_distribution():
         # see https://docs.python.org/3.6/library/platform.html?highlight=linux_distribution#unix-platforms
         import distro
         name, release, _ = distro.linux_distribution()
-    name = name.lower().split()[0]
-    return name, release
+    name = name.split()[0]
+    return name.lower(), release
