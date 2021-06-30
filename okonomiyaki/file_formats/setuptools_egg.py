@@ -100,7 +100,7 @@ def _guess_abi_from_running_python():
             soabi = None
 
     if soabi and soabi.startswith('cpython-'):
-        return 'cp' + soabi.split('-', 1)[-1]
+        return 'cp' + soabi.split('-', 2)[1]
     else:
         return None
 
