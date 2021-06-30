@@ -6,6 +6,7 @@ environment:
 
   global:
     PYTHONUNBUFFERED: "1"
+    runner: "haas"
 
   matrix:
     - python: "C:/Python27-x64"
@@ -15,7 +16,9 @@ environment:
     - python: "C:/Python36-x64"
     - python: "C:/Python36"
     - python: "C:/Python38-x64"
+      runner: "unittest discover"
     - python: "C:/Python38"
+      runner: "unittest discover"
 
 branches:
   only:
@@ -37,4 +40,4 @@ install:
   - cmd: pip install .
   - cmd: pip install -r dev_requirements.txt
 test_script:
-  - cmd: coverage run -m haas okonomiyaki
+  - cmd: coverage run -m %RUNNER% okonomiyaki
