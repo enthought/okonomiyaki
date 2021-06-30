@@ -15,6 +15,7 @@ class TestDummyEggs(unittest.TestCase):
     def test_cp38_egg_metadata_valid(self, filepath):
         # when
         metadata = EggMetadata.from_egg(filepath)
+        filepath = filepath.lower()
 
         # then
         if 'mkl' in metadata.name:
@@ -37,6 +38,7 @@ class TestDummyEggs(unittest.TestCase):
     def test_cp27_egg_metadata_valid(self, filepath):
         # when
         metadata = EggMetadata.from_egg(filepath)
+        filepath = filepath.lower()
 
         # then
         if 'mkl' in metadata.name:
