@@ -76,7 +76,8 @@ def get_abi_tag():
         if get_flag('WITH_PYMALLOC',
                     lambda: impl == 'cp',
                     warn=(impl == 'cp')):
-            m = 'm'
+            if sys.version_info < (3, 8):
+                m = 'm'
         if get_flag('Py_UNICODE_SIZE',
                     lambda: sys.maxunicode == 0x10ffff,
                     expected=4,
