@@ -4,3 +4,4 @@ flake8
 mock
 testfixtures
 hypothesis
+packaging >= 20.0
