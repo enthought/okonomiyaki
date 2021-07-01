@@ -6,6 +6,7 @@ environment:
 
   global:
     PYTHONUNBUFFERED: "1"
+    LANG: "ENG"
 
   matrix:
     - python: "C:/Python27-x64"
@@ -14,6 +15,8 @@ environment:
     - python: "C:/Python35"
     - python: "C:/Python36-x64"
     - python: "C:/Python36"
+    - python: "C:/Python38-x64"
+    - python: "C:/Python38"
 
 branches:
   only:
@@ -35,4 +38,5 @@ install:
   - cmd: pip install .
   - cmd: pip install -r dev_requirements.txt
 test_script:
+  - cmd: cd jenkins
   - cmd: coverage run -m haas okonomiyaki

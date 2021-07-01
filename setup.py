@@ -22,6 +22,7 @@ INSTALL_REQUIRES = [
 
 EXTRAS_REQUIRE = {
     ':python_version=="2.7"': ['enum34'],
+    ':python_version>="3.8"': ['distro'],
 }
 
 
