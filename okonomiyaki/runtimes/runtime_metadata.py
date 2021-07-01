@@ -11,10 +11,10 @@ import zipfile2
 from attr import attr, attributes
 from attr.validators import instance_of
 
-from ..errors import InvalidMetadata, MissingMetadata, UnsupportedMetadata
-from ..platforms import EPDPlatform, Platform
-from ..platforms.abi import _PLATFORM_ABI_NONE
-from ..versions import MetadataVersion, RuntimeVersion
+from okonomiyaki.errors import InvalidMetadata, MissingMetadata, UnsupportedMetadata
+from okonomiyaki.platforms import EPDPlatform, Platform
+from okonomiyaki.platforms.abi import _PLATFORM_ABI_NONE
+from okonomiyaki.versions import MetadataVersion, RuntimeVersion
 
 from .common import _platform_string
 from .runtime_schemas import _JULIA_V1, _PYTHON_V1
