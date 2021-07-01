@@ -51,49 +51,41 @@ mock_windows = MultiPatcher([
 ])
 
 
-# OS Version mocking
-def _mock_platform_dist(info):
-    return Patcher(mock.patch("platform.dist", lambda: info))
-
-
-def _mock_platform_linux_distribution(info):
-    return Patcher(mock.patch("platform.linux_distribution", lambda: info))
-
+if sys.version_info < (3, 8):
+    def _mock_linux_distribution(info):
+        return Patcher(mock.patch("platform.linux_distribution", lambda: info))
+else:
+    def _mock_linux_distribution(info):
+        return Patcher(mock.patch("distro.linux_distribution", lambda: info))
 
 mock_centos_3_5 = MultiPatcher([
     mock_linux,
-    _mock_platform_dist(("redhat", "3.5", "Final")),
-    _mock_platform_linux_distribution(("CentOS", "3.5", "Final"))
+    _mock_linux_distribution(("CentOS", "3.5", "Final"))
 ])
 
 mock_centos_5_8 = MultiPatcher([
     mock_linux,
-    _mock_platform_dist(("redhat", "5.8", "Final")),
-    _mock_platform_linux_distribution(("CentOS", "5.8", "Final"))
+    _mock_linux_distribution(("CentOS", "5.8", "Final"))
 ])
 
 mock_centos_6_3 = MultiPatcher([
     mock_linux,
-    _mock_platform_dist(("redhat", "6.3", "Final")),
-    _mock_platform_linux_distribution(("CentOS", "6.3", "Final"))
+    _mock_linux_distribution(("CentOS", "6.3", "Final"))
 ])
 
 mock_centos_7_0 = MultiPatcher([
     mock_linux,
-    _mock_platform_dist(("redhat", "7.0", "Final")),
-    _mock_platform_linux_distribution(("CentOS", "7.0", "Final"))
+    _mock_linux_distribution(("CentOS", "7.0", "Final"))
 ])
 
 mock_centos_7_6 = MultiPatcher([
     mock_linux,
-    _mock_platform_dist(("centos", "7.6.1810", "Core")),
-    _mock_platform_linux_distribution(("CentOS Linux", "7.6.1810", "Core"))
+    _mock_linux_distribution(("CentOS Linux", "7.6.1810", "Core"))
 ])
 
 mock_ubuntu_raring = MultiPatcher([
-    _mock_platform_dist(("Ubuntu", "13.04", "raring")),
-    _mock_platform_linux_distribution(("Ubuntu", "13.04", "raring")),
     mock_linux,
+    _mock_linux_distribution(("Ubuntu", "13.04", "raring")),
 ])
 
 mock_windows_7 = MultiPatcher([
