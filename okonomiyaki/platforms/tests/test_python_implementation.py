@@ -3,8 +3,8 @@ import sys
 import mock
 import six
 
+from okonomiyaki.errors import InvalidMetadataField
 from ..python_implementation import PythonABI, PythonImplementation
-from ...errors import InvalidMetadataField
 
 if sys.version_info < (2, 7):
     import unittest2 as unittest

@@ -15,10 +15,10 @@ else:
 
 import os.path as op
 
-from ...platforms import EPDPlatform
-from ...utils import compute_md5
-from ...utils import py3compat
-from ...versions import EnpkgVersion
+from okonomiyaki.platforms import EPDPlatform
+from okonomiyaki.utils import compute_md5
+from okonomiyaki.utils import py3compat
+from okonomiyaki.versions import EnpkgVersion
 
 from ..egg import EggBuilder, EggRewriter
 from .._egg_info import Dependencies, EggMetadata, LegacySpecDepend

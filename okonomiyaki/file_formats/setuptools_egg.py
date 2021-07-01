@@ -7,9 +7,9 @@ except ImportError:  # Python 2.6 support
     sysconfig = None
 import warnings
 
-from ..errors import OkonomiyakiError
-from ..platforms import PythonImplementation
-from ..utils import py3compat
+from okonomiyaki.errors import OkonomiyakiError
+from okonomiyaki.platforms import PythonImplementation
+from okonomiyaki.utils import py3compat
 from ._egg_info import _guess_python_tag
 from ._package_info import PackageInfo
 
@@ -100,7 +100,7 @@ def _guess_abi_from_running_python():
             soabi = None
 
     if soabi and soabi.startswith('cpython-'):
-        return 'cp' + soabi.split('-', 1)[-1]
+        return 'cp' + soabi.split('-', 2)[1]
     else:
         return None
 

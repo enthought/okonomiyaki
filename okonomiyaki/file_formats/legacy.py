@@ -3,9 +3,9 @@ metadata.
 """
 import re
 
-from ..errors import InvalidMetadataField
-from ..platforms import PythonImplementation, default_abi
-from ..versions import RuntimeVersion
+from okonomiyaki.errors import InvalidMetadataField
+from okonomiyaki.platforms import PythonImplementation, default_abi
+from okonomiyaki.versions import RuntimeVersion
 
 # To parse the python field in our index and spec/depend
 _PYVER_RE = re.compile(r"(?P<major>\d+)\.(?P<minor>\d+)")

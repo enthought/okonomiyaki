@@ -3,8 +3,8 @@ import sys
 
 import zipfile2
 
-from ..file_formats import EggMetadata
-from ..versions import MetadataVersion
+from okonomiyaki.file_formats import EggMetadata
+from okonomiyaki.versions import MetadataVersion
 
 
 def _metadata_from_path(path, sha256):

@@ -7,10 +7,10 @@ import six
 from attr import asdict, attr, attributes
 from attr.validators import instance_of
 
-from ..errors import UnsupportedMetadata
-from ..platforms import Platform
-from ..utils import substitute_variable, substitute_variables
-from ..versions import MetadataVersion, RuntimeVersion
+from okonomiyaki.errors import UnsupportedMetadata
+from okonomiyaki.platforms import Platform
+from okonomiyaki.utils import substitute_variable, substitute_variables
+from okonomiyaki.versions import MetadataVersion, RuntimeVersion
 
 from .common import _platform_string
 from .runtime_metadata import JuliaRuntimeMetadataV1, PythonRuntimeMetadataV1

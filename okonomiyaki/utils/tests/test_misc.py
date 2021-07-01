@@ -1,7 +1,7 @@
 import sys
 import textwrap
 
-from ...errors import OkonomiyakiError
+from okonomiyaki.errors import OkonomiyakiError
 from ..misc import parse_assignments, substitute_variables, substitute_variable
 from ..py3compat import StringIO
 

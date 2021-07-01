@@ -1,7 +1,7 @@
 from attr import attributes, attr
 from attr.validators import instance_of
 
-from ..errors import OkonomiyakiError
+from okonomiyaki.errors import OkonomiyakiError
 
 from .epd_platform import EPDPlatform
 

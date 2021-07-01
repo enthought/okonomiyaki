@@ -8,8 +8,8 @@ import six
 from attr import attributes, attr
 from attr.validators import instance_of
 
-from ..versions import RuntimeVersion
-from ..errors import OkonomiyakiError, InvalidPEP440Version
+from okonomiyaki.versions import RuntimeVersion
+from okonomiyaki.errors import OkonomiyakiError, InvalidPEP440Version
 from ._arch import Arch, ArchitectureKind
 from ._platform import OSKind, FamilyKind, NameKind, Platform
 

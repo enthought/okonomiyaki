@@ -1,6 +1,6 @@
 import re
 
-from ..errors import InvalidMetadataVersion
+from okonomiyaki.errors import InvalidMetadataVersion
 
 
 _VERSION_R = re.compile(r"(?P<major>\d+)\.(?P<minor>\d+)$")

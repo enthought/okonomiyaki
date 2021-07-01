@@ -1,6 +1,6 @@
 import sys
 
-from ...errors import OkonomiyakiError
+from okonomiyaki.errors import OkonomiyakiError
 from ..epd_platform import EPDPlatform
 from .._platform import Platform
 

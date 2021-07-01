@@ -37,7 +37,9 @@ class TestPythonRuntimeInfoV1(unittest.TestCase):
         # Then
         self.assertEqual(runtime_info.prefix, prefix)
         self.assertEqual(runtime_info.name, name)
-        self.assertEqual(runtime_info.executable, r_executable)
+        self.assertEqual(
+            os.path.realpath(runtime_info.executable),
+            os.path.realpath(r_executable))
 
     def test_dollar_in_prefix(self):
         # Given
@@ -61,7 +63,9 @@ class TestPythonRuntimeInfoV1(unittest.TestCase):
         # Then
         self.assertEqual(runtime_info.prefix, prefix)
         self.assertEqual(runtime_info.name, name)
-        self.assertEqual(runtime_info.executable, r_executable)
+        self.assertEqual(
+            os.path.realpath(runtime_info.executable),
+            os.path.realpath(r_executable))
 
     def test_json_round_trip(self):
         # Given
@@ -106,7 +110,9 @@ class TestJuliaRuntimeInfoV1(unittest.TestCase):
         # Then
         self.assertEqual(runtime_info.prefix, prefix)
         self.assertEqual(runtime_info.name, name)
-        self.assertEqual(runtime_info.executable, r_executable)
+        self.assertEqual(
+            os.path.realpath(runtime_info.executable),
+            os.path.realpath(r_executable))
 
     def test_json_round_trip(self):
         # Given
