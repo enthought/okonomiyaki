@@ -1,7 +1,7 @@
 import re
 
-from ..errors import InvalidSemanticVersion
-from ..utils.py3compat import long
+from okonomiyaki.errors import InvalidSemanticVersion
+from okonomiyaki.utils.py3compat import long
 
 
 _SEMVER_R = re.compile(r"""

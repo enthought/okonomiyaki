@@ -15,7 +15,7 @@ else:
     import unittest
 
 from okonomiyaki.utils.test_data import OKONOMIYAKI_0_17_0_PY2
-from ...errors import OkonomiyakiError
+from okonomiyaki.errors import OkonomiyakiError
 from .common import (
     BROKEN_MCCABE_EGG, PIP_EGG, PKG_INFO_ENSTALLER_1_0_DESCRIPTION,
     PIP_PKG_INFO, PKG_INFO_ENSTALLER_1_0, PYMULTINEST_EGG, SUPERVISOR_EGG,

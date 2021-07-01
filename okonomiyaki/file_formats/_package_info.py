@@ -9,8 +9,8 @@ import warnings
 
 import zipfile2
 
-from ..utils import py3compat, compute_sha256
-from ..errors import OkonomiyakiError
+from okonomiyaki.utils import py3compat, compute_sha256
+from okonomiyaki.errors import OkonomiyakiError
 
 from ._blacklist import EGG_PKG_INFO_BLACK_LIST, may_be_in_pkg_info_blacklist
 from ._wheel_info import WheelInfo

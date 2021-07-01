@@ -7,31 +7,25 @@ import zipfile2
 from attr import attr, attributes
 from attr.validators import instance_of, optional
 
-from ..errors import (
+from okonomiyaki.errors import (
     InvalidRequirementString, InvalidRequirementStringHyphen,
     InvalidEggName, InvalidMetadataField,
-    MissingMetadata, UnsupportedMetadata
-)
-from ..platforms import (
-    EPDPlatform, PlatformABI, PythonABI, PythonImplementation
-)
-from ..platforms.legacy import LegacyEPDPlatform
-from ..utils import (
-    compute_sha256, decode_if_needed, encode_if_needed, parse_assignments
-)
-from ..utils.py3compat import StringIO, string_types
-from ..versions import EnpkgVersion, MetadataVersion
+    MissingMetadata, UnsupportedMetadata)
+from okonomiyaki.platforms.legacy import LegacyEPDPlatform
+from okonomiyaki.platforms import (
+    EPDPlatform, PlatformABI, PythonABI, PythonImplementation)
+from okonomiyaki.utils import (
+    compute_sha256, decode_if_needed, encode_if_needed, parse_assignments)
+from okonomiyaki.utils.py3compat import StringIO, string_types
+from okonomiyaki.versions import EnpkgVersion, MetadataVersion
 from .legacy import (
-    _guess_abi_tag, _guess_platform_abi, _guess_platform_tag, _guess_python_tag
-)
+    _guess_abi_tag, _guess_platform_abi, _guess_platform_tag, _guess_python_tag)
 from ._blacklist import (
     EGG_PLATFORM_BLACK_LIST, EGG_PYTHON_TAG_BLACK_LIST,
     may_be_in_platform_blacklist, may_be_in_python_tag_blacklist,
-    may_be_in_pkg_info_blacklist
-)
+    may_be_in_pkg_info_blacklist)
 from ._package_info import (
-    PackageInfo, _convert_if_needed, _keep_position, _read_pkg_info
-)
+    PackageInfo, _convert_if_needed, _keep_position, _read_pkg_info)
 
 
 _EGG_NAME_RE = re.compile(r"""

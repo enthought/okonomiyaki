@@ -2,7 +2,7 @@
 import io
 import os.path
 
-from ... import repositories
+from okonomiyaki import repositories
 
 DATA_DIR = os.path.join(
     os.path.dirname(repositories.__file__), "tests", "data")

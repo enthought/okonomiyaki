@@ -1,6 +1,6 @@
 import sys
 
-from ...errors import OkonomiyakiError
+from okonomiyaki.errors import OkonomiyakiError
 from .._arch import Arch
 
 from .common import (mock_machine_armv71, mock_x86, mock_x86_64,

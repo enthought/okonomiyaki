@@ -7,7 +7,7 @@ import tempfile
 
 from .py3compat import string_types
 
-from ..errors import OkonomiyakiError
+from okonomiyaki.errors import OkonomiyakiError
 
 
 class _AssignmentParser(ast.NodeVisitor):
