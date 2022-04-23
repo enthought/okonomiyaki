@@ -185,6 +185,17 @@ class TestPEP440Version(unittest.TestCase):
         # When/Then
         self.assertEqual(hash(v1), hash(v2))
 
+    def test_repr(self):
+        # Given
+        v1 = V("1.2.0")
+
+        # When
+        result = repr(v1)
+
+        # Then
+        self.assertEqual(repr(v1), "PEP440Version.from_string('1.2.0')")
+        self.assertEqual(eval(result), v1)
+
     def test_invalid(self):
         # Given
         left = V("1.0")
