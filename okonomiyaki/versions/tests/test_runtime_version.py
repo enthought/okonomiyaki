@@ -1,6 +1,6 @@
 import sys
 
-from ..runtime_version import RuntimeVersion
+from ..runtime_version import RuntimeVersion, PEP440Version
 
 if sys.version_info < (2, 7):
     import unittest2 as unittest
@@ -54,6 +54,17 @@ class TestRuntimeVersion(unittest.TestCase):
     def test_str(self):
         self.assertEqual(str(V("1.2.0")), "1.2.0")
         self.assertEqual(V("1.2.0").normalized_string, "1.2")
+
+    def test_repr(self):
+        # given
+        v1 = V("1.2.0")
+
+        # when
+        result = repr(v1)
+
+        # then
+        self.assertEqual(repr(v1), "RuntimeVersion.from_string('1.2.0')")
+        self.assertEqual(eval(result), v1)
 
     def test_simple(self):
         self.assertTrue(V("1.2.0") == V("1.2"))
