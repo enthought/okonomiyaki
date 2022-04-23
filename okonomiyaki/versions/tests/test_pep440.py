@@ -193,7 +193,7 @@ class TestPEP440Version(unittest.TestCase):
         result = repr(v1)
 
         # Then
-        self.assertEqual(repr(v1), "PEP440Version.from_string('1.2.0')")
+        self.assertEqual(result, "PEP440Version.from_string('1.2.0')")
         self.assertEqual(eval(result), v1)
 
     def test_invalid(self):

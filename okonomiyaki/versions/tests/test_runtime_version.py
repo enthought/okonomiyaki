@@ -63,7 +63,7 @@ class TestRuntimeVersion(unittest.TestCase):
         result = repr(v1)
 
         # then
-        self.assertEqual(repr(v1), "RuntimeVersion.from_string('1.2.0')")
+        self.assertEqual(result, "RuntimeVersion.from_string('1.2.0')")
         self.assertEqual(eval(result), v1)
 
     def test_simple(self):
