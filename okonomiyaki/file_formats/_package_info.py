@@ -201,11 +201,11 @@ class PackageInfo(object):
         return cls(metadata_version, name, version, **kw)
 
     def __init__(self, metadata_version, name, version, platforms=None,
-                 supported_platforms=None, summary="", description="",
-                 keywords=None, home_page="", download_url="", author="",
-                 author_email="", license="", classifiers=None, requires=None,
-                 provides=None, obsoletes=None, maintainer="",
-                 maintainer_email="", requires_python=None,
+                 supported_platforms=None, summary=u"", description=u"",
+                 keywords=None, home_page=u"", download_url=u"", author=u"",
+                 author_email=u"", license=u"", classifiers=None, requires=None,
+                 provides=None, obsoletes=None, maintainer=u"",
+                 maintainer_email=u"", requires_python=None,
                  requires_external=None, requires_dist=None,
                  provides_dist=None, obsoletes_dist=None, project_urls=None,
                  description_content_type="", provides_extra=None):
@@ -234,8 +234,8 @@ class PackageInfo(object):
         self.obsoletes = obsoletes or ()
 
         # version 1.2
-        self.maintainer = maintainer or ""
-        self.maintainer_email = maintainer_email or ""
+        self.maintainer = maintainer or u""
+        self.maintainer_email = maintainer_email or u""
         self.requires_python = requires_python or ()
         self.requires_external = requires_external or ()
         self.requires_dist = requires_dist or ()
@@ -389,10 +389,10 @@ def _collapse_leading_ws(header, txt):
         lines = [x[8:] if x.startswith(' ' * 8) else x
                  for x in txt.strip().splitlines()]
         # Append a line to be char-by-char compatible with distutils
-        lines.append('')
-        return '\n'.join(lines)
+        lines.append(u'')
+        return u'\n'.join(lines)
     else:
-        return ' '.join([x.strip() for x in txt.splitlines()])
+        return u' '.join([x.strip() for x in txt.splitlines()])
 
 
 def _convert_if_needed(data, sha256, strict):
