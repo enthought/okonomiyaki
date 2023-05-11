@@ -1,9 +1,11 @@
 name: okonomiyaki
+
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+    
 jobs:
   tests:
     strategy:
@@ -30,6 +32,7 @@ jobs:
       run: |
         cd tools
         python -m haas okonomiyaki
+        
   code-lint:
     runs-on: ubuntu-20.04
     steps:
