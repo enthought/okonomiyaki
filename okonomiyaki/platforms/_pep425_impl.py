@@ -3,6 +3,7 @@ from __future__ import absolute_import, print_function
 
 import sys
 import sysconfig
+import subprocess
 
 
 def get_config_var(var):
@@ -103,27 +104,12 @@ def get_platform():
     import distutils.util
     import platform
     """Return our platform name 'win32', 'linux_x86_64'"""
-    if sys.platform == 'darwin':
-        # distutils.util.get_platform() returns the release based on the value
-        # of MACOSX_DEPLOYMENT_TARGET on which Python was built, which may
-        # be significantly older than the user's current machine.
-        release, _, machine = platform.mac_ver()
-        split_ver = release.split('.')
 
-        if machine == "x86_64" and _is_running_32bit():
-            machine = "i386"
-        elif machine == "ppc64" and _is_running_32bit():
-            machine = "ppc"
-
-        return 'macosx_{0}_{1}_{2}'.format(split_ver[0], split_ver[1], machine)
-
-    # XXX remove distutils dependency
     result = distutils.util.get_platform().replace('.', '_').replace('-', '_')
     if result == "linux_x86_64" and _is_running_32bit():
         # 32 bit Python program (running on a 64 bit Linux): pip should only
         # install and run 32 bit compiled extensions in that case.
         result = "linux_i686"
-
     return result
 
 
