@@ -3,6 +3,7 @@ from __future__ import absolute_import, print_function
 
 import sys
 import sysconfig
+import subprocess
 
 
 def get_config_var(var):
@@ -109,6 +110,13 @@ def get_platform():
         # be significantly older than the user's current machine.
         release, _, machine = platform.mac_ver()
         split_ver = release.split('.')
+        if split_ver[:2] == ['10', '16']:
+            # We might use an older python that will report 10.16 on more recent
+            # machines
+            split_ver = _get_real_macos_version()
+            if split_ver[0] != '10':
+               # we follow the behaviour of the 'packaging' library
+               split_ver[1] = 0
 
         if machine == "x86_64" and _is_running_32bit():
             machine = "i386"
@@ -125,6 +133,13 @@ def get_platform():
         result = "linux_i686"
 
     return result
+
+
+def _get_real_macos_version():
+    cmd = [sys.executable, '-sS', '-c', 'import platform; print(platform.mac_ver()[0])']
+    output = subprocess.check_output(
+        cmd, env={"SYSTEM_VERSION_COMPAT": "0"}, encoding='utf-8').strip()
+    return output.split('.')
 
 
 if __name__ == "__main__":
