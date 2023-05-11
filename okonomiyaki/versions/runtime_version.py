@@ -48,6 +48,9 @@ class RuntimeVersion(object):
     def __str__(self):
         return str(self._pep440_version)
 
+    def __repr__(self):
+        return "{0}.from_string('{1!s}')".format(self.__class__.__name__, self)
+
     def __hash__(self):
         return hash(self._pep440_version)
 

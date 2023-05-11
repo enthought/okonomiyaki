@@ -55,6 +55,17 @@ class TestRuntimeVersion(unittest.TestCase):
         self.assertEqual(str(V("1.2.0")), "1.2.0")
         self.assertEqual(V("1.2.0").normalized_string, "1.2")
 
+    def test_repr(self):
+        # given
+        v1 = V("1.2.0")
+
+        # when
+        result = repr(v1)
+
+        # then
+        self.assertEqual(result, "RuntimeVersion.from_string('1.2.0')")
+        self.assertEqual(eval(result), v1)
+
     def test_simple(self):
         self.assertTrue(V("1.2.0") == V("1.2"))
         self.assertFalse(V("1.2.0") == V("1.2.3"))

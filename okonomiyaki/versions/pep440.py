@@ -190,7 +190,7 @@ class PEP440Version(object):
         return self._parts > other._parts
 
     def __repr__(self):
-        return "{0}('{1}')".format(self.__class__.__name__, str(self))
+        return "{0}.from_string('{1!s}')".format(self.__class__.__name__, self)
 
     def __str__(self):
         if self._string is None:
