@@ -104,42 +104,13 @@ def get_platform():
     import distutils.util
     import platform
     """Return our platform name 'win32', 'linux_x86_64'"""
-    if sys.platform == 'darwin':
-        # distutils.util.get_platform() returns the release based on the value
-        # of MACOSX_DEPLOYMENT_TARGET on which Python was built, which may
-        # be significantly older than the user's current machine.
-        release, _, machine = platform.mac_ver()
-        split_ver = release.split('.')
-        if split_ver[:2] == ['10', '16']:
-            # We might use an older python that will report 10.16 on more recent
-            # machines
-            split_ver = _get_real_macos_version()
-            if split_ver[0] != '10':
-               # we follow the behaviour of the 'packaging' library
-               split_ver[1] = 0
 
-        if machine == "x86_64" and _is_running_32bit():
-            machine = "i386"
-        elif machine == "ppc64" and _is_running_32bit():
-            machine = "ppc"
-
-        return 'macosx_{0}_{1}_{2}'.format(split_ver[0], split_ver[1], machine)
-
-    # XXX remove distutils dependency
     result = distutils.util.get_platform().replace('.', '_').replace('-', '_')
     if result == "linux_x86_64" and _is_running_32bit():
         # 32 bit Python program (running on a 64 bit Linux): pip should only
         # install and run 32 bit compiled extensions in that case.
         result = "linux_i686"
-
     return result
-
-
-def _get_real_macos_version():
-    cmd = [sys.executable, '-sS', '-c', 'import platform; print(platform.mac_ver()[0])']
-    output = subprocess.check_output(
-        cmd, env={"SYSTEM_VERSION_COMPAT": "0"}, encoding='utf-8').strip()
-    return output.split('.')
 
 
 if __name__ == "__main__":

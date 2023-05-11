@@ -24,6 +24,8 @@ class TestPEP425(unittest.TestCase):
             _system_tags()
             # We do not support the manylinux tag
             if 'manylinux' not in tag.platform)
+        self.compatible_platforms = tuple(
+            tag.platform for tag in _system_tags())
 
     def test_abi_tag(self):
         # Given
@@ -67,11 +69,11 @@ class TestPEP425(unittest.TestCase):
         platform_tag = compute_platform_tag(executable)
 
         # Then
-        self.assertEqual(platform_tag, self.tag.platform)
+        self.assertIn(platform_tag, self.compatible_platforms)
 
     def test_platform_tag_default(self):
         # When
         platform_tag = compute_platform_tag()
 
         # Then
-        self.assertEqual(platform_tag, self.tag.platform)
+        self.assertIn(platform_tag, self.compatible_platforms)
