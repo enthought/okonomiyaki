@@ -33,7 +33,7 @@ jobs:
         cd tools
         python -m haas okonomiyaki
   code-lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python 3.6
