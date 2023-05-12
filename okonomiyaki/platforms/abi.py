@@ -27,9 +27,8 @@ class PlatformABI(object):
 
 def _default_cpython_abi(platform, implementation_version):
     msg = (
-        "Unsupported platform/version combo for cpython: {0!r}/{1!r}".
-        format(platform, implementation_version)
-    )
+        "Unsupported combo of {0!r} and cpython version {1!s}".
+        format(platform, implementation_version))
 
     if platform.os_kind == OSKind.darwin:
         return u"darwin"

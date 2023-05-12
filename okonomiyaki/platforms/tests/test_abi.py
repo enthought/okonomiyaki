@@ -44,5 +44,12 @@ class TestDefaultABI(unittest.TestCase):
             ("win_x86", "pypy", "4.1.0+1"),
             ("rh5_x86_64", "r", "3.0.0+1")]))
     def test_non_supported(self, arguments):
-        with self.assertRaises(OkonomiyakiError):
+        with self.assertRaises(OkonomiyakiError) as context:
             default_abi(*arguments)
+
+        message = str(context.exception)
+        self.assertNotIn('RuntimeVersion', message)
+        if arguments[1] == 'r':
+            self.assertIn('Unsupported implementation', message)
+        else:
+            self.assertIn('Platform', message)
