@@ -15,24 +15,32 @@ from okonomiyaki.errors import OkonomiyakiError
 class ArchitectureKind(enum.Enum):
     x86 = 0
     x86_64 = 1
+    arm64 = 2
 
 
 _KIND_TO_BITWIDTHS = {
     ArchitectureKind.x86: 32,
     ArchitectureKind.x86_64: 64,
-}
-for k in ArchitectureKind.__members__:
-    assert ArchitectureKind[k] in _KIND_TO_BITWIDTHS
+    ArchitectureKind.arm64: 64}
 
-_NORMALIZED_NAMES = {
-    "x86": ArchitectureKind.x86,
-    "i386": ArchitectureKind.x86,
-    "i686": ArchitectureKind.x86,
-
+_64BIT_NAMES = {
     "amd64": ArchitectureKind.x86_64,
     "AMD64": ArchitectureKind.x86_64,
     "x86_64": ArchitectureKind.x86_64,
+    "arm64": ArchitectureKind.arm64,
+    "ARM64": ArchitectureKind.arm64,
+    "aarch64": ArchitectureKind.arm64,
 }
+
+_32BIT_NAMES = {
+    "x86": ArchitectureKind.x86,
+    "i386": ArchitectureKind.x86,
+    "i686": ArchitectureKind.x86,
+}
+
+_NORMALIZED_NAMES = {}
+_NORMALIZED_NAMES.update(_64BIT_NAMES)
+_NORMALIZED_NAMES.update(_32BIT_NAMES)
 
 
 @attributes(frozen=True)
@@ -46,7 +54,8 @@ class Arch(object):
         if bitwidth == "32":
             return cls(ArchitectureKind.x86)
         elif bitwidth == "64":
-            return cls(ArchitectureKind.x86_64)
+            machine = platform.machine()
+            return cls(_64BIT_NAMES[machine])
         else:
             msg = "Invalid bits width: {0!r}".format(bitwidth)
             raise OkonomiyakiError(msg)
@@ -56,24 +65,23 @@ class Arch(object):
         kind = _NORMALIZED_NAMES.get(name)
         if kind is None:
             raise OkonomiyakiError(
-                "Unsupported/unrecognized architecture: {0!r}".format(name)
-            )
+                "Unsupported/unrecognized architecture: {0!r}".format(name))
         else:
             return cls(kind)
 
     @classmethod
     def from_running_python(cls):
         machine = platform.machine()
-
-        if machine in _NORMALIZED_NAMES:
-            if sys.maxsize > 2 ** 32:
-                return Arch(ArchitectureKind.x86_64)
+        if machine not in _NORMALIZED_NAMES:
+            raise OkonomiyakiError("Unknown machine type {0!r}".format(machine))
+        elif sys.maxsize > 2 ** 32:
+            if machine in _64BIT_NAMES:
+                return Arch(_64BIT_NAMES[machine])
             else:
-                return Arch(ArchitectureKind.x86)
+                raise OkonomiyakiError("A 64bit python is running on a {0!r}".format(machine))
         else:
-            raise OkonomiyakiError(
-                "Unknown machine combination {0!r}".format(machine)
-            )
+            return Arch(ArchitectureKind.x86)
+
 
     @classmethod
     def from_running_system(cls):
