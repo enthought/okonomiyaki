@@ -4,7 +4,8 @@ from okonomiyaki.errors import OkonomiyakiError
 from .._arch import Arch
 
 from .common import (
-    mock_machine_armv71, mock_x86, mock_x86_64, mock_x86_on_x86_64)
+    mock_machine_armv71, mock_x86, mock_x86_64,
+    mock_x86_on_x86_64, mock_arm64)
 
 if sys.version_info < (2, 7):
     import unittest2 as unittest
@@ -13,6 +14,7 @@ else:
 
 
 class TestArch(unittest.TestCase):
+
     def test_simple(self):
         # Given
         name = "x86"
@@ -48,6 +50,16 @@ class TestArch(unittest.TestCase):
         self.assertEqual(arch.name, name)
         self.assertEqual(arch.bits, 64)
 
+        # Given
+        name = "arm64"
+
+        # When
+        arch = Arch.from_name(name)
+
+        # Then
+        self.assertEqual(arch.name, name)
+        self.assertEqual(arch.bits, 64)
+
     def test_from_unnormalized_names(self):
         # Given
         names = ("x86", "i386", "i686")
@@ -69,6 +81,17 @@ class TestArch(unittest.TestCase):
 
             # Then
             self.assertEqual(arch.name, "x86_64")
+            self.assertEqual(arch.bits, 64)
+
+        # Given
+        names = ("aarch64", "ARM64")
+
+        # When
+        for name in names:
+            arch = Arch.from_name(name)
+
+            # Then
+            self.assertEqual(arch.name, "arm64")
             self.assertEqual(arch.bits, 64)
 
     def test_from_running_python(self):
@@ -95,6 +118,14 @@ class TestArch(unittest.TestCase):
         # Then
         self.assertEqual(arch.name, "x86")
         self.assertEqual(arch.bits, 32)
+
+        # When
+        with mock_arm64:
+            arch = Arch.from_running_python()
+
+        # Then
+        self.assertEqual(arch.name, "arm64")
+        self.assertEqual(arch.bits, 64)
 
         # Given/When/Then
         with mock_machine_armv71:
@@ -124,6 +155,14 @@ class TestArch(unittest.TestCase):
 
         # Then
         self.assertEqual(arch.name, "x86_64")
+        self.assertEqual(arch.bits, 64)
+
+        # When
+        with mock_arm64:
+            arch = Arch.from_running_system()
+
+        # Then
+        self.assertEqual(arch.name, "arm64")
         self.assertEqual(arch.bits, 64)
 
         # Given/When/Then
