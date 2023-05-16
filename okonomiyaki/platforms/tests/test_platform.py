@@ -4,15 +4,14 @@ from okonomiyaki.errors import OkonomiyakiError
 from .._platform import Platform
 
 from .common import (
-    mock_x86, mock_x86_64,
-    mock_machine_x86_64,
-    mock_architecture_64bit)
+    mock_machine_armv71, mock_x86, mock_x86_64,
+    mock_machine_x86_64, mock_arm64, mock_architecture_64bit)
 from .common import (
-    mock_centos_3_5, mock_centos_5_8, mock_machine_armv71,
+    mock_centos_3_5, mock_centos_5_8,
     mock_centos_6_3, mock_osx_10_7, mock_solaris,
-    mock_osx_12_6, mock_ubuntu_raring, mock_windows_7,
-    mock_windows_10, mock_windows_11, mock_mydistro_2_8,
-    mock_rocky_8_8)
+    mock_osx_12_6, mock_osx_12_6_arm64,
+    mock_ubuntu_raring, mock_windows_7, mock_windows_10,
+    mock_windows_11, mock_rocky_8_8)
 
 if sys.version_info < (2, 7):
     import unittest2 as unittest
@@ -61,6 +60,19 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(platform.release, "11")
         self.assertEqual(str(platform), "Windows 11 on x86_64")
 
+    @mock_windows_11
+    @mock_arm64
+    def test_windows11_arm(self):
+        # When
+        platform = Platform.from_running_python()
+
+        # Then
+        self.assertEqual(platform.os, "windows")
+        self.assertEqual(platform.name, "windows")
+        self.assertEqual(platform.family, "windows")
+        self.assertEqual(platform.release, "11")
+        self.assertEqual(str(platform), "Windows 11 on arm64")
+
     @mock_osx_10_7
     @mock_x86
     def test_osx_10_7(self):
@@ -84,6 +96,18 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(platform.name, "mac_os_x")
         self.assertEqual(platform.family, "mac_os_x")
         self.assertEqual(str(platform), "Mac OS X 12.6.5 on x86_64")
+
+    @mock_osx_12_6_arm64
+    @mock_arm64
+    def test_osx_12_arm64(self):
+        # When
+        platform = Platform.from_running_python()
+
+        # Then
+        self.assertEqual(platform.os, "darwin")
+        self.assertEqual(platform.name, "mac_os_x")
+        self.assertEqual(platform.family, "mac_os_x")
+        self.assertEqual(str(platform), "Mac OS X 12.6.5 on arm64")
 
     @mock_solaris
     @mock_x86_64
