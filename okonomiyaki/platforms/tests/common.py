@@ -94,9 +94,31 @@ mock_windows_7 = MultiPatcher([
                lambda: ("7", "6.1.7601", "SP1", "Multiprocessor Free"))
 ])
 
+mock_windows_10 = MultiPatcher([
+    mock.patch("sys.platform", "win32"),
+    mock.patch("platform.win32_ver",
+               lambda: ('10', '10.0.19041', 'SP0', 'Multiprocessor Free'))
+])
+
+mock_windows_11 = MultiPatcher([
+    mock.patch("sys.platform", "win32"),
+    mock.patch("platform.win32_ver",
+               lambda: ('10', '10.0.22621', 'SP0', 'Multiprocessor Free'))
+])
+
 mock_osx_10_7 = MultiPatcher([
     mock.patch("sys.platform", "darwin"),
     mock.patch("platform.mac_ver", lambda: ("10.7.5", ("", "", ""), "x86_64")),
+])
+
+mock_osx_12_6 = MultiPatcher([
+    mock.patch("sys.platform", "darwin"),
+    mock.patch("platform.mac_ver", lambda: ("12.6.5", ("", "", ""), "x86_64")),
+])
+
+mock_osx_12_6_arm64 = MultiPatcher([
+    mock.patch("sys.platform", "darwin"),
+    mock.patch("platform.mac_ver", lambda: ("12.6.5", ("", "", ""), "arm64")),
 ])
 
 
@@ -109,10 +131,12 @@ mock_machine_x86 = Patcher(mock_machine("x86"))
 mock_architecture_32bit = Patcher(mock.patch("sys.maxsize", 2**32 - 1))
 
 mock_machine_x86_64 = Patcher(mock_machine("x86_64"))
+mock_machine_arm64 = Patcher(mock_machine("ARM64"))
 mock_architecture_64bit = Patcher(mock.patch("sys.maxsize", 2**64 - 1))
 
 mock_x86 = MultiPatcher([mock_machine_x86, mock_architecture_32bit])
 mock_x86_64 = MultiPatcher([mock_machine_x86_64, mock_architecture_64bit])
+mock_arm64 = MultiPatcher([mock_machine_arm64, mock_architecture_64bit])
 # A 32 bits python process on a 64 bits OS
 mock_x86_on_x86_64 = MultiPatcher([mock_machine_x86_64,
                                    mock_architecture_32bit])
