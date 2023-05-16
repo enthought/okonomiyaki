@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 import platform
 import sys
+import subprocess
 
 import enum
 import six
@@ -10,6 +11,7 @@ from attr import attr, attributes
 from attr.validators import instance_of
 
 from okonomiyaki.errors import OkonomiyakiError
+from okonomiyaki.versions import SemanticVersion
 
 from ._arch import Arch
 
@@ -149,9 +151,9 @@ def _guess_os_kind():
 
 def _guess_platform_details(os_kind):
     if os_kind == OSKind.windows:
-        return FamilyKind.windows, NameKind.windows, platform.win32_ver()[0]
+        return FamilyKind.windows, NameKind.windows, _windows_version()
     elif os_kind == OSKind.darwin:
-        return FamilyKind.mac_os_x, NameKind.mac_os_x, platform.mac_ver()[0]
+        return FamilyKind.mac_os_x, NameKind.mac_os_x, _macos_release()
     elif os_kind == OSKind.linux:
         name, release = _linux_distribution()
         try:
@@ -196,3 +198,23 @@ def _linux_distribution():
         name, release, _ = distro.linux_distribution()
     name = name.split()[0]
     return name.lower(), release
+
+def _macos_release():
+    release = platform.mac_ver()[0]
+    if release == '10.16':
+        # need to verify since sometimes python reports a compatibility version
+        cmd = [
+            sys.executable, '-sS', '-c',
+            'import platform; print(platform.mac_ver()[0])']
+        release = subprocess.check_output(
+            cmd, env={"SYSTEM_VERSION_COMPAT": "0"},
+            universal_newlines=True).strip()
+    return release
+
+
+def _windows_version():
+    version, release, _, _ = platform.win32_ver()
+    release = SemanticVersion.from_string(release)
+    if release > SemanticVersion.from_string('10.0.22000'):
+        version = '11'
+    return version
