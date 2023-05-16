@@ -99,7 +99,8 @@ class Platform(object):
         """ Guess the platform, using the running python to guess the
         architecture.
         """
-        return _guess_platform()
+        arch = Arch.from_running_python()
+        return _guess_platform(arch)
 
     @classmethod
     def from_running_system(cls, arch_string=None):
@@ -110,7 +111,11 @@ class Platform(object):
         arch_string: str, None
             If given, should be a valid architecture name (e.g. 'x86')
         """
-        return _guess_platform(arch_string)
+        if arch_string is None:
+            arch = Arch.from_running_system()
+        else:
+            arch = Arch.from_name(arch_string)
+        return _guess_platform(arch)
 
     @property
     def family(self):
@@ -172,16 +177,10 @@ def _guess_platform_details(os_kind):
             return family_kind, name_kind, release
 
 
-def _guess_platform(arch_string=None):
-    if arch_string is None:
-        arch = Arch.from_running_python()
-    else:
-        arch = Arch.from_name(arch_string)
-
+def _guess_platform(arch):
     machine = Arch.from_running_system()
     os_kind = _guess_os_kind()
     family_kind, name_kind, release = _guess_platform_details(os_kind)
-
     return Platform(os_kind, name_kind, family_kind, release, arch, machine)
 
 
