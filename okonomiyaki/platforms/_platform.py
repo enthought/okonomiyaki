@@ -173,20 +173,9 @@ def _guess_platform_details(os_kind):
                 else:
                     name_kind = NameKind.unknown
                     break
-            else:
-                raise OkonomiyakiError(
-                    "Unsupported platform: {0!r}".format(name))
+            raise OkonomiyakiError(
+                "Unsupported platform: {0!r}".format(name))
 
-        if name_kind in (NameKind.ubuntu, NameKind.debian):
-            family_kind = FamilyKind.debian
-        elif name_kind in (NameKind.centos, NameKind.rhel, NameKind.rocky):
-            family_kind = FamilyKind.rhel
-        elif name_kind == NameKind.unknown and 'rhel' in like:
-            family_kind = FamilyKind.rhel
-        elif name_kind == NameKind.unknown and 'debian' in like:
-            family_kind = FamilyKind.debian
-        else:
-            raise OkonomiyakiError("Unsupported platform: {0!r}".format(name))
         return family_kind, name_kind, release
 
 

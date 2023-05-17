@@ -5,7 +5,8 @@ from .._platform import Platform
 
 from .common import (
     mock_machine_armv71, mock_x86, mock_x86_64,
-    mock_machine_x86_64, mock_arm64, mock_architecture_64bit)
+    mock_machine_x86, mock_machine_x86_64, mock_arm64,
+    mock_architecture_64bit)
 from .common import (
     mock_centos_3_5, mock_centos_5_8,
     mock_centos_6_3, mock_osx_10_7, mock_solaris,
