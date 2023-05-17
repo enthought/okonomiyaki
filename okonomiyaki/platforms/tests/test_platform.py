@@ -6,7 +6,8 @@ from .._platform import Platform
 
 from .common import (
     mock_machine_armv71, mock_x86, mock_x86_64,
-    mock_machine_x86_64, mock_arm64, mock_architecture_64bit)
+    mock_machine_x86, mock_machine_x86_64, mock_arm64,
+    mock_architecture_64bit)
 from .common import (
     mock_centos_3_5, mock_centos_5_8,
     mock_centos_6_3, mock_osx_10_7, mock_solaris,
@@ -246,6 +247,39 @@ class TestPlatformRunningSystem(unittest.TestCase):
         self.assertEqual(platform.os, "windows")
         self.assertEqual(platform.arch.name, "x86")
         self.assertEqual(platform.machine.name, "x86_64")
+
+    @mock_windows_7
+    @mock_x86
+    def test_windows7_32bit(self):
+        # Given
+        arch_string = None
+
+        # When/Then
+        with mock_architecture_64bit:
+            platform = Platform.from_running_system(arch_string)
+
+        # Then
+        self.assertEqual(platform.os, "windows")
+        self.assertEqual(platform.arch.name, "x86")
+        self.assertEqual(platform.machine.name, "x86")
+
+        # Given
+        arch_string = "x86_64"
+
+        # When/Then
+        with self.assertRaises(OkonomiyakiError):
+            Platform.from_running_system(arch_string)
+
+        # Given
+        arch_string = "x86"
+
+        # When
+        platform = Platform.from_running_system(arch_string)
+
+        # Then
+        self.assertEqual(platform.os, "windows")
+        self.assertEqual(platform.arch.name, "x86")
+        self.assertEqual(platform.machine.name, "x86")
 
 
 class TestPlatform(unittest.TestCase):
