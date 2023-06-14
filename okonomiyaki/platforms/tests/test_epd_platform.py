@@ -10,7 +10,7 @@ from okonomiyaki.versions import RuntimeVersion
 
 from .. import EPDPlatform
 from ..epd_platform import (
-    _guess_epd_platform, EPD_PLATFORM_SHORT_NAMES, X86, X86_64, applies)
+    EPD_PLATFORM_SHORT_NAMES, X86, X86_64, ARM64, applies)
 from ..legacy import _SUBDIR
 from .._platform import OSKind, FamilyKind, NameKind
 from .._arch import Arch
@@ -19,8 +19,7 @@ from .common import (
     mock_architecture_32bit, mock_architecture_64bit, mock_centos_5_8,
     mock_centos_6_3, mock_darwin, mock_machine_x86, mock_machine_x86_64,
     mock_solaris, mock_ubuntu_raring, mock_windows, mock_x86, mock_x86_64,
-    mock_centos_7_6
-)
+    mock_centos_7_6, mock_machine_arm64, mock_machine)
 
 if sys.version_info < (2, 7):
     import unittest2 as unittest
@@ -29,30 +28,42 @@ else:
 
 
 class TestEPDPlatform(unittest.TestCase):
+
     def setUp(self):
-        self.platform_strings = tuple(
+        items = [
             platform + "-{0}".format(arch)
             for arch in ("x86", "x86_64")
-            for platform in ("osx", "win", "rh5")
-        )
+            for platform in ("osx", "win", "rh5")]
+        items = [
+            platform + "-x86_64"
+            for platform in ("rh6", "rh7", "rh8")]
+        items += ["osx-arm64", "win-arm64"]
+        self.platform_strings = tuple(items)
 
     def test_short_names_consistency(self):
         legacy_entries = tuple(sorted([entry[0] for entry in _SUBDIR]))
-
         self.assertEqual(EPD_PLATFORM_SHORT_NAMES, legacy_entries)
 
-    def test_epd_platform_from_string(self):
-        """Ensure every epd short platform is understood by EPDPlatform."""
+    def test_epd_platform_from_legacy_short_string(self):
         for epd_platform_string in EPD_PLATFORM_SHORT_NAMES:
-            EPDPlatform.from_string(epd_platform_string)
+            _, bits = epd_platform_string.split('-')
+            epd_platform = EPDPlatform.from_string(epd_platform_string)
+            self.assertEqual(epd_platform.short, epd_platform_string)
+            self.assertEqual(epd_platform.arch_bits, bits)
 
     def test_pep425_is_unicode(self):
         # When/Then
         for platform_string in self.platform_strings:
-            platform = EPDPlatform.from_string(platform_string)
+            if platform_string == 'osx-arm64':
+                # arm is only suppported on 3.11 and above
+                platform = EPDPlatform.from_string(
+                    platform_string,
+                    runtime_version=RuntimeVersion.from_string('3.11'))
+            else:
+                platform = EPDPlatform.from_string(platform_string)
             self.assertIsInstance(platform.pep425_tag, six.text_type)
 
-    def test_platform_name(self):
+    def test_platform_name_is_unicode(self):
         # When/Then
         for platform_string in self.platform_strings:
             platform = EPDPlatform.from_string(platform_string)
@@ -69,51 +80,6 @@ class TestEPDPlatform(unittest.TestCase):
         with self.assertRaises(OkonomiyakiError):
             EPDPlatform.from_string("win_x86-64")
 
-    def test_epd_platform_from_string_new_names_underscore(self):
-        # Given
-        archs = ("i386", "x86", "i686")
-
-        # When
-        epd_platforms = tuple(
-            EPDPlatform.from_string("rh5_" + arch)
-            for arch in archs
-        )
-
-        # Then
-        for epd_platform in epd_platforms:
-            self.assertEqual(epd_platform.arch_bits, "32")
-
-        # Given
-        archs = ("amd64", "x86_64", "AMD64")
-
-        # When
-        epd_platforms = tuple(
-            EPDPlatform.from_string("rh5_" + arch)
-            for arch in archs
-        )
-
-        # Then
-        for epd_platform in epd_platforms:
-            self.assertEqual(epd_platform.arch_bits, "64")
-
-        # Given
-        s = "win_x86_64"
-
-        # When
-        epd_platform = EPDPlatform.from_string(s)
-
-        # Then
-        self.assertEqual(epd_platform, EPDPlatform.from_string("win-64"))
-
-        # Given
-        s = "osx_x86_64"
-
-        # When
-        epd_platform = EPDPlatform.from_string(s)
-
-        # Then
-        self.assertEqual(epd_platform, EPDPlatform.from_string("osx-64"))
-
     def test_epd_platform_from_string_new_names(self):
         """Ensure every epd short platform is understood by EPDPlatform."""
         # Given
@@ -122,25 +88,37 @@ class TestEPDPlatform(unittest.TestCase):
         # When
         epd_platforms = tuple(
             EPDPlatform.from_string("rh5-" + arch)
-            for arch in archs
-        )
+            for arch in archs)
 
         # Then
         for epd_platform in epd_platforms:
             self.assertEqual(epd_platform.arch_bits, "32")
+            self.assertEqual(epd_platform.platform_name, "rh5")
 
         # Given
         archs = ("amd64", "x86_64", "AMD64")
 
         # When
         epd_platforms = tuple(
-            EPDPlatform.from_string("rh5-" + arch)
-            for arch in archs
-        )
+            EPDPlatform.from_string("win-" + arch)
+            for arch in archs)
 
         # Then
         for epd_platform in epd_platforms:
             self.assertEqual(epd_platform.arch_bits, "64")
+            self.assertEqual(epd_platform.platform_name, "win")
+
+        archs = ("arm64", "aarch64")
+
+        # When
+        epd_platforms = tuple(
+            EPDPlatform.from_string("osx-" + arch)
+            for arch in archs)
+
+        # Then
+        for epd_platform in epd_platforms:
+            self.assertEqual(epd_platform.arch_bits, "64")
+            self.assertEqual(epd_platform.platform_name, "osx")
 
     def test_epd_platform_from_string_with_runtime_version(self):
         # given
@@ -156,97 +134,176 @@ class TestEPDPlatform(unittest.TestCase):
         version = RuntimeVersion.from_string('3.8.8+2')
 
         # when/then
-        epd_platform = EPDPlatform.from_string('osx-64', version)
+        epd_platform = EPDPlatform.from_string('osx-x86_64', version)
         self.assertEqual(epd_platform.platform.release, '10.14')
-        epd_platform = EPDPlatform.from_string('win-64', version)
+        epd_platform = EPDPlatform.from_string('win-x86_64', version)
+        self.assertEqual(epd_platform.platform.release, '10')
+
+        # given
+        version = RuntimeVersion.from_string('3.11.2+5')
+
+        # when/then
+        epd_platform = EPDPlatform.from_string('osx-x86_64', version)
+        self.assertEqual(epd_platform.platform.release, '12.0')
+        epd_platform = EPDPlatform.from_string('win-x86_64', version)
         self.assertEqual(epd_platform.platform.release, '10')
 
     @mock_darwin
     @mock_machine_x86_64
-    def test_from_running_python(self):
+    def test_from_running_python_darwin(self):
         # When
         with mock_architecture_32bit:
-            platform = EPDPlatform.from_running_python()
+            epd_platform = EPDPlatform.from_running_python()
 
         # Then
-        self.assertEqual(platform.short, "osx-32")
+        self.assertEqual(str(epd_platform), "osx_x86")
 
         # When
         with mock_architecture_64bit:
-            platform = EPDPlatform.from_running_python()
+            epd_platform = EPDPlatform.from_running_python()
 
         # Then
-        self.assertEqual(platform.short, "osx-64")
+        self.assertEqual(str(epd_platform), "osx_x86_64")
 
     @mock_darwin
-    @mock_machine_x86_64
-    def test_from_running_system(self):
-        # When
-        with mock_architecture_32bit:
-            platform = EPDPlatform.from_running_system()
-
-        # Then
-        self.assertEqual(platform.short, "osx-64")
-
+    @mock_machine_arm64
+    def test_from_running_python_apple_silicon(self):
         # When
         with mock_architecture_64bit:
-            platform = EPDPlatform.from_running_system()
+            epd_platform = EPDPlatform.from_running_python()
 
         # Then
-        self.assertEqual(platform.short, "osx-64")
-
-    def test_epd_platform_from_string_new_arch(self):
-        def old_to_new_name(epd_platform_string):
-            left, right = epd_platform_string.split("-")
-            return "{0}-{1}".format(left, {"32": X86, "64": X86_64}[right])
-
-        # Given
-        name_to_platform = {}
+        self.assertEqual(str(epd_platform), "osx_arm64")
 
         # When
-        for old_name in EPD_PLATFORM_SHORT_NAMES:
-            new_name = old_to_new_name(old_name)
-            name_to_platform[old_name] = EPDPlatform.from_string(new_name)
+        with mock_architecture_32bit:
+            with self.assertRaises(OkonomiyakiError):
+                EPDPlatform.from_running_python()
 
-        # Then
-        for old_name in name_to_platform:
-            self.assertEqual(name_to_platform[old_name].short, old_name)
+    @mock_windows
+    def test_from_running_system_windows(self):
+        with mock_machine_x86:
+            epd_platform = EPDPlatform.from_running_system()
+            self.assertEqual(str(epd_platform), "win_x86")
 
-    def test_guessed_epd_platform(self):
-        with mock_centos_5_8:
+            epd_platform = EPDPlatform.from_running_system('x86')
+            self.assertEqual(str(epd_platform), "win_x86")
+
+            with self.assertRaises(OkonomiyakiError):
+                EPDPlatform.from_running_system('AMD64')
+
+        with mock_machine_x86_64:
+            epd_platform = EPDPlatform.from_running_system()
+            self.assertEqual(str(epd_platform), "win_x86_64")
+
+            epd_platform = EPDPlatform.from_running_system('x86')
+            self.assertEqual(str(epd_platform), "win_x86")
+
+        with mock_machine_arm64:
+            epd_platform = EPDPlatform.from_running_system()
+            self.assertEqual(str(epd_platform), "win_arm64")
+
+            epd_platform = EPDPlatform.from_running_system('arm64')
+            self.assertEqual(str(epd_platform), "win_arm64")
+
+    @mock_darwin
+    def test_from_running_system_darwin(self):
+        with mock_machine_x86:
+            # When/Then
+            epd_platform = EPDPlatform.from_running_system()
+            self.assertEqual(str(epd_platform), "osx_x86")
+            # When/Then
             epd_platform = EPDPlatform.from_running_system("x86")
-            self.assertEqual(epd_platform.short, "rh5-32")
-
-            epd_platform = EPDPlatform.from_running_system("amd64")
-            self.assertEqual(epd_platform.short, "rh5-64")
-
-        with mock_centos_7_6:
-            epd_platform = EPDPlatform.from_running_system("amd64")
-            self.assertEqual(epd_platform.short, "rh7-64")
-
-    def test_str(self):
-        # Given
-        epd_platform = EPDPlatform.from_string("rh5-64")
-
-        # When/Then
-        self.assertEqual(str(epd_platform), "rh5_x86_64")
-
-        # Given
-        epd_platform = EPDPlatform.from_string("osx-32")
-
-        # When/Then
-        self.assertEqual(str(epd_platform), "osx_x86")
-        self.assertEqual(six.text_type(epd_platform), u"osx_x86")
-        self.assertIsInstance(six.text_type(epd_platform), six.text_type)
-
-        # Given
-        s = "osx_x86"
-
+            self.assertEqual(str(epd_platform), "osx_x86")
+            # When/Then
+            with self.assertRaises(OkonomiyakiError):
+                EPDPlatform.from_running_system("amd64")
         # When
-        epd_platform = EPDPlatform.from_string(s)
+        with mock_machine_x86_64:
+            # When/Then
+            epd_platform = EPDPlatform.from_running_system()
+            self.assertEqual(str(epd_platform), "osx_x86_64")
+            # When/Then
+            epd_platform = EPDPlatform.from_running_system('x86_64')
+            self.assertEqual(str(epd_platform), "osx_x86_64")
+            # When/Then
+            epd_platform = EPDPlatform.from_running_system('x86')
+            self.assertEqual(str(epd_platform), "osx_x86")
 
-        # Then
-        self.assertEqual(str(epd_platform), s)
+        with mock_machine_arm64:
+            # When/Then
+            epd_platform = EPDPlatform.from_running_system()
+            self.assertEqual(str(epd_platform), "osx_arm64")
+
+    @mock_centos_5_8
+    def test_from_running_system_centos_5(self):
+        with mock_machine_x86:
+            # When/Then
+            epd_platform = EPDPlatform.from_running_system()
+            self.assertEqual(str(epd_platform), "rh5_x86")
+            # When/Then
+            epd_platform = EPDPlatform.from_running_system('x86')
+            self.assertEqual(str(epd_platform), "rh5_x86")
+            # When/Then
+            with self.assertRaises(OkonomiyakiError):
+                EPDPlatform.from_running_system('x86_64')
+
+        with mock_machine_x86_64:
+            # When/Then
+            epd_platform = EPDPlatform.from_running_system()
+            self.assertEqual(str(epd_platform), "rh5_x86_64")
+            # When/Then
+            epd_platform = EPDPlatform.from_running_system('x86')
+            self.assertEqual(str(epd_platform), "rh5_x86")
+
+        with mock_machine_arm64:
+            with self.assertRaises(OkonomiyakiError):
+                EPDPlatform.from_running_system()
+
+    @mock_centos_6_3
+    def test_from_running_system_centos_6(self):
+        with mock_machine_x86:
+            # When/Then
+            epd_platform = EPDPlatform.from_running_system()
+            self.assertEqual(str(epd_platform), "rh6_x86")
+            # When/Then
+            epd_platform = EPDPlatform.from_running_system('x86')
+            self.assertEqual(str(epd_platform), "rh6_x86")
+            # When/Then
+            with self.assertRaises(OkonomiyakiError):
+                EPDPlatform.from_running_system('x86_64')
+
+        with mock_machine_x86_64:
+            # When/Then
+            epd_platform = EPDPlatform.from_running_system()
+            self.assertEqual(str(epd_platform), "rh6_x86_64")
+            # When/Then
+            epd_platform = EPDPlatform.from_running_system('x86')
+            self.assertEqual(str(epd_platform), "rh6_x86")
+
+        with mock_machine_arm64:
+            with self.assertRaises(OkonomiyakiError):
+                EPDPlatform.from_running_system()
+
+    @mock_centos_7_6
+    def test_from_running_system_centos_7(self):
+        with mock_machine_x86:
+            # When/Then
+            epd_platform = EPDPlatform.from_running_system()
+            self.assertEqual(str(epd_platform), "rh7_x86")
+            # When/Then
+            epd_platform = EPDPlatform.from_running_system('x86')
+            self.assertEqual(str(epd_platform), "rh7_x86")
+
+        with mock_machine_x86_64:
+            epd_platform = EPDPlatform.from_running_system()
+            self.assertEqual(str(epd_platform), "rh7_x86_64")
+            epd_platform = EPDPlatform.from_running_system('x86')
+            self.assertEqual(str(epd_platform), "rh7_x86")
+
+        with mock_machine_arm64:
+            with self.assertRaises(OkonomiyakiError):
+                EPDPlatform.from_running_system()
 
     @given(sampled_from((
         ("rh5_x86", None, "linux_i686"),
@@ -255,8 +312,11 @@ class TestEPDPlatform(unittest.TestCase):
         ("osx_x86", '3.8.9+1', "macosx_10_14_i386"),
         ("osx_x86_64", None, "macosx_10_6_x86_64"),
         ("osx_x86_64", '3.8.9+1', "macosx_10_14_x86_64"),
+        ("osx_x86_64", '3.11.2+1', "macosx_12_0_x86_64"),
+        ("osx_arm64", '3.11.2+1', "macosx_12_0_arm64"),
         ("win_x86", None, "win32"),
         ("win_x86_64", None, "win_amd64"),
+        ("win_arm64", None, "win_arm64"),
         ("win_x86_64", '3.9.1', "win_amd64"))))
     def test_pep425_tag(self, arguments):
         # Given
@@ -286,6 +346,8 @@ class TestEPDPlatform(unittest.TestCase):
         ('win32', None, 'x86', 'win32', 'cp36', 'msvc2015'),
         ('win32', None, 'amd64', 'win_amd64', 'cp36', 'msvc2015'),
         ('win32', None, 'x86', 'win32', 'cp38', 'msvc2019'),
+        ('win32', None, 'arm64', 'win32', 'cp311', 'msvc2022'),
+        ('win32', None, 'amd64', 'win32', 'cp311', 'msvc2022'),
         ('win32', None, 'amd64', 'win_amd64', 'cp38', 'msvc2019'),
     )))
     def test_from_spec_depend_data(self, arguments):
@@ -294,7 +356,9 @@ class TestEPDPlatform(unittest.TestCase):
         platform, osdist, arch_name, platform_tag, python_version, platform_abi = arguments
 
         # then
-        if '64' in arch_name:
+        if 'arm' in arch_name:
+            self.assertEqual(epd_platform.arch, ARM64)
+        elif '64' in arch_name:
             self.assertEqual(epd_platform.arch, X86_64)
         else:
             self.assertEqual(epd_platform.arch, X86)
@@ -401,120 +465,19 @@ class TestEPDPlatformApplies(unittest.TestCase):
         self.assertTrue(applies("rh6-32", "rh"))
         self.assertFalse(applies("win-32", "rh"))
 
-
-class TestGuessEPDPlatform(unittest.TestCase):
-    @mock_windows
-    def test_guess_win32_platform(self):
-        epd_platform = _guess_epd_platform(Arch.from_name("x86"))
-        self.assertEqual(epd_platform.short, "win-32")
-
-        epd_platform = _guess_epd_platform(Arch.from_name("amd64"))
-        self.assertEqual(epd_platform.short, "win-64")
-
-    @mock_darwin
-    def test_guess_darwin_platform(self):
-        # When
-        with mock_machine_x86:
-            epd_platform = _guess_epd_platform(Arch.from_name("x86"))
-
-        # Then
-        self.assertEqual(epd_platform.short, "osx-32")
-
-        # When
-        with mock_machine_x86:
-            epd_platform = _guess_epd_platform(Arch.from_name("amd64"))
-
-        # Then
-        self.assertEqual(epd_platform.short, "osx-64")
-
-        # When
-        with mock_machine_x86:
-            with mock_architecture_32bit:
-                epd_platform = _guess_epd_platform()
-
-        # Then
-        self.assertEqual(epd_platform.short, "osx-32")
-
-        # When
-        with mock_machine_x86:
-            with mock_architecture_64bit:
-                epd_platform = _guess_epd_platform()
-
-        # Then
-        self.assertEqual(epd_platform.short, "osx-64")
-
-        # When
-        with mock_machine_x86_64:
-            with mock_architecture_64bit:
-                epd_platform = _guess_epd_platform()
-
-        # Then
-        self.assertEqual(epd_platform.short, "osx-64")
-
-        # When
-        with mock_machine_x86_64:
-            with mock_architecture_32bit:
-                epd_platform = _guess_epd_platform()
-
-        # Then
-        self.assertEqual(epd_platform.short, "osx-32")
-
-    def test_guess_linux2_platform(self):
-        with mock_centos_5_8:
-            epd_platform = _guess_epd_platform(Arch.from_name("x86"))
-            self.assertEqual(epd_platform.short, "rh5-32")
-
-            epd_platform = _guess_epd_platform(Arch.from_name("amd64"))
-            self.assertEqual(epd_platform.short, "rh5-64")
-
-            with mock.patch("platform.machine", lambda: "x86"):
-                with mock_architecture_32bit:
-                    epd_platform = _guess_epd_platform()
-                    self.assertEqual(epd_platform.short, "rh5-32")
-
-            with mock.patch("platform.machine", lambda: "i386"):
-                with mock_architecture_32bit:
-                    epd_platform = _guess_epd_platform()
-                    self.assertEqual(epd_platform.short, "rh5-32")
-
-            with mock.patch("platform.machine", lambda: "i686"):
-                with mock_architecture_32bit:
-                    epd_platform = _guess_epd_platform()
-                    self.assertEqual(epd_platform.short, "rh5-32")
-
-            with mock.patch("platform.machine", lambda: "x86_64"):
-                with mock_architecture_32bit:
-                    epd_platform = _guess_epd_platform()
-                    self.assertEqual(epd_platform.short, "rh5-32")
-
-            with mock.patch("platform.machine", lambda: "x86_64"):
-                with mock_architecture_64bit:
-                    epd_platform = _guess_epd_platform()
-                    self.assertEqual(epd_platform.short, "rh5-64")
-
-        with mock_centos_6_3:
-            epd_platform = _guess_epd_platform(Arch.from_name("x86"))
-            self.assertEqual(epd_platform.short, "rh6-32")
-
-            epd_platform = _guess_epd_platform(Arch.from_name("amd64"))
-            self.assertEqual(epd_platform.short, "rh6-64")
-
-        with mock_centos_7_6:
-            epd_platform = _guess_epd_platform(Arch.from_name("amd64"))
-            self.assertEqual(epd_platform.short, "rh7-64")
-
     def test_guess_linux2_unsupported(self):
         with mock_ubuntu_raring:
             with self.assertRaises(OkonomiyakiError):
-                _guess_epd_platform()
+                EPDPlatform.from_running_system()
 
     @mock_solaris
     def test_guess_solaris_unsupported(self):
-        self.assertRaises(OkonomiyakiError, _guess_epd_platform)
+        with self.assertRaises(OkonomiyakiError):
+            EPDPlatform.from_running_system()
 
     def test_from_epd_platform_string(self):
         # Given
-        epd_platform_string = "rh5-32"
+        epd_platform_string = "rh5-x86"
 
         # When
         epd_platform = EPDPlatform.from_string(epd_platform_string)
@@ -528,7 +491,7 @@ class TestGuessEPDPlatform(unittest.TestCase):
         self.assertEqual(platform.machine, X86)
 
         # Given
-        epd_platform_string = "win-32"
+        epd_platform_string = "win-x86"
 
         # When
         epd_platform = EPDPlatform.from_string(epd_platform_string)
@@ -542,7 +505,7 @@ class TestGuessEPDPlatform(unittest.TestCase):
         self.assertEqual(platform.machine, X86)
 
         # Given
-        epd_platform_string = "osx-64"
+        epd_platform_string = "osx-x86_64"
 
         # When
         epd_platform = EPDPlatform.from_string(epd_platform_string)
@@ -554,6 +517,20 @@ class TestGuessEPDPlatform(unittest.TestCase):
         self.assertEqual(platform.name_kind, NameKind.mac_os_x)
         self.assertEqual(platform.arch, X86_64)
         self.assertEqual(platform.machine, X86_64)
+
+        # Given
+        epd_platform_string = "win-arm64"
+
+        # When
+        epd_platform = EPDPlatform.from_string(epd_platform_string)
+        platform = epd_platform.platform
+
+        # Then
+        self.assertEqual(platform.os_kind, OSKind.windows)
+        self.assertEqual(platform.family_kind, FamilyKind.windows)
+        self.assertEqual(platform.name_kind, NameKind.windows)
+        self.assertEqual(platform.arch, ARM64)
+        self.assertEqual(platform.machine, ARM64)
 
     def test_from_epd_platform_string_invalid(self):
         # Given
@@ -583,19 +560,20 @@ class TestGuessEPDPlatform(unittest.TestCase):
     def test_from_platform_tag(self):
         # Given
         inputs_outputs = (
-            ("linux_i686", "rh5-32"),
-            ("linux_i386", "rh5-32"),
-            ("linux_x86_64", "rh5-64"),
-            ("win32", "win-32"),
-            ("win_amd64", "win-64"),
-            ("macosx_10_6_x86_64", "osx-64"),
-            ("macosx_10_6_i386", "osx-32"),
+            ("linux_i686", "rh5_x86"),
+            ("linux_i386", "rh5_x86"),
+            ("linux_x86_64", "rh5_x86_64"),
+            ("win32", "win_x86"),
+            ("win_amd64", "win_x86_64"),
+            ("win_arm64", "win_arm64"),
+            ("macosx_10_6_x86_64", "osx_x86_64"),
+            ("macosx_10_6_arm64", "osx_arm64"),
         )
 
         # When/Then
         for platform_tag, epd_string in inputs_outputs:
             platform = EPDPlatform._from_platform_tag(platform_tag)
-            self.assertEqual(platform.short, epd_string)
+            self.assertEqual(str(platform), epd_string)
 
         # When/Then
         with self.assertRaises(NotImplementedError):
