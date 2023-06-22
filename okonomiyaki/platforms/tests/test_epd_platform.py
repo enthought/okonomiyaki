@@ -17,7 +17,7 @@ from .common import (
     mock_architecture_32bit, mock_architecture_64bit, mock_centos_5_8,
     mock_centos_6_3, mock_darwin, mock_machine_x86, mock_machine_x86_64,
     mock_solaris, mock_ubuntu_raring, mock_windows, mock_x86, mock_x86_64,
-    mock_centos_7_6)
+    mock_centos_7_6, mock_windows_10, mock_windows_11, mock_windows_7)
 
 if sys.version_info < (2, 7):
     import unittest2 as unittest
@@ -144,8 +144,46 @@ class TestEPDPlatform(unittest.TestCase):
         # Then
         self.assertEqual(str(epd_platform), "osx_x86_64")
 
-    @mock_windows
-    def test_from_running_system_windows(self):
+    @mock_windows_7
+    def test_from_running_system_windows_7(self):
+        with mock_machine_x86:
+            epd_platform = EPDPlatform.from_running_system()
+            self.assertEqual(str(epd_platform), "win_x86")
+
+            epd_platform = EPDPlatform.from_running_system('x86')
+            self.assertEqual(str(epd_platform), "win_x86")
+
+            with self.assertRaises(OkonomiyakiError):
+                EPDPlatform.from_running_system('AMD64')
+
+        with mock_machine_x86_64:
+            epd_platform = EPDPlatform.from_running_system()
+            self.assertEqual(str(epd_platform), "win_x86_64")
+
+            epd_platform = EPDPlatform.from_running_system('x86')
+            self.assertEqual(str(epd_platform), "win_x86")
+
+    @mock_windows_10
+    def test_from_running_system_windows_10(self):
+        with mock_machine_x86:
+            epd_platform = EPDPlatform.from_running_system()
+            self.assertEqual(str(epd_platform), "win_x86")
+
+            epd_platform = EPDPlatform.from_running_system('x86')
+            self.assertEqual(str(epd_platform), "win_x86")
+
+            with self.assertRaises(OkonomiyakiError):
+                EPDPlatform.from_running_system('AMD64')
+
+        with mock_machine_x86_64:
+            epd_platform = EPDPlatform.from_running_system()
+            self.assertEqual(str(epd_platform), "win_x86_64")
+
+            epd_platform = EPDPlatform.from_running_system('x86')
+            self.assertEqual(str(epd_platform), "win_x86")
+
+    @mock_windows_11
+    def test_from_running_system_windows_11(self):
         with mock_machine_x86:
             epd_platform = EPDPlatform.from_running_system()
             self.assertEqual(str(epd_platform), "win_x86")
@@ -381,9 +419,25 @@ class TestEPDPlatformApplies(unittest.TestCase):
             self.assertTrue(applies("rh5-64", "current"))
             self.assertFalse(applies("!rh5-64", "current"))
 
-    @mock_windows
+    @mock_windows_7
     @mock_x86
-    def test_current_windows(self):
+    def test_current_windows_7(self):
+        for platform in ("rh5", "rh", "osx-32"):
+            self.assertFalse(applies(platform, "current"))
+        for platform in ("win", "win-32"):
+            self.assertTrue(applies(platform, "current"))
+
+    @mock_windows_10
+    @mock_x86
+    def test_current_windows_10(self):
+        for platform in ("rh5", "rh", "osx-32"):
+            self.assertFalse(applies(platform, "current"))
+        for platform in ("win", "win-32"):
+            self.assertTrue(applies(platform, "current"))
+
+    @mock_windows_11
+    @mock_x86
+    def test_current_windows_11(self):
         for platform in ("rh5", "rh", "osx-32"):
             self.assertFalse(applies(platform, "current"))
         for platform in ("win", "win-32"):
