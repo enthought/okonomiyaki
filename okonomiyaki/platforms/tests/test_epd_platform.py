@@ -16,7 +16,7 @@ from .._platform import OSKind, FamilyKind, NameKind
 from .common import (
     mock_architecture_32bit, mock_architecture_64bit, mock_centos_5_8,
     mock_centos_6_3, mock_darwin, mock_machine_x86, mock_machine_x86_64,
-    mock_solaris, mock_ubuntu_raring, mock_windows, mock_x86, mock_x86_64,
+    mock_solaris, mock_ubuntu_raring, mock_x86, mock_x86_64,
     mock_centos_7_6, mock_windows_10, mock_windows_11, mock_windows_7)
 
 if sys.version_info < (2, 7):
