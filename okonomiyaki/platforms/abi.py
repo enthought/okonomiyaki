@@ -47,6 +47,8 @@ def _default_cpython_abi(platform, implementation_version):
                 abi = u"msvc2015"
             elif implementation_version.minor <= 8:
                 abi = u"msvc2019"
+            elif implementation_version.minor <= 11:
+                abi = u"msvc2022"
 
         if abi is None:
             raise OkonomiyakiError(msg)
@@ -115,5 +117,4 @@ def default_abi(platform, implementation, implementation_version):
             raise OkonomiyakiError(msg)
     else:
         raise OkonomiyakiError(
-            "Unsupported implementation: {0!r}".format(implementation)
-        )
+            "Unsupported implementation: {0!r}".format(implementation))
