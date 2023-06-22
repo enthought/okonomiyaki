@@ -1,17 +1,16 @@
 import sys
 
 from okonomiyaki.errors import OkonomiyakiError
-from ..epd_platform import EPDPlatform
 from .._platform import Platform
 
 from .common import (
-    mock_machine_armv71, mock_x86, mock_x86_64,
-    mock_machine_x86, mock_machine_x86_64, mock_arm64,
+    mock_x86, mock_x86_64,
+    mock_machine_x86_64,
     mock_architecture_64bit)
 from .common import (
     mock_centos_3_5, mock_centos_5_8,
     mock_centos_6_3, mock_osx_10_7, mock_solaris,
-    mock_osx_12_6, mock_osx_12_6_arm64,
+    mock_osx_12_6,
     mock_ubuntu_raring, mock_windows_7, mock_windows_10,
     mock_windows_11)
 
@@ -35,7 +34,6 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(platform.family, "windows")
         self.assertEqual(platform.release, "7")
         self.assertEqual(str(platform), "Windows 7 on x86")
-
 
     @mock_windows_10
     @mock_x86_64
@@ -63,19 +61,6 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(platform.release, "11")
         self.assertEqual(str(platform), "Windows 11 on x86_64")
 
-    @mock_windows_11
-    @mock_arm64
-    def test_windows11_arm(self):
-        # When
-        platform = Platform.from_running_python()
-
-        # Then
-        self.assertEqual(platform.os, "windows")
-        self.assertEqual(platform.name, "windows")
-        self.assertEqual(platform.family, "windows")
-        self.assertEqual(platform.release, "11")
-        self.assertEqual(str(platform), "Windows 11 on arm64")
-
     @mock_osx_10_7
     @mock_x86
     def test_osx_10_7(self):
@@ -100,25 +85,12 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(platform.family, "mac_os_x")
         self.assertEqual(str(platform), "Mac OS X 12.6.5 on x86_64")
 
-    @mock_osx_12_6_arm64
-    @mock_arm64
-    def test_osx_12_arm64(self):
-        # When
-        platform = Platform.from_running_python()
-
-        # Then
-        self.assertEqual(platform.os, "darwin")
-        self.assertEqual(platform.name, "mac_os_x")
-        self.assertEqual(platform.family, "mac_os_x")
-        self.assertEqual(str(platform), "Mac OS X 12.6.5 on arm64")
-
     @mock_solaris
     @mock_x86_64
     def test_solaris(self):
         # When/Then
         with self.assertRaises(OkonomiyakiError):
             Platform.from_running_python()
-
 
     @mock_centos_3_5
     def test_centos_3_5(self):
@@ -184,13 +156,6 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(platform.family, "rhel")
         self.assertEqual(platform.release, "6.3")
         self.assertEqual(str(platform), "CentOS 6.3 on x86_64")
-
-    @mock_centos_6_3
-    @mock_machine_armv71
-    def test_centos_6_3_arm(self):
-        # When/Then
-        with self.assertRaises(OkonomiyakiError):
-            Platform.from_running_python()
 
     @mock_ubuntu_raring
     @mock_x86

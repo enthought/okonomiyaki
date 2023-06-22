@@ -10,7 +10,7 @@ from attr.validators import instance_of
 
 from okonomiyaki.versions import RuntimeVersion
 from okonomiyaki.errors import OkonomiyakiError, InvalidPEP440Version
-from ._arch import Arch, ArchitectureKind, X86, X86_64, ARM64
+from ._arch import Arch, ArchitectureKind, X86, X86_64
 from ._platform import OSKind, FamilyKind, NameKind, Platform
 
 # the string used in EGG-INFO/spec/depend. Only used during normalization
@@ -269,8 +269,6 @@ class EPDPlatform(object):
                 return u"macosx_{}_i386".format(release)
             elif platform.arch == X86_64:
                 return u"macosx_{}_x86_64".format(release)
-            elif platform.arch == ARM64:
-                return u"macosx_{}_arm64".format(release)
             else:
                 raise OkonomiyakiError(msg.format(platform))
         elif platform.os_kind == OSKind.linux:
@@ -278,8 +276,6 @@ class EPDPlatform(object):
                 return u"linux_i686"
             elif platform.arch == X86_64:
                 return u"linux_x86_64"
-            elif platform.arch == ARM64:
-                return u"linux_aarch64"
             else:
                 raise OkonomiyakiError(msg.format(platform))
         elif platform.os_kind == OSKind.windows:
@@ -287,8 +283,6 @@ class EPDPlatform(object):
                 return u"win32"
             elif platform.arch == X86_64:
                 return u"win_amd64"
-            elif platform.arch == ARM64:
-                return u"win_arm64"
             else:
                 raise OkonomiyakiError(msg.format(platform))
         else:
@@ -471,12 +465,10 @@ def _is_supported(platform):
     arch_and_machine_are_intel = (
         platform.arch in (X86, X86_64)
         and platform.machine in (X86, X86_64))
-    arch_and_machine_are_arm = (
-        platform.arch == ARM64 and platform.machine == ARM64)
     if platform.os_kind == OSKind.windows:
-        return arch_and_machine_are_intel or arch_and_machine_are_arm
+        return arch_and_machine_are_intel
     if platform.os_kind == OSKind.darwin:
-        return arch_and_machine_are_intel or arch_and_machine_are_arm
+        return arch_and_machine_are_intel
     if platform.os_kind == OSKind.solaris:
         return arch_and_machine_are_intel
     if platform.os_kind == OSKind.linux:

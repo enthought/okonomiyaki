@@ -111,4 +111,3 @@ class Arch(object):
 
 X86 = Arch(ArchitectureKind.x86)
 X86_64 = Arch(ArchitectureKind.x86_64)
-ARM64 = Arch(ArchitectureKind.arm64)
