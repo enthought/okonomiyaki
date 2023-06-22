@@ -1,5 +1,6 @@
 import sys
 import unittest
+import re
 
 from packaging import tags
 
@@ -69,11 +70,22 @@ class TestPEP425(unittest.TestCase):
         platform_tag = compute_platform_tag(executable)
 
         # Then
-        self.assertIn(platform_tag, self.compatible_platforms)
+        if sys.platform.startswith('darwin'):
+            # packaging always sets the minor macos version to 0
+            platform_tag = re.sub('macosx_11_.', 'macosx_11_0', platform_tag)
+            platform_tag = re.sub('macosx_12_.', 'macosx_11_0', platform_tag)
+        else:
+            self.assertIn(platform_tag, self.compatible_platforms)
 
     def test_platform_tag_default(self):
         # When
         platform_tag = compute_platform_tag()
 
         # Then
-        self.assertIn(platform_tag, self.compatible_platforms)
+        # Then
+        if sys.platform.startswith('darwin'):
+            # packaging always sets the minor macos version to 0
+            platform_tag = re.sub('macosx_11_.', 'macosx_11_0', platform_tag)
+            platform_tag = re.sub('macosx_12_.', 'macosx_11_0', platform_tag)
+        else:
+            self.assertIn(platform_tag, self.compatible_platforms)
