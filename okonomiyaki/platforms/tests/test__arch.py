@@ -4,7 +4,7 @@ from okonomiyaki.errors import OkonomiyakiError
 from .._arch import Arch
 
 from .common import (
-    mock_x86, mock_x86_64, mock_x86_on_x86_64)
+    mock_machine_armv71, mock_x86, mock_x86_64, mock_x86_on_x86_64)
 
 if sys.version_info < (2, 7):
     import unittest2 as unittest
@@ -96,6 +96,11 @@ class TestArch(unittest.TestCase):
         self.assertEqual(arch.name, "x86")
         self.assertEqual(arch.bits, 32)
 
+        # Given/When/Then
+        with mock_machine_armv71:
+            with self.assertRaises(OkonomiyakiError):
+                arch = Arch.from_running_python()
+
     def test_from_running_system(self):
         # When
         with mock_x86:
@@ -120,6 +125,11 @@ class TestArch(unittest.TestCase):
         # Then
         self.assertEqual(arch.name, "x86_64")
         self.assertEqual(arch.bits, 64)
+
+        # Given/When/Then
+        with mock_machine_armv71:
+            with self.assertRaises(OkonomiyakiError):
+                arch = Arch.from_running_system()
 
     def test__legacy_name(self):
         # Given

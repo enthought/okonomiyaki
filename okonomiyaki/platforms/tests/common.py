@@ -133,3 +133,5 @@ mock_x86_64 = MultiPatcher([mock_machine_x86_64, mock_architecture_64bit])
 # A 32 bits python process on a 64 bits OS
 mock_x86_on_x86_64 = MultiPatcher([mock_machine_x86_64,
                                    mock_architecture_32bit])
+
+mock_machine_armv71 = Patcher(mock_machine("armv71"))

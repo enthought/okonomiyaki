@@ -325,11 +325,7 @@ class EPDPlatform(object):
 
     @property
     def short(self):
-        if self.arch in (X86, X86_64):
-            return u"{0}-{1}".format(self.platform_name, self.arch_bits)
-        else:
-            raise ValueError(f'No legacy short name available for {self}')
-
+        return u"{0}-{1}".format(self.platform_name, self.arch_bits)
 
     def __str__(self):
         return u"{0.platform_name}_{0.arch}".format(self)

@@ -10,7 +10,7 @@ from .common import (
 from .common import (
     mock_centos_3_5, mock_centos_5_8,
     mock_centos_6_3, mock_osx_10_7, mock_solaris,
-    mock_osx_12_6,
+    mock_osx_12_6, ,
     mock_ubuntu_raring, mock_windows_7, mock_windows_10,
     mock_windows_11)
 
@@ -156,6 +156,13 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(platform.family, "rhel")
         self.assertEqual(platform.release, "6.3")
         self.assertEqual(str(platform), "CentOS 6.3 on x86_64")
+
+    @mock_centos_6_3
+    @mock_machine_armv71
+    def test_centos_6_3_arm(self):
+        # When/Then
+        with self.assertRaises(OkonomiyakiError):
+            Platform.from_running_python()
 
     @mock_ubuntu_raring
     @mock_x86
