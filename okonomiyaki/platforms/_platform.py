@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 import platform
 import sys
+import subprocess
 
 import enum
 import six
@@ -10,8 +11,9 @@ from attr import attr, attributes
 from attr.validators import instance_of
 
 from okonomiyaki.errors import OkonomiyakiError
+from okonomiyaki.versions import SemanticVersion
 
-from ._arch import Arch
+from ._arch import Arch, X86
 
 
 @enum.unique
@@ -97,7 +99,8 @@ class Platform(object):
         """ Guess the platform, using the running python to guess the
         architecture.
         """
-        return _guess_platform()
+        arch = Arch.from_running_python()
+        return _guess_platform(arch)
 
     @classmethod
     def from_running_system(cls, arch_string=None):
@@ -108,7 +111,11 @@ class Platform(object):
         arch_string: str, None
             If given, should be a valid architecture name (e.g. 'x86')
         """
-        return _guess_platform(arch_string)
+        if arch_string is None:
+            arch = Arch.from_running_system()
+        else:
+            arch = Arch.from_name(arch_string)
+        return _guess_platform(arch)
 
     @property
     def family(self):
@@ -125,14 +132,12 @@ class Platform(object):
     def __repr__(self):
         return (
             "Platform(os={0.os!r}, name={0.name!r}, family={0.family!r}, "
-            "release='{0.release}', arch='{0.arch}', machine='{0.machine}')".format(self)
-        )
+            "release='{0.release}', arch='{0.arch}', machine='{0.machine}')".format(self))
 
     def __str__(self):
         return u"{0} {1.release} on {1.machine}".format(
             NAME_KIND_TO_PRETTY_NAMES[self.name_kind],
-            self
-        )
+            self)
 
 
 def _guess_os_kind():
@@ -149,17 +154,16 @@ def _guess_os_kind():
 
 def _guess_platform_details(os_kind):
     if os_kind == OSKind.windows:
-        return FamilyKind.windows, NameKind.windows, platform.win32_ver()[0]
+        return FamilyKind.windows, NameKind.windows, _windows_version()
     elif os_kind == OSKind.darwin:
-        return FamilyKind.mac_os_x, NameKind.mac_os_x, platform.mac_ver()[0]
+        return FamilyKind.mac_os_x, NameKind.mac_os_x, _macos_release()
     elif os_kind == OSKind.linux:
         name, release = _linux_distribution()
         try:
             name_kind = NameKind[name]
         except KeyError:
             raise OkonomiyakiError(
-                "Unsupported platform: {0!r}".format(name)
-            )
+                "Unsupported platform: {0!r}".format(name))
         else:
             if name_kind in (NameKind.ubuntu, NameKind.debian):
                 family_kind = FamilyKind.debian
@@ -170,16 +174,12 @@ def _guess_platform_details(os_kind):
             return family_kind, name_kind, release
 
 
-def _guess_platform(arch_string=None):
-    if arch_string is None:
-        arch = Arch.from_running_python()
-    else:
-        arch = Arch.from_name(arch_string)
-
+def _guess_platform(arch):
     machine = Arch.from_running_system()
+    if machine == X86 and arch.bits == 64:
+        raise OkonomiyakiError("Incompatible 32bit machine with a 64bit architecture")
     os_kind = _guess_os_kind()
     family_kind, name_kind, release = _guess_platform_details(os_kind)
-
     return Platform(os_kind, name_kind, family_kind, release, arch, machine)
 
 
@@ -196,3 +196,24 @@ def _linux_distribution():
         name, release, _ = distro.linux_distribution()
     name = name.split()[0]
     return name.lower(), release
+
+
+def _macos_release():
+    release = platform.mac_ver()[0]
+    if release == '10.16':
+        # need to verify since sometimes python reports a compatibility version
+        cmd = [
+            sys.executable, '-sS', '-c',
+            'import platform; print(platform.mac_ver()[0])']
+        release = subprocess.check_output(
+            cmd, env={"SYSTEM_VERSION_COMPAT": "0"},
+            universal_newlines=True).strip()
+    return release
+
+
+def _windows_version():
+    version, release, _, _ = platform.win32_ver()
+    release = SemanticVersion.from_string(release)
+    if release > SemanticVersion.from_string('10.0.22000'):
+        version = '11'
+    return version

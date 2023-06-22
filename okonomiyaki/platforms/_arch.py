@@ -107,3 +107,7 @@ class Arch(object):
 
     def __str__(self):
         return self.name
+
+
+X86 = Arch(ArchitectureKind.x86)
+X86_64 = Arch(ArchitectureKind.x86_64)

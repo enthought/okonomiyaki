@@ -40,7 +40,7 @@ class TestDefaultABI(unittest.TestCase):
 
     @given(
         sampled_from([
-            ("win_x86", "cpython", "3.9.0+1"),
+            ("win_x86", "cpython", "3.12.0+1"),
             ("win_x86", "pypy", "4.1.0+1"),
             ("rh5_x86_64", "r", "3.0.0+1")]))
     def test_non_supported(self, arguments):

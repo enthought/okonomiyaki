@@ -10,7 +10,7 @@ from attr.validators import instance_of
 
 from okonomiyaki.versions import RuntimeVersion
 from okonomiyaki.errors import OkonomiyakiError, InvalidPEP440Version
-from ._arch import Arch, ArchitectureKind
+from ._arch import Arch, ArchitectureKind, X86, X86_64
 from ._platform import OSKind, FamilyKind, NameKind, Platform
 
 # the string used in EGG-INFO/spec/depend. Only used during normalization
@@ -26,15 +26,13 @@ _ARCHBITS_TO_ARCH = {
     ArchitectureKind.x86_64: _X86_64_LEGACY_SPEC,
 }
 
-X86 = Arch(ArchitectureKind.x86)
-X86_64 = Arch(ArchitectureKind.x86_64)
-
 PLATFORM_NAMES = (
     "osx",
     "rh3",
     "rh5",
     "rh6",
     "rh7",
+    "rh8",
     "sol",
     "win",
 )
@@ -76,8 +74,7 @@ def platform_validator():
         instance_of(Platform)(inst, attr, value)
         if not _is_supported(value):
             raise OkonomiyakiError(
-                "Platform {0} not supported".format(value)
-            )
+                "Platform {0} not supported by EPD".format(value))
     return wrapper
 
 
@@ -110,7 +107,7 @@ class EPDPlatform(object):
     @classmethod
     def from_running_python(cls):
         """
-        Attempt to create an EPDPlatform instance by guessing the running
+        Attempt to create an EPDPlatform instance based on the running
         python. May raise an OkonomiyakiError exception
         """
         return cls(Platform.from_running_python())
@@ -118,8 +115,8 @@ class EPDPlatform(object):
     @classmethod
     def from_running_system(cls, arch_name=None):
         """
-        Attempt to create an EPDPlatform instance by guessing the running
-        platform. May raise an OkonomiyakiError exception
+        Attempt to create an EPDPlatform instance based on the running platform.
+        May raise an OkonomiyakiError exception
 
         Parameters
         ----------
@@ -127,11 +124,8 @@ class EPDPlatform(object):
             If given, must be a valid architecture string (e.g. 'x86'). If
             None, will be guessed from the running platform.
         """
-        if arch_name is not None:
-            arch = Arch.from_name(arch_name)
-        else:
-            arch = Arch.from_running_system()
-        return _guess_epd_platform(arch)
+        platform = Platform.from_running_system(arch_name)
+        return cls(platform)
 
     @classmethod
     def from_string(cls, s, runtime_version=None):
@@ -173,8 +167,7 @@ class EPDPlatform(object):
         """
         warnings.warn(
             "Deprecated: use EPDPlatform.from_string instead",
-            DeprecationWarning
-        )
+            DeprecationWarning)
         return cls.from_string(s, runtime_version)
 
     @classmethod
@@ -197,6 +190,8 @@ class EPDPlatform(object):
                 epd_name = "rh6"
             elif osdist == "RedHat_7":
                 epd_name = "rh7"
+            elif osdist == "RedHat_8":
+                epd_name = "rh8"
             else:
                 raise ValueError(msg)
         else:
@@ -226,8 +221,7 @@ class EPDPlatform(object):
         """
         if platform_tag is None or platform_tag == _ANY_PLATFORM_STRING:
             raise ValueError(
-                "Invalid platform_tag for platform: '{}'".format(platform_tag)
-            )
+                "Invalid platform_tag for platform: '{}'".format(platform_tag))
         else:
             if platform_tag.startswith("linux"):
                 m = _LINUX_TAG_R.match(platform_tag)
@@ -249,8 +243,7 @@ class EPDPlatform(object):
                     epd_string = u"win_" + str(Arch.from_name(arch_string))
             else:
                 raise NotImplementedError(
-                    "Unsupported platform '{0}'".format(platform_tag)
-                )
+                    "Unsupported platform '{0}'".format(platform_tag))
 
             return cls.from_epd_string(epd_string)
 
@@ -267,7 +260,7 @@ class EPDPlatform(object):
 
     @property
     def pep425_tag(self):
-        msg = "Cannot guess platform tag for platform {0!r}"
+        msg = "Cannot generate pep425 tag for platform {0!r}"
 
         platform = self.platform
         if platform.os_kind == OSKind.darwin:
@@ -315,6 +308,8 @@ class EPDPlatform(object):
                     base = u"rh6"
                 elif parts[0] == "7":
                     base = u"rh7"
+                elif parts[0] == "8":
+                    base = u"rh8"
                 else:
                     msg = ("Unsupported rhel release: {0!r}".format(release))
                     raise OkonomiyakiError(msg)
@@ -352,6 +347,7 @@ class EPDPlatform(object):
 def applies(platform_string, to='current'):
     """ Returns True if the given platform string applies to the platform
     specified by 'to'."""
+
     def _parse_component(component):
         component = component.strip()
 
@@ -431,6 +427,9 @@ def applies(platform_string, to='current'):
 
 def _epd_name_and_python_to_quadruplet(name, runtime_version=None):
     py38 = RuntimeVersion.from_string('3.8')
+    py311 = RuntimeVersion.from_string('3.11')
+    if name == "rh8":
+        return (OSKind.linux, NameKind.rhel, FamilyKind.rhel, "8.8")
     if name == "rh7":
         return (OSKind.linux, NameKind.rhel, FamilyKind.rhel, "7.1")
     if name == "rh6":
@@ -440,6 +439,8 @@ def _epd_name_and_python_to_quadruplet(name, runtime_version=None):
     elif name == "rh3":
         return (OSKind.linux, NameKind.rhel, FamilyKind.rhel, "3.8")
     elif name == "osx":
+        if runtime_version is not None and runtime_version >= py311:
+            return (OSKind.darwin, NameKind.mac_os_x, FamilyKind.mac_os_x, "12.0")
         if runtime_version is not None and runtime_version >= py38:
             return (OSKind.darwin, NameKind.mac_os_x, FamilyKind.mac_os_x, "10.14")
         else:
@@ -456,19 +457,10 @@ def _epd_name_and_python_to_quadruplet(name, runtime_version=None):
         raise OkonomiyakiError(msg)
 
 
-def _guess_epd_platform(arch=None):
-    if arch is None:
-        arch = Arch.from_running_python()
-
-    platform = Platform.from_running_system(str(arch))
-    return EPDPlatform(platform)
-
-
 def _is_supported(platform):
     arch_and_machine_are_intel = (
         platform.arch in (X86, X86_64)
-        and platform.machine in (X86, X86_64)
-    )
+        and platform.machine in (X86, X86_64))
     if platform.os_kind == OSKind.windows:
         return arch_and_machine_are_intel
     if platform.os_kind == OSKind.darwin:
@@ -479,7 +471,8 @@ def _is_supported(platform):
         if platform.family_kind != FamilyKind.rhel:
             return False
         parts = platform.release.split(".")
-        return parts[0] in ("3", "5", "6", "7") \
-            and arch_and_machine_are_intel
+        return (
+            parts[0] in ("3", "5", "6", "7", "8")
+            and arch_and_machine_are_intel)
 
     return False

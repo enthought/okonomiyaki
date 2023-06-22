@@ -94,9 +94,26 @@ mock_windows_7 = MultiPatcher([
                lambda: ("7", "6.1.7601", "SP1", "Multiprocessor Free"))
 ])
 
+mock_windows_10 = MultiPatcher([
+    mock.patch("sys.platform", "win32"),
+    mock.patch("platform.win32_ver",
+               lambda: ('10', '10.0.19041', 'SP0', 'Multiprocessor Free'))
+])
+
+mock_windows_11 = MultiPatcher([
+    mock.patch("sys.platform", "win32"),
+    mock.patch("platform.win32_ver",
+               lambda: ('10', '10.0.22621', 'SP0', 'Multiprocessor Free'))
+])
+
 mock_osx_10_7 = MultiPatcher([
     mock.patch("sys.platform", "darwin"),
     mock.patch("platform.mac_ver", lambda: ("10.7.5", ("", "", ""), "x86_64")),
+])
+
+mock_osx_12_6 = MultiPatcher([
+    mock.patch("sys.platform", "darwin"),
+    mock.patch("platform.mac_ver", lambda: ("12.6.5", ("", "", ""), "x86_64")),
 ])
 
 
