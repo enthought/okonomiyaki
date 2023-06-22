@@ -12,11 +12,6 @@ jobs:
       matrix:
         python-version: [3.6, 3.8]
         os: [ubuntu-20.04, macos-11, windows-2019]
-        include:
-          - os: windows-2019
-            python-version: 2.7
-          - os: ubuntu-20.04
-            python-version: 2.7
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
