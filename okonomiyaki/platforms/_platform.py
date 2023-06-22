@@ -197,6 +197,7 @@ def _linux_distribution():
     name = name.split()[0]
     return name.lower(), release
 
+
 def _macos_release():
     release = platform.mac_ver()[0]
     if release == '10.16':
