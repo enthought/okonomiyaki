@@ -429,7 +429,7 @@ def _epd_name_and_python_to_quadruplet(name, runtime_version=None):
     py38 = RuntimeVersion.from_string('3.8')
     py311 = RuntimeVersion.from_string('3.11')
     if name == "rh8":
-        return (OSKind.linux, NameKind.rhel, FamilyKind.rhel, "8.7")
+        return (OSKind.linux, NameKind.rhel, FamilyKind.rhel, "8.8")
     if name == "rh7":
         return (OSKind.linux, NameKind.rhel, FamilyKind.rhel, "7.1")
     if name == "rh6":
