@@ -43,6 +43,7 @@ class NameKind(enum.Enum):
     mac_os_x = 4
     windows = 5
     solaris = 6
+    rocky = 7
 
 
 NAME_KIND_TO_PRETTY_NAMES = {
@@ -53,6 +54,7 @@ NAME_KIND_TO_PRETTY_NAMES = {
     NameKind.ubuntu: "Ubuntu",
     NameKind.debian: "Debian",
     NameKind.unknown: "Unknown distribution",
+    NameKind.rocky: "Rocky Linux",
 }
 
 
@@ -178,7 +180,7 @@ def _guess_platform_details(os_kind):
 
         if name_kind in (NameKind.ubuntu, NameKind.debian):
             family_kind = FamilyKind.debian
-        elif name_kind in (NameKind.centos, NameKind.rhel):
+        elif name_kind in (NameKind.centos, NameKind.rhel, NameKind.rocky):
             family_kind = FamilyKind.rhel
         elif name_kind == NameKind.unknown and 'rhel' in like:
             family_kind = FamilyKind.rhel

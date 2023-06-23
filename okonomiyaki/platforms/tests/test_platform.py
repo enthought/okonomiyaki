@@ -11,7 +11,8 @@ from .common import (
     mock_centos_3_5, mock_centos_5_8, mock_machine_armv71,
     mock_centos_6_3, mock_osx_10_7, mock_solaris,
     mock_osx_12_6, mock_ubuntu_raring, mock_windows_7,
-    mock_windows_10, mock_windows_11, mock_mydistro_2_8)
+    mock_windows_10, mock_windows_11, mock_mydistro_2_8,
+    mock_rocky_8_8)
 
 if sys.version_info < (2, 7):
     import unittest2 as unittest
@@ -155,6 +156,30 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(platform.family, "rhel")
         self.assertEqual(platform.release, "6.3")
         self.assertEqual(str(platform), "CentOS 6.3 on x86_64")
+
+    @mock_rocky_8_8
+    def test_rocky_8_8(self):
+        # When
+        with mock_x86:
+            platform = Platform.from_running_python()
+
+        # Then
+        self.assertEqual(platform.os, "linux")
+        self.assertEqual(platform.name, "rocky")
+        self.assertEqual(platform.family, "rhel")
+        self.assertEqual(platform.release, "8.8")
+        self.assertEqual(str(platform), "Rocky Linux 8.8 on x86")
+
+        # When
+        with mock_x86_64:
+            platform = Platform.from_running_python()
+
+        # Then
+        self.assertEqual(platform.os, "linux")
+        self.assertEqual(platform.name, "rocky")
+        self.assertEqual(platform.family, "rhel")
+        self.assertEqual(platform.release, "8.8")
+        self.assertEqual(str(platform), "Rocky Linux 8.8 on x86_64")
 
     @mock_mydistro_2_8
     def test_mydistro_2_8(self):

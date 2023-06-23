@@ -70,6 +70,7 @@ mock_centos_6_3 = _mock_linux_distribution(("CentOS", "6.3", "Final", "rhel fedo
 mock_centos_7_0 = _mock_linux_distribution(("CentOS", "7.0", "Final", "rhel fedora"))
 mock_centos_7_6 = _mock_linux_distribution(("CentOS Linux", "7.6.1810", "Core", "rhel fedora"))
 mock_mydistro_2_8 = _mock_linux_distribution(("MyDistro", "2.8", "Final", "rhel fedora"))
+mock_rocky_8_8 = _mock_linux_distribution(("Rocky Linux", "8.8", "Green Obsidian", "rhel fedora"))
 mock_ubuntu_raring = _mock_linux_distribution(("Ubuntu", "13.04", "raring", "debian"))
 
 mock_windows_7 = MultiPatcher([
