@@ -154,7 +154,6 @@ class TestPythonMetadataV1(unittest.TestCase):
                 arch=X86_64,
                 machine=X86_64))
 
-
     @given(
         sampled_from([
             (PYTHON_CPYTHON_3_8_8_OSX_X86_64, '3.8.8+1', '10.14')]))

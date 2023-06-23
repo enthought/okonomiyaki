@@ -8,7 +8,6 @@ from hypothesis.strategies import sampled_from
 
 
 from okonomiyaki.runtimes.runtime_metadata import IRuntimeMetadata
-from okonomiyaki.errors import UnsupportedMetadata
 
 from ..test_data import DUMMY_RUNTIMES_DIRECTORY
 
