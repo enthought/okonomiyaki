@@ -64,6 +64,7 @@ def _mock_linux_distribution(info):
         mock.patch("distro.version", lambda: info[1]),
         mock.patch("distro.like", lambda: info[3])])
 
+
 mock_centos_3_5 = _mock_linux_distribution(("CentOS", "3.5", "Final", "rhel fedora"))
 mock_centos_5_8 = _mock_linux_distribution(("CentOS", "5.8", "Final", "rhel fedora"))
 mock_centos_6_3 = _mock_linux_distribution(("CentOS", "6.3", "Final", "rhel fedora"))
