@@ -3,6 +3,9 @@ import shutil
 import sys
 
 import zipfile2
+from hypothesis import given
+from hypothesis.strategies import sampled_from
+
 
 from okonomiyaki.errors import (
     InvalidMetadata, MissingMetadata, UnsupportedMetadata)
@@ -12,8 +15,8 @@ from okonomiyaki.utils.test_data import (
     PYTHON_CPYTHON_2_7_10_RH5_X86_64, PYTHON_CPYTHON_2_7_10_RH5_X86_64_INVALID,
     PYTHON_PYPY_2_6_0_RH5_X86_64, R_DEFAULT_3_0_0_RH5_X86_64,
     PYTHON_CPYTHON_3_8_8_RH7_X86_64, PYTHON_CPYTHON_3_8_8_OSX_X86_64,
-    PYTHON_CPYTHON_3_8_8_WIN_X86_64, PYTHON_CPYTHON_3_8_8_WIN_X86
-
+    PYTHON_CPYTHON_3_8_8_WIN_X86_64, PYTHON_CPYTHON_3_8_8_WIN_X86,
+    PYTHON_CPYTHON_3_11_2_RH8_X86_64
 )
 from okonomiyaki.versions import MetadataVersion
 from okonomiyaki.platforms import Platform, OSKind, FamilyKind, NameKind, X86_64, X86
@@ -30,45 +33,8 @@ else:
 
 
 class TestPythonMetadataV1(unittest.TestCase):
-    def test_simple(self):
-        # Given
-        path = PYTHON_CPYTHON_2_7_10_RH5_X86_64
 
-        # When
-        metadata = PythonRuntimeMetadataV1._from_path(path)
-
-        # Then
-        self.assertTrue(is_runtime_path_valid(path))
-        self.assertEqual(metadata.filename, os.path.basename(path))
-        self.assertEqual(
-            metadata.metadata_version, MetadataVersion.from_string("1.0"))
-        self.assertEqual(metadata.implementation, "cpython")
-        self.assertEqual(
-            metadata.version, RuntimeVersion.from_string("2.7.10+1"))
-        self.assertEqual(
-            metadata.language_version, RuntimeVersion.from_string("2.7.10"))
-        self.assertEqual(metadata.build_revision, "2.1.0-dev570")
-        self.assertEqual(metadata.executable, "${prefix}/bin/python")
-        self.assertEqual(metadata.paths, ("${prefix}/bin",))
-        self.assertEqual(
-            metadata.post_install,
-            ("${executable}",
-             "${prefix}/lib/python2.7/custom_tools/fix-scripts.py"))
-        self.assertEqual(metadata.scriptsdir, "${prefix}/bin")
-        self.assertEqual(
-            metadata.site_packages, "${prefix}/lib/python2.7/site-packages")
-        self.assertEqual(metadata.python_tag, "cp27")
-        self.assertEqual(
-            metadata.platform,
-            Platform(
-                os_kind=OSKind.linux,
-                family_kind=FamilyKind.rhel,
-                name_kind=NameKind.rhel,
-                release='5.8',
-                arch=X86_64,
-                machine=X86_64))
-
-    def test_simple_pypy(self):
+    def test_pypy(self):
         # Given
         path = PYTHON_PYPY_2_6_0_RH5_X86_64
 
@@ -81,28 +47,28 @@ class TestPythonMetadataV1(unittest.TestCase):
 
         self.assertEqual(
             metadata.metadata_version,
-            MetadataVersion.from_string("1.0")
+            MetadataVersion.from_string('1.0')
         )
-        self.assertEqual(metadata.implementation, "pypy")
+        self.assertEqual(metadata.implementation, 'pypy')
         self.assertEqual(
             metadata.version,
-            RuntimeVersion.from_string("2.6.0+1")
+            RuntimeVersion.from_string('2.6.0+1')
         )
         self.assertEqual(
             metadata.language_version,
-            RuntimeVersion.from_string("2.7.9")
+            RuntimeVersion.from_string('2.7.9')
         )
-        self.assertEqual(metadata.build_revision, "")
-        self.assertEqual(metadata.executable, "${prefix}/bin/pypy")
-        self.assertEqual(metadata.paths, ("${prefix}/bin",))
+        self.assertEqual(metadata.build_revision, '')
+        self.assertEqual(metadata.executable, '${prefix}/bin/pypy')
+        self.assertEqual(metadata.paths, ('${prefix}/bin',))
         self.assertEqual(metadata.post_install, tuple())
-        self.assertEqual(metadata.scriptsdir, "${prefix}/bin")
-        self.assertEqual(metadata.site_packages, "${prefix}/site-packages")
-        self.assertEqual(metadata.python_tag, "pp27")
+        self.assertEqual(metadata.scriptsdir, '${prefix}/bin')
+        self.assertEqual(metadata.site_packages, '${prefix}/site-packages')
+        self.assertEqual(metadata.python_tag, 'pp27')
 
     def test_invalid(self):
         # Given
-        path = "python-cpython-2.7.10-1-rh5_64.zip"
+        path = 'python-cpython-2.7.10-1-rh5_64.zip'
 
         # When/Then
         with self.assertRaises(InvalidMetadata):
@@ -112,7 +78,7 @@ class TestPythonMetadataV1(unittest.TestCase):
         self.assertFalse(is_runtime_path_valid(path))
 
         # Given
-        path = "python_cpython_2.7.10-1_rh5_64.runtime"
+        path = 'python_cpython_2.7.10-1_rh5_64.runtime'
 
         # When/Then
         with self.assertRaises(InvalidMetadata):
@@ -122,7 +88,7 @@ class TestPythonMetadataV1(unittest.TestCase):
         self.assertFalse(is_runtime_path_valid(path))
 
         # Given
-        path = "python-cpython-2.7.10_rh5_x86_64.runtime"
+        path = 'python-cpython-2.7.10_rh5_x86_64.runtime'
 
         # When/Then
         with self.assertRaises(InvalidMetadata):
@@ -133,23 +99,29 @@ class TestPythonMetadataV1(unittest.TestCase):
 
         # When/Then
         with tempdir() as d:
-            path = os.path.join(d, "foo.zip")
-            with zipfile2.ZipFile(path, "w") as zp:
+            path = os.path.join(d, 'foo.zip')
+            with zipfile2.ZipFile(path, 'w') as zp:
                 pass
 
             with self.assertRaises(InvalidMetadata):
                 PythonRuntimeMetadataV1._from_path(path)
 
-            with zipfile2.ZipFile(path, "w") as zp:
+            with zipfile2.ZipFile(path, 'w') as zp:
                 with self.assertRaises(InvalidMetadata):
                     PythonRuntimeMetadataV1._from_path(zp)
 
-
-class TestCPython38RuntimeMetadataV1(unittest.TestCase):
-
-    def test_gnu(self):
+    @given(
+        sampled_from([
+            (PYTHON_CPYTHON_2_7_10_RH5_X86_64, '2.7.10+1', '5.8'),
+            (PYTHON_CPYTHON_3_8_8_RH7_X86_64, '3.8.8+1', '7.1'),
+            (PYTHON_CPYTHON_3_11_2_RH8_X86_64, '3.11.2+2', '8.8')]))
+    def test_cpython_gnu(self, options):
         # Given
-        path = PYTHON_CPYTHON_3_8_8_RH7_X86_64
+        path, release, os_release = options
+        version = RuntimeVersion.from_string(release.split('+')[0])
+        release = RuntimeVersion.from_string(release)
+        lib = '${{prefix}}/lib/python{0}.{1}'.format(version.major, version.minor)
+        tag = 'cp{0}{1}'.format(version.major, version.minor)
 
         # When
         metadata = PythonRuntimeMetadataV1._from_path(path)
@@ -158,36 +130,41 @@ class TestCPython38RuntimeMetadataV1(unittest.TestCase):
         self.assertTrue(is_runtime_path_valid(path))
         self.assertEqual(metadata.filename, os.path.basename(path))
         self.assertEqual(
-            metadata.metadata_version, MetadataVersion.from_string("1.0"))
-        self.assertEqual(metadata.implementation, "cpython")
-        self.assertEqual(
-            metadata.version, RuntimeVersion.from_string("3.8.8+1"))
-        self.assertEqual(
-            metadata.language_version, RuntimeVersion.from_string("3.8.8"))
-        self.assertEqual(metadata.build_revision, "2.1.0-dev570")
-        self.assertEqual(metadata.executable, "${prefix}/bin/python")
-        self.assertEqual(metadata.paths, ("${prefix}/bin",))
+            metadata.metadata_version, MetadataVersion.from_string('1.0'))
+        self.assertEqual(metadata.implementation, 'cpython')
+        self.assertEqual(metadata.version, release)
+        self.assertEqual(metadata.language_version, version)
+        self.assertEqual(metadata.build_revision, '2.1.0-dev570')
+        self.assertEqual(metadata.executable, '${prefix}/bin/python')
+        self.assertEqual(metadata.paths, ('${prefix}/bin',))
         self.assertEqual(
             metadata.post_install,
-            ("${executable}",
-             "${prefix}/lib/python3.8/custom_tools/fix-scripts.py"))
-        self.assertEqual(metadata.scriptsdir, "${prefix}/bin")
+            ('${executable}', f'{lib}/custom_tools/fix-scripts.py'))
+        self.assertEqual(metadata.scriptsdir, '${prefix}/bin')
         self.assertEqual(
-            metadata.site_packages, "${prefix}/lib/python3.8/site-packages")
-        self.assertEqual(metadata.python_tag, "cp38")
+            metadata.site_packages, f'{lib}/site-packages')
+        self.assertEqual(metadata.python_tag, tag)
         self.assertEqual(
             metadata.platform,
             Platform(
                 os_kind=OSKind.linux,
                 family_kind=FamilyKind.rhel,
                 name_kind=NameKind.rhel,
-                release='7.1',
+                release=os_release,
                 arch=X86_64,
                 machine=X86_64))
 
-    def test_darwin(self):
+
+    @given(
+        sampled_from([
+            (PYTHON_CPYTHON_3_8_8_OSX_X86_64, '3.8.8+1', '10.14')]))
+    def test_cpython_darwin(self, options):
         # Given
-        path = PYTHON_CPYTHON_3_8_8_OSX_X86_64
+        path, release, os_release = options
+        version = RuntimeVersion.from_string(release.split('+')[0])
+        release = RuntimeVersion.from_string(release)
+        lib = '${{prefix}}/lib/python{0}.{1}'.format(version.major, version.minor)
+        tag = 'cp{0}{1}'.format(version.major, version.minor)
 
         # When
         metadata = PythonRuntimeMetadataV1._from_path(path)
@@ -196,36 +173,40 @@ class TestCPython38RuntimeMetadataV1(unittest.TestCase):
         self.assertTrue(is_runtime_path_valid(path))
         self.assertEqual(metadata.filename, os.path.basename(path))
         self.assertEqual(
-            metadata.metadata_version, MetadataVersion.from_string("1.0"))
-        self.assertEqual(metadata.implementation, "cpython")
-        self.assertEqual(
-            metadata.version, RuntimeVersion.from_string("3.8.8+1"))
-        self.assertEqual(
-            metadata.language_version, RuntimeVersion.from_string("3.8.8"))
-        self.assertEqual(metadata.build_revision, "2.1.0-dev570")
-        self.assertEqual(metadata.executable, "${prefix}/bin/python")
-        self.assertEqual(metadata.paths, ("${prefix}/bin",))
+            metadata.metadata_version, MetadataVersion.from_string('1.0'))
+        self.assertEqual(metadata.implementation, 'cpython')
+        self.assertEqual(metadata.version, release)
+        self.assertEqual(metadata.language_version, version)
+        self.assertEqual(metadata.build_revision, '2.1.0-dev570')
+        self.assertEqual(metadata.executable, '${prefix}/bin/python')
+        self.assertEqual(metadata.paths, ('${prefix}/bin',))
         self.assertEqual(
             metadata.post_install,
-            ("${executable}",
-             "${prefix}/lib/python3.8/custom_tools/fix-scripts.py"))
-        self.assertEqual(metadata.scriptsdir, "${prefix}/bin")
+            ('${executable}', f'{lib}/custom_tools/fix-scripts.py'))
+        self.assertEqual(metadata.scriptsdir, '${prefix}/bin')
         self.assertEqual(
-            metadata.site_packages, "${prefix}/lib/python3.8/site-packages")
-        self.assertEqual(metadata.python_tag, "cp38")
+            metadata.site_packages, f'{lib}/site-packages')
+        self.assertEqual(metadata.python_tag, tag)
         self.assertEqual(
             metadata.platform,
             Platform(
                 os_kind=OSKind.darwin,
                 family_kind=FamilyKind.mac_os_x,
                 name_kind=NameKind.mac_os_x,
-                release='10.14',
+                release=os_release,
                 arch=X86_64,
                 machine=X86_64))
 
-    def test_win64(self):
+    @given(
+        sampled_from([
+            (PYTHON_CPYTHON_3_8_8_WIN_X86_64, '3.8.8+1', '10', X86_64),
+            (PYTHON_CPYTHON_3_8_8_WIN_X86, '3.8.8+1', '10', X86)]))
+    def test_cpython_windows(self, options):
         # Given
-        path = PYTHON_CPYTHON_3_8_8_WIN_X86_64
+        path, release, os_release, arch = options
+        version = RuntimeVersion.from_string(release.split('+')[0])
+        release = RuntimeVersion.from_string(release)
+        tag = 'cp{0}{1}'.format(version.major, version.minor)
 
         # When
         metadata = PythonRuntimeMetadataV1._from_path(path)
@@ -234,70 +215,30 @@ class TestCPython38RuntimeMetadataV1(unittest.TestCase):
         self.assertTrue(is_runtime_path_valid(path))
         self.assertEqual(metadata.filename, os.path.basename(path))
         self.assertEqual(
-            metadata.metadata_version, MetadataVersion.from_string("1.0"))
-        self.assertEqual(metadata.implementation, "cpython")
-        self.assertEqual(
-            metadata.version, RuntimeVersion.from_string("3.8.8+1"))
-        self.assertEqual(
-            metadata.language_version, RuntimeVersion.from_string("3.8.8"))
-        self.assertEqual(metadata.build_revision, "2.1.0-dev570")
-        self.assertEqual(metadata.executable, "${prefix}\\python.exe")
-        self.assertEqual(metadata.paths, ("${prefix}", "${prefix}\\Scripts"))
+            metadata.metadata_version, MetadataVersion.from_string('1.0'))
+        self.assertEqual(metadata.implementation, 'cpython')
+        self.assertEqual(metadata.version, release)
+        self.assertEqual(metadata.language_version, version)
+        self.assertEqual(metadata.build_revision, '2.1.0-dev570')
+        self.assertEqual(metadata.executable, '${prefix}\\python.exe')
+        self.assertEqual(metadata.paths, ('${prefix}', '${prefix}\\Scripts'))
         self.assertEqual(
             metadata.post_install,
-            ("${executable}",
-             "${prefix}\\Lib\\custom_tools\\fix-scripts.py"))
-        self.assertEqual(metadata.scriptsdir, "${prefix}\\Scripts")
+            ('${executable}',
+             '${prefix}\\Lib\\custom_tools\\fix-scripts.py'))
+        self.assertEqual(metadata.scriptsdir, '${prefix}\\Scripts')
         self.assertEqual(
-            metadata.site_packages, "${prefix}\\Lib\\site-packages")
-        self.assertEqual(metadata.python_tag, "cp38")
+            metadata.site_packages, '${prefix}\\Lib\\site-packages')
+        self.assertEqual(metadata.python_tag, tag)
         self.assertEqual(
             metadata.platform,
             Platform(
                 os_kind=OSKind.windows,
                 family_kind=FamilyKind.windows,
                 name_kind=NameKind.windows,
-                release='10',
-                arch=X86_64,
-                machine=X86_64))
-
-    def test_win32(self):
-        # Given
-        path = PYTHON_CPYTHON_3_8_8_WIN_X86
-
-        # When
-        metadata = PythonRuntimeMetadataV1._from_path(path)
-
-        # Then
-        self.assertTrue(is_runtime_path_valid(path))
-        self.assertEqual(metadata.filename, os.path.basename(path))
-        self.assertEqual(
-            metadata.metadata_version, MetadataVersion.from_string("1.0"))
-        self.assertEqual(metadata.implementation, "cpython")
-        self.assertEqual(
-            metadata.version, RuntimeVersion.from_string("3.8.8+1"))
-        self.assertEqual(
-            metadata.language_version, RuntimeVersion.from_string("3.8.8"))
-        self.assertEqual(metadata.build_revision, "2.1.0-dev570")
-        self.assertEqual(metadata.executable, "${prefix}\\python.exe")
-        self.assertEqual(metadata.paths, ("${prefix}", "${prefix}\\Scripts"))
-        self.assertEqual(
-            metadata.post_install,
-            ("${executable}",
-             "${prefix}\\Lib\\custom_tools\\fix-scripts.py"))
-        self.assertEqual(metadata.scriptsdir, "${prefix}\\Scripts")
-        self.assertEqual(
-            metadata.site_packages, "${prefix}\\Lib\\site-packages")
-        self.assertEqual(metadata.python_tag, "cp38")
-        self.assertEqual(
-            metadata.platform,
-            Platform(
-                os_kind=OSKind.windows,
-                family_kind=FamilyKind.windows,
-                name_kind=NameKind.windows,
-                release='10',
-                arch=X86,
-                machine=X86))
+                release=os_release,
+                arch=arch,
+                machine=arch))
 
 
 class TestJuliaRuntimeMetadataV1(unittest.TestCase):
@@ -311,21 +252,21 @@ class TestJuliaRuntimeMetadataV1(unittest.TestCase):
         # Then
         self.assertEqual(
             metadata.metadata_version,
-            MetadataVersion.from_string("1.0")
+            MetadataVersion.from_string('1.0')
         )
         self.assertEqual(metadata.filename, os.path.basename(path))
-        self.assertEqual(metadata.implementation, "julia")
+        self.assertEqual(metadata.implementation, 'julia')
         self.assertEqual(
             metadata.version,
-            RuntimeVersion.from_string("0.3.11+1")
+            RuntimeVersion.from_string('0.3.11+1')
         )
         self.assertEqual(
             metadata.language_version,
-            RuntimeVersion.from_string("0.3.11")
+            RuntimeVersion.from_string('0.3.11')
         )
-        self.assertEqual(metadata.build_revision, "483dbf5279")
-        self.assertEqual(metadata.executable, "${prefix}/bin/julia")
-        self.assertEqual(metadata.paths, ("${prefix}/bin",))
+        self.assertEqual(metadata.build_revision, '483dbf5279')
+        self.assertEqual(metadata.executable, '${prefix}/bin/julia')
+        self.assertEqual(metadata.paths, ('${prefix}/bin',))
         self.assertEqual(metadata.post_install, tuple())
 
 
@@ -375,7 +316,7 @@ class TestRuntimeMetadataFactory(unittest.TestCase):
         # When/Then
         with tempdir() as d:
             target = os.path.join(
-                d, os.path.basename(path).replace(".invalid", "")
+                d, os.path.basename(path).replace('.invalid', '')
             )
             shutil.copy(path, target)
 
@@ -389,8 +330,8 @@ class TestRuntimeMetadataFactory(unittest.TestCase):
         with tempdir() as d:
             target = os.path.join(d, os.path.basename(path))
             # One needs to add an archive for the zipfile to be valid on 2.6.
-            with zipfile2.ZipFile(target, "w") as zp:
-                zp.writestr("dummy", b"dummy data")
+            with zipfile2.ZipFile(target, 'w') as zp:
+                zp.writestr('dummy', b'dummy data')
             with self.assertRaises(MissingMetadata):
                 runtime_metadata_factory(target)
 
@@ -400,7 +341,6 @@ class TestRuntimeMetadataFactory(unittest.TestCase):
 
         # When/Then
         with self.assertRaisesRegexp(
-            MissingMetadata,
-            r"^Missing runtime metadata field 'metadata_version'$"
-        ):
+                MissingMetadata,
+                r"^Missing runtime metadata field 'metadata_version'$"):
             runtime_metadata_factory(path)

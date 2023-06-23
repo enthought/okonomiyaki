@@ -120,6 +120,13 @@ PYTHON_CPYTHON_3_8_8_WIN_X86 = os.path.join(
 )
 
 
+# 3.11.2
+PYTHON_CPYTHON_3_11_2_RH8_X86_64 = os.path.join(
+    _HERE, "cpython-3.11.2+2-rh8_x86_64-gnu.runtime",
+)
+
+
+# Misc
 PYTHON_CPYTHON_2_7_10_RH5_X86_64_INVALID = os.path.join(
     _HERE, "cpython-2.7.10+1-rh5_x86_64-gnu.runtime.invalid",
 )
