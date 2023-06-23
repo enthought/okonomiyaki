@@ -4,9 +4,9 @@ import platform
 import sys
 import subprocess
 
+import distro
 import enum
 import six
-
 from attr import attr, attributes
 from attr.validators import instance_of
 
@@ -35,6 +35,7 @@ class FamilyKind(enum.Enum):
 
 @enum.unique
 class NameKind(enum.Enum):
+    unknown = -1
     centos = 0
     debian = 1
     rhel = 2
@@ -51,6 +52,7 @@ NAME_KIND_TO_PRETTY_NAMES = {
     NameKind.rhel: "RedHat",
     NameKind.ubuntu: "Ubuntu",
     NameKind.debian: "Debian",
+    NameKind.unknown: "Unknown distribution",
 }
 
 
@@ -158,20 +160,33 @@ def _guess_platform_details(os_kind):
     elif os_kind == OSKind.darwin:
         return FamilyKind.mac_os_x, NameKind.mac_os_x, _macos_release()
     elif os_kind == OSKind.linux:
-        name, release = _linux_distribution()
+        name, release, like = _linux_distribution()
         try:
             name_kind = NameKind[name]
         except KeyError:
-            raise OkonomiyakiError(
-                "Unsupported platform: {0!r}".format(name))
-        else:
-            if name_kind in (NameKind.ubuntu, NameKind.debian):
-                family_kind = FamilyKind.debian
-            elif name_kind in (NameKind.centos, NameKind.rhel):
-                family_kind = FamilyKind.rhel
+            for name in like:
+                try:
+                    name_kind = NameKind[name]
+                except KeyError:
+                    continue
+                else:
+                    name_kind = NameKind.unknown
+                    break
             else:
-                raise OkonomiyakiError("Unsupported platform: {0!r}".format(name))
-            return family_kind, name_kind, release
+                raise OkonomiyakiError(
+                    "Unsupported platform: {0!r}".format(name))
+
+        if name_kind in (NameKind.ubuntu, NameKind.debian):
+            family_kind = FamilyKind.debian
+        elif name_kind in (NameKind.centos, NameKind.rhel):
+            family_kind = FamilyKind.rhel
+        elif name_kind == NameKind.unknown and 'rhel' in like:
+            family_kind = FamilyKind.rhel
+        elif name_kind == NameKind.unknown and 'debian' in like:
+            family_kind = FamilyKind.debian
+        else:
+            raise OkonomiyakiError("Unsupported platform: {0!r}".format(name))
+        return family_kind, name_kind, release
 
 
 def _guess_platform(arch):
@@ -187,15 +202,11 @@ def _linux_distribution():
     """ Get the linux distribution of the running system.
 
     """
-    try:
-        name, release, _ = platform.linux_distribution()
-    except AttributeError:
-        # We are probably running on Python > 3.8
-        # see https://docs.python.org/3.6/library/platform.html?highlight=linux_distribution#unix-platforms
-        import distro
-        name, release, _ = distro.linux_distribution()
+    name = distro.name()
+    release = distro.version()
+    like = distro.like().lower()
     name = name.split()[0]
-    return name.lower(), release
+    return name.lower(), release, like.split()
 
 
 def _macos_release():

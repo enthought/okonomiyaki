@@ -8,9 +8,10 @@ from okonomiyaki.utils.testing import MultiPatcher, Patcher
 # OS mocking
 # XXX: We need to patch platform.uname as well, as that function is cached, and
 # the result depend on sys.platform value.
-uname_result = collections.namedtuple("uname_result",
-                                      "system node release version machine "
-                                      "processor")
+uname_result = collections.namedtuple(
+    "uname_result",
+    "system node release version machine "
+    "processor")
 
 
 def _mock_uname(*args):
@@ -22,6 +23,7 @@ def _mock_uname(*args):
 
 mock_darwin = MultiPatcher([
     mock.patch("sys.platform", "darwin"),
+    # These value are there to mask the running system values
     mock.patch("platform.uname",
                lambda: _mock_uname("Darwin", "localhost", "11.4.2",
                                    "Darwin Kernel Version 11.4.2 bla bla",
@@ -30,6 +32,7 @@ mock_darwin = MultiPatcher([
 
 mock_linux = MultiPatcher([
     mock.patch("sys.platform", "linux2"),
+    # These value are there to mask the running system values
     mock.patch("platform.uname",
                lambda: _mock_uname("Linux", "localhost", "2.6.19-308.el5",
                                    "#1 SMP Tue Feb 21 20:06:06 EST 2012",
@@ -37,12 +40,14 @@ mock_linux = MultiPatcher([
 ])
 mock_solaris = MultiPatcher([
     mock.patch("sys.platform", "sunos5"),
+    # These value are there to mask the running system values
     mock.patch("platform.uname",
                lambda: _mock_uname("Solaris", "localhost", "fake",
                                    "fake", "x86_64", "x86_64")),
 ])
 mock_windows = MultiPatcher([
     mock.patch("sys.platform", "win32"),
+    # These value are there to mask the running system values
     mock.patch("platform.uname",
                lambda: _mock_uname('Windows', 'localhost', '7', '6.1.7601',
                                    'x86',
@@ -51,42 +56,21 @@ mock_windows = MultiPatcher([
 ])
 
 
-if sys.version_info < (3, 8):
-    def _mock_linux_distribution(info):
-        return Patcher(mock.patch("platform.linux_distribution", lambda: info))
-else:
-    def _mock_linux_distribution(info):
-        return Patcher(mock.patch("distro.linux_distribution", lambda: info))
+def _mock_linux_distribution(info):
+    return MultiPatcher([
+        mock_linux,
+        mock.patch("distro.linux_distribution", lambda: info[:3]),
+        mock.patch("distro.name", lambda: info[0]),
+        mock.patch("distro.version", lambda: info[1]),
+        mock.patch("distro.like", lambda: info[3])])
 
-mock_centos_3_5 = MultiPatcher([
-    mock_linux,
-    _mock_linux_distribution(("CentOS", "3.5", "Final"))
-])
-
-mock_centos_5_8 = MultiPatcher([
-    mock_linux,
-    _mock_linux_distribution(("CentOS", "5.8", "Final"))
-])
-
-mock_centos_6_3 = MultiPatcher([
-    mock_linux,
-    _mock_linux_distribution(("CentOS", "6.3", "Final"))
-])
-
-mock_centos_7_0 = MultiPatcher([
-    mock_linux,
-    _mock_linux_distribution(("CentOS", "7.0", "Final"))
-])
-
-mock_centos_7_6 = MultiPatcher([
-    mock_linux,
-    _mock_linux_distribution(("CentOS Linux", "7.6.1810", "Core"))
-])
-
-mock_ubuntu_raring = MultiPatcher([
-    mock_linux,
-    _mock_linux_distribution(("Ubuntu", "13.04", "raring")),
-])
+mock_centos_3_5 = _mock_linux_distribution(("CentOS", "3.5", "Final", "rhel fedora"))
+mock_centos_5_8 = _mock_linux_distribution(("CentOS", "5.8", "Final", "rhel fedora"))
+mock_centos_6_3 = _mock_linux_distribution(("CentOS", "6.3", "Final", "rhel fedora"))
+mock_centos_7_0 = _mock_linux_distribution(("CentOS", "7.0", "Final", "rhel fedora"))
+mock_centos_7_6 = _mock_linux_distribution(("CentOS Linux", "7.6.1810", "Core", "rhel fedora"))
+mock_mydistro_2_8 = _mock_linux_distribution(("MyDistro", "2.8", "Final", "rhel fedora"))
+mock_ubuntu_raring = _mock_linux_distribution(("Ubuntu", "13.04", "raring", "debian"))
 
 mock_windows_7 = MultiPatcher([
     mock.patch("sys.platform", "win32"),
@@ -124,14 +108,11 @@ def mock_machine(machine):
 
 mock_machine_x86 = Patcher(mock_machine("x86"))
 mock_architecture_32bit = Patcher(mock.patch("sys.maxsize", 2**32 - 1))
-
 mock_machine_x86_64 = Patcher(mock_machine("x86_64"))
 mock_architecture_64bit = Patcher(mock.patch("sys.maxsize", 2**64 - 1))
-
 mock_x86 = MultiPatcher([mock_machine_x86, mock_architecture_32bit])
 mock_x86_64 = MultiPatcher([mock_machine_x86_64, mock_architecture_64bit])
-# A 32 bits python process on a 64 bits OS
-mock_x86_on_x86_64 = MultiPatcher([mock_machine_x86_64,
-                                   mock_architecture_32bit])
-
 mock_machine_armv71 = Patcher(mock_machine("armv71"))
+# A 32 bits python process on a 64 bits OS
+mock_x86_on_x86_64 = MultiPatcher(
+    [mock_machine_x86_64, mock_architecture_32bit])

@@ -1,3 +1,4 @@
+
 import os.path
 import re
 import subprocess
@@ -18,6 +19,7 @@ INSTALL_REQUIRES = [
     "jsonschema >= 2.5.1",
     "six >= 1.9.0",
     "zipfile2 >= 0.0.12",
+    "distro",
 ]
 
 EXTRAS_REQUIRE = {
