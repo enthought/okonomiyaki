@@ -127,6 +127,9 @@ PYTHON_CPYTHON_3_11_2_RH8_X86_64 = os.path.join(
 PYTHON_CPYTHON_3_11_2_OSX_X86_64 = os.path.join(
     _HERE, "cpython-3.11.2+2-osx_x86_64-darwin.runtime",
 )
+PYTHON_CPYTHON_3_11_2_WIN_X86_64 = os.path.join(
+    _HERE, "cpython-3.11.2+2-win_x86_64-msvc2022.runtime",
+)
 
 
 # Misc

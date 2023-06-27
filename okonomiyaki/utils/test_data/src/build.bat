@@ -12,3 +12,5 @@ cl -nologo -EHsc -GR -Zc:forScope -Zc:wchar_t /D PYTHON_VERSION=\"3.6.5\" /D PYT
 call python_365.exe
 cl -nologo -EHsc -GR -Zc:forScope -Zc:wchar_t /D PYTHON_VERSION=\"3.8.8\" /D PYTHON_ARCH=\"%1\" /Fopython_388.obj python.cpp
 call python_388.exe
+cl -nologo -EHsc -GR -Zc:forScope -Zc:wchar_t /D PYTHON_VERSION=\"3.11.2\" /D PYTHON_ARCH=\"%1\" /Fopython_3112.obj python.cpp
+call python_3112.exe
