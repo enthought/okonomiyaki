@@ -1,10 +1,13 @@
 import glob
 from os.path import join
 import sys
+
 import zipfile2
+from hypothesis import given
+from hypothesis.strategies import sampled_from
+
 
 from okonomiyaki.runtimes.runtime_metadata import IRuntimeMetadata
-from okonomiyaki.errors import UnsupportedMetadata
 
 from ..test_data import DUMMY_RUNTIMES_DIRECTORY
 
@@ -14,35 +17,28 @@ else:
     import unittest
 
 
+runtime_paths = [
+    join(DUMMY_RUNTIMES_DIRECTORY, f) for f
+    in glob.glob(join(DUMMY_RUNTIMES_DIRECTORY, '*.runtime'))
+    if 'r-3.0.0' not in f]
+
+
 class TestDummyPythonRuntimes(unittest.TestCase):
 
     def _get_contents_of_runtime(self, runtime):
         with zipfile2.ZipFile(runtime) as zp:
             return zp.namelist()
 
-    def test_pythonw_in_dummy_runtime(self):
-        """
-        Ensure that pythonw.exe is included in all Windows runtimes
-        """
+    @given(sampled_from(runtime_paths))
+    def test_reading_dummy_runtimes(self, runtime):
+        # Then check the runtime is valid
+        runtime_metadata = IRuntimeMetadata.factory_from_path(runtime)
 
-        # Given
-        runtime_paths = [join(DUMMY_RUNTIMES_DIRECTORY, f) for f
-                         in glob.glob(join(DUMMY_RUNTIMES_DIRECTORY, '*.runtime'))]
-        win_cpy_runtimes = []
-        for runtime_path in runtime_paths:
-            try:
-                runtime_metadata = IRuntimeMetadata.factory_from_path(runtime_path)
-                if (runtime_metadata.platform.os == 'windows'
-                   and runtime_metadata.implementation == 'cpython'):
-                    win_cpy_runtimes.append(runtime_path)
-            except UnsupportedMetadata:
-                continue
-
-        # When/Then
-        self.assertGreaterEqual(len(win_cpy_runtimes), 1)
-        for win_runtime in win_cpy_runtimes:
-            files_in_runtime = self._get_contents_of_runtime(win_runtime)
+        # additional checks for windows runtimes:
+        if 'cpython-' in runtime and 'win_' in runtime:
+            self.assertEqual(runtime_metadata.platform.os, 'windows')
+            self.assertEqual(runtime_metadata.implementation, 'cpython')
+            files_in_runtime = self._get_contents_of_runtime(runtime)
             self.assertIn(
                 'pythonw.exe', files_in_runtime,
-                msg="'pythonw.exe' is not in {0}".format(win_runtime)
-            )
+                msg="'pythonw.exe' is not in {0}".format(runtime))
