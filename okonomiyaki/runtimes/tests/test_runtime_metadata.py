@@ -16,7 +16,7 @@ from okonomiyaki.utils.test_data import (
     PYTHON_PYPY_2_6_0_RH5_X86_64, R_DEFAULT_3_0_0_RH5_X86_64,
     PYTHON_CPYTHON_3_8_8_RH7_X86_64, PYTHON_CPYTHON_3_8_8_OSX_X86_64,
     PYTHON_CPYTHON_3_8_8_WIN_X86_64, PYTHON_CPYTHON_3_8_8_WIN_X86,
-    PYTHON_CPYTHON_3_11_2_RH8_X86_64
+    PYTHON_CPYTHON_3_11_2_RH8_X86_64, PYTHON_CPYTHON_3_11_2_OSX_X86_64,
 )
 from okonomiyaki.versions import MetadataVersion
 from okonomiyaki.platforms import Platform, OSKind, FamilyKind, NameKind, X86_64, X86
@@ -156,7 +156,8 @@ class TestPythonMetadataV1(unittest.TestCase):
 
     @given(
         sampled_from([
-            (PYTHON_CPYTHON_3_8_8_OSX_X86_64, '3.8.8+1', '10.14')]))
+            (PYTHON_CPYTHON_3_8_8_OSX_X86_64, '3.8.8+1', '10.14'),
+            (PYTHON_CPYTHON_3_11_2_OSX_X86_64, '3.11.2+2', '12.0')]))
     def test_cpython_darwin(self, options):
         # Given
         path, release, os_release = options
