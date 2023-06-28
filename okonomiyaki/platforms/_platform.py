@@ -4,7 +4,6 @@ import platform
 import sys
 import subprocess
 
-import distro
 import enum
 import six
 from attr import attr, attributes
@@ -204,6 +203,7 @@ def _linux_distribution():
     """ Get the linux distribution of the running system.
 
     """
+    import distro
     name = distro.name()
     release = distro.version()
     like = distro.like().lower()
