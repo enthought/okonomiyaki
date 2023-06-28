@@ -1,4 +1,3 @@
-
 import os.path
 import re
 import subprocess
@@ -13,19 +12,6 @@ MICRO = 0
 IS_RELEASED = False
 
 VERSION = '%d.%d.%d' % (MAJOR, MINOR, MICRO)
-
-INSTALL_REQUIRES = [
-    "attrs >= 16.1.0",
-    "jsonschema >= 2.5.1",
-    "six >= 1.9.0",
-    "zipfile2 >= 0.0.12",
-    "distro",
-]
-
-EXTRAS_REQUIRE = {
-    ':python_version=="2.7"': ['enum34'],
-    ':python_version>="3.8"': ['distro'],
-}
 
 
 # Return the git revision as a string
@@ -114,66 +100,7 @@ def main():
     write_version_py("okonomiyaki/_version.py")
     with open("README.rst", "rt") as fp:
         long_description = fp.read()
-
-    from okonomiyaki import __version__
-
-    package_data = {
-        "okonomiyaki.repositories.tests": [
-            "data/*egg", "data/broken_legacy_eggs/*egg", "data/*.txt",
-        ],
-        "okonomiyaki.utils.test_data": [
-            "*.runtime", "*.runtime.invalid",
-            "eggs/osx_x86_64/*.egg",
-            "eggs/rh5_x86_64/*.egg",
-            "eggs/rh6_x86_64/*.egg",
-            "eggs/rh7_x86_64/*.egg",
-            "eggs/win_x86_64/*.egg",
-            "eggs/osx_x86_64/cp38/*.egg",
-            "eggs/rh5_x86_64/cp38/*.egg",
-            "eggs/rh6_x86_64/cp38/*.egg",
-            "eggs/rh7_x86_64/cp38/*.egg",
-            "eggs/win_x86_64/cp38/*.egg",
-            "wheels/*.whl",
-        ],
-    }
-
-    setup(
-        name="okonomiyaki",
-        author="Enthought, Inc.",
-        author_email="info@enthought.com",
-        packages=["okonomiyaki",
-            "okonomiyaki._cli",
-            "okonomiyaki._cli.tests",
-            "okonomiyaki.file_formats",
-            "okonomiyaki.file_formats.tests",
-            "okonomiyaki.file_formats._blacklist",
-            "okonomiyaki.platforms",
-            "okonomiyaki.platforms.tests",
-            "okonomiyaki.repositories",
-            "okonomiyaki.repositories.tests",
-            "okonomiyaki.runtimes",
-            "okonomiyaki.runtimes.tests",
-            "okonomiyaki.versions",
-            "okonomiyaki.versions.tests",
-            "okonomiyaki.utils",
-            "okonomiyaki.utils.test_data",
-            "okonomiyaki.utils.tests",
-        ],
-        package_data=package_data,
-        install_requires=INSTALL_REQUIRES,
-        extras_require=EXTRAS_REQUIRE,
-        license="BSD",
-        version=__version__,
-        classifiers=[
-            "Programming Language :: Python :: 2.7",
-            "Programming Language :: Python :: 3",
-        ],
-        description=(
-            "Self-contained library to deal with metadata in "
-            "Enthought-specific eggs",
-        ),
-        long_description=long_description,
-    )
+    setup()
 
 
 if __name__ == "__main__":
