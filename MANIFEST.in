@@ -1,2 +1,5 @@
-include okonomiyaki/models/tests/data/*egg
+include okonomiyaki/utils/test_data/*
+include okonomiyaki/repositories/test/data/*
 include LICENSE.txt
+include CHANGELOG
+include README
