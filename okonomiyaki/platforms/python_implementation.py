@@ -68,7 +68,10 @@ class PythonImplementation(object):
             d = m.groupdict()
             kind = d["interpreter"]
             version = d["version"]
-            if 1 < len(version) < 4:
+            if '_' in version:
+                major, minor = map(int, version.split('_'))
+                return cls(kind, major, minor)
+            elif 1 < len(version) < 4:
                 major = int(version[0])
                 minor = int(version[1:])
                 return cls(kind, major, minor)

@@ -87,7 +87,8 @@ class TestPythonImplementation(unittest.TestCase):
 
     @given(sampled_from((
         (2, 7, 'cp27'), (3, 8, 'cp38'),
-        (3, 4, 'cpython34'),
+        (3, 4, 'cpython34'), (4, 5, 'cp4_5'),
+        (24, 7, 'cp24_7'),
         (4, 15, 'cp415'), (3, 11, 'cp311'))))
     def test_from_string(self, data):
         # Given
