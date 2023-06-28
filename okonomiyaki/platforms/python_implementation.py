@@ -68,14 +68,12 @@ class PythonImplementation(object):
             d = m.groupdict()
             kind = d["interpreter"]
             version = d["version"]
-            if len(version) < 2:
-                raise generic_exc
-            elif len(version) > 2:
-                raise generic_exc
-            else:
+            if 1 < len(version) < 4:
                 major = int(version[0])
-                minor = int(version[1])
+                minor = int(version[1:])
                 return cls(kind, major, minor)
+            else:
+                raise generic_exc
 
     def __init__(self, kind, major, minor):
         self.kind = _ABBREVIATED_TO_KIND.get(kind, kind)
