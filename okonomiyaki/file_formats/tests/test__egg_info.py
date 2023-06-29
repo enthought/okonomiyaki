@@ -195,10 +195,6 @@ packages = [
         self.assertEqual(depend.arch, "x86")
         self.assertEqual(depend.platform, "win32")
         self.assertIsNone(depend.osdist)
-        self.assertEqual(
-            depend._epd_legacy_platform,
-            LegacyEPDPlatform.from_epd_platform_string("win-32")
-        )
         self.assertEqual(depend.platform_abi, "msvc2008")
 
     def test_format_1_3(self):
@@ -329,7 +325,7 @@ packages = [
             spec_depend = LegacySpecDepend.from_egg(egg)
 
         # Then
-        self.assertEqual(str(spec_depend._epd_legacy_platform), "win-32")
+        self.assertEqual(spec_depend._epd_platform.pep425_tag, "win32")
 
         # When
         with mock.patch(
@@ -340,7 +336,7 @@ packages = [
                 spec_depend = LegacySpecDepend.from_egg(zp)
 
         # Then
-        self.assertEqual(str(spec_depend._epd_legacy_platform), "win-32")
+        self.assertEqual(spec_depend._epd_platform.pep425_tag, "win32")
 
     def test_missing_spec_depend(self):
         # When/Then
