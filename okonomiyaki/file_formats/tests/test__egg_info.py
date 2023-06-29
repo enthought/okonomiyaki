@@ -20,7 +20,6 @@ from okonomiyaki.utils import tempdir
 from okonomiyaki.utils.test_data import (
     MKL_10_3_RH5_X86_64, NOSE_1_3_4_RH6_X86_64, NOSE_1_3_4_RH5_X86_64)
 from okonomiyaki.platforms import EPDPlatform, PlatformABI
-from okonomiyaki.platforms.legacy import LegacyEPDPlatform
 from okonomiyaki.versions import EnpkgVersion, MetadataVersion
 
 from .._egg_info import (
