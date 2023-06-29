@@ -7,7 +7,7 @@ Enhancements:
 * Add cp311 dummy eggs (#453)
 * Update the code to guess a Platform instance from the running system (#448)
   - Added a NameKind value for Rocky Linux
-  - Debian and RHEL compatible systems are now supported by the "uknown" NameKind 
+  - Debian and RHEL compatible systems are now supported by the "uknown" NameKind
   - Add support for the RH8 platform
 * Update the PythonImplementation instance to support cp311 (#451)
 * Update okonomiyaki code to not use the deprecated LegacyEPDPlatform instance (#452)
@@ -204,7 +204,7 @@ Enhancements:
     bitness (#215)
   * test runtimes now contains symlinks on Unix (#214)
   * json serialization for EggMetadata (#213)
-  * expose *Kind enums to okonomiyaki.runtimes (#204)
+  * expose Kind enums to okonomiyaki.runtimes (#204)
   * speedup EggMetadata.from_egg (#203)
   * EPDPlatform.from_epd_string is deprecated in favor of
     EPDPlatform.from_string(#199)
@@ -270,9 +270,9 @@ Bug fixes:
   * update PKG-INFO blacklist to handle every pypi egg (#141)
   * update platform blacklist to handle wrong metadata for windows eggs w/ C
     extensions and no platform set up (#142)
-  (#136).
+    (#136).
   * fix round-tripping for PEP386 versions with post part without a dev part
-  (#136).
+    (#136).
 
 2015-09-28   0.12.0:
 --------------------
