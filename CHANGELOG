@@ -1,3 +1,47 @@
+2023-06-29     1.4.0
+--------------------
+
+Enhancements:
+
+* Add cp311 dummy runtimes (#349)
+* Add cp311 dummy eggs (#453)
+* Update the code to guess a Platform instance from the running system (#448)
+  - Added a NameKind value for Rocky Linux
+  - Debian and RHEL compatible systems are now supported by the "uknown" NameKind 
+  - Add support for the RH8 platform
+* Update the PythonImplementation instance to support cp311 (#451)
+* Update okonomiyaki code to not use the deprecated LegacyEPDPlatform instance (#452)
+
+Maintenance:
+
+* Remove old Jenkins CI build setup (#440)
+* Update the test matrix on github actions and remove testing for Python 2.7 (#441, #447)
+* Move most of the package configuration into the setup.cfg (#450)
+
+Big fixes:
+
+* Fix the behaviour of the pep245 module and the way it is tested (#441, #447)
+* Fix the repr output for PEP440Version and RuntimeVersion (#435, #436)
+* Fix error message for unsupported platform combinations (#433)
+* Fix permissions in the dummy egg archives (#430)
+
+2021-07-01     1.3.2
+--------------------
+
+Big fixes:
+
+* Fix relative imports (#426)
+* Fix compute_abi_tag to support Python 3.8 (#424)
+
+2021-06-29     1.3.1
+--------------------
+
+Big fixes:
+
+* Update dummy eggs to hold the correct abi tag for Python 3.8 (#413)
+* Pass the runtime version to the from_epd_string constructor (#414)
+* Fix _guess_abi_tag and _guess_abi_from_python to support python 3.8 (#418)
+
 2021-03-21     1.3.0
 --------------------
 
