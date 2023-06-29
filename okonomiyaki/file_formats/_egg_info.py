@@ -501,10 +501,7 @@ class LegacySpecDepend(object):
         epd_platform = self._epd_platform
         if epd_platform is None:
             return None
-        elif epd_platform.arch == X86_64:
-            return 'amd64'
-        else:
-            return str(epd_platform.arch)
+        return epd_platform.arch._legacy_name
 
     @property
     def egg_name(self):
