@@ -12,8 +12,7 @@ from okonomiyaki.errors import (
     InvalidEggName, InvalidMetadataField,
     MissingMetadata, UnsupportedMetadata)
 from okonomiyaki.platforms import (
-    EPDPlatform, PlatformABI, PythonABI, PythonImplementation,
-    X86_64)
+    EPDPlatform, PlatformABI, PythonABI, PythonImplementation)
 from okonomiyaki.utils import (
     compute_sha256, decode_if_needed, encode_if_needed, parse_assignments)
 from okonomiyaki.utils.py3compat import StringIO, string_types
@@ -501,7 +500,8 @@ class LegacySpecDepend(object):
         epd_platform = self._epd_platform
         if epd_platform is None:
             return None
-        return epd_platform.arch._legacy_name
+        else:
+            return epd_platform.arch._legacy_name
 
     @property
     def egg_name(self):
