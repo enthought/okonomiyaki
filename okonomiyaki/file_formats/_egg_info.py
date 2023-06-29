@@ -11,7 +11,6 @@ from okonomiyaki.errors import (
     InvalidRequirementString, InvalidRequirementStringHyphen,
     InvalidEggName, InvalidMetadataField,
     MissingMetadata, UnsupportedMetadata)
-from okonomiyaki.platforms.legacy import LegacyEPDPlatform
 from okonomiyaki.platforms import (
     EPDPlatform, PlatformABI, PythonABI, PythonImplementation)
 from okonomiyaki.utils import (
@@ -421,29 +420,17 @@ class LegacySpecDepend(object):
     List of dependencies for this egg
     """
 
-    _epd_legacy_platform = attr(
-        validator=optional(instance_of(LegacyEPDPlatform))
-    )
-
+    _epd_platform = attr(validator=optional(instance_of(EPDPlatform)))
     _metadata_version = attr(validator=instance_of(MetadataVersion))
 
     @classmethod
     def _from_data(cls, data, epd_platform):
         args = data.copy()
         args[_TAG_METADATA_VERSION] = M(
-            args.get(_TAG_METADATA_VERSION, _METADATA_DEFAULT_VERSION_STRING)
-        )
-
-        if epd_platform is None:
-            _epd_legacy_platform = None
-        else:
-            _epd_legacy_platform = LegacyEPDPlatform(epd_platform)
-        args["_epd_legacy_platform"] = _epd_legacy_platform
-
+            args.get(_TAG_METADATA_VERSION, _METADATA_DEFAULT_VERSION_STRING))
         args[_TAG_PACKAGES] = [
             Requirement.from_spec_string(s)
-            for s in args.get(_TAG_PACKAGES, [])
-        ]
+            for s in args.get(_TAG_PACKAGES, [])]
 
         return cls(
             args["name"],
@@ -455,7 +442,7 @@ class LegacySpecDepend(object):
             args["platform_tag"],
             args["platform_abi"],
             args["packages"],
-            args["_epd_legacy_platform"],
+            epd_platform,
             args["metadata_version"],
         )
 
@@ -510,10 +497,11 @@ class LegacySpecDepend(object):
         """
         Egg architecture.
         """
-        if self._epd_legacy_platform is None:
+        epd_platform = self._epd_platform
+        if epd_platform is None:
             return None
         else:
-            return self._epd_legacy_platform.arch._legacy_name
+            return epd_platform.arch._legacy_name
 
     @property
     def egg_name(self):
@@ -524,20 +512,34 @@ class LegacySpecDepend(object):
 
     @property
     def osdist(self):
-        if self._epd_legacy_platform is None:
+        epd_platform = self._epd_platform
+        if epd_platform is None:
             return None
-        else:
-            return self._epd_legacy_platform.osdist
+        name = epd_platform.platform_name
+        if name in ('osx', 'win'):
+            return None
+        elif name == 'sol':
+            return 'Solaris 10'
+        elif name.startswith('rh'):
+            return 'RedHat_{}'.format(name[2:])
 
     @property
     def platform(self):
         """
         The legacy platform name (sys.platform).
         """
-        if self._epd_legacy_platform is None:
+        epd_platform = self._epd_platform
+        if epd_platform is None:
             return None
-        else:
-            return self._epd_legacy_platform.platform
+        name = epd_platform.platform_name
+        if name == 'osx':
+            return 'darwin'
+        elif name == 'win':
+            return 'win32'
+        elif name == 'sol':
+            return 'sunos5'
+        elif name.startswith('rh'):
+            return 'linux2'
 
     @property
     def metadata_version(self):
@@ -640,8 +642,7 @@ def _normalized_info_from_string(spec_depend_string, epd_platform=None,
     else:
         if metadata_version < M("1.2"):
             data[_TAG_PYTHON_PEP425_TAG] = _guess_python_tag(
-                raw_data[_TAG_PYTHON]
-            )
+                raw_data[_TAG_PYTHON])
         else:
             data[_TAG_PYTHON_PEP425_TAG] = raw_data[_TAG_PYTHON_PEP425_TAG]
 
@@ -785,26 +786,16 @@ class EggMetadata(object):
     def _from_spec_depend(cls, spec_depend, pkg_info, summary,
                           metadata_version=None):
         raw_name = spec_depend.name
-
-        version = EnpkgVersion.from_upstream_and_build(spec_depend.version,
-                                                       spec_depend.build)
-
+        version = EnpkgVersion.from_upstream_and_build(
+            spec_depend.version, spec_depend.build)
         python_tag = spec_depend.python_tag
         abi_tag = spec_depend.abi_tag
         platform_abi = spec_depend.platform_abi
-
-        if spec_depend._epd_legacy_platform is None:
-            platform = None
-        else:
-            platform = spec_depend._epd_legacy_platform._epd_platform
-
+        epd_platform = spec_depend._epd_platform
         dependencies = Dependencies(
-            tuple(dep for dep in spec_depend.packages)
-        )
-
+            tuple(dep for dep in spec_depend.packages))
         metadata_version = metadata_version or spec_depend.metadata_version
-
-        return cls(raw_name, version, platform, python_tag, abi_tag,
+        return cls(raw_name, version, epd_platform, python_tag, abi_tag,
                    platform_abi, dependencies, pkg_info, summary,
                    metadata_version)
 
@@ -961,7 +952,6 @@ class EggMetadata(object):
     def pkg_info(self):
         if isinstance(self._pkg_info, six.string_types):
             self._pkg_info = PackageInfo.from_string(self._pkg_info)
-
         return self._pkg_info
 
     @property
@@ -1021,13 +1011,6 @@ class EggMetadata(object):
             raise UnsupportedMetadata(
                 self.metadata_version, msg.format(str(self.metadata_version))
             )
-
-        if self.platform is None:
-            epd_platform = None
-        else:
-            legacy_epd_platform = LegacyEPDPlatform(self.platform)
-            epd_platform = legacy_epd_platform._epd_platform
-
         args = {
             "name": self._raw_name,
             "version": self.upstream_version,
@@ -1040,7 +1023,7 @@ class EggMetadata(object):
             "packages": [six.text_type(p) for p in self.runtime_dependencies],
             "metadata_version": six.text_type(self.metadata_version),
         }
-        return LegacySpecDepend._from_data(args, epd_platform)
+        return LegacySpecDepend._from_data(args, self.platform)
 
     # Public methods
     def dump(self, path):
@@ -1056,11 +1039,9 @@ class EggMetadata(object):
         """
         with zipfile2.ZipFile(path, "w", zipfile2.ZIP_DEFLATED) as zp:
             zp.writestr(
-                _SPEC_DEPEND_LOCATION, self.spec_depend_string.encode()
-            )
+                _SPEC_DEPEND_LOCATION, self.spec_depend_string.encode())
             zp.writestr(
-                _SPEC_SUMMARY_LOCATION, self.summary.encode()
-            )
+                _SPEC_SUMMARY_LOCATION, self.summary.encode())
             if self.pkg_info:
                 self.pkg_info._dump_as_zip(zp)
 
@@ -1080,10 +1061,8 @@ class EggMetadata(object):
             _JSON_PLATFORM_TAG: self.platform_tag,
             _JSON_PLATFORM_ABI_TAG: self.platform_abi_tag,
             _JSON_RUNTIME_DEPENDENCIES: [
-                six.text_type(p) for p in self.runtime_dependencies
-            ],
-            _JSON_SUMMARY: self.summary,
-        }
+                six.text_type(p) for p in self.runtime_dependencies],
+            _JSON_SUMMARY: self.summary}
 
     # Protocol implementations
     def __eq__(self, other):
@@ -1091,12 +1070,10 @@ class EggMetadata(object):
             return (
                 self.spec_depend_string == other.spec_depend_string
                 and self.summary == other.summary
-                and self.pkg_info == other.pkg_info
-            )
+                and self.pkg_info == other.pkg_info)
         else:
             raise TypeError(
-                "Only equality between EggMetadata instances is supported"
-            )
+                "Only equality between EggMetadata instances is supported")
 
     def __ne__(self, other):
         return not self == other

@@ -20,7 +20,6 @@ from okonomiyaki.utils import tempdir
 from okonomiyaki.utils.test_data import (
     MKL_10_3_RH5_X86_64, NOSE_1_3_4_RH6_X86_64, NOSE_1_3_4_RH5_X86_64)
 from okonomiyaki.platforms import EPDPlatform, PlatformABI
-from okonomiyaki.platforms.legacy import LegacyEPDPlatform
 from okonomiyaki.versions import EnpkgVersion, MetadataVersion
 
 from .._egg_info import (
@@ -195,10 +194,6 @@ packages = [
         self.assertEqual(depend.arch, "x86")
         self.assertEqual(depend.platform, "win32")
         self.assertIsNone(depend.osdist)
-        self.assertEqual(
-            depend._epd_legacy_platform,
-            LegacyEPDPlatform.from_epd_platform_string("win-32")
-        )
         self.assertEqual(depend.platform_abi, "msvc2008")
 
     def test_format_1_3(self):
@@ -329,7 +324,7 @@ packages = [
             spec_depend = LegacySpecDepend.from_egg(egg)
 
         # Then
-        self.assertEqual(str(spec_depend._epd_legacy_platform), "win-32")
+        self.assertEqual(spec_depend._epd_platform.pep425_tag, "win32")
 
         # When
         with mock.patch(
@@ -340,7 +335,7 @@ packages = [
                 spec_depend = LegacySpecDepend.from_egg(zp)
 
         # Then
-        self.assertEqual(str(spec_depend._epd_legacy_platform), "win-32")
+        self.assertEqual(spec_depend._epd_platform.pep425_tag, "win32")
 
     def test_missing_spec_depend(self):
         # When/Then
