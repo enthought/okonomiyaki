@@ -15,10 +15,7 @@ uname_result = collections.namedtuple(
 
 
 def _mock_uname(*args):
-    if sys.version_info[0] == 2:
-        return args
-    else:
-        return uname_result(*args)
+    return uname_result(*args)
 
 
 mock_darwin = MultiPatcher([

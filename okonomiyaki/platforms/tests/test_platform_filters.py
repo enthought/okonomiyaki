@@ -1,15 +1,9 @@
-import sys
+import unittest
 
 from .._arch import Arch
 from ..epd_platform import EPDPlatform
 from .._platform import OSKind, NameKind, FamilyKind, Platform
 from ..platform_filters import PlatformFilter, PlatformLabel, PlatformLiteral
-
-if sys.version_info < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
-
 
 LABEL_WINDOWS_ANY = PlatformLabel()
 LABEL_WINDOWS_ANY.os_kind = OSKind.windows

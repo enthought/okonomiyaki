@@ -1,15 +1,9 @@
-import sys
+import unittest
 
 from okonomiyaki.errors import OkonomiyakiError
 from .._arch import Arch
-
 from .common import (
     mock_machine_armv71, mock_x86, mock_x86_64, mock_x86_on_x86_64)
-
-if sys.version_info < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
 
 
 class TestArch(unittest.TestCase):

@@ -1,21 +1,13 @@
 import glob
+import unittest
 from os.path import join
-import sys
 
 import zipfile2
 from hypothesis import given
 from hypothesis.strategies import sampled_from
 
-
 from okonomiyaki.runtimes.runtime_metadata import IRuntimeMetadata
-
 from ..test_data import DUMMY_RUNTIMES_DIRECTORY
-
-if sys.version_info < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
-
 
 runtime_paths = [
     join(DUMMY_RUNTIMES_DIRECTORY, f) for f
