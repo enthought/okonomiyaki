@@ -1,9 +1,7 @@
 import collections
-import sys
 from unittest import mock
 
 from okonomiyaki.utils.testing import MultiPatcher, Patcher
-
 
 # OS mocking
 # XXX: We need to patch platform.uname as well, as that function is cached, and
@@ -12,45 +10,39 @@ uname_result = collections.namedtuple(
     "uname_result",
     "system node release version machine "
     "processor")
-
-
-def _mock_uname(*args):
-    return uname_result(*args)
-
-
 mock_darwin = MultiPatcher([
     mock.patch("sys.platform", "darwin"),
     # These value are there to mask the running system values
-    mock.patch("platform.uname",
-               lambda: _mock_uname("Darwin", "localhost", "11.4.2",
-                                   "Darwin Kernel Version 11.4.2 bla bla",
-                                   "x86_64", "i386")),
-])
-
+    mock.patch(
+        "platform.uname",
+        lambda: uname_result(
+            "Darwin", "localhost", "11.4.2",
+            "Darwin Kernel Version 11.4.2 bla bla",
+            "x86_64", "i386"))])
 mock_linux = MultiPatcher([
     mock.patch("sys.platform", "linux2"),
     # These value are there to mask the running system values
-    mock.patch("platform.uname",
-               lambda: _mock_uname("Linux", "localhost", "2.6.19-308.el5",
-                                   "#1 SMP Tue Feb 21 20:06:06 EST 2012",
-                                   "x86_64", "x86_64"))
-])
+    mock.patch(
+        "platform.uname",
+        lambda: uname_result(
+            "Linux", "localhost", "2.6.19-308.el5",
+            "#1 SMP Tue Feb 21 20:06:06 EST 2012",
+            "x86_64", "x86_64"))])
 mock_solaris = MultiPatcher([
     mock.patch("sys.platform", "sunos5"),
     # These value are there to mask the running system values
-    mock.patch("platform.uname",
-               lambda: _mock_uname("Solaris", "localhost", "fake",
-                                   "fake", "x86_64", "x86_64")),
-])
+    mock.patch(
+        "platform.uname",
+        lambda: uname_result(
+            "Solaris", "localhost", "fake", "fake", "x86_64", "x86_64"))])
 mock_windows = MultiPatcher([
     mock.patch("sys.platform", "win32"),
     # These value are there to mask the running system values
-    mock.patch("platform.uname",
-               lambda: _mock_uname('Windows', 'localhost', '7', '6.1.7601',
-                                   'x86',
-                                   ('x86 Family 6 Model 4 5 Stepping 7, '
-                                    'GenuineIntel')))
-])
+    mock.patch(
+        "platform.uname",
+        lambda: uname_result(
+            'Windows', 'localhost', '7', '6.1.7601',
+            'x86', ('x86 Family 6 Model 4 5 Stepping 7, GenuineIntel')))])
 
 
 def _mock_linux_distribution(info):
