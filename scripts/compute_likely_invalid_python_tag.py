@@ -17,7 +17,7 @@ from okonomiyaki.errors import OkonomiyakiError
 from okonomiyaki.file_formats import EggMetadata
 from okonomiyaki.utils import compute_sha256
 
-from six import StringIO
+from io import StringIO
 from yapf.yapflib.yapf_api import FormatCode
 
 import zipfile2

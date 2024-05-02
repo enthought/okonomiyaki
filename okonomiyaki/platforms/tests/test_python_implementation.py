@@ -1,19 +1,11 @@
-import sys
-
-import mock
-import six
-
-from okonomiyaki.errors import InvalidMetadataField
-from ..python_implementation import PythonABI, PythonImplementation
+import unittest
+from unittest import mock
 
 from hypothesis import given
 from hypothesis.strategies import sampled_from
 
-
-if sys.version_info < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
+from okonomiyaki.errors import InvalidMetadataField
+from ..python_implementation import PythonABI, PythonImplementation
 
 
 class TestPythonImplementation(unittest.TestCase):
@@ -32,47 +24,47 @@ class TestPythonImplementation(unittest.TestCase):
         # Then
         self.assertEqual(tag.abbreviated_implementation, 'cp')
         self.assertEqual(str(tag), r_tag)
-        self.assertIsInstance(six.text_type(tag), six.text_type)
+        self.assertIsInstance(str(tag), str)
 
     def test_from_running_python(self):
         # When
         with mock.patch(
-                "okonomiyaki.platforms.python_implementation."
-                "_abbreviated_implementation",
-                return_value="cp"):
-            with mock.patch("sys.version_info", (2, 7, 9, 'final', 0)):
+                'okonomiyaki.platforms.python_implementation.'
+                '_abbreviated_implementation',
+                return_value='cp'):
+            with mock.patch('sys.version_info', (2, 7, 9, 'final', 0)):
                 py = PythonImplementation.from_running_python()
 
         # Then
-        self.assertEqual(py.pep425_tag, u"cp27")
+        self.assertEqual(py.pep425_tag, 'cp27')
 
         # When
-        with mock.patch("sys.pypy_version_info", "pypy 1.9", create=True):
-            with mock.patch("sys.version_info", (2, 7, 9, 'final', 0)):
+        with mock.patch('sys.pypy_version_info', 'pypy 1.9', create=True):
+            with mock.patch('sys.version_info', (2, 7, 9, 'final', 0)):
                 py = PythonImplementation.from_running_python()
 
         # Then
-        self.assertEqual(py.pep425_tag, u"pp27")
+        self.assertEqual(py.pep425_tag, 'pp27')
 
         # When
-        with mock.patch("sys.platform", "java 1.7", create=True):
-            with mock.patch("sys.version_info", (2, 7, 9, 'final', 0)):
+        with mock.patch('sys.platform', 'java 1.7', create=True):
+            with mock.patch('sys.version_info', (2, 7, 9, 'final', 0)):
                 py = PythonImplementation.from_running_python()
 
         # Then
-        self.assertEqual(py.pep425_tag, u"jy27")
+        self.assertEqual(py.pep425_tag, 'jy27')
 
         # When
-        with mock.patch("sys.platform", "cli", create=True):
-            with mock.patch("sys.version_info", (2, 7, 9, 'final', 0)):
+        with mock.patch('sys.platform', 'cli', create=True):
+            with mock.patch('sys.version_info', (2, 7, 9, 'final', 0)):
                 py = PythonImplementation.from_running_python()
 
         # Then
-        self.assertEqual(py.pep425_tag, u"ip27")
+        self.assertEqual(py.pep425_tag, 'ip27')
 
     @given(sampled_from((
-        ("cpython", "cp"), ("python", "py"),
-        ("pypy", "pp"), ("dummy", "dummy"))))
+        ('cpython', 'cp'), ('python', 'py'),
+        ('pypy', 'pp'), ('dummy', 'dummy'))))
     def test_abbreviations(self, kinds):
         # Given
         major = 2
@@ -98,7 +90,7 @@ class TestPythonImplementation(unittest.TestCase):
         tag = PythonImplementation.from_string(tag_string)
 
         # Then
-        self.assertEqual(tag.kind, "cpython")
+        self.assertEqual(tag.kind, 'cpython')
         self.assertEqual(tag.major, major)
         if minor is not None:
             self.assertEqual(tag.minor, minor)
@@ -122,16 +114,16 @@ class TestPythonABI(unittest.TestCase):
         abi_tag_string = PythonABI.pep425_tag_string(abi_tag)
 
         # Then
-        self.assertEqual(abi_tag_string, u"none")
-        self.assertIsInstance(abi_tag_string, six.text_type)
+        self.assertEqual(abi_tag_string, 'none')
+        self.assertIsInstance(abi_tag_string, str)
 
     def test_pep425_tag_string(self):
         # Given
-        abi_tag = PythonABI(u"cp27mu")
+        abi_tag = PythonABI('cp27m')
 
         # When
         abi_tag_string = PythonABI.pep425_tag_string(abi_tag)
 
         # Then
-        self.assertEqual(abi_tag_string, u"cp27mu")
-        self.assertIsInstance(abi_tag_string, six.text_type)
+        self.assertEqual(abi_tag_string, 'cp27m')
+        self.assertIsInstance(abi_tag_string, str)

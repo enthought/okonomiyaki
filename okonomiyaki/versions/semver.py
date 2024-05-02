@@ -1,7 +1,6 @@
 import re
 
 from okonomiyaki.errors import InvalidSemanticVersion
-from okonomiyaki.utils.py3compat import long
 
 
 _SEMVER_R = re.compile(r"""
@@ -60,8 +59,8 @@ class _PrereleaseParts(object):
             if left == right:
                 continue
             else:
-                is_left_int = isinstance(left, (long, int))
-                is_right_int = isinstance(right, (long, int))
+                is_left_int = isinstance(left, int)
+                is_right_int = isinstance(right, int)
                 if is_left_int:
                     if is_right_int:
                         return left < right

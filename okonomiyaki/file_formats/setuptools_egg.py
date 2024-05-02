@@ -1,15 +1,11 @@
 import os.path
 import re
 import sys
-try:
-    import sysconfig
-except ImportError:  # Python 2.6 support
-    sysconfig = None
+import sysconfig
 import warnings
 
 from okonomiyaki.errors import OkonomiyakiError
 from okonomiyaki.platforms import PythonImplementation
-from okonomiyaki.utils import py3compat
 from ._egg_info import _guess_python_tag
 from ._package_info import PackageInfo
 
@@ -90,14 +86,11 @@ def _guess_abi_from_python(python):
 
 
 def _guess_abi_from_running_python():
-    if sysconfig is None:
+    try:
+        soabi = sysconfig.get_config_var('SOABI')
+    except IOError as e:  # pip issue #1074
+        warnings.warn("{0}".format(e), RuntimeWarning)
         soabi = None
-    else:
-        try:
-            soabi = sysconfig.get_config_var('SOABI')
-        except IOError as e:  # pip issue #1074
-            warnings.warn("{0}".format(e), RuntimeWarning)
-            soabi = None
 
     if soabi and soabi.startswith('cpython-'):
         return 'cp' + soabi.split('-', 2)[1]
@@ -169,7 +162,7 @@ class SetuptoolsEggMetadata(object):
         self.version = version
 
         self.platform = platform
-        if isinstance(python, py3compat.string_types):
+        if isinstance(python, str):
             python = PythonImplementation.from_string(python)
         self.python = python
         self.abi_tag = abi_tag

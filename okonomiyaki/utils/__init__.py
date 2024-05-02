@@ -3,9 +3,8 @@ from __future__ import absolute_import
 import hashlib
 
 from .misc import (
-    parse_assignments, substitute_variable, substitute_variables, tempdir
-)
-from .py3compat import decode_if_needed, encode_if_needed, string_types
+    parse_assignments, substitute_variable, substitute_variables, tempdir,
+    decode_if_needed, encode_if_needed)
 
 
 def compute_md5(path):
@@ -47,7 +46,7 @@ def _compute_hash(path, m):
                 break
         return m.hexdigest()
 
-    if isinstance(path, string_types):
+    if isinstance(path, str):
         with open(path, "rb") as fp:
             return _compute_checksum(fp)
     else:

@@ -19,7 +19,7 @@ import zipfile2
 
 import bag.more_codecs  # noqa
 
-from six import StringIO
+from io import StringIO
 
 from yapf.yapflib.yapf_api import FormatCode
 

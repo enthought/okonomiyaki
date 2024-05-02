@@ -1,8 +1,6 @@
 import re
 import sys
 
-import six
-
 from attr import attributes, attr
 from attr.validators import instance_of
 
@@ -32,7 +30,7 @@ _PYTHON_TAG_NONE = u'none'
 class PythonABI(object):
     """ An object representation of python ABI as defined in PEP 425.
     """
-    pep425_tag = attr(validator=instance_of(six.text_type))
+    pep425_tag = attr(validator=instance_of(str))
 
     @staticmethod
     def pep425_tag_string(abi):
@@ -42,7 +40,6 @@ class PythonABI(object):
             return abi.pep425_tag
 
 
-@six.python_2_unicode_compatible
 class PythonImplementation(object):
     @staticmethod
     def pep425_tag_string(implementation):
@@ -90,7 +87,7 @@ class PythonImplementation(object):
     @property
     def pep425_tag(self):
         """ PEP425-compliant python tag string. """
-        return six.text_type(self)
+        return str(self)
 
     def __str__(self):
         return "{0.abbreviated_implementation}{0.major}{0.minor}".format(self)

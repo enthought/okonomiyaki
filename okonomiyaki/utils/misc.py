@@ -5,8 +5,6 @@ import shutil
 import string
 import tempfile
 
-from .py3compat import string_types
-
 from okonomiyaki.errors import OkonomiyakiError
 
 
@@ -49,7 +47,7 @@ def parse_assignments(file_or_filename):
     file_or_filename: str, file object
         If a string, interpreted as a filename. File object otherwise.
     """
-    if isinstance(file_or_filename, string_types):
+    if isinstance(file_or_filename, str):
         with open(file_or_filename) as fp:
             return _AssignmentParser().parse(fp.read())
     else:
@@ -185,3 +183,15 @@ def substitute_variable(
             'Template option must be "standard" or "curly_braces_only"'
         )
     return template_substitute(local_vars)
+
+
+def decode_if_needed(value):
+    if isinstance(value, bytes):
+        return value.decode("utf8")
+    return value
+
+
+def encode_if_needed(value):
+    if isinstance(value, str):
+        return value.encode("utf8")
+    return value

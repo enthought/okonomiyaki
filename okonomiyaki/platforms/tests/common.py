@@ -1,6 +1,6 @@
 import collections
-import mock
 import sys
+from unittest import mock
 
 from okonomiyaki.utils.testing import MultiPatcher, Patcher
 

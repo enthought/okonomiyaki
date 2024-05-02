@@ -1,6 +1,5 @@
 import unittest
 
-import six
 from hypothesis import given
 from hypothesis.strategies import sampled_from
 
@@ -47,19 +46,19 @@ class TestEPDPlatform(unittest.TestCase):
         # When/Then
         for platform_string in self.platform_strings:
             platform = EPDPlatform.from_string(platform_string)
-            self.assertIsInstance(platform.pep425_tag, six.text_type)
+            self.assertIsInstance(platform.pep425_tag, str)
 
     def test_platform_name_is_unicode(self):
         # When/Then
         for platform_string in self.platform_strings:
             platform = EPDPlatform.from_string(platform_string)
-            self.assertIsInstance(platform.platform_name, six.text_type)
+            self.assertIsInstance(platform.platform_name, str)
 
     def test_str_is_unicode(self):
         # When/Then
         for platform_string in self.platform_strings:
             platform = EPDPlatform.from_string(platform_string)
-            self.assertIsInstance(six.text_type(platform), six.text_type)
+            self.assertIsInstance(str(platform), str)
 
     def test_over_complete_strings(self):
         # When/Then
