@@ -28,12 +28,12 @@ jobs:
       run: |
         mkdir testing
         cd testing
-        coverage run -p -m haas okonomiyaki
+        coverage run --rcfile=../.coveragerc -p -m haas okonomiyaki
     - name: Upload Coverage info
       uses: actions/upload-artifact@v4
       with:
         name: coverage-${{matrix.os}}-${{matrix.python-version}}
-        path: .coverage.*  
+        path: testing/.coverage.*  
   coverage:    
     runs-on: ubuntu-latest
     needs: tests
