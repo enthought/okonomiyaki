@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from attr import attr, attributes
 from attr.validators import instance_of, optional
 
