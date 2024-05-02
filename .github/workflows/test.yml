@@ -47,6 +47,7 @@ jobs:
       run: pip install coverage
     - name: Generate coverage report
       run: |
+          pip install -e .
           coverage combine
           coverage report
           coverage html
