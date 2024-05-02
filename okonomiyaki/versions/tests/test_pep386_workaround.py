@@ -1,8 +1,6 @@
 import unittest
-import sys
 
 from ..pep386_workaround import PEP386WorkaroundVersion
-
 
 
 class TestPEP386Workaround(unittest.TestCase):

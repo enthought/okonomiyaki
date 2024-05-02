@@ -1,6 +1,4 @@
-import sys
 import unittest
-from unittest import mock
 
 import six
 from hypothesis import given

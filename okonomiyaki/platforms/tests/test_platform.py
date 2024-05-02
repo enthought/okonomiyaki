@@ -1,4 +1,3 @@
-import sys
 import unittest
 
 from okonomiyaki.errors import OkonomiyakiError

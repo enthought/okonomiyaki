@@ -4,11 +4,9 @@ import unittest
 
 from okonomiyaki.utils.test_data import (
     JULIA_DEFAULT_0_3_11_RH5_X86_64, JULIA_DEFAULT_0_3_11_WIN_X86_64,
-    PYTHON_CPYTHON_2_7_10_RH5_X86_64, PYTHON_CPYTHON_2_7_10_WIN_X86_64
-)
+    PYTHON_CPYTHON_2_7_10_RH5_X86_64, PYTHON_CPYTHON_2_7_10_WIN_X86_64)
 from ..runtime_metadata import IRuntimeMetadata
 from ..runtime_info import IRuntimeInfo
-
 
 
 class TestPythonRuntimeInfoV1(unittest.TestCase):

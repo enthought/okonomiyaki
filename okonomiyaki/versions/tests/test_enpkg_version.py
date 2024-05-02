@@ -1,11 +1,8 @@
-import sys
 import unittest
-
-from okonomiyaki.errors import InvalidEnpkgVersion
 
 from ..enpkg import EnpkgVersion
 from ..pep386_workaround import PEP386WorkaroundVersion
-
+from okonomiyaki.errors import InvalidEnpkgVersion
 
 
 class TestEnpkgVersionParsing(unittest.TestCase):

@@ -1,12 +1,10 @@
 import re
-import sys
 import unittest
 
-from okonomiyaki.errors import InvalidSemanticVersion
 
 from ..enpkg import EnpkgVersion
 from ..semver import SemanticVersion, _PrereleaseParts
-
+from okonomiyaki.errors import InvalidSemanticVersion
 
 
 class TestSemanticVersion(unittest.TestCase):

@@ -1,11 +1,7 @@
 import unittest
-import sys
-
-from okonomiyaki.errors import InvalidPEP440Version
 
 from ..pep440 import _MIN, _MAX, PEP440Version
-
-
+from okonomiyaki.errors import InvalidPEP440Version
 
 V = PEP440Version.from_string
 

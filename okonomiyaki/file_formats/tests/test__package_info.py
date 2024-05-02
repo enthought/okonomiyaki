@@ -1,6 +1,5 @@
 import os.path
 import shutil
-import sys
 import tempfile
 import zipfile2
 import unittest
@@ -8,17 +7,14 @@ from unittest import mock
 
 from .._blacklist.pkg_info_data import PYSIDE_1_1_0_PKG_INFO
 from .._package_info import PKG_INFO_ENCODING, _PKG_INFO_LOCATION, PackageInfo
-
-
-from okonomiyaki.utils.test_data import OKONOMIYAKI_0_17_0_PY2
-from okonomiyaki.errors import OkonomiyakiError
 from .common import (
     BROKEN_MCCABE_EGG, PIP_EGG, PKG_INFO_ENSTALLER_1_0_DESCRIPTION,
     PIP_PKG_INFO, PKG_INFO_ENSTALLER_1_0, PYMULTINEST_EGG, SUPERVISOR_EGG,
     UNICODE_DESCRIPTION_EGG, UNICODE_DESCRIPTION_TEXT, FAKE_PYSIDE_1_1_0_EGG,
     FAKE_PYSIDE_1_1_0_EGG_PKG_INFO, SETUPTOOLS_PKG_INFO_1_2,
-    SETUPTOOLS_PKG_INFO_2_1, SETUPTOOLS_40_8_0_EGG,
-)
+    SETUPTOOLS_PKG_INFO_2_1, SETUPTOOLS_40_8_0_EGG)
+from okonomiyaki.utils.test_data import OKONOMIYAKI_0_17_0_PY2
+from okonomiyaki.errors import OkonomiyakiError
 
 
 class TestPackageInfo(unittest.TestCase):

@@ -1,12 +1,10 @@
 import io
 import os.path
 import shutil
-import sys
 import tempfile
 import unittest
 
 from .. import compute_sha256
-
 
 
 class TestSha256(unittest.TestCase):

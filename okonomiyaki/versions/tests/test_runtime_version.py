@@ -1,9 +1,6 @@
 import unittest
-import sys
 
 from ..runtime_version import RuntimeVersion
-
-
 
 V = RuntimeVersion.from_string
 

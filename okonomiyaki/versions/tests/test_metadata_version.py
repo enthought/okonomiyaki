@@ -1,10 +1,8 @@
 import unittest
-import sys
 
 from okonomiyaki.errors import InvalidMetadataVersion
 
 from .. import MetadataVersion
-
 
 
 class TestMetadataVersion(unittest.TestCase):
