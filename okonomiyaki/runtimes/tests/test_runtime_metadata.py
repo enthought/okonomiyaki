@@ -1,6 +1,6 @@
 import os.path
 import shutil
-import sys
+import unittest
 
 import zipfile2
 from hypothesis import given
@@ -17,20 +17,13 @@ from okonomiyaki.utils.test_data import (
     PYTHON_CPYTHON_3_8_8_RH7_X86_64, PYTHON_CPYTHON_3_8_8_OSX_X86_64,
     PYTHON_CPYTHON_3_8_8_WIN_X86_64, PYTHON_CPYTHON_3_8_8_WIN_X86,
     PYTHON_CPYTHON_3_11_2_RH8_X86_64, PYTHON_CPYTHON_3_11_2_OSX_X86_64,
-    PYTHON_CPYTHON_3_11_2_WIN_X86_64
-)
+    PYTHON_CPYTHON_3_11_2_WIN_X86_64)
 from okonomiyaki.versions import MetadataVersion
 from okonomiyaki.platforms import Platform, OSKind, FamilyKind, NameKind, X86_64, X86
 
 from ..runtime_metadata import (
     JuliaRuntimeMetadataV1, PythonRuntimeMetadataV1, RuntimeVersion,
-    is_runtime_path_valid, runtime_metadata_factory
-)
-
-if sys.version_info < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
+    is_runtime_path_valid, runtime_metadata_factory)
 
 
 class TestPythonMetadataV1(unittest.TestCase):

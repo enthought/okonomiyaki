@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-
-import six
-
 from attr import attr, attributes
 from attr.validators import instance_of, optional
 
@@ -39,7 +35,7 @@ class PlatformLabel(object):
     Actual architecture. May be None.
     """
 
-    release = attr(validator=instance_of(six.string_types), default="")
+    release = attr(validator=instance_of(str), default="")
     """
     The release string. May be empty
     """

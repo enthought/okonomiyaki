@@ -4,7 +4,7 @@ class Patcher(object):
 
     Typical usage::
 
-        import mock
+        from unittest import mock
         import sys
 
         my_mock = Patcher(mock.patch("sys.platform", "win32"))

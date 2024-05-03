@@ -1,29 +1,20 @@
 # coding=utf-8
 import os
-import os.path
 import shutil
 import stat
 import sys
 import tempfile
 import textwrap
+import unittest
 import zipfile2
-
-if sys.version_info < (2, 7):  # noqa
-    import unittest2 as unittest
-else:
-    import unittest
-
 import os.path as op
 
 from okonomiyaki.platforms import EPDPlatform
 from okonomiyaki.utils import compute_md5
-from okonomiyaki.utils import py3compat
 from okonomiyaki.versions import EnpkgVersion
-
 from ..egg import EggBuilder, EggRewriter
 from .._egg_info import Dependencies, EggMetadata, LegacySpecDepend
 from .._package_info import PackageInfo
-
 from .common import PIP_PKG_INFO, TRAITS_SETUPTOOLS_EGG
 
 
@@ -335,12 +326,6 @@ class TestEggRewriter(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree(self.prefix)
-
-    def assertCountEqual(self, first, second, msg=None):
-        if py3compat.PY2:
-            return self.assertItemsEqual(first, second, msg)
-        else:
-            return unittest.TestCase.assertCountEqual(self, first, second, msg)
 
     def assertSameArchive(self, first, second, arcname):
         with zipfile2.ZipFile(first) as first_fp:

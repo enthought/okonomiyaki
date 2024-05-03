@@ -1,11 +1,8 @@
-from __future__ import absolute_import
-
 import abc
 import os.path
 import json
 
 import jsonschema
-import six
 import zipfile2
 
 from attr import attr, attributes
@@ -24,7 +21,7 @@ _METADATA_ARCNAME = "enthought/runtime.json"
 
 
 @attributes
-class IRuntimeMetadata(six.with_metaclass(abc.ABCMeta)):
+class IRuntimeMetadata(metaclass=abc.ABCMeta):
     """ The metadata of a runtime package (i.e. the actual zipfile containing
     the runtime code).
     """
@@ -60,7 +57,7 @@ class IRuntimeMetadataV1(IRuntimeMetadata):
     """
     # Note: the attributes in IRuntimeMetadataV1 need to be synchronized with
     # IRuntimeInfoV1
-    implementation = attr(validator=instance_of(six.text_type))
+    implementation = attr(validator=instance_of(str))
     "The implementation (e.g. 'cpython')"
 
     version = attr(validator=instance_of(RuntimeVersion))
@@ -74,14 +71,14 @@ class IRuntimeMetadataV1(IRuntimeMetadata):
     platform = attr(validator=instance_of(Platform))
     "The platform on which this runtime may run."
 
-    abi = attr(validator=instance_of(six.text_type))
+    abi = attr(validator=instance_of(str))
     "The ABI of this runtime."
 
-    build_revision = attr(validator=instance_of(six.text_type))
+    build_revision = attr(validator=instance_of(str))
     """The internal version. Informative only, has no semantices and may be
     empty."""
 
-    executable = attr(validator=instance_of(six.text_type))
+    executable = attr(validator=instance_of(str))
     """Executable path. May be a templated variable.
     """
 
@@ -95,7 +92,7 @@ class IRuntimeMetadataV1(IRuntimeMetadata):
 
     @classmethod
     def _from_path(cls, path_or_file):
-        if isinstance(path_or_file, six.string_types):
+        if isinstance(path_or_file, str):
             # We don't use the parsed metadata here, but that allows us to
             # sanity check against old runtimes
             _parse_from_path(path_or_file)
@@ -163,9 +160,9 @@ class JuliaRuntimeMetadataV1(IRuntimeMetadataV1):
 class PythonRuntimeMetadataV1(IRuntimeMetadataV1):
     """ Class representing the metadata of a python runtime package.
     """
-    scriptsdir = attr(validator=instance_of(six.text_type))
-    site_packages = attr(validator=instance_of(six.text_type))
-    python_tag = attr(validator=instance_of(six.text_type))
+    scriptsdir = attr(validator=instance_of(str))
+    site_packages = attr(validator=instance_of(str))
+    python_tag = attr(validator=instance_of(str))
 
     _json_schema = _PYTHON_V1
 
@@ -204,7 +201,7 @@ def runtime_metadata_factory(path_or_file):
             json_dict["implementation"]
         )
 
-    if isinstance(path_or_file, six.string_types):
+    if isinstance(path_or_file, str):
         with zipfile2.ZipFile(path_or_file) as zp:
             metadata = _read_runtime_metadata_json(zp)
     else:

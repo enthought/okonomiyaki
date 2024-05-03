@@ -1,17 +1,13 @@
-from __future__ import absolute_import
-
+import enum
 import platform
 import sys
 import subprocess
 
-import enum
-import six
 from attr import attr, attributes
 from attr.validators import instance_of
 
 from okonomiyaki.errors import OkonomiyakiError
 from okonomiyaki.versions import SemanticVersion
-
 from ._arch import Arch, X86
 
 
@@ -57,7 +53,6 @@ NAME_KIND_TO_PRETTY_NAMES = {
 }
 
 
-@six.python_2_unicode_compatible
 @attributes(repr=False, frozen=True)
 class Platform(object):
     """
@@ -80,7 +75,7 @@ class Platform(object):
     share the same kind, 'debian'.
     """
 
-    release = attr(validator=instance_of(six.string_types))
+    release = attr(validator=instance_of(str))
     """
     The release string. May be an empty string
     """

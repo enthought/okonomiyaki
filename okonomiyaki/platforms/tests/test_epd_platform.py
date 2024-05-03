@@ -1,6 +1,5 @@
-import sys
+import unittest
 
-import six
 from hypothesis import given
 from hypothesis.strategies import sampled_from
 
@@ -18,11 +17,6 @@ from .common import (
     mock_centos_6_3, mock_darwin, mock_machine_x86, mock_machine_x86_64,
     mock_solaris, mock_ubuntu_raring, mock_x86, mock_x86_64,
     mock_centos_7_6, mock_windows_10, mock_windows_11, mock_windows_7)
-
-if sys.version_info < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
 
 
 class TestEPDPlatform(unittest.TestCase):
@@ -52,19 +46,19 @@ class TestEPDPlatform(unittest.TestCase):
         # When/Then
         for platform_string in self.platform_strings:
             platform = EPDPlatform.from_string(platform_string)
-            self.assertIsInstance(platform.pep425_tag, six.text_type)
+            self.assertIsInstance(platform.pep425_tag, str)
 
     def test_platform_name_is_unicode(self):
         # When/Then
         for platform_string in self.platform_strings:
             platform = EPDPlatform.from_string(platform_string)
-            self.assertIsInstance(platform.platform_name, six.text_type)
+            self.assertIsInstance(platform.platform_name, str)
 
     def test_str_is_unicode(self):
         # When/Then
         for platform_string in self.platform_strings:
             platform = EPDPlatform.from_string(platform_string)
-            self.assertIsInstance(six.text_type(platform), six.text_type)
+            self.assertIsInstance(str(platform), str)
 
     def test_over_complete_strings(self):
         # When/Then

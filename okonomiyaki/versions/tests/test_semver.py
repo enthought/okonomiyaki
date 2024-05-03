@@ -1,15 +1,10 @@
 import re
-import sys
+import unittest
 
-from okonomiyaki.errors import InvalidSemanticVersion
 
 from ..enpkg import EnpkgVersion
 from ..semver import SemanticVersion, _PrereleaseParts
-
-if sys.version_info < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
+from okonomiyaki.errors import InvalidSemanticVersion
 
 
 class TestSemanticVersion(unittest.TestCase):

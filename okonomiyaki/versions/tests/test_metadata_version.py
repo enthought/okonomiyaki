@@ -1,13 +1,8 @@
-import sys
+import unittest
 
 from okonomiyaki.errors import InvalidMetadataVersion
 
 from .. import MetadataVersion
-
-if sys.version_info < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
 
 
 class TestMetadataVersion(unittest.TestCase):

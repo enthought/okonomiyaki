@@ -1,4 +1,4 @@
-import sys
+import unittest
 
 from okonomiyaki.errors import OkonomiyakiError
 from .._platform import Platform
@@ -13,11 +13,6 @@ from .common import (
     mock_osx_12_6, mock_ubuntu_raring, mock_windows_7,
     mock_windows_10, mock_windows_11, mock_mydistro_2_8,
     mock_rocky_8_8)
-
-if sys.version_info < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
 
 
 class TestPlatformRunningPython(unittest.TestCase):

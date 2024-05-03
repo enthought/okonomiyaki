@@ -5,8 +5,6 @@ tag.
 THe list is output as a dict that may be merged with the existing platform tag
 blacklist in okonomiyaki.file_formats._blacklist
 """
-from __future__ import print_function
-
 import collections
 import os.path
 import pprint
@@ -17,7 +15,7 @@ from okonomiyaki.errors import OkonomiyakiError
 from okonomiyaki.file_formats import EggMetadata
 from okonomiyaki.utils import compute_sha256
 
-from six import StringIO
+from io import StringIO
 from yapf.yapflib.yapf_api import FormatCode
 
 import zipfile2

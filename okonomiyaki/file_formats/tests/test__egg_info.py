@@ -1,18 +1,20 @@
 import os
 import os.path as op
 import shutil
-import sys
 import tempfile
 import textwrap
 import zipfile2
+import unittest
+from unittest import mock
 
-import mock
-
-if sys.version_info < (2, 7):  # noqa
-    import unittest2 as unittest
-else:
-    import unittest
-
+from .._egg_info import (
+    Requirement, EggMetadata, LegacySpecDepend, parse_rawspec,
+    split_egg_name)
+from .common import (
+    BROKEN_MCCABE_EGG, DATA_DIR, ENSTALLER_EGG, ETS_EGG,
+    FAKE_MEDIALOG_BOARDFILE_1_6_1_EGG, FAKE_MEDIALOG_BOARDFILE_1_6_1_PKG_INFO,
+    MKL_EGG, NUMEXPR_2_2_2_EGG, PYMULTINEST_EGG, _OSX64APP_EGG,
+    PYSIDE_1_0_3_EGG, XZ_5_2_0_EGG)
 from okonomiyaki.errors import (
     InvalidEggName, InvalidMetadataField, MissingMetadata, UnsupportedMetadata,
     InvalidRequirementStringHyphen)
@@ -21,16 +23,6 @@ from okonomiyaki.utils.test_data import (
     MKL_10_3_RH5_X86_64, NOSE_1_3_4_RH6_X86_64, NOSE_1_3_4_RH5_X86_64)
 from okonomiyaki.platforms import EPDPlatform, PlatformABI
 from okonomiyaki.versions import EnpkgVersion, MetadataVersion
-
-from .._egg_info import (
-    Requirement, EggMetadata, LegacySpecDepend, parse_rawspec,
-    split_egg_name)
-
-from .common import (
-    BROKEN_MCCABE_EGG, DATA_DIR, ENSTALLER_EGG, ETS_EGG,
-    FAKE_MEDIALOG_BOARDFILE_1_6_1_EGG, FAKE_MEDIALOG_BOARDFILE_1_6_1_PKG_INFO,
-    MKL_EGG, NUMEXPR_2_2_2_EGG, PYMULTINEST_EGG, _OSX64APP_EGG,
-    PYSIDE_1_0_3_EGG, XZ_5_2_0_EGG)
 
 
 M = MetadataVersion.from_string

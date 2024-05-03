@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from .pkg_info_data import (
     EGG_PKG_INFO_BLACK_LIST, may_be_in_pkg_info_blacklist
 )

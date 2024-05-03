@@ -1,14 +1,7 @@
-import sys
-
-from okonomiyaki.errors import InvalidPEP440Version
+import unittest
 
 from ..pep440 import _MIN, _MAX, PEP440Version
-
-if sys.version_info < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
-
+from okonomiyaki.errors import InvalidPEP440Version
 
 V = PEP440Version.from_string
 

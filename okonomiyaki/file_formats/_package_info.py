@@ -4,14 +4,15 @@ Most of the code below is adapted from pkg-info 1.2.1
 We support 1.0, 1.1, 1.2 and 2.0.
 """
 import contextlib
+import io
+import os
 import os.path
 import warnings
 
 import zipfile2
 
-from okonomiyaki.utils import py3compat, compute_sha256
+from okonomiyaki.utils import compute_sha256
 from okonomiyaki.errors import OkonomiyakiError
-
 from ._blacklist import EGG_PKG_INFO_BLACK_LIST, may_be_in_pkg_info_blacklist
 from ._wheel_info import WheelInfo
 
@@ -97,7 +98,7 @@ class PackageInfo(object):
 
     @classmethod
     def from_wheel(cls, path_or_file, strict=True):
-        if isinstance(path_or_file, py3compat.string_types):
+        if isinstance(path_or_file, str):
             wheel_info = WheelInfo.from_path(path_or_file)
 
             with zipfile2.ZipFile(path_or_file) as fp:
@@ -124,7 +125,7 @@ class PackageInfo(object):
             understood as a zipfile-like object.
         """
         sha256 = None
-        if isinstance(path_or_file, py3compat.string_types):
+        if isinstance(path_or_file, str):
             if may_be_in_pkg_info_blacklist(path_or_file):
                 sha256 = compute_sha256(path_or_file)
         else:
@@ -134,7 +135,7 @@ class PackageInfo(object):
 
     @classmethod
     def _from_egg(cls, path_or_file, sha256, strict=True):
-        if isinstance(path_or_file, py3compat.string_types):
+        if isinstance(path_or_file, str):
             with zipfile2.ZipFile(path_or_file) as fp:
                 data = _read_pkg_info(fp)
         else:
@@ -149,9 +150,9 @@ class PackageInfo(object):
 
     @classmethod
     def from_string(cls, s):
-        if not isinstance(s, py3compat.text_type):
+        if not isinstance(s, str):
             raise ValueError("Expected text value, got {0!r}".format(type(s)))
-        fp = py3compat.StringIO(s)
+        fp = io.StringIO(s)
         msg = _parse(fp)
 
         kw = {}
@@ -248,7 +249,7 @@ class PackageInfo(object):
         self.provides_extra = provides_extra or ()
 
     def to_string(self, metadata_version_info=MAX_SUPPORTED_VERSION):
-        s = py3compat.StringIO()
+        s = io.StringIO()
         self._write_field(s, 'Metadata-Version', self.metadata_version)
         self._write_field(s, 'Name', self.name)
         self._write_field(s, 'Version', self.version)

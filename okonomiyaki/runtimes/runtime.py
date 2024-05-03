@@ -2,14 +2,11 @@ import ntpath
 import posixpath
 import sys
 
-import six
-
 from attr import attr, attributes
 from attr.validators import instance_of
 
 from okonomiyaki.platforms import OSKind, Platform, default_abi
 from okonomiyaki.versions import MetadataVersion, RuntimeVersion
-
 from .runtime_info import IRuntimeInfoV1, PythonRuntimeInfoV1
 
 
@@ -39,7 +36,7 @@ class PythonRuntime(Runtime):
 
     It also implements some functionality for enstaller legacy support.
     """
-    _executable = attr(validator=instance_of(six.text_type))
+    _executable = attr(validator=instance_of(str))
 
     @classmethod
     def from_prefix_and_platform(cls, prefix, platform, version=None,
@@ -85,9 +82,6 @@ class PythonRuntime(Runtime):
             )
         )
         abi = default_abi(platform, implementation, implementation_version)
-
-        if six.PY2:
-            prefix = prefix.decode(sys.getfilesystemencoding())
 
         if platform.os_kind == OSKind.windows:
             prefix = ntpath.normpath(prefix)

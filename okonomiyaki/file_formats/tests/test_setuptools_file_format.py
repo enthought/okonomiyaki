@@ -1,9 +1,4 @@
-import sys
-
-if sys.version_info < (2, 7):  # noqa
-    import unittest2 as unittest
-else:
-    import unittest
+import unittest
 
 from okonomiyaki.errors import OkonomiyakiError
 from okonomiyaki.platforms import EPDPlatform

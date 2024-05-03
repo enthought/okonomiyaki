@@ -1,16 +1,10 @@
-import sys
-
-if sys.version_info < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
+import unittest
 
 from hypothesis import given
 from hypothesis.strategies import sampled_from
 
 from okonomiyaki.errors import OkonomiyakiError
 from ..abi import default_abi
-
 
 EXAMPLE_RUNTIMES = {
     ("osx_x86_64", "cpython", "2.7.10+1"): u"darwin",
