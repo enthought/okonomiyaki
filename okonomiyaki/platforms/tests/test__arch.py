@@ -1,6 +1,6 @@
 import unittest
 
-from parameterized import parameterized, parameterized_class
+from parameterized import parameterized
 
 from okonomiyaki.errors import OkonomiyakiError
 from .._arch import Arch, X86, X86_64, ARM, ARM64

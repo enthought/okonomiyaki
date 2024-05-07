@@ -1,14 +1,18 @@
 import unittest
 
+from parameterized import parameterized
+
 from okonomiyaki.errors import OkonomiyakiError
+from .._arch import Arch, X86, X86_64, ARM, ARM64
 from .._platform import Platform
 
 from .common import (
     mock_x86, mock_x86_64,
+    mock_arm, mock_arm64,
     mock_machine_x86_64,
     mock_architecture_64bit)
 from .common import (
-    mock_centos_3_5, mock_centos_5_8, mock_machine_armv71,
+    mock_centos_3_5, mock_centos_5_8, mock_machine_invalid,
     mock_centos_6_3, mock_osx_10_7, mock_solaris,
     mock_osx_12_6, mock_ubuntu_raring, mock_windows_7,
     mock_windows_10, mock_windows_11, mock_mydistro_2_8,
@@ -17,68 +21,81 @@ from .common import (
 
 class TestPlatformRunningPython(unittest.TestCase):
 
+    @parameterized.expand([
+        (mock_x86, X86), (mock_x86_64, X86_64)])
     @mock_windows_7
-    @mock_x86
-    def test_windows7(self):
+    def test_windows7(self, machine, arch):
         # When
-        platform = Platform.from_running_python()
+        with machine:
+            platform = Platform.from_running_python()
 
         # Then
-        self.assertEqual(platform.os, "windows")
-        self.assertEqual(platform.name, "windows")
-        self.assertEqual(platform.family, "windows")
-        self.assertEqual(platform.release, "7")
-        self.assertEqual(str(platform), "Windows 7 on x86")
+        self.assertEqual(platform.os, 'windows')
+        self.assertEqual(platform.name, 'windows')
+        self.assertEqual(platform.family, 'windows')
+        self.assertEqual(platform.release, '7')
+        self.assertEqual(str(platform), f'Windows 7 on {arch}')
 
+    @parameterized.expand([
+        (mock_x86, X86), (mock_x86_64, X86_64),
+        (mock_arm, ARM), (mock_arm64, ARM64)])
     @mock_windows_10
-    @mock_x86_64
-    def test_windows10(self):
+    def test_windows10(self, machine, arch):
         # When
-        platform = Platform.from_running_python()
+        with machine:
+            platform = Platform.from_running_python()
 
         # Then
-        self.assertEqual(platform.os, "windows")
-        self.assertEqual(platform.name, "windows")
-        self.assertEqual(platform.family, "windows")
-        self.assertEqual(platform.release, "10")
-        self.assertEqual(str(platform), "Windows 10 on x86_64")
+        self.assertEqual(platform.os, 'windows')
+        self.assertEqual(platform.name, 'windows')
+        self.assertEqual(platform.family, 'windows')
+        self.assertEqual(platform.release, '10')
+        self.assertEqual(str(platform), f'Windows 10 on {arch}')
 
+    @parameterized.expand([
+        (mock_x86, X86), (mock_x86_64, X86_64),
+        (mock_arm, ARM), (mock_arm64, ARM64)])
     @mock_windows_11
-    @mock_x86_64
-    def test_windows11(self):
+    def test_windows11(self, machine, arch):
         # When
-        platform = Platform.from_running_python()
+        with machine:
+            platform = Platform.from_running_python()
 
         # Then
-        self.assertEqual(platform.os, "windows")
-        self.assertEqual(platform.name, "windows")
-        self.assertEqual(platform.family, "windows")
-        self.assertEqual(platform.release, "11")
-        self.assertEqual(str(platform), "Windows 11 on x86_64")
+        self.assertEqual(platform.os, 'windows')
+        self.assertEqual(platform.name, 'windows')
+        self.assertEqual(platform.family, 'windows')
+        self.assertEqual(platform.release, '11')
+        self.assertEqual(str(platform), f'Windows 11 on {arch}')
 
+    @parameterized.expand([
+        (mock_x86, X86), (mock_x86_64, X86_64)])
     @mock_osx_10_7
-    @mock_x86
-    def test_osx_10_7(self):
+    def test_osx_10_7(self, machine, arch):
         # When
-        platform = Platform.from_running_python()
+        with machine:
+            platform = Platform.from_running_python()
 
         # Then
-        self.assertEqual(platform.os, "darwin")
-        self.assertEqual(platform.name, "mac_os_x")
-        self.assertEqual(platform.family, "mac_os_x")
-        self.assertEqual(str(platform), "Mac OS X 10.7.5 on x86")
+        self.assertEqual(platform.os, 'darwin')
+        self.assertEqual(platform.name, 'mac_os_x')
+        self.assertEqual(platform.family, 'mac_os_x')
+        self.assertEqual(str(platform), f'Mac OS X 10.7.5 on {arch}')
 
+    @parameterized.expand([
+        (mock_x86, X86), (mock_x86_64, X86_64),
+        (mock_arm, ARM), (mock_arm64, ARM64)])
     @mock_osx_12_6
-    @mock_x86_64
-    def test_osx_12(self):
+    def test_osx_12(self, machine, arch):
         # When
-        platform = Platform.from_running_python()
+        with machine:
+            platform = Platform.from_running_python()
 
         # Then
-        self.assertEqual(platform.os, "darwin")
-        self.assertEqual(platform.name, "mac_os_x")
-        self.assertEqual(platform.family, "mac_os_x")
-        self.assertEqual(str(platform), "Mac OS X 12.6.5 on x86_64")
+        self.assertEqual(platform.os, 'darwin')
+        self.assertEqual(platform.name, 'mac_os_x')
+        self.assertEqual(platform.family, 'mac_os_x')
+        self.assertEqual(str(platform), f'Mac OS X 12.6.5 on {arch}')
 
     @mock_solaris
     @mock_x86_64
@@ -87,122 +104,89 @@ class TestPlatformRunningPython(unittest.TestCase):
         with self.assertRaises(OkonomiyakiError):
             Platform.from_running_python()
 
+    @parameterized.expand([
+        (mock_x86, X86), (mock_x86_64, X86_64)])
     @mock_centos_3_5
-    def test_centos_3_5(self):
+    def test_centos_3_5(self, machine, arch):
         # When
-        with mock_x86:
+        with machine:
             platform = Platform.from_running_python()
 
         # Then
-        self.assertEqual(platform.os, "linux")
-        self.assertEqual(platform.name, "centos")
-        self.assertEqual(platform.family, "rhel")
-        self.assertEqual(platform.release, "3.5")
-        self.assertEqual(str(platform), "CentOS 3.5 on x86")
+        self.assertEqual(platform.os, 'linux')
+        self.assertEqual(platform.name, 'centos')
+        self.assertEqual(platform.family, 'rhel')
+        self.assertEqual(platform.release, '3.5')
+        self.assertEqual(str(platform), f'CentOS 3.5 on {arch}')
 
-        # When
-        with mock_x86_64:
-            platform = Platform.from_running_python()
-
-        # Then
-        self.assertEqual(platform.os, "linux")
-        self.assertEqual(platform.name, "centos")
-        self.assertEqual(platform.family, "rhel")
-        self.assertEqual(platform.release, "3.5")
-        self.assertEqual(str(platform), "CentOS 3.5 on x86_64")
-
+    @parameterized.expand([
+        (mock_x86, X86), (mock_x86_64, X86_64)])
     @mock_centos_5_8
-    @mock_x86
-    def test_centos_5_8(self):
+    def test_centos_5_8(self, machine, arch):
         # When
-        platform = Platform.from_running_python()
+        with machine:
+            platform = Platform.from_running_python()
 
         # Then
-        self.assertEqual(platform.os, "linux")
-        self.assertEqual(platform.name, "centos")
-        self.assertEqual(platform.family, "rhel")
-        self.assertEqual(platform.release, "5.8")
-        self.assertEqual(str(platform), "CentOS 5.8 on x86")
+        self.assertEqual(platform.os, 'linux')
+        self.assertEqual(platform.name, 'centos')
+        self.assertEqual(platform.family, 'rhel')
+        self.assertEqual(platform.release, '5.8')
+        self.assertEqual(str(platform), f'CentOS 5.8 on {arch}')
         self.assertEqual(
             repr(platform),
             "Platform(os='linux', name='centos', family='rhel', release='5.8', "
-            "arch='x86', machine='x86')")
+            f"arch='{arch}', machine='{arch}')")
 
+    @parameterized.expand([
+        (mock_x86, X86), (mock_x86_64, X86_64)])
     @mock_centos_6_3
-    def test_centos_6_3(self):
+    def test_centos_6_3(self, machine, arch):
         # When
-        with mock_x86:
+        with machine:
             platform = Platform.from_running_python()
 
         # Then
-        self.assertEqual(platform.os, "linux")
-        self.assertEqual(platform.name, "centos")
-        self.assertEqual(platform.family, "rhel")
-        self.assertEqual(platform.release, "6.3")
-        self.assertEqual(str(platform), "CentOS 6.3 on x86")
+        self.assertEqual(platform.os, 'linux')
+        self.assertEqual(platform.name, 'centos')
+        self.assertEqual(platform.family, 'rhel')
+        self.assertEqual(platform.release, '6.3')
+        self.assertEqual(str(platform), f'CentOS 6.3 on {arch}')
 
-        # When
-        with mock_x86_64:
-            platform = Platform.from_running_python()
-
-        # Then
-        self.assertEqual(platform.os, "linux")
-        self.assertEqual(platform.name, "centos")
-        self.assertEqual(platform.family, "rhel")
-        self.assertEqual(platform.release, "6.3")
-        self.assertEqual(str(platform), "CentOS 6.3 on x86_64")
-
+    @parameterized.expand([
+        (mock_x86, X86), (mock_x86_64, X86_64),
+        (mock_arm, ARM), (mock_arm64, ARM64)])
     @mock_rocky_8_8
-    def test_rocky_8_8(self):
+    def test_rocky_8_8(self, machine, arch):
         # When
-        with mock_x86:
+        with machine:
             platform = Platform.from_running_python()
 
         # Then
-        self.assertEqual(platform.os, "linux")
-        self.assertEqual(platform.name, "rocky")
-        self.assertEqual(platform.family, "rhel")
-        self.assertEqual(platform.release, "8.8")
-        self.assertEqual(str(platform), "Rocky Linux 8.8 on x86")
+        self.assertEqual(platform.os, 'linux')
+        self.assertEqual(platform.name, 'rocky')
+        self.assertEqual(platform.family, 'rhel')
+        self.assertEqual(platform.release, '8.8')
+        self.assertEqual(str(platform), f'Rocky Linux 8.8 on {arch}')
 
-        # When
-        with mock_x86_64:
-            platform = Platform.from_running_python()
-
-        # Then
-        self.assertEqual(platform.os, "linux")
-        self.assertEqual(platform.name, "rocky")
-        self.assertEqual(platform.family, "rhel")
-        self.assertEqual(platform.release, "8.8")
-        self.assertEqual(str(platform), "Rocky Linux 8.8 on x86_64")
-
+    @parameterized.expand([
+        (mock_x86, X86), (mock_x86_64, X86_64)])
     @mock_mydistro_2_8
-    def test_mydistro_2_8(self):
+    def test_mydistro_2_8(self, machine, arch):
         # When
-        with mock_x86:
+        with machine:
             platform = Platform.from_running_python()
 
         # Then
-        self.assertEqual(platform.os, "linux")
-        self.assertEqual(platform.name, "unknown")
-        self.assertEqual(platform.family, "rhel")
-        self.assertEqual(platform.release, "2.8")
-        self.assertEqual(str(platform), "Unknown distribution 2.8 on x86")
-
-        # When
-        with mock_x86_64:
-            platform = Platform.from_running_python()
-
-        # Then
-        self.assertEqual(platform.os, "linux")
-        self.assertEqual(platform.name, "unknown")
-        self.assertEqual(platform.family, "rhel")
-        self.assertEqual(platform.release, "2.8")
-        self.assertEqual(str(platform), "Unknown distribution 2.8 on x86_64")
+        self.assertEqual(platform.os, 'linux')
+        self.assertEqual(platform.name, 'unknown')
+        self.assertEqual(platform.family, 'rhel')
+        self.assertEqual(platform.release, '2.8')
+        self.assertEqual(str(platform), f'Unknown distribution 2.8 on {arch}')
 
     @mock_centos_6_3
-    @mock_machine_armv71
-    def test_centos_6_3_arm(self):
+    @mock_machine_invalid
+    def test_centos_6_3_invalid(self):
         # When/Then
         with self.assertRaises(OkonomiyakiError):
             Platform.from_running_python()
@@ -226,76 +210,42 @@ class TestPlatformRunningPython(unittest.TestCase):
 
 class TestPlatformRunningSystem(unittest.TestCase):
 
+    @parameterized.expand([
+        (mock_x86, X86, (X86, None)), (mock_x86_64, X86_64, (X86_64, X86, None))])
     @mock_windows_7
-    @mock_machine_x86_64
-    def test_windows7(self):
-        # Given
-        arch_string = None
-
+    def test_windows7(self, machine, machine_arch, archs):
         # When
-        with mock_architecture_64bit:
-            platform = Platform.from_running_system(arch_string)
+        with machine:
+            for arch in archs:
+                platform = Platform.from_running_system(
+                    None if arch is None else f'{arch}')
 
-        # Then
-        self.assertEqual(platform.os, "windows")
-        self.assertEqual(platform.arch.name, "x86_64")
-        self.assertEqual(platform.machine.name, "x86_64")
+                # Then
+                self.assertEqual(platform.os, 'windows')
+                self.assertEqual(platform.machine.name, f'{machine_arch}')
+                if arch is None:
+                    self.assertEqual(platform.arch.name, f'{machine_arch}')
+                else:
+                    self.assertEqual(platform.arch.name, f'{arch}')
 
-        # Given
-        arch_string = "x86_64"
-
+    @parameterized.expand([
+        (mock_x86, X86, (X86, None)), (mock_x86_64, X86_64, (X86_64, X86, None)),
+        (mock_arm, ARM, (ARM, X86, None)), (mock_arm64, ARM64, (ARM64, ARM, X86_64, X86, None))])
+    @mock_windows_10
+    def test_windows10(self, machine, machine_arch, archs):
         # When
-        platform = Platform.from_running_system(arch_string)
+        with machine:
+            for arch in archs:
+                platform = Platform.from_running_system(
+                    None if arch is None else f'{arch}')
 
-        # Then
-        self.assertEqual(platform.os, "windows")
-        self.assertEqual(platform.arch.name, "x86_64")
-        self.assertEqual(platform.machine.name, "x86_64")
-
-        # Given
-        arch_string = "x86"
-
-        # When
-        platform = Platform.from_running_system(arch_string)
-
-        # Then
-        self.assertEqual(platform.os, "windows")
-        self.assertEqual(platform.arch.name, "x86")
-        self.assertEqual(platform.machine.name, "x86_64")
-
-    @mock_windows_7
-    @mock_x86
-    def test_windows7_32bit(self):
-        # Given
-        arch_string = None
-
-        # When/Then
-        with mock_architecture_64bit:
-            platform = Platform.from_running_system(arch_string)
-
-        # Then
-        self.assertEqual(platform.os, "windows")
-        self.assertEqual(platform.arch.name, "x86")
-        self.assertEqual(platform.machine.name, "x86")
-
-        # Given
-        arch_string = "x86_64"
-
-        # When/Then
-        with self.assertRaises(OkonomiyakiError):
-            Platform.from_running_system(arch_string)
-
-        # Given
-        arch_string = "x86"
-
-        # When
-        platform = Platform.from_running_system(arch_string)
-
-        # Then
-        self.assertEqual(platform.os, "windows")
-        self.assertEqual(platform.arch.name, "x86")
-        self.assertEqual(platform.machine.name, "x86")
-
+                # Then
+                self.assertEqual(platform.os, 'windows')
+                self.assertEqual(platform.machine.name, f'{machine_arch}')
+                if arch is None:
+                    self.assertEqual(platform.arch.name, f'{machine_arch}')
+                else:
+                    self.assertEqual(platform.arch.name, f'{arch}')
 
 class TestPlatform(unittest.TestCase):
 
