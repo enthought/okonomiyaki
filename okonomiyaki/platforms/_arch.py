@@ -11,27 +11,66 @@ from okonomiyaki.errors import OkonomiyakiError
 
 @enum.unique
 class ArchitectureKind(enum.Enum):
-    x86 = 0
-    x86_64 = 1
+    x86 = 'x86'
+    x86_64 = 'x86_64'
+    arm = 'arm'
+    arm64 = 'arm64'
 
 
 _KIND_TO_BITWIDTHS = {
     ArchitectureKind.x86: 32,
     ArchitectureKind.x86_64: 64,
-}
-for k in ArchitectureKind.__members__:
-    assert ArchitectureKind[k] in _KIND_TO_BITWIDTHS
-
-_NORMALIZED_NAMES = {
-    "x86": ArchitectureKind.x86,
-    "i386": ArchitectureKind.x86,
-    "i686": ArchitectureKind.x86,
-
-    "amd64": ArchitectureKind.x86_64,
-    "AMD64": ArchitectureKind.x86_64,
-    "x86_64": ArchitectureKind.x86_64,
+    ArchitectureKind.arm: 32,
+    ArchitectureKind.arm64: 64,
 }
 
+_32BIT_NAMES = {
+    'x86': ArchitectureKind.x86,
+    'i386': ArchitectureKind.x86,
+    'i686': ArchitectureKind.x86,
+
+    'arm': ArchitectureKind.arm,
+    'ARM': ArchitectureKind.arm,
+    'armv7': ArchitectureKind.arm,
+    'ARMv7': ArchitectureKind.arm,
+    'AArch32': ArchitectureKind.arm,
+    'aarch32': ArchitectureKind.arm,
+}
+
+_64BIT_NAMES = {
+    'amd64': ArchitectureKind.x86_64,
+    'AMD64': ArchitectureKind.x86_64,
+    'x86_64': ArchitectureKind.x86_64,
+    'x86-64': ArchitectureKind.x86_64,
+
+    'arm64': ArchitectureKind.arm64,
+    'ARM64': ArchitectureKind.arm64,
+    'armv8': ArchitectureKind.arm64,
+    'ARMv8': ArchitectureKind.arm64,
+    'armv9': ArchitectureKind.arm64,
+    'ARMv9': ArchitectureKind.arm64,
+    'AArch64': ArchitectureKind.arm64,
+    'aarch64': ArchitectureKind.arm64,
+}
+_32ON64 = {
+    'amd64': ArchitectureKind.x86,
+    'AMD64': ArchitectureKind.x86,
+    'x86_64': ArchitectureKind.x86,
+    'x86-64': ArchitectureKind.x86,
+
+    'arm64': ArchitectureKind.arm,
+    'ARM64': ArchitectureKind.arm,
+    'armv8': ArchitectureKind.arm,
+    'ARMv8': ArchitectureKind.arm,
+    'armv9': ArchitectureKind.arm,
+    'ARMv9': ArchitectureKind.arm,
+    'AArch64': ArchitectureKind.arm,
+    'aarch64': ArchitectureKind.arm,
+}
+
+_NORMALIZED_NAMES = {}
+_NORMALIZED_NAMES.update(_64BIT_NAMES)
+_NORMALIZED_NAMES.update(_32BIT_NAMES)
 
 @attributes(frozen=True)
 class Arch(object):
@@ -62,16 +101,15 @@ class Arch(object):
     @classmethod
     def from_running_python(cls):
         machine = platform.machine()
-
-        if machine in _NORMALIZED_NAMES:
-            if sys.maxsize > 2 ** 32:
-                return Arch(ArchitectureKind.x86_64)
-            else:
-                return Arch(ArchitectureKind.x86)
+        if machine not in _NORMALIZED_NAMES:
+            raise OkonomiyakiError("Unknown machine type {0!r}".format(machine))
+        elif sys.maxsize > 2 ** 32:
+            return Arch(_64BIT_NAMES[machine])
+        elif machine in _32BIT_NAMES:
+            return Arch(_32BIT_NAMES[machine])
         else:
-            raise OkonomiyakiError(
-                "Unknown machine combination {0!r}".format(machine)
-            )
+            # We have a 32bit python running on a 64bit machine:
+            return Arch(_32ON64[machine])
 
     @classmethod
     def from_running_system(cls):
@@ -109,3 +147,5 @@ class Arch(object):
 
 X86 = Arch(ArchitectureKind.x86)
 X86_64 = Arch(ArchitectureKind.x86_64)
+ARM = Arch(ArchitectureKind.arm)
+ARM64 = Arch(ArchitectureKind.arm64)

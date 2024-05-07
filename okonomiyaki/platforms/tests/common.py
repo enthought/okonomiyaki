@@ -44,6 +44,11 @@ mock_windows = MultiPatcher([
             'Windows', 'localhost', '7', '6.1.7601',
             'x86', ('x86 Family 6 Model 4 5 Stepping 7, GenuineIntel')))])
 
+mock_osx_12_6_arm64 = MultiPatcher([
+    mock.patch("sys.platform", "darwin"),
+    mock.patch("platform.mac_ver", lambda: ("12.6.5", ("", "", ""), "arm64")),
+])
+
 
 def _mock_linux_distribution(info):
     return MultiPatcher([
@@ -100,10 +105,15 @@ def mock_machine(machine):
 mock_machine_x86 = Patcher(mock_machine("x86"))
 mock_architecture_32bit = Patcher(mock.patch("sys.maxsize", 2**32 - 1))
 mock_machine_x86_64 = Patcher(mock_machine("x86_64"))
+mock_machine_arm64 = Patcher(mock_machine("arm64"))
+mock_machine_arm = Patcher(mock_machine("arm"))
 mock_architecture_64bit = Patcher(mock.patch("sys.maxsize", 2**64 - 1))
 mock_x86 = MultiPatcher([mock_machine_x86, mock_architecture_32bit])
 mock_x86_64 = MultiPatcher([mock_machine_x86_64, mock_architecture_64bit])
-mock_machine_armv71 = Patcher(mock_machine("armv71"))
+mock_arm64 = MultiPatcher([mock_machine_arm64, mock_architecture_64bit])
+mock_arm = MultiPatcher([mock_machine_arm, mock_architecture_32bit])
+mock_machine_armv71 = Patcher(mock_machine("ARMv7"))
+mock_machine_invalid = Patcher(mock_machine("MyCPU"))
 # A 32 bits python process on a 64 bits OS
 mock_x86_on_x86_64 = MultiPatcher(
     [mock_machine_x86_64, mock_architecture_32bit])

@@ -1,12 +1,15 @@
 import unittest
 
+from parameterized import parameterized, parameterized_class
+
 from okonomiyaki.errors import OkonomiyakiError
-from .._arch import Arch
+from .._arch import Arch, X86, X86_64, ARM, ARM64
 from .common import (
-    mock_machine_armv71, mock_x86, mock_x86_64, mock_x86_on_x86_64)
+    mock_machine_invalid, mock_x86, mock_x86_64, mock_x86_on_x86_64, mock_arm, mock_arm64)
 
 
 class TestArch(unittest.TestCase):
+
     def test_simple(self):
         # Given
         name = "x86"
@@ -19,18 +22,18 @@ class TestArch(unittest.TestCase):
         self.assertEqual(arch.name, name)
         self.assertEqual(arch.bits, bits)
         self.assertEqual(str(arch), arch.name)
-        self.assertEqual(repr(arch), "Arch(_kind=<ArchitectureKind.x86: 0>)")
+        self.assertEqual(repr(arch), "Arch(_kind=<ArchitectureKind.x86: 'x86'>)")
 
-    def test_from_name(self):
-        # Given
-        name = "x86"
 
+    @parameterized.expand([
+        ('x86', 32), ('x86_64', 64), ('arm', 32), ('arm64', 64)])
+    def test_from_name(self, name, bits):
         # When
         arch = Arch.from_name(name)
 
         # Then
         self.assertEqual(arch.name, name)
-        self.assertEqual(arch.bits, 32)
+        self.assertEqual(arch.bits, bits)
 
         # Given
         name = "x86_64"
@@ -42,86 +45,57 @@ class TestArch(unittest.TestCase):
         self.assertEqual(arch.name, name)
         self.assertEqual(arch.bits, 64)
 
-    def test_from_unnormalized_names(self):
-        # Given
-        names = ("x86", "i386", "i686")
 
+    @parameterized.expand([
+        ('i386', X86), ('i686', X86), ('amd64', X86_64), ('AMD64', X86_64),
+        ('x86-64', X86_64), ('ARM', ARM), ('armv7', ARM), ('ARMv7', ARM),
+        ('AArch32', ARM), ('AArch64', ARM64), ('ARM64', ARM64), ('armv8', ARM64),
+        ('ARMv8', ARM64), ('ARMv9', ARM64), ('ARMv9', ARM64), ('AArch64', ARM64),
+        ('aarch64', ARM64)])
+    def test_from_unnormalized_names(self, name, expected):
         # When
-        for name in names:
-            arch = Arch.from_name(name)
-
-            # Then
-            self.assertEqual(arch.name, "x86")
-            self.assertEqual(arch.bits, 32)
-
-        # Given
-        names = ("x86_64", "amd64", "AMD64")
-
-        # When
-        for name in names:
-            arch = Arch.from_name(name)
-
-            # Then
-            self.assertEqual(arch.name, "x86_64")
-            self.assertEqual(arch.bits, 64)
-
-    def test_from_running_python(self):
-        # When
-        with mock_x86:
-            arch = Arch.from_running_python()
+        arch = Arch.from_name(name)
 
         # Then
-        self.assertEqual(arch.name, "x86")
-        self.assertEqual(arch.bits, 32)
+        self.assertEqual(arch, expected)
 
-        # When
-        with mock_x86_64:
-            arch = Arch.from_running_python()
-
-        # Then
-        self.assertEqual(arch.name, "x86_64")
-        self.assertEqual(arch.bits, 64)
-
-        # When
-        with mock_x86_on_x86_64:
-            arch = Arch.from_running_python()
-
-        # Then
-        self.assertEqual(arch.name, "x86")
-        self.assertEqual(arch.bits, 32)
-
+    def test_invalid(self):
         # Given/When/Then
-        with mock_machine_armv71:
+        with self.assertRaises(OkonomiyakiError):
+            arch = Arch.from_name('myCPU')
+
+
+    @parameterized.expand([
+        (mock_x86, X86), (mock_x86_on_x86_64, X86), (mock_x86_64, X86_64),
+        (mock_arm, ARM), (mock_arm64, ARM64)])
+    def test_from_running_python(self, machine, expected):
+        # When
+        with machine:
+            arch = Arch.from_running_python()
+
+        # Then
+        self.assertEqual(arch, expected)
+
+    def test_from_running_python_invalid(self):
+        # Given/When/Then
+        with mock_machine_invalid:
             with self.assertRaises(OkonomiyakiError):
                 arch = Arch.from_running_python()
 
-    def test_from_running_system(self):
+    @parameterized.expand([
+        (mock_x86, X86), (mock_x86_64, X86_64),
+        (mock_arm, ARM), (mock_arm64, ARM64)])
+    def test_from_running_system(self, machine, expected):
         # When
-        with mock_x86:
+        with machine:
             arch = Arch.from_running_system()
 
         # Then
-        self.assertEqual(arch.name, "x86")
-        self.assertEqual(arch.bits, 32)
+        self.assertEqual(arch, expected)
 
-        # When
-        with mock_x86_64:
-            arch = Arch.from_running_system()
-
-        # Then
-        self.assertEqual(arch.name, "x86_64")
-        self.assertEqual(arch.bits, 64)
-
-        # When
-        with mock_x86_on_x86_64:
-            arch = Arch.from_running_system()
-
-        # Then
-        self.assertEqual(arch.name, "x86_64")
-        self.assertEqual(arch.bits, 64)
-
+    def test_from_running_system_invalid(self):
         # Given/When/Then
-        with mock_machine_armv71:
+        with mock_machine_invalid:
             with self.assertRaises(OkonomiyakiError):
                 arch = Arch.from_running_system()
 
