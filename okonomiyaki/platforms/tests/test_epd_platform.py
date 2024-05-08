@@ -9,7 +9,6 @@ from okonomiyaki.versions import RuntimeVersion
 from .. import EPDPlatform
 from ..epd_platform import (
     EPD_PLATFORM_SHORT_NAMES, X86, X86_64, applies)
-from ..legacy import _SUBDIR
 from .._platform import OSKind, FamilyKind, NameKind
 
 from .common import (
