@@ -72,6 +72,7 @@ _NORMALIZED_NAMES = {}
 _NORMALIZED_NAMES.update(_64BIT_NAMES)
 _NORMALIZED_NAMES.update(_32BIT_NAMES)
 
+
 @attributes(frozen=True)
 class Arch(object):
     """ A normalized architecture representation.

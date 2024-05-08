@@ -24,7 +24,6 @@ class TestArch(unittest.TestCase):
         self.assertEqual(str(arch), arch.name)
         self.assertEqual(repr(arch), "Arch(_kind=<ArchitectureKind.x86: 'x86'>)")
 
-
     @parameterized.expand([
         ('x86', 32), ('x86_64', 64), ('arm', 32), ('arm64', 64)])
     def test_from_name(self, name, bits):
@@ -45,7 +44,6 @@ class TestArch(unittest.TestCase):
         self.assertEqual(arch.name, name)
         self.assertEqual(arch.bits, 64)
 
-
     @parameterized.expand([
         ('i386', X86), ('i686', X86), ('amd64', X86_64), ('AMD64', X86_64),
         ('x86-64', X86_64), ('ARM', ARM), ('armv7', ARM), ('ARMv7', ARM),
@@ -62,8 +60,7 @@ class TestArch(unittest.TestCase):
     def test_invalid(self):
         # Given/When/Then
         with self.assertRaises(OkonomiyakiError):
-            arch = Arch.from_name('myCPU')
-
+            Arch.from_name('myCPU')
 
     @parameterized.expand([
         (mock_x86, X86), (mock_x86_on_x86_64, X86), (mock_x86_64, X86_64),
@@ -80,7 +77,7 @@ class TestArch(unittest.TestCase):
         # Given/When/Then
         with mock_machine_invalid:
             with self.assertRaises(OkonomiyakiError):
-                arch = Arch.from_running_python()
+                Arch.from_running_python()
 
     @parameterized.expand([
         (mock_x86, X86), (mock_x86_64, X86_64),
@@ -97,7 +94,7 @@ class TestArch(unittest.TestCase):
         # Given/When/Then
         with mock_machine_invalid:
             with self.assertRaises(OkonomiyakiError):
-                arch = Arch.from_running_system()
+                Arch.from_running_system()
 
     def test__legacy_name(self):
         # Given

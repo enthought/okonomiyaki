@@ -3,14 +3,12 @@ import unittest
 from parameterized import parameterized
 
 from okonomiyaki.errors import OkonomiyakiError
-from .._arch import Arch, X86, X86_64, ARM, ARM64
+from .._arch import X86, X86_64, ARM, ARM64
 from .._platform import Platform
 
 from .common import (
     mock_x86, mock_x86_64,
-    mock_arm, mock_arm64,
-    mock_machine_x86_64,
-    mock_architecture_64bit)
+    mock_arm, mock_arm64)
 from .common import (
     mock_centos_3_5, mock_centos_5_8, mock_machine_invalid,
     mock_centos_6_3, mock_osx_10_7, mock_solaris,
@@ -246,6 +244,7 @@ class TestPlatformRunningSystem(unittest.TestCase):
                     self.assertEqual(platform.arch.name, f'{machine_arch}')
                 else:
                     self.assertEqual(platform.arch.name, f'{arch}')
+
 
 class TestPlatform(unittest.TestCase):
 
