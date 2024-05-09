@@ -133,7 +133,7 @@ class Platform(object):
             "release='{0.release}', arch='{0.arch}', machine='{0.machine}')".format(self))
 
     def __str__(self):
-        return u"{0} {1.release} on {1.machine}".format(
+        return "{0} {1.release} on {1.machine} using {1.arch} arch".format(
             NAME_KIND_TO_PRETTY_NAMES[self.name_kind],
             self)
 

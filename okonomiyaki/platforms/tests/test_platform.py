@@ -32,7 +32,8 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(platform.name, 'windows')
         self.assertEqual(platform.family, 'windows')
         self.assertEqual(platform.release, '7')
-        self.assertEqual(str(platform), f'Windows 7 on {arch}')
+        self.assertEqual(
+            str(platform), f'Windows 7 on {arch} using {arch} arch')
 
     @parameterized.expand([
         (mock_x86, X86), (mock_x86_64, X86_64),
@@ -48,7 +49,8 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(platform.name, 'windows')
         self.assertEqual(platform.family, 'windows')
         self.assertEqual(platform.release, '10')
-        self.assertEqual(str(platform), f'Windows 10 on {arch}')
+        self.assertEqual(
+            str(platform), f'Windows 10 on {arch} using {arch} arch')
 
     @parameterized.expand([
         (mock_x86, X86), (mock_x86_64, X86_64),
@@ -64,7 +66,8 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(platform.name, 'windows')
         self.assertEqual(platform.family, 'windows')
         self.assertEqual(platform.release, '11')
-        self.assertEqual(str(platform), f'Windows 11 on {arch}')
+        self.assertEqual(
+            str(platform), f'Windows 11 on {arch} using {arch} arch')
 
     @parameterized.expand([
         (mock_x86, X86), (mock_x86_64, X86_64)])
@@ -78,7 +81,8 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(platform.os, 'darwin')
         self.assertEqual(platform.name, 'mac_os_x')
         self.assertEqual(platform.family, 'mac_os_x')
-        self.assertEqual(str(platform), f'Mac OS X 10.7.5 on {arch}')
+        self.assertEqual(
+            str(platform), f'Mac OS X 10.7.5 on {arch} using {arch} arch')
 
     @parameterized.expand([
         (mock_x86, X86), (mock_x86_64, X86_64),
@@ -93,7 +97,8 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(platform.os, 'darwin')
         self.assertEqual(platform.name, 'mac_os_x')
         self.assertEqual(platform.family, 'mac_os_x')
-        self.assertEqual(str(platform), f'Mac OS X 12.6.5 on {arch}')
+        self.assertEqual(
+            str(platform), f'Mac OS X 12.6.5 on {arch} using {arch} arch')
 
     @mock_solaris
     @mock_x86_64
@@ -115,7 +120,8 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(platform.name, 'centos')
         self.assertEqual(platform.family, 'rhel')
         self.assertEqual(platform.release, '3.5')
-        self.assertEqual(str(platform), f'CentOS 3.5 on {arch}')
+        self.assertEqual(
+            str(platform), f'CentOS 3.5 on {arch} using {arch} arch')
 
     @parameterized.expand([
         (mock_x86, X86), (mock_x86_64, X86_64)])
@@ -130,7 +136,7 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(platform.name, 'centos')
         self.assertEqual(platform.family, 'rhel')
         self.assertEqual(platform.release, '5.8')
-        self.assertEqual(str(platform), f'CentOS 5.8 on {arch}')
+        self.assertEqual(str(platform), f'CentOS 5.8 on {arch} using {arch} arch')
         self.assertEqual(
             repr(platform),
             "Platform(os='linux', name='centos', family='rhel', release='5.8', "
@@ -149,7 +155,7 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(platform.name, 'centos')
         self.assertEqual(platform.family, 'rhel')
         self.assertEqual(platform.release, '6.3')
-        self.assertEqual(str(platform), f'CentOS 6.3 on {arch}')
+        self.assertEqual(str(platform), f'CentOS 6.3 on {arch} using {arch} arch')
 
     @parameterized.expand([
         (mock_x86, X86), (mock_x86_64, X86_64),
@@ -165,7 +171,7 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(platform.name, 'rocky')
         self.assertEqual(platform.family, 'rhel')
         self.assertEqual(platform.release, '8.8')
-        self.assertEqual(str(platform), f'Rocky Linux 8.8 on {arch}')
+        self.assertEqual(str(platform), f'Rocky Linux 8.8 on {arch} using {arch} arch')
 
     @parameterized.expand([
         (mock_x86, X86), (mock_x86_64, X86_64)])
@@ -180,7 +186,7 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(platform.name, 'unknown')
         self.assertEqual(platform.family, 'rhel')
         self.assertEqual(platform.release, '2.8')
-        self.assertEqual(str(platform), f'Unknown distribution 2.8 on {arch}')
+        self.assertEqual(str(platform), f'Unknown distribution 2.8 on {arch} using {arch} arch')
 
     @mock_centos_6_3
     @mock_machine_invalid
@@ -199,7 +205,7 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(platform.os, "linux")
         self.assertEqual(platform.name, "ubuntu")
         self.assertEqual(platform.family, "debian")
-        self.assertEqual(str(platform), "Ubuntu 13.04 on x86")
+        self.assertEqual(str(platform), "Ubuntu 13.04 on x86 using x86 arch")
         self.assertEqual(
             repr(platform),
             "Platform(os='linux', name='ubuntu', family='debian', release='13.04', "
