@@ -8,49 +8,37 @@ from attr.validators import instance_of
 
 from okonomiyaki.errors import OkonomiyakiError
 from okonomiyaki.versions import SemanticVersion
-from ._arch import Arch, X86
+from ._arch import Arch, X86, ARM
 
 
 @enum.unique
 class OSKind(enum.Enum):
-    darwin = 0
-    linux = 1
-    solaris = 2
-    windows = 3
+    darwin = 'Darwin'
+    linux = 'Linux'
+    solaris = 'Solaris'
+    windows = 'Windows'
 
 
 @enum.unique
 class FamilyKind(enum.Enum):
-    rhel = 0
-    debian = 1
-    mac_os_x = 2
-    windows = 3
-    solaris = 4
+    rhel = 'RedHat'
+    debian = 'Debian'
+    mac_os_x = 'Mac OS X'
+    windows = 'Windows'
+    solaris = 'Solaris'
 
 
 @enum.unique
 class NameKind(enum.Enum):
-    unknown = -1
-    centos = 0
-    debian = 1
-    rhel = 2
-    ubuntu = 3
-    mac_os_x = 4
-    windows = 5
-    solaris = 6
-    rocky = 7
-
-
-NAME_KIND_TO_PRETTY_NAMES = {
-    NameKind.windows: "Windows",
-    NameKind.mac_os_x: "Mac OS X",
-    NameKind.centos: "CentOS",
-    NameKind.rhel: "RedHat",
-    NameKind.ubuntu: "Ubuntu",
-    NameKind.debian: "Debian",
-    NameKind.unknown: "Unknown distribution",
-    NameKind.rocky: "Rocky Linux",
-}
+    unknown = 'Unknown distribution'
+    centos = 'CentOS'
+    debian = 'Debian'
+    rhel = 'RedHat'
+    ubuntu = 'Ubuntu'
+    mac_os_x = 'Mac OS X'
+    windows = 'Windows'
+    solaris = 'Solaris'
+    rocky = 'Rocky Linux'
 
 
 @attributes(repr=False, frozen=True)
@@ -133,9 +121,8 @@ class Platform(object):
             "release='{0.release}', arch='{0.arch}', machine='{0.machine}')".format(self))
 
     def __str__(self):
-        return "{0} {1.release} on {1.machine} using {1.arch} arch".format(
-            NAME_KIND_TO_PRETTY_NAMES[self.name_kind],
-            self)
+        message = "{0.name_kind.value} {0.release} on {0.machine} using {0.arch} arch"
+        return message.format(self)
 
 
 def _guess_os_kind():
@@ -187,7 +174,7 @@ def _guess_platform_details(os_kind):
 
 def _guess_platform(arch):
     machine = Arch.from_running_system()
-    if machine == X86 and arch.bits == 64:
+    if (machine == X86 and arch.bits == 64) or (machine == ARM and arch.bits == 64):
         raise OkonomiyakiError("Incompatible 32bit machine with a 64bit architecture")
     os_kind = _guess_os_kind()
     family_kind, name_kind, release = _guess_platform_details(os_kind)
