@@ -6,3 +6,4 @@ testfixtures
 hypothesis
 packaging >= 20.0
 distro
+parameterized
