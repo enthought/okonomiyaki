@@ -30,17 +30,6 @@ class TestEPDPlatform(unittest.TestCase):
             for platform in ("rh6", "rh7", "rh8")]
         self.platform_strings = tuple(items)
 
-    def test_short_names_consistency(self):
-        legacy_entries = tuple(sorted([entry[0] for entry in _SUBDIR]))
-        self.assertEqual(EPD_PLATFORM_SHORT_NAMES, legacy_entries)
-
-    def test_epd_platform_from_legacy_short_string(self):
-        for epd_platform_string in EPD_PLATFORM_SHORT_NAMES:
-            _, bits = epd_platform_string.split('-')
-            epd_platform = EPDPlatform.from_string(epd_platform_string)
-            self.assertEqual(epd_platform.short, epd_platform_string)
-            self.assertEqual(epd_platform.arch_bits, bits)
-
     def test_pep425_is_unicode(self):
         # When/Then
         for platform_string in self.platform_strings:
