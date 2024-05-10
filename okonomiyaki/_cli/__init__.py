@@ -106,4 +106,7 @@ def main(argv=None):
     index_p.set_defaults(func=show_index)
 
     ns = p.parse_args(argv)
-    ns.func(ns)
+    if hasattr(ns, 'func'):
+        ns.func(ns)
+    else:
+        p.print_help()
