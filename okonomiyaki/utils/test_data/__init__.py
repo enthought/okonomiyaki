@@ -115,7 +115,7 @@ PYTHON_CP36_RUNTIMES = [
     PYTHON_CPYTHON_3_6_5_WIN_X86]
 
 # 3.8.8
- PYTHON_CPYTHON_3_8_8_RH7_X86_64 = os.path.join(
+PYTHON_CPYTHON_3_8_8_RH7_X86_64 = os.path.join(
     _HERE, 'cpython-3.8.8+1-rh7_x86_64-gnu.runtime',)
 PYTHON_CPYTHON_3_8_8_OSX_X86_64 = os.path.join(
     _HERE, 'cpython-3.8.8+1-osx_x86_64-darwin.runtime',)
