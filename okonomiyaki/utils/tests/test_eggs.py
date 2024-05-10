@@ -1,7 +1,6 @@
 import unittest
 
-from hypothesis import given
-from hypothesis.strategies import sampled_from
+from parameterized import parameterized
 
 from okonomiyaki.file_formats import EggMetadata
 from okonomiyaki.platforms import PlatformABI
@@ -11,7 +10,7 @@ from ..test_data import CP38_EGGS, CP27_EGGS, CP311_EGGS
 
 class TestDummyEggs(unittest.TestCase):
 
-    @given(sampled_from(CP38_EGGS))
+    @parameterized.expand(CP38_EGGS)
     def test_cp38_egg_metadata_valid(self, filepath):
         # when
         metadata = EggMetadata.from_egg(filepath)
@@ -34,7 +33,7 @@ class TestDummyEggs(unittest.TestCase):
             self.assertEqual(metadata.platform_tag, 'linux_x86_64')
             self.assertEqual(metadata.platform_abi, PlatformABI(u'gnu'))
 
-    @given(sampled_from(CP311_EGGS))
+    @parameterized.expand(CP311_EGGS)
     def test_cp311_egg_metadata_valid(self, filepath):
         # when
         metadata = EggMetadata.from_egg(filepath)
@@ -66,7 +65,7 @@ class TestDummyEggs(unittest.TestCase):
             self.assertEqual(metadata.platform_tag, 'linux_x86_64')
             self.assertEqual(metadata.platform_abi, PlatformABI(u'gnu'))
 
-    @given(sampled_from(CP27_EGGS))
+    @parameterized.expand(CP27_EGGS)
     def test_cp27_egg_metadata_valid(self, filepath):
         # when
         metadata = EggMetadata.from_egg(filepath)

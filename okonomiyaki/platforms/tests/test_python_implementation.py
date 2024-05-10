@@ -1,8 +1,7 @@
 import unittest
 from unittest import mock
 
-from hypothesis import given
-from hypothesis.strategies import sampled_from
+from parameterized import parameterized
 
 from okonomiyaki.errors import InvalidMetadataField
 from ..python_implementation import PythonABI, PythonImplementation
@@ -10,13 +9,12 @@ from ..python_implementation import PythonABI, PythonImplementation
 
 class TestPythonImplementation(unittest.TestCase):
 
-    @given(sampled_from((
+    @parameterized.expand([
         ('2', '7', 'cp27'), ('3', '8', 'cp38'),
-        ('4', '15', 'cp415'), ('3', '11', 'cp311'))))
-    def test_creation(self, version):
+        ('4', '15', 'cp415'), ('3', '11', 'cp311')])
+    def test_creation(self, major, minor, r_tag):
         # Given
         kind = 'cpython'
-        major, minor, r_tag = version
 
         # When
         tag = PythonImplementation(kind, major, minor)
@@ -62,14 +60,13 @@ class TestPythonImplementation(unittest.TestCase):
         # Then
         self.assertEqual(py.pep425_tag, 'ip27')
 
-    @given(sampled_from((
+    @parameterized.expand([
         ('cpython', 'cp'), ('python', 'py'),
-        ('pypy', 'pp'), ('dummy', 'dummy'))))
-    def test_abbreviations(self, kinds):
+        ('pypy', 'pp'), ('dummy', 'dummy')])
+    def test_abbreviations(self, kind, r_abbreviated):
         # Given
         major = 2
         minor = 7
-        kind, r_abbreviated = kinds
 
         # When
         tag = PythonImplementation(kind, major, minor)
@@ -77,15 +74,11 @@ class TestPythonImplementation(unittest.TestCase):
         # Then
         self.assertEqual(tag.abbreviated_implementation, r_abbreviated)
 
-    @given(sampled_from((
+    @parameterized.expand([
         (2, 7, 'cp27'), (3, 8, 'cp38'),
         (3, 4, 'cpython34'), (4, 5, 'cp4_5'),
-        (24, 7, 'cp24_7'),
-        (4, 15, 'cp415'), (3, 11, 'cp311'))))
-    def test_from_string(self, data):
-        # Given
-        major, minor, tag_string = data
-
+        (24, 7, 'cp24_7'), (4, 15, 'cp415'), (3, 11, 'cp311')])
+    def test_from_string(self, major, minor, tag_string):
         # When
         tag = PythonImplementation.from_string(tag_string)
 
@@ -95,7 +88,7 @@ class TestPythonImplementation(unittest.TestCase):
         if minor is not None:
             self.assertEqual(tag.minor, minor)
 
-    @given(sampled_from(('cp2', 'py3', 'cp', 'pp4567')))
+    @parameterized.expand([('cp2',), ('py3',), ('cp',), ('pp4567',)])
     def test_from_string_errors(self, data):
         # When/Then
         message = r"^Invalid value for metadata field 'python_tag': '{}'$"
