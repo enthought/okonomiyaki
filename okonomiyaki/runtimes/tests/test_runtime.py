@@ -24,8 +24,7 @@ class TestPythonRuntime(unittest.TestCase):
 
     @unittest.skipIf(
         hasattr(sys, "pypy_version_info"),
-        "This test is only supported on cpython"
-    )
+        "This test is only supported on cpython")
     def test_from_prefix_and_platform(self):
         # Given
         prefix = u"/usr/local"
@@ -34,8 +33,7 @@ class TestPythonRuntime(unittest.TestCase):
 
         # When
         runtime = PythonRuntime.from_prefix_and_platform(
-            prefix, platform, version
-        )
+            prefix, platform, version)
         runtime_info = runtime._runtime_info
 
         # Then
@@ -56,8 +54,7 @@ class TestPythonRuntime(unittest.TestCase):
 
         # When
         runtime = PythonRuntime.from_prefix_and_platform(
-            prefix, platform, version
-        )
+            prefix, platform, version)
 
         # Then
         self.assertEqual(runtime.prefix, prefix)
@@ -73,8 +70,7 @@ class TestPythonRuntime(unittest.TestCase):
 
         # When
         runtime = PythonRuntime.from_prefix_and_platform(
-            prefix, platform, version
-        )
+            prefix, platform, version)
 
         # Then
         self.assertEqual(runtime.prefix, prefix)
@@ -91,8 +87,7 @@ class TestPythonRuntime(unittest.TestCase):
 
         # When
         runtime_info = PythonRuntime.from_prefix_and_platform(
-            prefix, platform, version
-        )
+            prefix, platform, version)
 
         # Then
         self.assertEqual(runtime_info.prefix, norm_prefix)

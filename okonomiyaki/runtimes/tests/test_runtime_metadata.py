@@ -3,8 +3,7 @@ import shutil
 import unittest
 
 import zipfile2
-from hypothesis import given
-from hypothesis.strategies import sampled_from
+from parameterized import parameterized
 
 
 from okonomiyaki.errors import (
@@ -14,12 +13,14 @@ from okonomiyaki.utils.test_data import (
     INVALID_RUNTIME_NO_METADATA_VERSION, JULIA_DEFAULT_0_3_11_RH5_X86_64,
     PYTHON_CPYTHON_2_7_10_RH5_X86_64, PYTHON_CPYTHON_2_7_10_RH5_X86_64_INVALID,
     PYTHON_PYPY_2_6_0_RH5_X86_64, R_DEFAULT_3_0_0_RH5_X86_64,
+    PYTHON_CPYTHON_3_11_2_OSX_ARM64, PYTHON_CPYTHON_3_11_2_RH8_ARM64,
     PYTHON_CPYTHON_3_8_8_RH7_X86_64, PYTHON_CPYTHON_3_8_8_OSX_X86_64,
     PYTHON_CPYTHON_3_8_8_WIN_X86_64, PYTHON_CPYTHON_3_8_8_WIN_X86,
     PYTHON_CPYTHON_3_11_2_RH8_X86_64, PYTHON_CPYTHON_3_11_2_OSX_X86_64,
     PYTHON_CPYTHON_3_11_2_WIN_X86_64)
 from okonomiyaki.versions import MetadataVersion
-from okonomiyaki.platforms import Platform, OSKind, FamilyKind, NameKind, X86_64, X86
+from okonomiyaki.platforms import (
+    Platform, OSKind, FamilyKind, NameKind, X86_64, X86, ARM64)
 
 from ..runtime_metadata import (
     JuliaRuntimeMetadataV1, PythonRuntimeMetadataV1, RuntimeVersion,
@@ -104,14 +105,13 @@ class TestPythonMetadataV1(unittest.TestCase):
                 with self.assertRaises(InvalidMetadata):
                     PythonRuntimeMetadataV1._from_path(zp)
 
-    @given(
-        sampled_from([
-            (PYTHON_CPYTHON_2_7_10_RH5_X86_64, '2.7.10+1', '5.8'),
-            (PYTHON_CPYTHON_3_8_8_RH7_X86_64, '3.8.8+1', '7.1'),
-            (PYTHON_CPYTHON_3_11_2_RH8_X86_64, '3.11.2+2', '8.8')]))
-    def test_cpython_gnu(self, options):
+    @parameterized.expand([
+        (PYTHON_CPYTHON_2_7_10_RH5_X86_64, '2.7.10+1', '5.8', X86_64),
+        (PYTHON_CPYTHON_3_8_8_RH7_X86_64, '3.8.8+1', '7.1', X86_64),
+        (PYTHON_CPYTHON_3_11_2_RH8_X86_64, '3.11.2+2', '8.8', X86_64),
+        (PYTHON_CPYTHON_3_11_2_RH8_ARM64, '3.11.2+2', '8.8', ARM64)])
+    def test_cpython_gnu(self, path, release, os_release, arch):
         # Given
-        path, release, os_release = options
         version = RuntimeVersion.from_string(release.split('+')[0])
         release = RuntimeVersion.from_string(release)
         lib = '${{prefix}}/lib/python{0}.{1}'.format(version.major, version.minor)
@@ -145,16 +145,15 @@ class TestPythonMetadataV1(unittest.TestCase):
                 family_kind=FamilyKind.rhel,
                 name_kind=NameKind.rhel,
                 release=os_release,
-                arch=X86_64,
-                machine=X86_64))
+                arch=arch,
+                machine=arch))
 
-    @given(
-        sampled_from([
-            (PYTHON_CPYTHON_3_8_8_OSX_X86_64, '3.8.8+1', '10.14'),
-            (PYTHON_CPYTHON_3_11_2_OSX_X86_64, '3.11.2+2', '12.0')]))
-    def test_cpython_darwin(self, options):
+    @parameterized.expand([
+        (PYTHON_CPYTHON_3_8_8_OSX_X86_64, '3.8.8+1', '10.14', X86_64),
+        (PYTHON_CPYTHON_3_11_2_OSX_ARM64, '3.11.2+2', '12.0', ARM64),
+        (PYTHON_CPYTHON_3_11_2_OSX_X86_64, '3.11.2+2', '12.0', X86_64)])
+    def test_cpython_darwin(self, path, release, os_release, arch):
         # Given
-        path, release, os_release = options
         version = RuntimeVersion.from_string(release.split('+')[0])
         release = RuntimeVersion.from_string(release)
         lib = '${{prefix}}/lib/python{0}.{1}'.format(version.major, version.minor)
@@ -188,17 +187,15 @@ class TestPythonMetadataV1(unittest.TestCase):
                 family_kind=FamilyKind.mac_os_x,
                 name_kind=NameKind.mac_os_x,
                 release=os_release,
-                arch=X86_64,
-                machine=X86_64))
+                arch=arch,
+                machine=arch))
 
-    @given(
-        sampled_from([
-            (PYTHON_CPYTHON_3_11_2_WIN_X86_64, '3.11.2+2', '10', X86_64),
-            (PYTHON_CPYTHON_3_8_8_WIN_X86_64, '3.8.8+1', '10', X86_64),
-            (PYTHON_CPYTHON_3_8_8_WIN_X86, '3.8.8+1', '10', X86)]))
-    def test_cpython_windows(self, options):
+    @parameterized.expand([
+        (PYTHON_CPYTHON_3_11_2_WIN_X86_64, '3.11.2+2', '10', X86_64),
+        (PYTHON_CPYTHON_3_8_8_WIN_X86_64, '3.8.8+1', '10', X86_64),
+        (PYTHON_CPYTHON_3_8_8_WIN_X86, '3.8.8+1', '10', X86)])
+    def test_cpython_windows(self, path, release, os_release, arch):
         # Given
-        path, release, os_release, arch = options
         version = RuntimeVersion.from_string(release.split('+')[0])
         release = RuntimeVersion.from_string(release)
         tag = 'cp{0}{1}'.format(version.major, version.minor)
