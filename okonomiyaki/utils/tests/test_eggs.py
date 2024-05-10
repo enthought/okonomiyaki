@@ -53,6 +53,15 @@ class TestDummyEggs(unittest.TestCase):
         elif 'win_x86_64' in filepath:
             self.assertEqual(metadata.platform_tag, 'win_amd64')
             self.assertEqual(metadata.platform_abi, PlatformABI(u'msvc2022'))
+        elif 'osx_arm64' in filepath:
+            self.assertEqual(metadata.platform_tag, 'macosx_12_0_arm64')
+            self.assertEqual(metadata.platform_abi, PlatformABI(u'darwin'))
+        elif 'win_arm64' in filepath:
+            self.assertEqual(metadata.platform_tag, 'win_arm64')
+            self.assertEqual(metadata.platform_abi, PlatformABI(u'msvc2022'))
+        elif 'rh8_arm64' in filepath:
+            self.assertEqual(metadata.platform_tag, 'linux_aarch64')
+            self.assertEqual(metadata.platform_abi, PlatformABI(u'gnu'))
         else:
             self.assertEqual(metadata.platform_tag, 'linux_x86_64')
             self.assertEqual(metadata.platform_abi, PlatformABI(u'gnu'))
