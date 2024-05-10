@@ -33,6 +33,20 @@ PYTHON_CPYTHON_2_7_10_WIN_X86 = os.path.join(
 PYTHON_CPYTHON_2_7_10_WIN_X86_64 = os.path.join(
     _HERE, 'cpython-2.7.10+1-win_x86_64-msvc2008.runtime',)
 
+PYTHON_CP27_RUNTIMES = [
+    PYTHON_CPYTHON_2_7_9_RH5_X86_64,
+    PYTHON_CPYTHON_2_7_9_RH6_X86_64,
+    PYTHON_CPYTHON_2_7_9_RH7_X86_64,
+    PYTHON_CPYTHON_2_7_9_OSX_X86_64,
+    PYTHON_CPYTHON_2_7_9_WIN_X86_64,
+    PYTHON_CPYTHON_2_7_9_WIN_X86,
+    PYTHON_CPYTHON_2_7_9_RH5_X86_64,
+    PYTHON_CPYTHON_2_7_9_RH6_X86_64,
+    PYTHON_CPYTHON_2_7_9_RH7_X86_64,
+    PYTHON_CPYTHON_2_7_9_OSX_X86_64,
+    PYTHON_CPYTHON_2_7_9_WIN_X86_64,
+    PYTHON_CPYTHON_2_7_9_WIN_X86]
+
 # 3.4.1
 PYTHON_CPYTHON_3_4_1_RH5_X86_64 = os.path.join(
     _HERE, 'cpython-3.4.1+1-rh5_x86_64-gnu.runtime',
@@ -48,6 +62,14 @@ PYTHON_CPYTHON_3_4_1_WIN_X86 = os.path.join(
 PYTHON_CPYTHON_3_4_1_WIN_X86_64 = os.path.join(
     _HERE, 'cpython-3.4.1+1-win_x86_64-msvc2008.runtime',)
 
+PYTHON_CP34_RUNTIMES = [
+    PYTHON_CPYTHON_3_4_1_RH5_X86_64,
+    PYTHON_CPYTHON_3_4_1_RH6_X86_64,
+    PYTHON_CPYTHON_3_4_1_RH7_X86_64,
+    PYTHON_CPYTHON_3_4_1_OSX_X86_64,
+    PYTHON_CPYTHON_3_4_1_WIN_X86_64,
+    PYTHON_CPYTHON_3_4_1_WIN_X86]
+
 # 3.5.1
 PYTHON_CPYTHON_3_5_1_RH5_X86_64 = os.path.join(
     _HERE, 'cpython-3.5.1+1-rh5_x86_64-gnu.runtime',)
@@ -61,6 +83,14 @@ PYTHON_CPYTHON_3_5_1_WIN_X86 = os.path.join(
     _HERE, 'cpython-3.5.1+1-win_x86-msvc2008.runtime',)
 PYTHON_CPYTHON_3_5_1_WIN_X86_64 = os.path.join(
     _HERE, 'cpython-3.5.1+1-win_x86_64-msvc2008.runtime',)
+
+PYTHON_CP35_RUNTIMES = [
+    PYTHON_CPYTHON_3_5_1_RH5_X86_64,
+    PYTHON_CPYTHON_3_5_1_RH6_X86_64,
+    PYTHON_CPYTHON_3_5_1_RH7_X86_64,
+    PYTHON_CPYTHON_3_5_1_OSX_X86_64,
+    PYTHON_CPYTHON_3_5_1_WIN_X86_64,
+    PYTHON_CPYTHON_3_5_1_WIN_X86]
 
 # 3.6.5
 PYTHON_CPYTHON_3_6_5_RH5_X86_64 = os.path.join(
@@ -76,8 +106,16 @@ PYTHON_CPYTHON_3_6_5_WIN_X86 = os.path.join(
 PYTHON_CPYTHON_3_6_5_WIN_X86_64 = os.path.join(
     _HERE, 'cpython-3.6.5+1-win_x86_64-msvc2015.runtime',)
 
+PYTHON_CP36_RUNTIMES = [
+    PYTHON_CPYTHON_3_6_5_RH5_X86_64,
+    PYTHON_CPYTHON_3_6_5_RH6_X86_64,
+    PYTHON_CPYTHON_3_6_5_RH7_X86_64,
+    PYTHON_CPYTHON_3_6_5_OSX_X86_64,
+    PYTHON_CPYTHON_3_6_5_WIN_X86_64,
+    PYTHON_CPYTHON_3_6_5_WIN_X86]
+
 # 3.8.8
-PYTHON_CPYTHON_3_8_8_RH7_X86_64 = os.path.join(
+ PYTHON_CPYTHON_3_8_8_RH7_X86_64 = os.path.join(
     _HERE, 'cpython-3.8.8+1-rh7_x86_64-gnu.runtime',)
 PYTHON_CPYTHON_3_8_8_OSX_X86_64 = os.path.join(
     _HERE, 'cpython-3.8.8+1-osx_x86_64-darwin.runtime',)
@@ -86,6 +124,10 @@ PYTHON_CPYTHON_3_8_8_WIN_X86_64 = os.path.join(
 PYTHON_CPYTHON_3_8_8_WIN_X86 = os.path.join(
     _HERE, 'cpython-3.8.8+1-win_x86-msvc2019.runtime',)
 
+PYTHON_CP38_RUNTIMES = [
+    PYTHON_CPYTHON_3_8_8_RH7_X86_64,
+    PYTHON_CPYTHON_3_8_8_OSX_X86_64,
+    PYTHON_CPYTHON_3_8_8_WIN_X86_64]
 
 # 3.11.2
 PYTHON_CPYTHON_3_11_2_RH8_X86_64 = os.path.join(
@@ -96,9 +138,15 @@ PYTHON_CPYTHON_3_11_2_WIN_X86_64 = os.path.join(
     _HERE, 'cpython-3.11.2+2-win_x86_64-msvc2022.runtime',)
 PYTHON_CPYTHON_3_11_2_OSX_ARM64 = os.path.join(
     _HERE, 'cpython-3.11.2+2-osx_arm64-darwin.runtime',)
-PYTHON_CPYTHON_3_11_2_RH8_X86_64 = os.path.join(
-    _HERE, 'cpython-3.11.2+2-rh8_aarch64-gnu.runtime',)
+PYTHON_CPYTHON_3_11_2_RH8_ARM64 = os.path.join(
+    _HERE, 'cpython-3.11.2+2-rh8_arm64-gnu.runtime',)
 
+PYTHON_CP311_RUNTIMES = [
+    PYTHON_CPYTHON_3_11_2_RH8_X86_64,
+    PYTHON_CPYTHON_3_11_2_OSX_X86_64,
+    PYTHON_CPYTHON_3_11_2_WIN_X86_64,
+    PYTHON_CPYTHON_3_11_2_OSX_ARM64,
+    PYTHON_CPYTHON_3_11_2_RH8_ARM64]
 
 # Misc
 PYTHON_CPYTHON_2_7_10_RH5_X86_64_INVALID = os.path.join(
