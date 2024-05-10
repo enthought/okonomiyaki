@@ -26,8 +26,7 @@ class TestPythonRuntimeInfoV1(unittest.TestCase):
 
         # When
         runtime_info = IRuntimeInfo.factory_from_metadata(
-            metadata, prefix, name
-        )
+            metadata, prefix, name)
 
         # Then
         self.assertEqual(runtime_info.prefix, prefix)
@@ -52,8 +51,7 @@ class TestPythonRuntimeInfoV1(unittest.TestCase):
 
         # When
         runtime_info = IRuntimeInfo.factory_from_metadata(
-            metadata, prefix, name
-        )
+            metadata, prefix, name)
 
         # Then
         self.assertEqual(runtime_info.prefix, prefix)
@@ -70,13 +68,11 @@ class TestPythonRuntimeInfoV1(unittest.TestCase):
         prefix = os.path.abspath(os.path.join(u"foo", u"bar"))
 
         r_runtime_info = IRuntimeInfo.factory_from_metadata(
-            metadata, prefix, name
-        )
+            metadata, prefix, name)
 
         # When
         runtime_info = IRuntimeInfo.factory_from_json_dict(
-            r_runtime_info.to_json_dict()
-        )
+            r_runtime_info.to_json_dict())
 
         # Then
         self.assertEqual(runtime_info, r_runtime_info)
@@ -99,8 +95,7 @@ class TestJuliaRuntimeInfoV1(unittest.TestCase):
 
         # When
         runtime_info = IRuntimeInfo.factory_from_metadata(
-            metadata, prefix, name
-        )
+            metadata, prefix, name)
 
         # Then
         self.assertEqual(runtime_info.prefix, prefix)
@@ -117,13 +112,11 @@ class TestJuliaRuntimeInfoV1(unittest.TestCase):
         prefix = os.path.abspath(os.path.join(u"foo", u"bar"))
 
         r_runtime_info = IRuntimeInfo.factory_from_metadata(
-            metadata, prefix, name
-        )
+            metadata, prefix, name)
 
         # When
         runtime_info = IRuntimeInfo.factory_from_json_dict(
-            r_runtime_info.to_json_dict()
-        )
+            r_runtime_info.to_json_dict())
 
         # Then
         self.assertEqual(runtime_info, r_runtime_info)
