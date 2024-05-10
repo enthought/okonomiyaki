@@ -6,19 +6,19 @@ from okonomiyaki.errors import OkonomiyakiError
 from ..abi import default_abi
 
 EXAMPLE_RUNTIMES = [
-    ('osx_x86_64', 'cpython', '2.7.10+1','darwin'),
-    ('rh5_x86_64', 'cpython', '2.7.10+1','gnu'),
-    ('win_x86', 'cpython', '2.7.10+1','msvc2008'),
-    ('win_x86', 'cpython', '3.4.3+1','msvc2010'),
-    ('win_x86', 'cpython', '3.5.0+1','msvc2015'),
-    ('win_x86', 'cpython', '3.6.0+1','msvc2015'),
-    ('win_x86', 'cpython', '3.8.8+1','msvc2019'),
-    ('osx_x86_64', 'pypy', '2.6.1+1','darwin'),
-    ('rh5_x86_64', 'pypy', '2.6.1+1','gnu'),
-    ('win_x86', 'pypy', '2.6.1+1','msvc2008'),
-    ('osx_x86_64', 'julia', '0.3.11+1','darwin'),
-    ('rh5_x86_64', 'julia', '0.3.11+1','gnu'),
-    ('win_x86', 'julia', '0.3.11+1','mingw')]
+    ('osx_x86_64', 'cpython', '2.7.10+1', 'darwin'),
+    ('rh5_x86_64', 'cpython', '2.7.10+1', 'gnu'),
+    ('win_x86', 'cpython', '2.7.10+1', 'msvc2008'),
+    ('win_x86', 'cpython', '3.4.3+1', 'msvc2010'),
+    ('win_x86', 'cpython', '3.5.0+1', 'msvc2015'),
+    ('win_x86', 'cpython', '3.6.0+1', 'msvc2015'),
+    ('win_x86', 'cpython', '3.8.8+1', 'msvc2019'),
+    ('osx_x86_64', 'pypy', '2.6.1+1', 'darwin'),
+    ('rh5_x86_64', 'pypy', '2.6.1+1', 'gnu'),
+    ('win_x86', 'pypy', '2.6.1+1', 'msvc2008'),
+    ('osx_x86_64', 'julia', '0.3.11+1', 'darwin'),
+    ('rh5_x86_64', 'julia', '0.3.11+1', 'gnu'),
+    ('win_x86', 'julia', '0.3.11+1', 'mingw')]
 
 
 class TestDefaultABI(unittest.TestCase):
