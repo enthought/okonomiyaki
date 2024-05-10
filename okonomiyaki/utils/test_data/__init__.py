@@ -155,35 +155,35 @@ INVALID_RUNTIME_NO_METADATA_VERSION = os.path.join(
 )
 
 # Dummmy eggs for testing
-_RH5_X86_64 = os.path.join(_HERE, "eggs", "rh5_x86_64")
+_RH5_X86_64 = os.path.join(_HERE, 'eggs', 'rh5_x86_64')
 
-NOSE_1_3_4_RH5_X86_64 = os.path.join(_RH5_X86_64, "nose-1.3.4-1.egg")
-MKL_10_3_RH5_X86_64 = os.path.join(_RH5_X86_64, "MKL-10.3-1.egg")
-NUMPY_1_9_2_RH5_X86_64 = os.path.join(_RH5_X86_64, "numpy-1.9.2-1.egg")
+NOSE_1_3_4_RH5_X86_64 = os.path.join(_RH5_X86_64, 'cp27', 'nose-1.3.4-1.egg')
+MKL_10_3_RH5_X86_64 = os.path.join(_RH5_X86_64, 'cp27', 'MKL-10.3-1.egg')
+NUMPY_1_9_2_RH5_X86_64 = os.path.join(_RH5_X86_64, 'cp27', 'numpy-1.9.2-1.egg')
 
-_RH6_X86_64 = os.path.join(_HERE, "eggs", "rh6_x86_64")
+_RH6_X86_64 = os.path.join(_HERE, 'eggs', 'rh6_x86_64')
 
-NOSE_1_3_4_RH6_X86_64 = os.path.join(_RH6_X86_64, "nose-1.3.4-1.egg")
-MKL_10_3_RH6_X86_64 = os.path.join(_RH6_X86_64, "MKL-10.3-1.egg")
-NUMPY_1_9_2_RH6_X86_64 = os.path.join(_RH6_X86_64, "numpy-1.9.2-1.egg")
+NOSE_1_3_4_RH6_X86_64 = os.path.join(_RH6_X86_64, 'cp27', 'nose-1.3.4-1.egg')
+MKL_10_3_RH6_X86_64 = os.path.join(_RH6_X86_64, 'cp27', 'MKL-10.3-1.egg')
+NUMPY_1_9_2_RH6_X86_64 = os.path.join(_RH6_X86_64, 'cp27', 'numpy-1.9.2-1.egg')
 
-_RH7_X86_64 = os.path.join(_HERE, "eggs", "rh7_x86_64")
+_RH7_X86_64 = os.path.join(_HERE, 'eggs', 'rh7_x86_64')
 
-NOSE_1_3_4_RH7_X86_64 = os.path.join(_RH7_X86_64, "nose-1.3.4-1.egg")
-MKL_10_3_RH7_X86_64 = os.path.join(_RH7_X86_64, "MKL-10.3-1.egg")
-NUMPY_1_9_2_RH7_X86_64 = os.path.join(_RH7_X86_64, "numpy-1.9.2-1.egg")
+NOSE_1_3_4_RH7_X86_64 = os.path.join(_RH7_X86_64, 'cp27', 'nose-1.3.4-1.egg')
+MKL_10_3_RH7_X86_64 = os.path.join(_RH7_X86_64, 'cp27', 'MKL-10.3-1.egg')
+NUMPY_1_9_2_RH7_X86_64 = os.path.join(_RH7_X86_64, 'cp27', 'numpy-1.9.2-1.egg')
 
-_WIN_X86_64 = os.path.join(_HERE, "eggs", "win_x86_64")
+_WIN_X86_64 = os.path.join(_HERE, 'eggs', 'win_x86_64')
 
-NOSE_1_3_4_WIN_X86_64 = os.path.join(_WIN_X86_64, "nose-1.3.4-1.egg")
-MKL_10_3_WIN_X86_64 = os.path.join(_WIN_X86_64, "MKL-10.3-1.egg")
-NUMPY_1_9_2_WIN_X86_64 = os.path.join(_WIN_X86_64, "numpy-1.9.2-1.egg")
+NOSE_1_3_4_WIN_X86_64 = os.path.join(_WIN_X86_64, 'cp27', 'nose-1.3.4-1.egg')
+MKL_10_3_WIN_X86_64 = os.path.join(_WIN_X86_64, 'cp27', 'MKL-10.3-1.egg')
+NUMPY_1_9_2_WIN_X86_64 = os.path.join(_WIN_X86_64, 'cp27', 'numpy-1.9.2-1.egg')
 
-_OSX_X86_64 = os.path.join(_HERE, "eggs", "osx_x86_64")
+_OSX_X86_64 = os.path.join(_HERE, 'eggs', 'osx_x86_64')
 
-NOSE_1_3_4_OSX_X86_64 = os.path.join(_OSX_X86_64, "nose-1.3.4-1.egg")
-MKL_10_3_OSX_X86_64 = os.path.join(_OSX_X86_64, "MKL-10.3-1.egg")
-NUMPY_1_9_2_OSX_X86_64 = os.path.join(_OSX_X86_64, "numpy-1.9.2-1.egg")
+NOSE_1_3_4_OSX_X86_64 = os.path.join(_OSX_X86_64, 'cp27', 'nose-1.3.4-1.egg')
+MKL_10_3_OSX_X86_64 = os.path.join(_OSX_X86_64, 'cp27', 'MKL-10.3-1.egg')
+NUMPY_1_9_2_OSX_X86_64 = os.path.join(_OSX_X86_64, 'cp27', 'numpy-1.9.2-1.egg')
 
 
 CP27_EGGS = [
@@ -204,31 +204,31 @@ CP27_EGGS = [
     NUMPY_1_9_2_OSX_X86_64]
 
 
-_WHEELS_DIR = os.path.join(_HERE, "wheels")
+_WHEELS_DIR = os.path.join(_HERE, 'wheels')
 
 OKONOMIYAKI_0_17_0_PY2 = os.path.join(
-    _WHEELS_DIR, "okonomiyaki-0.17.0.dev799-py2-none-any.whl"
+    _WHEELS_DIR, 'okonomiyaki-0.17.0.dev799-py2-none-any.whl'
 )
 
 # cp38 eggs for testing
 
-_RH7_X86_64_cp38 = os.path.join(_HERE, "eggs", "rh7_x86_64", "cp38")
+_RH7_X86_64_cp38 = os.path.join(_HERE, 'eggs', 'rh7_x86_64', 'cp38')
 
-NOSE_1_3_4_RH7_X86_64_cp38 = os.path.join(_RH7_X86_64_cp38, "nose-1.3.4-1.egg")
-MKL_10_3_RH7_X86_64_cp38 = os.path.join(_RH7_X86_64_cp38, "MKL-10.3-1.egg")
-NUMPY_1_9_2_RH7_X86_64_cp38 = os.path.join(_RH7_X86_64_cp38, "numpy-1.9.2-1.egg")
+NOSE_1_3_4_RH7_X86_64_cp38 = os.path.join(_RH7_X86_64_cp38, 'nose-1.3.4-1.egg')
+MKL_10_3_RH7_X86_64_cp38 = os.path.join(_RH7_X86_64_cp38, 'MKL-10.3-1.egg')
+NUMPY_1_9_2_RH7_X86_64_cp38 = os.path.join(_RH7_X86_64_cp38, 'numpy-1.9.2-1.egg')
 
-_WIN_X86_64_cp38 = os.path.join(_HERE, "eggs", "win_x86_64", "cp38")
+_WIN_X86_64_cp38 = os.path.join(_HERE, 'eggs', 'win_x86_64', 'cp38')
 
-NOSE_1_3_4_WIN_X86_64_cp38 = os.path.join(_WIN_X86_64_cp38, "nose-1.3.4-1.egg")
-MKL_10_3_WIN_X86_64_cp38 = os.path.join(_WIN_X86_64_cp38, "MKL-10.3-1.egg")
-NUMPY_1_9_2_WIN_X86_64_cp38 = os.path.join(_WIN_X86_64_cp38, "numpy-1.9.2-1.egg")
+NOSE_1_3_4_WIN_X86_64_cp38 = os.path.join(_WIN_X86_64_cp38, 'nose-1.3.4-1.egg')
+MKL_10_3_WIN_X86_64_cp38 = os.path.join(_WIN_X86_64_cp38, 'MKL-10.3-1.egg')
+NUMPY_1_9_2_WIN_X86_64_cp38 = os.path.join(_WIN_X86_64_cp38, 'numpy-1.9.2-1.egg')
 
-_OSX_X86_64_cp38 = os.path.join(_HERE, "eggs", "osx_x86_64", "cp38")
+_OSX_X86_64_cp38 = os.path.join(_HERE, 'eggs', 'osx_x86_64', 'cp38')
 
-NOSE_1_3_4_OSX_X86_64_cp38 = os.path.join(_OSX_X86_64_cp38, "nose-1.3.4-1.egg")
-MKL_10_3_OSX_X86_64_cp38 = os.path.join(_OSX_X86_64_cp38, "MKL-10.3-1.egg")
-NUMPY_1_9_2_OSX_X86_64_cp38 = os.path.join(_OSX_X86_64_cp38, "numpy-1.9.2-1.egg")
+NOSE_1_3_4_OSX_X86_64_cp38 = os.path.join(_OSX_X86_64_cp38, 'nose-1.3.4-1.egg')
+MKL_10_3_OSX_X86_64_cp38 = os.path.join(_OSX_X86_64_cp38, 'MKL-10.3-1.egg')
+NUMPY_1_9_2_OSX_X86_64_cp38 = os.path.join(_OSX_X86_64_cp38, 'numpy-1.9.2-1.egg')
 
 
 CP38_EGGS = [
@@ -244,23 +244,23 @@ CP38_EGGS = [
 
 # cp38 eggs for testing
 
-_RH8_X86_64_cp311 = os.path.join(_HERE, "eggs", "rh8_x86_64", "cp311")
+_RH8_X86_64_cp311 = os.path.join(_HERE, 'eggs', 'rh8_x86_64', 'cp311')
 
-NOSE_1_3_4_RH7_X86_64_cp311 = os.path.join(_RH8_X86_64_cp311, "nose-1.3.4-1.egg")
-MKL_10_3_RH7_X86_64_cp311 = os.path.join(_RH8_X86_64_cp311, "MKL-10.3-1.egg")
-NUMPY_1_9_2_RH7_X86_64_cp311 = os.path.join(_RH8_X86_64_cp311, "numpy-1.9.2-1.egg")
+NOSE_1_3_4_RH7_X86_64_cp311 = os.path.join(_RH8_X86_64_cp311, 'nose-1.3.4-1.egg')
+MKL_10_3_RH7_X86_64_cp311 = os.path.join(_RH8_X86_64_cp311, 'MKL-10.3-1.egg')
+NUMPY_1_9_2_RH7_X86_64_cp311 = os.path.join(_RH8_X86_64_cp311, 'numpy-1.9.2-1.egg')
 
-_WIN_X86_64_cp311 = os.path.join(_HERE, "eggs", "win_x86_64", "cp311")
+_WIN_X86_64_cp311 = os.path.join(_HERE, 'eggs', 'win_x86_64', 'cp311')
 
-NOSE_1_3_4_WIN_X86_64_cp311 = os.path.join(_WIN_X86_64_cp311, "nose-1.3.4-1.egg")
-MKL_10_3_WIN_X86_64_cp311 = os.path.join(_WIN_X86_64_cp311, "MKL-10.3-1.egg")
-NUMPY_1_9_2_WIN_X86_64_cp311 = os.path.join(_WIN_X86_64_cp311, "numpy-1.9.2-1.egg")
+NOSE_1_3_4_WIN_X86_64_cp311 = os.path.join(_WIN_X86_64_cp311, 'nose-1.3.4-1.egg')
+MKL_10_3_WIN_X86_64_cp311 = os.path.join(_WIN_X86_64_cp311, 'MKL-10.3-1.egg')
+NUMPY_1_9_2_WIN_X86_64_cp311 = os.path.join(_WIN_X86_64_cp311, 'numpy-1.9.2-1.egg')
 
-_OSX_X86_64_cp311 = os.path.join(_HERE, "eggs", "osx_x86_64", "cp311")
+_OSX_X86_64_cp311 = os.path.join(_HERE, 'eggs', 'osx_x86_64', 'cp311')
 
-NOSE_1_3_4_OSX_X86_64_cp311 = os.path.join(_OSX_X86_64_cp311, "nose-1.3.4-1.egg")
-MKL_10_3_OSX_X86_64_cp311 = os.path.join(_OSX_X86_64_cp311, "MKL-10.3-1.egg")
-NUMPY_1_9_2_OSX_X86_64_cp311 = os.path.join(_OSX_X86_64_cp311, "numpy-1.9.2-1.egg")
+NOSE_1_3_4_OSX_X86_64_cp311 = os.path.join(_OSX_X86_64_cp311, 'nose-1.3.4-1.egg')
+MKL_10_3_OSX_X86_64_cp311 = os.path.join(_OSX_X86_64_cp311, 'MKL-10.3-1.egg')
+NUMPY_1_9_2_OSX_X86_64_cp311 = os.path.join(_OSX_X86_64_cp311, 'numpy-1.9.2-1.egg')
 
 
 CP311_EGGS = [
