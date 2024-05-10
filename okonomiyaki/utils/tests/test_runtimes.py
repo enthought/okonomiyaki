@@ -3,8 +3,7 @@ import unittest
 from os.path import join
 
 import zipfile2
-from hypothesis import given
-from hypothesis.strategies import sampled_from
+from parameterized import parameterized
 
 from okonomiyaki.runtimes.runtime_metadata import IRuntimeMetadata
 from ..test_data import DUMMY_RUNTIMES_DIRECTORY
@@ -21,7 +20,7 @@ class TestDummyPythonRuntimes(unittest.TestCase):
         with zipfile2.ZipFile(runtime) as zp:
             return zp.namelist()
 
-    @given(sampled_from(runtime_paths))
+    @parameterized.expand(runtime_paths)
     def test_reading_dummy_runtimes(self, runtime):
         # Then check the runtime is valid
         runtime_metadata = IRuntimeMetadata.factory_from_path(runtime)
