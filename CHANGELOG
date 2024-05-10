@@ -1,3 +1,28 @@
+??????????     2.0.0
+--------------------
+
+Enhancements:
+
+* Add support for the ARM and ARM64 architectures in Arch (#458)
+* Add support for ARM64 in EPDPlatform 	(#458)
+* Add sample runtimes and eggs for the ARM64 architecture (#462, #460)
+
+Breaking Changes:
+
+* Remove Python 2.x code support. Okonomiyaki now supports running on > 3.6 (#380)
+* Remove the "short" attribute from the EPDPlatform instance (#485)
+* Remove the LagacyEPDPlatform instance (#485)
+
+Bug fixes:
+
+* Fix okonomiyaki cli when it is called with no arguments (#459)
+
+Maintenance:
+
+* Update Github ci to generate the html coverage report as a downloadable artifact (#457)
+* Run tests on MacOS M1 runners (#460)
+* Run tests on Python 3.11 (#461)
+
 2023-06-29     1.4.0
 --------------------
 
@@ -18,7 +43,7 @@ Maintenance:
 * Update the test matrix on github actions and remove testing for Python 2.7 (#441, #447)
 * Move most of the package configuration into the setup.cfg (#450)
 
-Big fixes:
+Bug fixes:
 
 * Fix the behaviour of the pep245 module and the way it is tested (#441, #447)
 * Fix the repr output for PEP440Version and RuntimeVersion (#435, #436)
@@ -28,7 +53,7 @@ Big fixes:
 2021-07-01     1.3.2
 --------------------
 
-Big fixes:
+Bug fixes:
 
 * Fix relative imports (#426)
 * Fix compute_abi_tag to support Python 3.8 (#424)
@@ -36,7 +61,7 @@ Big fixes:
 2021-06-29     1.3.1
 --------------------
 
-Big fixes:
+Bug fixes:
 
 * Update dummy eggs to hold the correct abi tag for Python 3.8 (#413)
 * Pass the runtime version to the from_epd_string constructor (#414)
@@ -58,7 +83,7 @@ Maintenance:
 * Fix path to the okonomiyaki test build project (#379)
 * Update script that verifies okonomiyaki can read eds eggs (#396)
 
-Big fixes:
+Bug fixes:
 
 * Add rh6 and rh7 dummy eggs to setup.py (#369)
 * EPDPlatform.pep425_tag will always return 10.6 for macos platforms (#374, #387)
@@ -78,7 +103,7 @@ Maintenance:
 * Run Travis CI on maintenance and tagged branches. (#352)
 * Only test branch builds on Appveyor for master and maintenance branches. (#364)
 
-Big fixes:
+Bug fixes:
 
 * Add the license to the manifest. (#354)
 * Fix platform detection on Centos 7. (#161)
@@ -88,7 +113,7 @@ Big fixes:
 2019-09-20     1.1.1
 --------------------
 
-Big fixes:
+Bug fixes:
 
 * Fix name of the 2.7.10 dummy runtime for rh6. (#341)
 
