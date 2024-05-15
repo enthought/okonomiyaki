@@ -17,7 +17,7 @@ from okonomiyaki.utils.test_data import (
     PYTHON_CPYTHON_3_8_8_RH7_X86_64, PYTHON_CPYTHON_3_8_8_OSX_X86_64,
     PYTHON_CPYTHON_3_8_8_WIN_X86_64, PYTHON_CPYTHON_3_8_8_WIN_X86,
     PYTHON_CPYTHON_3_11_2_RH8_X86_64, PYTHON_CPYTHON_3_11_2_OSX_X86_64,
-    PYTHON_CPYTHON_3_11_2_WIN_X86_64)
+    PYTHON_CPYTHON_3_11_2_WIN_X86_64, PYTHON_CPYTHON_3_11_2_WIN_ARM64)
 from okonomiyaki.versions import MetadataVersion
 from okonomiyaki.platforms import (
     Platform, OSKind, FamilyKind, NameKind, X86_64, X86, ARM64)
@@ -192,6 +192,7 @@ class TestPythonMetadataV1(unittest.TestCase):
 
     @parameterized.expand([
         (PYTHON_CPYTHON_3_11_2_WIN_X86_64, '3.11.2+2', '10', X86_64),
+        (PYTHON_CPYTHON_3_11_2_WIN_ARM64, '3.11.2+2', '11', ARM64),
         (PYTHON_CPYTHON_3_8_8_WIN_X86_64, '3.8.8+1', '10', X86_64),
         (PYTHON_CPYTHON_3_8_8_WIN_X86, '3.8.8+1', '10', X86)])
     def test_cpython_windows(self, path, release, os_release, arch):

@@ -140,13 +140,16 @@ PYTHON_CPYTHON_3_11_2_OSX_ARM64 = os.path.join(
     _HERE, 'cpython-3.11.2+2-osx_arm64-darwin.runtime',)
 PYTHON_CPYTHON_3_11_2_RH8_ARM64 = os.path.join(
     _HERE, 'cpython-3.11.2+2-rh8_arm64-gnu.runtime',)
+PYTHON_CPYTHON_3_11_2_WIN_ARM64 = os.path.join(
+    _HERE, 'cpython-3.11.2+2-win_arm64-msvc2022.runtime',)
 
 PYTHON_CP311_RUNTIMES = [
     PYTHON_CPYTHON_3_11_2_RH8_X86_64,
     PYTHON_CPYTHON_3_11_2_OSX_X86_64,
     PYTHON_CPYTHON_3_11_2_WIN_X86_64,
     PYTHON_CPYTHON_3_11_2_OSX_ARM64,
-    PYTHON_CPYTHON_3_11_2_RH8_ARM64]
+    PYTHON_CPYTHON_3_11_2_RH8_ARM64,
+    PYTHON_CPYTHON_3_11_2_WIN_ARM64]
 
 # Misc
 PYTHON_CPYTHON_2_7_10_RH5_X86_64_INVALID = os.path.join(
