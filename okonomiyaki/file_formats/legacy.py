@@ -4,7 +4,8 @@ metadata.
 import re
 
 from okonomiyaki.errors import InvalidMetadataField
-from okonomiyaki.platforms import PythonImplementation, default_abi
+from okonomiyaki.platforms import (
+    PythonImplementation, default_abi, generate_platform_tag)
 from okonomiyaki.versions import RuntimeVersion
 
 # To parse the python field in our index and spec/depend
@@ -83,7 +84,7 @@ def _guess_platform_tag(epd_platform):
     if epd_platform is None:
         return None
     else:
-        return epd_platform.pep425_tag
+        return generate_platform_tag(epd_platform.platform)
 
 
 def _guess_python_tag(major_minor):

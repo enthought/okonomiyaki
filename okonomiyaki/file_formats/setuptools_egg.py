@@ -5,7 +5,7 @@ import sysconfig
 import warnings
 
 from okonomiyaki.errors import OkonomiyakiError
-from okonomiyaki.platforms import PythonImplementation
+from okonomiyaki.platforms import PythonImplementation, generate_platform_tag
 from ._egg_info import _guess_python_tag
 from ._package_info import PackageInfo
 
@@ -173,10 +173,10 @@ class SetuptoolsEggMetadata(object):
     def platform_tag(self):
         """ Platform tag following PEP425, except that no platform is
         represented as None and not 'any'."""
-        if self.platform is None:
-            return None
-        else:
-            return self.platform.pep425_tag
+        platform = self.platform
+        if platform is not None:
+            platform = platform.platform
+        return generate_platform_tag(platform)
 
     @property
     def python_tag(self):

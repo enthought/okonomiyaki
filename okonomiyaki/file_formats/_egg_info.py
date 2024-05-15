@@ -12,7 +12,7 @@ from okonomiyaki.errors import (
     InvalidEggName, InvalidMetadataField,
     MissingMetadata, UnsupportedMetadata)
 from okonomiyaki.platforms import (
-    EPDPlatform, PlatformABI, PythonABI, PythonImplementation)
+    EPDPlatform, PlatformABI, PythonABI, PythonImplementation, generate_platform_tag)
 from okonomiyaki.utils import (
     compute_sha256, decode_if_needed, parse_assignments)
 from okonomiyaki.versions import EnpkgVersion, MetadataVersion
@@ -959,14 +959,17 @@ class EggMetadata(object):
     def platform_tag(self):
         """ Platform tag following PEP425, except that no platform is
         represented as None and not 'any'."""
-        if self.platform is None:
-            return None
-        else:
-            return self.platform.pep425_tag
+        platform = self.platform
+        if platform is not None:
+            platform = platform.platform
+        return generate_platform_tag(platform)
 
     @property
     def platform_tag_string(self):
-        return EPDPlatform.pep425_tag_string(self.platform)
+        platform = self.platform
+        if platform is not None:
+            platform = platform.platform
+        return generate_platform_tag(platform, as_string=True)
 
     @property
     def python_tag(self):

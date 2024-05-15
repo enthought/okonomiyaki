@@ -26,6 +26,7 @@ class FamilyKind(enum.Enum):
     mac_os_x = 'Mac OS X'
     windows = 'Windows'
     solaris = 'Solaris'
+    unknown = 'Unknown operating system family'
 
 
 @enum.unique

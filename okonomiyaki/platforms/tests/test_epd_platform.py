@@ -33,18 +33,6 @@ class TestEPDPlatform(unittest.TestCase):
         items += EPD_PLATFORM_SHORT_NAMES
         self.platform_strings = tuple(items)
 
-    def test_pep425_is_unicode(self):
-        # given
-        strings = list(self.platform_strings)
-        # Do not know the right pep425 tag for these
-        strings.remove('sol-32')
-        strings.remove('sol-64')
-
-        # When/Then
-        for platform_string in strings:
-            platform = EPDPlatform.from_string(platform_string)
-            self.assertIsInstance(platform.pep425_tag, str)
-
     def test_platform_name_is_unicode(self):
         # When/Then
         for platform_string in self.platform_strings:
@@ -270,28 +258,6 @@ class TestEPDPlatform(unittest.TestCase):
                     EPDPlatform.from_running_system('arm64')
 
     @parameterized.expand([
-        ("rh5_x86", None, "linux_i686"),
-        ("rh5_x86_64", None, "linux_x86_64"),
-        ("osx_x86", None, "macosx_10_6_i386"),
-        ("osx_x86", '3.8.9+1', "macosx_10_14_i386"),
-        ("osx_x86_64", None, "macosx_10_6_x86_64"),
-        ("osx_x86_64", '3.8.9+1', "macosx_10_14_x86_64"),
-        ("osx_x86_64", '3.11.2+1', "macosx_12_0_x86_64"),
-        ("win_x86", None, "win32"),
-        ("win_x86_64", None, "win_amd64"),
-        ("win_x86_64", '3.9.1', "win_amd64")])
-    def test_pep425_tag(self, platform_tag, version, expected):
-        # Given
-        if version is not None:
-            runtime_version = RuntimeVersion.from_string(version)
-        else:
-            runtime_version = None
-        epd_platform = EPDPlatform.from_string(platform_tag, runtime_version)
-
-        # When/Then
-        self.assertEqual(epd_platform.pep425_tag, expected)
-
-    @parameterized.expand([
         ('linux2', None, 'i686', 'linux_i686', 'cp36', 'gnu'),
         ('linux2', 'RedHat_3', 'i386', 'linux_i386', 'cp27', 'gnu'),
         ('linux2', 'RedHat_5', 'x86', 'linux_i686', 'cp27', 'gnu'),
@@ -332,11 +298,11 @@ class TestEPDPlatform(unittest.TestCase):
         else:
             self.assertEqual(epd_platform.arch, X86)
         if 'linux' in platform:
-            self.assertIn('linux', epd_platform.pep425_tag)
+            self.assertEqual(epd_platform.platform_name[:2], 'rh')
         elif 'win32' in platform:
-            self.assertIn('win', epd_platform.pep425_tag)
+            self.assertEqual(epd_platform.platform_name, 'win')
         elif 'darwin' in platform:
-            self.assertIn('osx', epd_platform.pep425_tag)
+            self.assertEqual(epd_platform.platform_name, 'osx')
 
     @mock_solaris
     def test_guess_solaris_unsupported(self):

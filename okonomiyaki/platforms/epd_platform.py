@@ -7,8 +7,10 @@ from attr.validators import instance_of
 
 from okonomiyaki.versions import RuntimeVersion
 from okonomiyaki.errors import OkonomiyakiError, InvalidPEP440Version
-from ._arch import Arch, ArchitectureKind, X86, X86_64, ARM64
+from .pep425 import _ANY_PLATFORM_STRING
+from ._arch import Arch, ArchitectureKind, X86, X86_64, ARM64, ARM
 from ._platform import OSKind, FamilyKind, NameKind, Platform
+
 
 # the string used in EGG-INFO/spec/depend. Only used during normalization
 # operations.
@@ -94,8 +96,6 @@ _MANYLINUX_TAG_R = re.compile(r"^manylinux(?P<label>\d+)_(?P<arch>\S+)$")
 _MACOSX_TAG_R = re.compile(r"^macosx_([^_]+)_([^_]+)_(?P<arch>\S+)$")
 _WINDOWS_TAG_R = re.compile(r"^win_*(?P<arch>\S+)$")
 
-_ANY_PLATFORM_STRING = 'any'
-
 
 def platform_validator():
     def wrapper(inst, attr, value):
@@ -123,13 +123,6 @@ class EPDPlatform(object):
     """
     Main name of the platform (e.g. 'rh5')
     """
-
-    @staticmethod
-    def pep425_tag_string(platform):
-        if platform is None:
-            return _ANY_PLATFORM_STRING
-        else:
-            return platform.pep425_tag
 
     @classmethod
     def from_running_python(cls):
@@ -298,42 +291,6 @@ class EPDPlatform(object):
         The number of bits (as a string) of this epd platform.
         """
         return self.arch._arch_bits
-
-    @property
-    def pep425_tag(self):
-        msg = "Cannot generate pep425 tag for platform {0!r}"
-
-        platform = self.platform
-        if platform.os_kind == OSKind.darwin:
-            release = platform.release.replace('.', '_')
-            if platform.arch == X86:
-                return 'macosx_{}_i386'.format(release)
-            elif platform.arch == X86_64:
-                return 'macosx_{}_x86_64'.format(release)
-            elif platform.arch == ARM64:
-                return 'macosx_{}_arm64'.format(release)
-            else:
-                raise OkonomiyakiError(msg.format(platform))
-        elif platform.os_kind == OSKind.linux:
-            if platform.arch == X86:
-                return 'linux_i686'
-            elif platform.arch == X86_64:
-                return 'linux_x86_64'
-            elif platform.arch == ARM64:
-                return 'linux_aarch64'
-            else:
-                raise OkonomiyakiError(msg.format(platform))
-        elif platform.os_kind == OSKind.windows:
-            if platform.arch == X86:
-                return 'win32'
-            elif platform.arch == X86_64:
-                return 'win_amd64'
-            elif platform.arch == ARM64:
-                return 'win_arm64'
-            else:
-                raise OkonomiyakiError(msg.format(platform))
-        else:
-            raise OkonomiyakiError(msg.format(platform))
 
     @property
     def platform_name(self):
