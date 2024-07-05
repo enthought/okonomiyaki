@@ -26,6 +26,7 @@ class FamilyKind(enum.Enum):
     mac_os_x = 'Mac OS X'
     windows = 'Windows'
     solaris = 'Solaris'
+    alpine = 'Alpine Linux'
 
 
 @enum.unique
@@ -39,6 +40,7 @@ class NameKind(enum.Enum):
     windows = 'Windows'
     solaris = 'Solaris'
     rocky = 'Rocky Linux'
+    alpine = 'Alpine Linux'
 
 
 @attributes(repr=False, frozen=True)
@@ -167,6 +169,8 @@ def _guess_platform_details(os_kind):
             family_kind = FamilyKind.rhel
         elif name_kind == NameKind.unknown and 'debian' in like:
             family_kind = FamilyKind.debian
+        elif name_kind == NameKind.alpine:
+            family_kind = FamilyKind.alpine
         else:
             raise OkonomiyakiError("Unsupported platform: {0!r}".format(name))
         return family_kind, name_kind, release
