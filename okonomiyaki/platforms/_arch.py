@@ -15,6 +15,10 @@ class ArchitectureKind(enum.Enum):
     x86_64 = 'x86_64'
     arm = 'arm'
     arm64 = 'arm64'
+    riscv64 = 'riscv64'
+    ppc64le = 'ppc64le'
+    s390x = 's390x'
+    loongarch64 = 'loongarch64'
 
 
 _KIND_TO_BITWIDTHS = {
@@ -22,6 +26,10 @@ _KIND_TO_BITWIDTHS = {
     ArchitectureKind.x86_64: 64,
     ArchitectureKind.arm: 32,
     ArchitectureKind.arm64: 64,
+    ArchitectureKind.riscv64: 64,
+    ArchitectureKind.ppc64le: 64,
+    ArchitectureKind.s390x: 64,
+    ArchitectureKind.loongarch64: 64,
 }
 
 _32BIT_NAMES = {
@@ -51,6 +59,11 @@ _64BIT_NAMES = {
     'ARMv9': ArchitectureKind.arm64,
     'AArch64': ArchitectureKind.arm64,
     'aarch64': ArchitectureKind.arm64,
+
+    'riscv64': ArchitectureKind.riscv64,
+    'ppc64le': ArchitectureKind.ppc64le,
+    's390x': ArchitectureKind.s390x,
+    'loongarch64': ArchitectureKind.loongarch64,
 }
 _32ON64 = {
     'amd64': ArchitectureKind.x86,
@@ -109,6 +122,9 @@ class Arch(object):
         elif machine in _32BIT_NAMES:
             return Arch(_32BIT_NAMES[machine])
         else:
+            if machine not in _32ON64:
+                raise OkonomiyakiError("32bit/64-bit multilib setup not " +
+                                       "supported for {0!r}".format(machine))
             # We have a 32bit python running on a 64bit machine:
             return Arch(_32ON64[machine])
 
@@ -150,3 +166,7 @@ X86 = Arch(ArchitectureKind.x86)
 X86_64 = Arch(ArchitectureKind.x86_64)
 ARM = Arch(ArchitectureKind.arm)
 ARM64 = Arch(ArchitectureKind.arm64)
+RISCV64 = Arch(ArchitectureKind.riscv64)
+PPC64LE = Arch(ArchitectureKind.ppc64le)
+S390X = Arch(ArchitectureKind.s390x)
+LOONGARCH64 = Arch(ArchitectureKind.loongarch64)
