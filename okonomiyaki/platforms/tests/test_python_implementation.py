@@ -92,7 +92,7 @@ class TestPythonImplementation(unittest.TestCase):
     def test_from_string_errors(self, data):
         # When/Then
         message = r"^Invalid value for metadata field 'python_tag': '{}'$"
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
                 InvalidMetadataField, message.format(data)):
             PythonImplementation.from_string(data)
 

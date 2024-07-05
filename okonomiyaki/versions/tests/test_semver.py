@@ -185,7 +185,7 @@ class TestSemanticVersion(unittest.TestCase):
         )
 
         # When/Then
-        with self.assertRaisesRegexp(InvalidSemanticVersion, r_output):
+        with self.assertRaisesRegex(InvalidSemanticVersion, r_output):
             SemanticVersion.from_string(version_string)
 
     def test_other_object(self):

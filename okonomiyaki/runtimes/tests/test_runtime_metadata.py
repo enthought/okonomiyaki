@@ -298,7 +298,7 @@ class TestRuntimeMetadataFactory(unittest.TestCase):
         path = R_DEFAULT_3_0_0_RH5_X86_64
 
         # When/Then
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
                 UnsupportedMetadata,
                 r"^No support for language 'r' \(metadata version '1.0'\)"):
             runtime_metadata_factory(path)
@@ -333,7 +333,7 @@ class TestRuntimeMetadataFactory(unittest.TestCase):
         path = INVALID_RUNTIME_NO_METADATA_VERSION
 
         # When/Then
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
                 MissingMetadata,
                 r"^Missing runtime metadata field 'metadata_version'$"):
             runtime_metadata_factory(path)

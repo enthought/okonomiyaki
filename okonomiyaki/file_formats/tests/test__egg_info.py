@@ -70,7 +70,7 @@ class TestRequirement(unittest.TestCase):
         self.assertEqual(dependency.build_number, 2)
         self.assertEqual(dependency.strictness, 3)
 
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
                 InvalidRequirementStringHyphen,
                 "Invalid requirement string {0!r}:"
                 " Package versions should be separated by whitespace"
@@ -293,7 +293,7 @@ packages = [
             packages = []""")
 
         # When/Then
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
             InvalidMetadataField,
             r"^Invalid value for metadata field 'python': u?'a.7'"
         ) as exc:
@@ -635,7 +635,7 @@ class TestParseRawspec(unittest.TestCase):
         spec_string = "metadata_version = '1.0'"
 
         # When/Then
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
             InvalidMetadataField, r"^Missing metadata field 'name'"
         ):
             parse_rawspec(spec_string)
@@ -770,7 +770,7 @@ packages = [
 """
 
         # When/Then
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
             InvalidMetadataField,
             r"^Invalid value for metadata field 'metadata_version': None"
         ):
@@ -793,7 +793,7 @@ packages = [
 """
 
         # When/Then
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
             InvalidMetadataField, r"^Missing metadata field 'platform'"
         ):
             parse_rawspec(spec_s)
@@ -816,7 +816,7 @@ packages = [
 """
 
         # When/Then
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
             InvalidMetadataField, r"^Missing metadata field 'python_tag'"
         ):
             parse_rawspec(spec_s)
