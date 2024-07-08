@@ -68,7 +68,7 @@ class TestEnpkgVersionParsing(unittest.TestCase):
         s = "1.3.0-a"
 
         # When/Then
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
             InvalidEnpkgVersion, "Invalid build number: 'a'"
         ):
             EnpkgVersion.from_string(s)
