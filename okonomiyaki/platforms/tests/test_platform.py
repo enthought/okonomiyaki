@@ -279,10 +279,10 @@ class TestPlatform(unittest.TestCase):
         (OSKind.linux, NameKind.rocky, FamilyKind.rhel, X86, X86),
         (OSKind.linux, NameKind.rocky, FamilyKind.rhel, X86, ARM64),
         (OSKind.linux, NameKind.rocky, FamilyKind.rhel, ARM64, ARM64),
-        ('linux', 'rocky', 'rhel', 'x86','x86_64'),
-        ('linux', 'rocky', 'rhel', 'x86','x86'),
-        ('linux', 'rocky', 'rhel', 'x86','arm64'),
-        ('linux', 'rocky', 'rhel', 'arm64','arm64')])
+        ('linux', 'rocky', 'rhel', 'x86', 'x86_64'),
+        ('linux', 'rocky', 'rhel', 'x86', 'x86'),
+        ('linux', 'rocky', 'rhel', 'x86', 'arm64'),
+        ('linux', 'rocky', 'rhel', 'arm64', 'arm64')])
     def test_from_dict(self, os, name, family, arch, machine):
         # Given
         dictionary = {
