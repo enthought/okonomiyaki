@@ -20,7 +20,7 @@ class _AssignmentParser(ast.NodeVisitor):
         return self._data
 
     def generic_visit(self, node):
-        if type(node) != ast.Module:
+        if type(node) is not ast.Module:
             raise OkonomiyakiError("Unexpected expression @ line {0}".
                                    format(node.lineno))
         super(_AssignmentParser, self).generic_visit(node)

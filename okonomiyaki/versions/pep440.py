@@ -147,7 +147,7 @@ class PEP440Version(object):
         return hash(self._parts)
 
     def _ensure_compatible(self, other):
-        if type(self) != type(other):
+        if type(self) != type(other):  # noqa
             raise TypeError('cannot compare %r and %r' % (self, other))
 
     def _compute_string(self, epoch, nums, pre, post, dev, local):
