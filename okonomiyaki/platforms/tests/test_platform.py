@@ -274,7 +274,7 @@ class TestPlatform(unittest.TestCase):
 
         self.assertNotEqual(win32_1, None)
 
-    @parameterized.expand([X86, 'x86'])
+    @parameterized.expand([(X86,), ('x86',)])
     def test_from_dict(self, arch):
         # Given
         dictionary = {
