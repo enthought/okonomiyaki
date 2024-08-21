@@ -273,3 +273,23 @@ class TestPlatform(unittest.TestCase):
         self.assertFalse(win32_1 == win64)
 
         self.assertNotEqual(win32_1, None)
+
+    def test_from_dict(self):
+        # Given
+        dictionary = {
+            'os_kind': 'linux',
+            'name_kind': 'rocky',
+            'family_kind': 'rhel',
+            'release': '8.9',
+            'arch': 'x86',
+            'machine': 'arm64'}
+
+        # When
+        platform = Platform.from_dict(**dictionary)
+
+        # Then
+        self.assertEqual(platform.os, 'linux')
+        self.assertEqual(platform.name, 'rocky')
+        self.assertEqual(platform.family, 'rhel')
+        self.assertEqual(platform.release, '8.9')
+        self.assertEqual(str(platform), 'Rocky Linux 8.9 on arm64 using x86 arch')

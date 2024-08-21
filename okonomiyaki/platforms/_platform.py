@@ -75,9 +75,10 @@ class Platform(object):
 
     machine = attr(validator=instance_of(Arch))
     """
-    The machine. This is the CPU architecture (e.g. for a 32 bits python
-    running on 64 bits Intel OS, machine will be an x86_64 arch, whereas arch
-    will be an 'x86' arch)
+    This is the CPU architecture of the host machine (e.g. for a
+    32 bits python running on 64 bits Intel OS, machine will be an
+    x86_64 arch, whereas arch will be an 'x86' arch)
+
     """
 
     @classmethod
@@ -102,6 +103,53 @@ class Platform(object):
         else:
             arch = Arch.from_name(arch_string)
         return _guess_platform(arch)
+
+    @classmethod
+    def from_dict(cls, **kw):
+        """ Create a Platfrom instace from dictionary values.
+
+        Parameters
+        ----------
+        os_kind: str, OSKind
+            The most generic OS description.
+
+        name_kind: str, NameKind
+            The most specific platform description.
+
+        family_kind: str, FamilyKind
+            The 'family' of platforms. For example, both debian and
+            ubuntu distributions share the same kind, 'debian'.
+
+        release: str
+            The release string. May be an empty string.
+        arch: str, Arch
+             Actual architecture of the Python runtime
+        machine: str, Arch
+             This is the CPU architecture of the host machine
+             (e.g. for a 32 bits python running on 64 bits Intel OS,
+             machine will be an x86_64 arch, whereas arch will be an 'x86'
+             arch)
+
+        """
+        os_kind, name_kind, family_kind, arch, machine = (
+            kw['os_kind'], kw['name_kind'], kw['family_kind'], kw['arch'], kw['machine'])
+        if isinstance(os_kind, str):
+            os_kind = OSKind[os_kind]
+        if isinstance(name_kind, str):
+            name_kind = NameKind[name_kind]
+        if isinstance(family_kind, str):
+            family_kind = FamilyKind[family_kind]
+        if isinstance(arch, str):
+            arch = Arch.from_name(arch)
+        if isinstance(machine, str):
+            machine = Arch.from_name(machine)
+        return cls(
+            os_kind=os_kind,
+            family_kind=family_kind,
+            name_kind=name_kind,
+            release=kw['release'],
+            arch=arch,
+            machine=machine)
 
     @property
     def family(self):
