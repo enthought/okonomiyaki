@@ -2,10 +2,10 @@
 import io
 import os.path
 
-from okonomiyaki import repositories
+from okonomiyaki import utils
 
 DATA_DIR = os.path.join(
-    os.path.dirname(repositories.__file__), "tests", "data")
+    os.path.dirname(utils.__file__), "test_data", "eggs")
 
 ENSTALLER_EGG = os.path.join(DATA_DIR, "enstaller-4.5.0-1.egg")
 ETS_EGG = os.path.join(DATA_DIR, "ets-4.3.0-3.egg")
@@ -28,14 +28,13 @@ _OSX64APP_EGG = os.path.join(DATA_DIR, "_osx64app-1.0-1.egg")
 # (see dcdd2492066b9a88e1cf39459c3fff99589f789d in buildsystem).
 # In most of those cases, the PKG-INFO is instead written as
 # EGG-INFO/PKG-INFO.bak (don't ask).
-BROKEN_MCCABE_EGG = os.path.join(DATA_DIR, "broken_legacy_eggs",
-                                 "mccabe-0.2.1-2.egg")
+BROKEN_MCCABE_EGG = os.path.join(
+    DATA_DIR, "broken_legacy_eggs", "mccabe-0.2.1-2.egg")
 
 UNICODE_DESCRIPTION_EGG = os.path.join(DATA_DIR, "pymongo-2.8-1.egg")
 with io.open(
-    os.path.join(DATA_DIR, "pymongo_description.txt"),
-    "r", encoding="utf8"
-) as fp:
+        os.path.join(DATA_DIR, "pymongo_description.txt"),
+        "r", encoding="utf8") as fp:
     UNICODE_DESCRIPTION_TEXT = fp.read()
 
 # flake8: noqa
