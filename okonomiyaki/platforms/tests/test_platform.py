@@ -274,14 +274,15 @@ class TestPlatform(unittest.TestCase):
 
         self.assertNotEqual(win32_1, None)
 
-    def test_from_dict(self):
+    @parameterized.expand([X86, 'x86'])
+    def test_from_dict(self, arch):
         # Given
         dictionary = {
             'os_kind': 'linux',
             'name_kind': 'rocky',
             'family_kind': 'rhel',
             'release': '8.9',
-            'arch': 'x86',
+            'arch': arch,
             'machine': 'arm64'}
 
         # When
