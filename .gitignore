@@ -2,6 +2,8 @@
 .env
 .tox
 dist/*
+.hypothesis/
+build/
 okonomiyaki/_version.py
 *.egg-info
 *.pyc
