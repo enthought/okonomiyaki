@@ -4,7 +4,7 @@ from parameterized import parameterized
 
 from okonomiyaki.errors import OkonomiyakiError
 from .._arch import X86, X86_64, ARM, ARM64
-from .._platform import Platform
+from .._platform import Platform, OSKind, NameKind, FamilyKind
 
 from .common import (
     mock_x86, mock_x86_64,
@@ -274,16 +274,24 @@ class TestPlatform(unittest.TestCase):
 
         self.assertNotEqual(win32_1, None)
 
-    @parameterized.expand([(X86,), ('x86',)])
-    def test_from_dict(self, arch):
+    @parameterized.expand([
+        (OSKind.linux, NameKind.rocky, FamilyKind.rhel, X86, X86_64),
+        (OSKind.linux, NameKind.rocky, FamilyKind.rhel, X86, X86),
+        (OSKind.linux, NameKind.rocky, FamilyKind.rhel, X86, ARM64),
+        (OSKind.linux, NameKind.rocky, FamilyKind.rhel, ARM64, ARM64),
+        ('linux', 'rocky', 'rhel', 'x86','x86_64'),
+        ('linux', 'rocky', 'rhel', 'x86','x86'),
+        ('linux', 'rocky', 'rhel', 'x86','arm64'),
+        ('linux', 'rocky', 'rhel', 'arm64','arm64')])
+    def test_from_dict(self, os, name, family, arch, machine):
         # Given
         dictionary = {
-            'os_kind': 'linux',
-            'name_kind': 'rocky',
-            'family_kind': 'rhel',
+            'os_kind': os,
+            'name_kind': name,
+            'family_kind': family,
             'release': '8.9',
             'arch': arch,
-            'machine': 'arm64'}
+            'machine': machine}
 
         # When
         platform = Platform.from_dict(**dictionary)
@@ -293,4 +301,4 @@ class TestPlatform(unittest.TestCase):
         self.assertEqual(platform.name, 'rocky')
         self.assertEqual(platform.family, 'rhel')
         self.assertEqual(platform.release, '8.9')
-        self.assertEqual(str(platform), 'Rocky Linux 8.9 on arm64 using x86 arch')
+        self.assertEqual(str(platform), f'Rocky Linux 8.9 on {machine} using {arch} arch')
