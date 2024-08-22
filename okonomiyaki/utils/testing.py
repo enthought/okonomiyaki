@@ -1,3 +1,6 @@
+from okonomyaki.errors import OkonomiyakiError
+
+
 class Patcher(object):
     """ A dumb class to allow a mock.patch object to be used as a decorator and
     a context manager
@@ -48,3 +51,16 @@ class MultiPatcher(object):
     def __exit__(self, *a, **kw):
         for patcher in self._patchers:
             patcher.__exit__(*a, **kw)
+
+
+def known_system(self):
+    from okonomiyaki.plarforms._platform import (
+        _guess_os_kind, _guess_platform, _guess_platform_details)
+    try:
+        os_kind = _guess_os_kind()
+        _guess_platform(os_kind)
+        _guess_platform_details(os_kind)
+    except OkonomiyakiError:
+        return False
+    else:
+        return True
