@@ -10,8 +10,17 @@ The library contains code for the following:
 * object models for eggs metadata, as well as versions and platform
   representations
 
-It works on both python 2 and 3, and pypy. It is expected to work on pretty
+It works on Python >= 3.6, It is expected to work on pretty
 much any compliant python implementation.
+
+Note
+----
+
+* Version instances are available without extra dependencies so use ``pip install okonomiyaki``
+* Platform instances are available by installing ``pip install okonomiyaki[platforms]``
+* Egg metadata and archive tools are available by installing ``pip install okonomiyaki[formats]``
+* The full set of functionality, please use ``pip install okonomiyaki[all]``
+
 
 Examples
 ========

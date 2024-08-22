@@ -26,10 +26,14 @@ jobs:
     - name: Install okonomiyaki
       run: python -m pip install -e .
     - name: Install test dependencies
-      run: python -m pip install -r "dev_requirements.txt"
-    - name: Test with haas
+      run: python -m pip install -e .[test] coverage
+    - name: Test without dependencies
       run: |
-        coverage run -p -m haas okonomiyaki
+        coverage run -p -m haas okonomiyaki.versions
+    - name: Test with all dependencies
+      run: |
+        python -m pip install -e .[all]
+        coverage run -p -m haas okonomiyaki       
     - name: Upload Coverage info
       uses: actions/upload-artifact@v4
       with:
