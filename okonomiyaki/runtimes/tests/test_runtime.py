@@ -4,7 +4,7 @@ import unittest
 
 from okonomiyaki.platforms import EPDPlatform
 from okonomiyaki.versions import RuntimeVersion
-from okonomiyaki.utils.testing import known_systems
+from okonomiyaki.utils.testing import known_system
 
 from ..runtime import PythonRuntime
 
@@ -16,7 +16,7 @@ NORM_EXECUTABLE = os.path.normpath(sys.executable)
 class TestPythonRuntime(unittest.TestCase):
 
     @unittest.skipIf(
-        not known_systems,
+        not known_system,
         'This test should be executed only on Enthought supported platforms')
     def test_simple_from_running_python(self):
         # When
