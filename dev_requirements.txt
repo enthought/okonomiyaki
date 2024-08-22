@@ -3,5 +3,4 @@ coverage
 flake8
 testfixtures
 packaging >= 20.0
-distro
 parameterized
