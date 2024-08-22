@@ -1,4 +1,4 @@
-from okonomyaki.errors import OkonomiyakiError
+from okonomiyaki.errors import OkonomiyakiError
 
 
 class Patcher(object):
