@@ -1,4 +1,9 @@
-include okonomiyaki/utils/test_data/*
 include LICENSE.txt
 include CHANGELOG
 include README
+include VERSION
+include .coveragerc
+include *.cfg
+include okonomiyaki/utils/test_data/*
+recursive-include docs *.bat *.py *.rst
+include docs/Makefile
