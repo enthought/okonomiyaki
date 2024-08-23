@@ -45,7 +45,7 @@ def _default_cpython_abi(platform, implementation_version):
                 abi = u"msvc2015"
             elif implementation_version.minor <= 8:
                 abi = u"msvc2019"
-            elif implementation_version.minor <= 11:
+            else:
                 abi = u"msvc2022"
 
         if abi is None:
