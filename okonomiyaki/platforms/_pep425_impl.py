@@ -101,11 +101,15 @@ def _is_running_32bit():
 
 
 def get_platform():
-    import distutils.util
-    import platform
     """Return our platform name 'win32', 'linux_x86_64'"""
 
-    result = distutils.util.get_platform().replace('.', '_').replace('-', '_')
+    try:
+        import distutils.util
+    except ImportError:
+        import platform
+        result = platform.platform().lower()
+    else:
+        result = distutils.util.get_platform().replace('.', '_').replace('-', '_')
     if result == "linux_x86_64" and _is_running_32bit():
         # 32 bit Python program (running on a 64 bit Linux): pip should only
         # install and run 32 bit compiled extensions in that case.
