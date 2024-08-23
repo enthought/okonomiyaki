@@ -106,7 +106,7 @@ def get_platform():
         import distutils.util
     except ImportError:
         import sysconfig
-        result = sysconfig.get_platform().string.replace(".", "_").replace("-", "_")
+        result = sysconfig.get_platform().replace(".", "_").replace("-", "_")
     else:
         result = distutils.util.get_platform().replace('.', '_').replace('-', '_')
     if _is_running_32bit():
