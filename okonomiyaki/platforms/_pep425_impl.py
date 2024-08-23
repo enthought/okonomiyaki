@@ -101,15 +101,21 @@ def _is_running_32bit():
 
 
 def get_platform():
-    import distutils.util
-    import platform
     """Return our platform name 'win32', 'linux_x86_64'"""
-
-    result = distutils.util.get_platform().replace('.', '_').replace('-', '_')
-    if result == "linux_x86_64" and _is_running_32bit():
-        # 32 bit Python program (running on a 64 bit Linux): pip should only
-        # install and run 32 bit compiled extensions in that case.
-        result = "linux_i686"
+    try:
+        import distutils.util
+    except ImportError:
+        import sysconfig
+        result = sysconfig.get_platform().replace(".", "_").replace("-", "_")
+    else:
+        result = distutils.util.get_platform().replace('.', '_').replace('-', '_')
+    if _is_running_32bit():
+       # 32 bit Python program (running on a 64 bit Linux): pip should only
+       # install and run 32 bit compiled extensions in that case.
+       if result == "linux_x86_64":
+           result = "linux_i686"
+       elif result == "linux_aarch64":
+           result = "linux_armv71"
     return result
 
 
