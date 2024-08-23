@@ -1,4 +1,4 @@
-??????????     2.0.0
+2024-08-23     2.0.0
 --------------------
 
 Enhancements:
@@ -6,22 +6,31 @@ Enhancements:
 * Add support for the ARM and ARM64 architectures in Arch (#458)
 * Add support for ARM64 in EPDPlatform 	(#458)
 * Add sample runtimes and eggs for the ARM64 architecture (#462, #460)
+* Add a constructor for Platform from a dictionary (#410, #472)
 
 Breaking Changes:
 
 * Remove Python 2.x code support. Okonomiyaki now supports running on > 3.6 (#380)
 * Remove the "short" attribute from the EPDPlatform instance (#485)
 * Remove the LagacyEPDPlatform instance (#485)
+* Remove okonomiyaki.recipes submodule (#473)
+* Move okonomiyaki.recipes.tests.data files to okonomiyaki.utils.test_data (#473)
+* Move dependencies to optional extras (#474)
+* default_abi will not fail for Python > 3.11 on windows anymore  (#477)
 
 Bug fixes:
 
 * Fix okonomiyaki cli when it is called with no arguments (#459)
+* Drop use of deprecated alias assertRaisesRegexp (#486)
+* Skip some tests on unsupported systems (#475)
 
 Maintenance:
 
 * Update Github ci to generate the html coverage report as a downloadable artifact (#457)
 * Run tests on MacOS M1 runners (#460)
 * Run tests on Python 3.11 (#461)
+* Run tests on Python 3.12 (#477)
+* Simplify setup.py (#476, #477)
 
 2023-06-29     1.4.0
 --------------------
