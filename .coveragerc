@@ -8,3 +8,4 @@ omit =
 branch = True
 source = okonomiyaki
 relative_files = True
+data_file = coverage
