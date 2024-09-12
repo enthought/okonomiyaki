@@ -255,7 +255,7 @@ CP38_EGGS = [
     MKL_10_3_OSX_X86_64_cp38,
     NUMPY_1_9_2_OSX_X86_64_cp38]
 
-# cp38 eggs for testing
+# cp311 eggs for testing
 
 _RH8_X86_64_cp311 = os.path.join(_HERE, 'eggs', 'rh8_x86_64', 'cp311')
 
