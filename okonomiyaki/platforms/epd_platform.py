@@ -19,8 +19,6 @@ _X86_64_LEGACY_SPEC = "amd64"
 _ARCHBITS_TO_ARCH = {
     "32": ArchitectureKind.x86.name,
     "64": _X86_64_LEGACY_SPEC,
-    ArchitectureKind.x86: ArchitectureKind.x86.name,
-    ArchitectureKind.x86_64: _X86_64_LEGACY_SPEC,
 }
 
 # Historically supported platform names for EDP
@@ -175,10 +173,11 @@ class EPDPlatform(object):
             d = m.groupdict()
             platform_name = d["os"]
             arch_bits = d["arch"]
-            if arch_bits not in _ARCHBITS_TO_ARCH:
+            try:
+                arch_name = _ARCHBITS_TO_ARCH[arch_bits]
+            except KeyError:
                 arch = machine = Arch.from_name(arch_bits)
             else:
-                arch_name = _ARCHBITS_TO_ARCH[arch_bits]
                 arch = machine = Arch.from_name(arch_name)
             os, name, family, release = _epd_name_and_python_to_quadruplet(
                 platform_name, runtime_version, arch)
@@ -385,7 +384,7 @@ def applies(platform_string, to='current'):
 
     def _parse_component(component):
         component = component.strip()
-        parts = component.split("-")
+        parts = component.split("-", 1)
         if len(parts) == 1:
             if parts[0] in VALID_PLATFORMS_FILTER:
                 return parts[0], None
@@ -395,13 +394,13 @@ def applies(platform_string, to='current'):
                 raise ValueError(
                     "Invalid filter string: '{}'".format(component))
         elif len(parts) == 2:
-            check = (
-                parts[0] not in VALID_PLATFORMS_FILTER
-                or parts[1] not in _ARCHBITS_TO_ARCH)
-            if check:
-                raise ValueError(
-                    "Invalid filter string: '{}'".format(component))
-            return parts[0], parts[1]
+            try:
+                arch_name = _ARCHBITS_TO_ARCH[parts[1]]
+            except KeyError:
+                arch = machine = Arch.from_name(parts[1])
+            else:
+                arch = machine = Arch.from_name(arch_name)
+            return parts[0], arch
         else:
             raise ValueError(
                 "Invalid filter string: '{}'".format(component))
@@ -416,20 +415,19 @@ def applies(platform_string, to='current'):
         if to == 'current':
             full = EPDPlatform.from_running_system()
             to_platform = full.platform_name
-            to_arch_bits = full.arch_bits
+            to_arch = full.arch
         elif '-' in to:
             full = EPDPlatform.from_epd_string(to)
             to_platform = full.platform_name
-            to_arch_bits = full.arch_bits
+            to_arch = full.arch
         else:
             if not (to in PLATFORM_NAMES or to == 'rh'):
                 raise ValueError("Invalid 'to' argument: {0!r}".format(to))
             to_platform = to
-            to_arch_bits = None
+            to_arch = None
     else:
         to_platform = to.platform_name
-        to_arch_bits = to.arch_bits
-
+        to_arch = to.arch
     conditions = []
 
     platform_string = platform_string.strip()
@@ -441,12 +439,12 @@ def applies(platform_string, to='current'):
 
     platform_strings = [s for s in platform_string.split(",")]
     for platform_string in platform_strings:
-        short, bits = _parse_component(platform_string)
+        short, arch = _parse_component(platform_string)
         if _are_compatible(short, to_platform):
-            if bits is None:
+            if arch is None:
                 conditions.append(True)
             else:
-                conditions.append(bits == to_arch_bits or to_arch_bits is None)
+                conditions.append(arch == to_arch or to_arch is None)
         else:
             conditions.append(False)
 
