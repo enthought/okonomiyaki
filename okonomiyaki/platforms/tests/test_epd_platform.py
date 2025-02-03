@@ -60,7 +60,7 @@ class TestEPDPlatform(unittest.TestCase):
     def test_over_complete_strings(self):
         # When/Then
         with self.assertRaises(OkonomiyakiError):
-            EPDPlatform.from_string("win_x86-64")
+            EPDPlatform.from_string('win_x86-64')
 
     @parameterized.expand([
         ('osx-32', 'osx', X86),
@@ -270,16 +270,16 @@ class TestEPDPlatform(unittest.TestCase):
                     EPDPlatform.from_running_system('arm64')
 
     @parameterized.expand([
-        ("rh5_x86", None, "linux_i686"),
-        ("rh5_x86_64", None, "linux_x86_64"),
-        ("osx_x86", None, "macosx_10_6_i386"),
-        ("osx_x86", '3.8.9+1', "macosx_10_14_i386"),
-        ("osx_x86_64", None, "macosx_10_6_x86_64"),
-        ("osx_x86_64", '3.8.9+1', "macosx_10_14_x86_64"),
-        ("osx_x86_64", '3.11.2+1', "macosx_12_0_x86_64"),
-        ("win_x86", None, "win32"),
-        ("win_x86_64", None, "win_amd64"),
-        ("win_x86_64", '3.9.1', "win_amd64")])
+        ('rh5_x86', None, 'linux_i686'),
+        ('rh5_x86_64', None, 'linux_x86_64'),
+        ('osx_x86', None, 'macosx_10_6_i386'),
+        ('osx_x86', '3.8.9+1', 'macosx_10_14_i386'),
+        ('osx_x86_64', None, 'macosx_10_6_x86_64'),
+        ('osx_x86_64', '3.8.9+1', 'macosx_10_14_x86_64'),
+        ('osx_x86_64', '3.11.2+1', 'macosx_12_0_x86_64'),
+        ('win_x86', None, 'win32'),
+        ('win_x86_64', None, 'win_amd64'),
+        ('win_x86_64', '3.9.1', 'win_amd64')])
     def test_pep425_tag(self, platform_tag, version, expected):
         # Given
         if version is not None:
@@ -350,7 +350,7 @@ class TestEPDPlatform(unittest.TestCase):
 
     def test_from_epd_platform_string(self):
         # Given
-        epd_platform_string = "rh5-x86"
+        epd_platform_string = 'rh5-x86'
 
         # When
         epd_platform = EPDPlatform.from_string(epd_platform_string)
@@ -364,7 +364,7 @@ class TestEPDPlatform(unittest.TestCase):
         self.assertEqual(platform.machine, X86)
 
         # Given
-        epd_platform_string = "win-x86"
+        epd_platform_string = 'win-x86'
 
         # When
         epd_platform = EPDPlatform.from_string(epd_platform_string)
@@ -378,7 +378,7 @@ class TestEPDPlatform(unittest.TestCase):
         self.assertEqual(platform.machine, X86)
 
         # Given
-        epd_platform_string = "osx-x86_64"
+        epd_platform_string = 'osx-x86_64'
 
         # When
         epd_platform = EPDPlatform.from_string(epd_platform_string)
@@ -394,7 +394,7 @@ class TestEPDPlatform(unittest.TestCase):
     def test_from_epd_platform_string_invalid(self):
         # Given
         # Invalid bitwidth
-        epd_platform_string = "linux-32-1"
+        epd_platform_string = 'linux-32-1'
 
         # When/Then
         with self.assertRaises(OkonomiyakiError):
@@ -402,7 +402,7 @@ class TestEPDPlatform(unittest.TestCase):
 
         # Given
         # Invalid bitwidth
-        epd_platform_string = "osx-63"
+        epd_platform_string = 'osx-63'
 
         # When/Then
         with self.assertRaises(OkonomiyakiError):
@@ -410,7 +410,7 @@ class TestEPDPlatform(unittest.TestCase):
 
         # Given
         # Invalid platform basename
-        epd_platform_string = "netbsd-32"
+        epd_platform_string = 'netbsd-32'
 
         # When/Then
         with self.assertRaises(OkonomiyakiError):
@@ -437,16 +437,16 @@ class TestEPDPlatform(unittest.TestCase):
     def test_from_platform_tag_invalid(self):
         # When/Then
         with self.assertRaises(NotImplementedError):
-            EPDPlatform._from_platform_tag("openbsd_i386")
+            EPDPlatform._from_platform_tag('openbsd_i386')
 
         with self.assertRaises(NotImplementedError):
-            EPDPlatform._from_platform_tag("manylinux_2_8_x86_64")
+            EPDPlatform._from_platform_tag('manylinux_2_8_x86_64')
 
         with self.assertRaises(ValueError):
-            EPDPlatform._from_platform_tag("manylinux2014_x86_64")
+            EPDPlatform._from_platform_tag('manylinux2014_x86_64')
 
         with self.assertRaises(ValueError):
-            EPDPlatform._from_platform_tag("any")
+            EPDPlatform._from_platform_tag('any')
 
         with self.assertRaises(ValueError):
             EPDPlatform._from_platform_tag(None)
@@ -468,92 +468,100 @@ class TestEPDPlatformApplies(unittest.TestCase):
     @mock_centos_5_8
     def test_no_arch(self):
         with mock_x86:
-            self.assertTrue(applies("rh5", "current"))
-            self.assertFalse(applies("!rh5", "current"))
+            self.assertTrue(applies('rh5', 'current'))
+            self.assertFalse(applies('!rh5', 'current'))
 
-        platform = EPDPlatform.from_string("rh5-x86_64")
-        self.assertTrue(applies("rh5", platform))
-        self.assertFalse(applies("!rh5", platform))
-        self.assertFalse(applies("rh5-32", platform))
+        platform = EPDPlatform.from_string('rh5-x86_64')
+        self.assertTrue(applies('rh5', platform))
+        self.assertFalse(applies('!rh5', platform))
+        self.assertFalse(applies('rh5-32', platform))
 
     @mock_centos_5_8
     def test_all(self):
         with mock_x86:
-            self.assertTrue(applies("all", "current"))
-            self.assertFalse(applies("!all", "current"))
-        platform = EPDPlatform.from_string("rh5-x86_64")
-        self.assertTrue(applies("all", platform))
-        self.assertFalse(applies("!all", platform))
+            self.assertTrue(applies('all', 'current'))
+            self.assertFalse(applies('!all', 'current'))
+        platform = EPDPlatform.from_string('rh5-x86_64')
+        self.assertTrue(applies('all', platform))
+        self.assertFalse(applies('!all', platform))
 
     @mock_centos_5_8
     def test_current_linux(self):
         with mock_x86:
-            for expected_supported in ("rh5", "rh"):
-                self.assertTrue(applies(expected_supported, "current"))
-                self.assertFalse(applies("!" + expected_supported, "current"))
+            for expected_supported in ('rh5', 'rh'):
+                self.assertTrue(applies(expected_supported, 'current'))
+                self.assertFalse(applies('!' + expected_supported, 'current'))
 
-            for expected_unsupported in ("win", "win-32", "osx", "rh6", "rh3"):
-                self.assertFalse(applies(expected_unsupported, "current"))
-                self.assertTrue(applies("!" + expected_unsupported, "current"))
+            for expected_unsupported in ('win', 'win-32', 'osx', 'rh6', 'rh3'):
+                self.assertFalse(applies(expected_unsupported, 'current'))
+                self.assertTrue(applies('!' + expected_unsupported, 'current'))
 
-            self.assertTrue(applies("win,rh", "current"))
-            self.assertFalse(applies("win,osx", "current"))
-            self.assertTrue(applies("!win,osx", "current"))
-            self.assertFalse(applies("!rh,osx", "current"))
-            self.assertTrue(applies("rh5-32", "current"))
-            self.assertFalse(applies("!rh5-32", "current"))
+            self.assertTrue(applies('win,rh', 'current'))
+            self.assertFalse(applies('win,osx', 'current'))
+            self.assertTrue(applies('!win,osx', 'current'))
+            self.assertFalse(applies('!rh,osx', 'current'))
+            self.assertTrue(applies('rh5-32', 'current'))
+            self.assertFalse(applies('!rh5-32', 'current'))
 
         with mock_x86_64:
-            self.assertTrue(applies("rh5-64", "current"))
-            self.assertFalse(applies("!rh5-64", "current"))
+            self.assertTrue(applies('rh5-64', 'current'))
+            self.assertFalse(applies('!rh5-64', 'current'))
 
     @mock_windows_7
     @mock_x86
     def test_current_windows_7(self):
-        for platform in ("rh5", "rh", "osx-32"):
-            self.assertFalse(applies(platform, "current"))
-        for platform in ("win", "win-32"):
-            self.assertTrue(applies(platform, "current"))
+        for platform in ('rh5', 'rh', 'osx-32'):
+            self.assertFalse(applies(platform, 'current'))
+        for platform in ('win', 'win-32'):
+            self.assertTrue(applies(platform, 'current'))
 
     @mock_windows_10
     @mock_x86
     def test_current_windows_10(self):
-        for platform in ("rh5", "rh", "osx-32"):
-            self.assertFalse(applies(platform, "current"))
-        for platform in ("win", "win-32"):
-            self.assertTrue(applies(platform, "current"))
+        for platform in ('rh5', 'rh', 'osx-32'):
+            self.assertFalse(applies(platform, 'current'))
+        for platform in ('win', 'win-32'):
+            self.assertTrue(applies(platform, 'current'))
 
     @mock_windows_11
     @mock_x86
-    def test_current_windows_11(self):
-        for platform in ("rh5", "rh", "osx-32"):
-            self.assertFalse(applies(platform, "current"))
-        for platform in ("win", "win-32"):
-            self.assertTrue(applies(platform, "current"))
+    def test_current_windows_11_x86(self):
+        for platform in ('rh5', 'rh', 'osx-32'):
+            self.assertFalse(applies(platform, 'current'))
+        for platform in ('win', 'win-32'):
+            self.assertTrue(applies(platform, 'current'))
+
+    @mock_windows_11
+    @mock_x86_64
+    def test_current_windows_11_x86_64(self):
+        for platform in ('rh5', 'rh', 'osx-32'):
+            self.assertFalse(applies(platform, 'current'))
+        for platform in ('win', 'win-64', 'win-x86_64'):
+            self.assertTrue(applies(platform, 'current'))
 
     @mock_windows_11
     @mock_arm64
-    def test_current_windows_11(self):
-        for platform in ("rh5", "rh", "osx-32"):
-            self.assertFalse(applies(platform, "current"))
-        for platform in ("win", "win-arm64"):
-            self.assertTrue(applies(platform, "current"))
+    def test_current_windows_11_arm(self):
+        for platform in ('rh5', 'rh', 'osx-32'):
+            self.assertFalse(applies(platform, 'current'))
+        for platform in ('win', 'win-arm64'):
+            self.assertTrue(applies(platform, 'current'))
 
     @mock_darwin
     @mock_arm64
     def test_current_darwin(self):
-        for platform in ("rh5", "rh", 'osx-64', "osx-x86_64", 'win'):
-            self.assertFalse(applies(platform, "current"))
-        for platform in ("osx", "osx-arm64"):
-            self.assertTrue(applies(platform, "current"))
+        for platform in ('rh5', 'rh', 'osx-64', 'osx-x86_64', 'win'):
+            self.assertFalse(applies(platform, 'current'))
+        for platform in ('osx', 'osx-arm64'):
+            self.assertTrue(applies(platform, 'current'))
 
     @mock_centos_5_8
     @mock_x86
     def test_applies_rh(self):
-        self.assertTrue(applies("rh5-32", "rh5"))
-        self.assertTrue(applies("rh5-64", "rh5"))
-        self.assertFalse(applies("win-64", "rh5"))
-        self.assertFalse(applies("rh6-64", "rh5"))
-        self.assertTrue(applies("rh5-32", "rh"))
-        self.assertTrue(applies("rh6-32", "rh"))
-        self.assertFalse(applies("win-32", "rh"))
+        self.assertTrue(applies('rh5-32', 'rh5'))
+        self.assertTrue(applies('rh5-64', 'rh5'))
+        self.assertFalse(applies('win-64', 'rh5'))
+        self.assertFalse(applies('rh6-64', 'rh5'))
+        self.assertTrue(applies('rh5-32', 'rh'))
+        self.assertTrue(applies('rh6-32', 'rh'))
+        self.assertFalse(applies('win-32', 'rh'))
