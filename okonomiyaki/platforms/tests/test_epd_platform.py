@@ -95,37 +95,23 @@ class TestEPDPlatform(unittest.TestCase):
         self.assertEqual(epd_platform.arch, expected)
         self.assertEqual(epd_platform.platform_name, 'rh8')
 
-    def test_epd_platform_from_string_with_runtime_version(self):
+    @parameterized.expand([
+        ('3.6.5+6', 'osx-64', '10.6'),
+        ('3.6.5+6', 'win-64', ''),
+        ('3.8.8+2', 'osx-x86_64', '10.14'),
+        ('3.8.8+2', 'win-x86_64', '10'),
+        ('3.11.2+5', 'osx-x86_64', '12.0'),
+        ('3.11.2+5', 'osx-arm64', '12.0'),
+        ('3.11.2+5', 'win-x86_64', '10'),
+        ('3.11.2+5', 'win-arm64', '11')])
+    def test_epd_platform_from_string_with_runtime_version(
+            self, version, platform, release):
         # given
-        version = RuntimeVersion.from_string('3.6.5+6')
+        version = RuntimeVersion.from_string(version)
 
         # when/then
-        epd_platform = EPDPlatform.from_string('osx-64', version)
-        self.assertEqual(epd_platform.platform.release, '10.6')
-        epd_platform = EPDPlatform.from_string('win-64', version)
-        self.assertEqual(epd_platform.platform.release, '')
-
-        # given
-        version = RuntimeVersion.from_string('3.8.8+2')
-
-        # when/then
-        epd_platform = EPDPlatform.from_string('osx-x86_64', version)
-        self.assertEqual(epd_platform.platform.release, '10.14')
-        epd_platform = EPDPlatform.from_string('win-x86_64', version)
-        self.assertEqual(epd_platform.platform.release, '10')
-
-        # given
-        version = RuntimeVersion.from_string('3.11.2+5')
-
-        # when/then
-        epd_platform = EPDPlatform.from_string('osx-x86_64', version)
-        self.assertEqual(epd_platform.platform.release, '12.0')
-        epd_platform = EPDPlatform.from_string('osx-arm64', version)
-        self.assertEqual(epd_platform.platform.release, '12.0')
-        epd_platform = EPDPlatform.from_string('win-x86_64', version)
-        self.assertEqual(epd_platform.platform.release, '10')
-        epd_platform = EPDPlatform.from_string('win-arm64', version)
-        self.assertEqual(epd_platform.platform.release, '11')
+        epd_platform = EPDPlatform.from_string(platform, version)
+        self.assertEqual(epd_platform.platform.release, release)
 
     @parameterized.expand([
         (mock_x86, X86), (mock_x86_64, X86_64), (mock_arm64, ARM64)])
