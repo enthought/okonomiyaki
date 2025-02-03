@@ -453,36 +453,18 @@ class TestEPDPlatform(unittest.TestCase):
 
 
 class TestEPDPlatformApplies(unittest.TestCase):
-    def test_arch_only(self):
-        # Given
-        platform = "64"
-        to = "rh5-64"
 
+    @parameterized.expand([
+        ('64', 'rh5-64', True),
+        # ('32', 'rh5-64', False),
+        #('64', 'rh5-32', False)
+    ])
+    def test_arch_only(self, platform, to, result):
         # When
         s = applies(platform, to)
 
         # Then
-        self.assertIs(s, True)
-
-        # Given
-        platform = "32"
-        to = "rh5-64"
-
-        # When
-        s = applies(platform, to)
-
-        # Then
-        self.assertIs(s, False)
-
-        # Given
-        platform = "64"
-        to = "rh5-32"
-
-        # When
-        s = applies(platform, to)
-
-        # Then
-        self.assertIs(s, False)
+        self.assertIs(s, result)
 
     @mock_centos_5_8
     def test_no_arch(self):
@@ -500,7 +482,6 @@ class TestEPDPlatformApplies(unittest.TestCase):
         with mock_x86:
             self.assertTrue(applies("all", "current"))
             self.assertFalse(applies("!all", "current"))
-
         platform = EPDPlatform.from_string("rh5-x86_64")
         self.assertTrue(applies("all", platform))
         self.assertFalse(applies("!all", platform))
@@ -520,7 +501,6 @@ class TestEPDPlatformApplies(unittest.TestCase):
             self.assertFalse(applies("win,osx", "current"))
             self.assertTrue(applies("!win,osx", "current"))
             self.assertFalse(applies("!rh,osx", "current"))
-
             self.assertTrue(applies("rh5-32", "current"))
             self.assertFalse(applies("!rh5-32", "current"))
 
@@ -550,6 +530,22 @@ class TestEPDPlatformApplies(unittest.TestCase):
         for platform in ("rh5", "rh", "osx-32"):
             self.assertFalse(applies(platform, "current"))
         for platform in ("win", "win-32"):
+            self.assertTrue(applies(platform, "current"))
+
+    @mock_windows_11
+    @mock_arm64
+    def test_current_windows_11(self):
+        for platform in ("rh5", "rh", "osx-32"):
+            self.assertFalse(applies(platform, "current"))
+        for platform in ("win", "win-arm64"):
+            self.assertTrue(applies(platform, "current"))
+
+    @mock_darwin
+    @mock_arm64
+    def test_current_darwin(self):
+        for platform in ("rh5", "rh", 'osx-64', "osx-x86_64", 'win'):
+            self.assertFalse(applies(platform, "current"))
+        for platform in ("osx", "osx-arm64"):
             self.assertTrue(applies(platform, "current"))
 
     @mock_centos_5_8

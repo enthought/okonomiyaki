@@ -443,6 +443,8 @@ def applies(platform_string, to='current'):
         if _are_compatible(short, to_platform):
             if arch is None:
                 conditions.append(True)
+            elif arch in _ARCHBITS_TO_ARCH:
+                conditions.append(arch in str(to_arch) or to_arch is None)
             else:
                 conditions.append(arch == to_arch or to_arch is None)
         else:
