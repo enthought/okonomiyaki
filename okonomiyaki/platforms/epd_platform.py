@@ -397,9 +397,9 @@ def applies(platform_string, to='current'):
             try:
                 arch_name = _ARCHBITS_TO_ARCH[parts[1]]
             except KeyError:
-                arch = machine = Arch.from_name(parts[1])
+                arch = Arch.from_name(parts[1])
             else:
-                arch = machine = Arch.from_name(arch_name)
+                arch = Arch.from_name(arch_name)
             return parts[0], arch
         else:
             raise ValueError(
