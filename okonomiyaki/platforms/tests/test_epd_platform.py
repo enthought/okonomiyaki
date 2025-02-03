@@ -456,9 +456,8 @@ class TestEPDPlatformApplies(unittest.TestCase):
 
     @parameterized.expand([
         ('64', 'rh5-64', True),
-        # ('32', 'rh5-64', False),
-        #('64', 'rh5-32', False)
-    ])
+        ('32', 'rh5-64', False),
+        ('64', 'rh5-32', False)])
     def test_arch_only(self, platform, to, result):
         # When
         s = applies(platform, to)
