@@ -176,7 +176,7 @@ class PackageInfo(object):
         if 'Metadata-Version' in msg:
             metadata_version = _get(msg, 'Metadata-Version')
         else:
-            metadata_version = "2.1"
+            metadata_version = "2.1"  # Default metadata version
 
         _ensure_supported_version(metadata_version)
         metadata_version_info = _string_to_version_info(metadata_version)
@@ -322,6 +322,7 @@ class PackageInfo(object):
 
         description = _rfc822_escape(self.description)
         if description_field:
+            # Description as a metadata field
             self._write_field(s, 'Description', description)
 
         keywords = ' '.join(self.keywords)
@@ -356,6 +357,7 @@ class PackageInfo(object):
             self._write_list(s, 'License-Expression', self.license_expression)
 
         if not description_field:
+            # Description as metadata body
             self._write_description(s, description)
 
         return s.getvalue()
