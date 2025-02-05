@@ -320,8 +320,8 @@ class PackageInfo(object):
         if metadata_version_info >= (2, 1):
             self._write_field(s, 'Description-Content-Type', self.description_content_type)
 
+        description = _rfc822_escape(self.description)
         if description_field:
-            description = _rfc822_escape(self.description)
             self._write_field(s, 'Description', description)
 
         keywords = ' '.join(self.keywords)
@@ -356,7 +356,6 @@ class PackageInfo(object):
             self._write_list(s, 'License-Expression', self.license_expression)
 
         if not description_field:
-            description = _rfc822_escape(self.description)
             self._write_description(s, description)
 
         return s.getvalue()
