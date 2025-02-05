@@ -18,7 +18,8 @@ mock_darwin = MultiPatcher([
         lambda: uname_result(
             "Darwin", "localhost", "11.4.2",
             "Darwin Kernel Version 11.4.2 bla bla",
-            "x86_64", "i386"))])
+            "x86_64", "i386")),
+    mock.patch("platform.mac_ver", lambda: ("11.4.2", ("", "", ""), "x86_64"))])
 mock_apple_silicon = MultiPatcher([
     mock.patch("sys.platform", "darwin"),
     # These value are there to mask the running system values
@@ -27,7 +28,8 @@ mock_apple_silicon = MultiPatcher([
         lambda: uname_result(
             "Darwin", "localhost", "22.6.0",
             "Darwin Kernel Version 22.6.0 bla bla",
-            "RELEASE_ARM64_BLABLA", "arm64"))])
+            "RELEASE_ARM64_BLABLA", "arm64")),
+    mock.patch("platform.mac_ver", lambda: ("22.6.0", ("", "", ""), "arm64"))])
 mock_linux = MultiPatcher([
     mock.patch("sys.platform", "linux2"),
     # These value are there to mask the running system values

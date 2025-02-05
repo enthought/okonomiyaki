@@ -82,9 +82,9 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(platform.os, 'darwin')
         self.assertEqual(platform.name, 'mac_os_x')
         self.assertEqual(platform.family, 'mac_os_x')
-        self.assertEqual(platform.release, '13.7.1')
+        self.assertEqual(platform.release, '22.6.0')
         self.assertEqual(
-            str(platform), f'Mac OS X 13.7.1 on {arch} using {arch} arch')
+            str(platform), f'Mac OS X 22.6.0 on {arch} using {arch} arch')
 
     @parameterized.expand([
         (mock_x86, X86), (mock_x86_64, X86_64)])
