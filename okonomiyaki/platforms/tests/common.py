@@ -19,6 +19,15 @@ mock_darwin = MultiPatcher([
             "Darwin", "localhost", "11.4.2",
             "Darwin Kernel Version 11.4.2 bla bla",
             "x86_64", "i386"))])
+mock_apple_silicon = MultiPatcher([
+    mock.patch("sys.platform", "darwin"),
+    # These value are there to mask the running system values
+    mock.patch(
+        "platform.uname",
+        lambda: uname_result(
+            "Darwin", "localhost", "22.6.0",
+            "Darwin Kernel Version 22.6.0 bla bla",
+            "RELEASE_ARM64_BLABLA", "arm64"))])
 mock_linux = MultiPatcher([
     mock.patch("sys.platform", "linux2"),
     # These value are there to mask the running system values
@@ -43,13 +52,24 @@ mock_windows = MultiPatcher([
         lambda: uname_result(
             'Windows', 'localhost', '7', '6.1.7601',
             'x86', ('x86 Family 6 Model 4 5 Stepping 7, GenuineIntel')))])
-
 mock_osx_12_6_arm64 = MultiPatcher([
     mock.patch("sys.platform", "darwin"),
-    mock.patch("platform.mac_ver", lambda: ("12.6.5", ("", "", ""), "arm64")),
-])
-
-
+    mock.patch(
+        "platform.uname",
+        lambda: uname_result(
+            "Darwin", "localhost", "12.6.5",
+            "Darwin Kernel Version 12.6.5 bla bla",
+            "x86_64", "i386")),
+    mock.patch("platform.mac_ver", lambda: ("12.6.5", ("", "", ""), "arm64"))])
+mock_machine_invalid = MultiPatcher([
+    mock.patch("sys.platform", "darwin"),
+    mock.patch("platform.machine", lambda: "PyCPU"),
+    mock.patch(
+        "platform.uname",
+        lambda: uname_result(
+            "MyOS", "localhost", "12.6.5",
+            "Super Kernel Version 3 bla bla",
+            "PyCPU", "123"))])
 def _mock_linux_distribution(info):
     return MultiPatcher([
         mock_linux,
@@ -70,29 +90,56 @@ mock_ubuntu_raring = _mock_linux_distribution(("Ubuntu", "13.04", "raring", "deb
 
 mock_windows_7 = MultiPatcher([
     mock.patch("sys.platform", "win32"),
+    mock.patch(
+        "platform.uname",
+        lambda: uname_result(
+            'Windows', 'localhost', '7', '6.1.7601',
+            'x86', ('x86 Family 6 Model 4 5 Stepping 7, GenuineIntel'))),
     mock.patch("platform.win32_ver",
                lambda: ("7", "6.1.7601", "SP1", "Multiprocessor Free"))
 ])
 
 mock_windows_10 = MultiPatcher([
     mock.patch("sys.platform", "win32"),
+    mock.patch(
+        "platform.uname",
+        lambda: uname_result(
+            'Windows', 'localhost', '10', '120000',
+            'x86_64', ('x86 Family 6 Model 4 5 Stepping 7, GenuineIntel'))),
     mock.patch("platform.win32_ver",
                lambda: ('10', '10.0.19041', 'SP0', 'Multiprocessor Free'))
 ])
 
 mock_windows_11 = MultiPatcher([
     mock.patch("sys.platform", "win32"),
+    mock.patch(
+        "platform.uname",
+        lambda: uname_result(
+            'Windows', 'localhost', '11', '120000',
+            'x86_64', ('x86 Family 6 Model 4 5 Stepping 7, GenuineIntel'))),
     mock.patch("platform.win32_ver",
                lambda: ('10', '10.0.22621', 'SP0', 'Multiprocessor Free'))
 ])
 
 mock_osx_10_7 = MultiPatcher([
     mock.patch("sys.platform", "darwin"),
+    mock.patch(
+        "platform.uname",
+        lambda: uname_result(
+            "Darwin", "localhost", "10.7.5",
+            "Darwin Kernel Version 10.7.5 bla bla",
+            "x86_64", "i386")),
     mock.patch("platform.mac_ver", lambda: ("10.7.5", ("", "", ""), "x86_64")),
 ])
 
 mock_osx_12_6 = MultiPatcher([
     mock.patch("sys.platform", "darwin"),
+    mock.patch(
+        "platform.uname",
+        lambda: uname_result(
+            "Darwin", "localhost", "12.6.5",
+            "Darwin Kernel Version 12.6.5 bla bla",
+            "x86_64", "i386")),
     mock.patch("platform.mac_ver", lambda: ("12.6.5", ("", "", ""), "x86_64")),
 ])
 
@@ -113,7 +160,6 @@ mock_x86_64 = MultiPatcher([mock_machine_x86_64, mock_architecture_64bit])
 mock_arm64 = MultiPatcher([mock_machine_arm64, mock_architecture_64bit])
 mock_arm = MultiPatcher([mock_machine_arm, mock_architecture_32bit])
 mock_machine_armv71 = Patcher(mock_machine("ARMv7"))
-mock_machine_invalid = Patcher(mock_machine("MyCPU"))
 # A 32 bits python process on a 64 bits OS
 mock_x86_on_x86_64 = MultiPatcher(
     [mock_machine_x86_64, mock_architecture_32bit])
