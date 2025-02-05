@@ -53,8 +53,8 @@ class MultiPatcher(object):
             patcher.__exit__(*a, **kw)
 
 
-def known_system(self):
-    from okonomiyaki.plarforms._platform import (
+def known_system():
+    from okonomiyaki.platforms._platform import (
         _guess_os_kind, _guess_platform, _guess_platform_details)
     try:
         os_kind = _guess_os_kind()
