@@ -4,24 +4,27 @@ import os.path
 
 from okonomiyaki import utils
 
-DATA_DIR = os.path.join(
+DATA_EGGS = os.path.join(
     os.path.dirname(utils.__file__), "test_data", "eggs")
+DATA_WHLS = os.path.join(
+    os.path.dirname(utils.__file__), "test_data", "wheels")
 
-ENSTALLER_EGG = os.path.join(DATA_DIR, "enstaller-4.5.0-1.egg")
-ETS_EGG = os.path.join(DATA_DIR, "ets-4.3.0-3.egg")
-FAKE_PYSIDE_1_1_0_EGG = os.path.join(DATA_DIR, "PySide-1.1.0-3.egg")
+ENSTALLER_EGG = os.path.join(DATA_EGGS, "enstaller-4.5.0-1.egg")
+ETS_EGG = os.path.join(DATA_EGGS, "ets-4.3.0-3.egg")
+FAKE_PYSIDE_1_1_0_EGG = os.path.join(DATA_EGGS, "PySide-1.1.0-3.egg")
 FAKE_MEDIALOG_BOARDFILE_1_6_1_EGG = os.path.join(
-    DATA_DIR, "medialog.boardfile-1.6.1-1.egg"
+    DATA_EGGS, "medialog.boardfile-1.6.1-1.egg"
 )
-MKL_EGG = os.path.join(DATA_DIR, "MKL-10.3-1.egg")
-NUMEXPR_2_2_2_EGG = os.path.join(DATA_DIR, "numexpr-2.2.2-3.egg")
-PIP_EGG = os.path.join(DATA_DIR, "pip-6.0.8-1.egg")
-PYMULTINEST_EGG = os.path.join(DATA_DIR, "pymultinest-0.1-1.egg")
-SETUPTOOLS_40_8_0_EGG = os.path.join(DATA_DIR, "setuptools-40.8.0-py2.7.egg")
-SUPERVISOR_EGG = os.path.join(DATA_DIR, "supervisor-3.0-1.egg")
-XZ_5_2_0_EGG = os.path.join(DATA_DIR, "xz-5.2.0-1.egg")
-PYSIDE_1_0_3_EGG = os.path.join(DATA_DIR, "PySide-1.0.3-1.egg")
-_OSX64APP_EGG = os.path.join(DATA_DIR, "_osx64app-1.0-1.egg")
+MKL_EGG = os.path.join(DATA_EGGS, "MKL-10.3-1.egg")
+NUMEXPR_2_2_2_EGG = os.path.join(DATA_EGGS, "numexpr-2.2.2-3.egg")
+PIP_EGG = os.path.join(DATA_EGGS, "pip-6.0.8-1.egg")
+PYMULTINEST_EGG = os.path.join(DATA_EGGS, "pymultinest-0.1-1.egg")
+SETUPTOOLS_40_8_0_EGG = os.path.join(DATA_EGGS, "setuptools-40.8.0-py2.7.egg")
+SETUPTOOLS_75_8_0_WHL = os.path.join(DATA_WHLS, "setuptools-75.8.0-py3-none-any.whl")
+SUPERVISOR_EGG = os.path.join(DATA_EGGS, "supervisor-3.0-1.egg")
+XZ_5_2_0_EGG = os.path.join(DATA_EGGS, "xz-5.2.0-1.egg")
+PYSIDE_1_0_3_EGG = os.path.join(DATA_EGGS, "PySide-1.0.3-1.egg")
+_OSX64APP_EGG = os.path.join(DATA_EGGS, "_osx64app-1.0-1.egg")
 
 # Some eggs are for some reason built without EGG-INFO/PKG-INFO. A few
 # eggs were built in a broken way, and some explicitly with this feature
@@ -29,16 +32,16 @@ _OSX64APP_EGG = os.path.join(DATA_DIR, "_osx64app-1.0-1.egg")
 # In most of those cases, the PKG-INFO is instead written as
 # EGG-INFO/PKG-INFO.bak (don't ask).
 BROKEN_MCCABE_EGG = os.path.join(
-    DATA_DIR, "broken_legacy_eggs", "mccabe-0.2.1-2.egg")
+    DATA_EGGS, "broken_legacy_eggs", "mccabe-0.2.1-2.egg")
 
-UNICODE_DESCRIPTION_EGG = os.path.join(DATA_DIR, "pymongo-2.8-1.egg")
+UNICODE_DESCRIPTION_EGG = os.path.join(DATA_EGGS, "pymongo-2.8-1.egg")
 with io.open(
-        os.path.join(DATA_DIR, "pymongo_description.txt"),
+        os.path.join(DATA_EGGS, "pymongo_description.txt"),
         "r", encoding="utf8") as fp:
     UNICODE_DESCRIPTION_TEXT = fp.read()
 
 # flake8: noqa
-PKG_INFO_ENSTALLER_1_0 = u"""\
+PKG_INFO_ENSTALLER_1_0 = """\
 Metadata-Version: 1.0
 Name: enstaller
 Version: 4.5.0
@@ -163,7 +166,6 @@ Description: The Enstaller (version 4) project is a managing and install tool
         as Enstaller is the install tool for the Enthought Python Distribution (EPD),
         all EPD installers already include Enstaller.
         
-Platform: UNKNOWN
 Classifier: License :: OSI Approved :: BSD License
 Classifier: Development Status :: 5 - Production/Stable
 Classifier: Intended Audience :: Developers
@@ -175,7 +177,7 @@ Classifier: Topic :: System :: Software Distribution
 Classifier: Topic :: System :: Systems Administration
 """
 
-PKG_INFO_ENSTALLER_1_0_DESCRIPTION = u"""\
+PKG_INFO_ENSTALLER_1_0_DESCRIPTION = """\
 The Enstaller (version 4) project is a managing and install tool
 for egg-based Python distributions.
 
@@ -294,7 +296,7 @@ all EPD installers already include Enstaller.
 """
 
 # flake8: noqa
-PIP_PKG_INFO = u"""\
+PIP_PKG_INFO = """\
 Metadata-Version: 1.1
 Name: pip
 Version: 6.0.8
@@ -327,7 +329,6 @@ Description: pip
            :target: http://travis-ci.org/pypa/pip
         
 Keywords: easy_install distutils setuptools egg virtualenv
-Platform: UNKNOWN
 Classifier: Development Status :: 5 - Production/Stable
 Classifier: Intended Audience :: Developers
 Classifier: License :: OSI Approved :: MIT License
@@ -343,7 +344,153 @@ Classifier: Programming Language :: Python :: Implementation :: PyPy
 """
 
 # flake8: noqa
-SETUPTOOLS_PKG_INFO_2_1 = u"""\
+SETUPTOOLS_PKG_INFO_2_2 = '''\
+Metadata-Version: 2.2
+Name: setuptools
+Version: 75.8.0
+Summary: Easily download, build, install, upgrade, and uninstall Python packages
+Author-email: Python Packaging Authority <distutils-sig@python.org>
+Project-URL: Source, https://github.com/pypa/setuptools
+Project-URL: Documentation, https://setuptools.pypa.io/
+Project-URL: Changelog, https://setuptools.pypa.io/en/stable/history.html
+Description-Content-Type: text/x-rst
+Keywords: CPAN PyPI distutils eggs package management
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: System :: Archiving :: Packaging
+Classifier: Topic :: System :: Systems Administration
+Classifier: Topic :: Utilities
+Requires-Python: >=3.9
+License-File: LICENSE
+Provides-Extra: test
+Provides-Extra: doc
+Provides-Extra: ssl
+Provides-Extra: certs
+Provides-Extra: core
+Provides-Extra: check
+Provides-Extra: cover
+Provides-Extra: enabler
+Provides-Extra: type
+Requires-Dist: pytest!=8.1.*,>=6; extra == "test"
+Requires-Dist: virtualenv>=13.0.0; extra == "test"
+Requires-Dist: wheel>=0.44.0; extra == "test"
+Requires-Dist: pip>=19.1; extra == "test"
+Requires-Dist: packaging>=24.2; extra == "test"
+Requires-Dist: jaraco.envs>=2.2; extra == "test"
+Requires-Dist: pytest-xdist>=3; extra == "test"
+Requires-Dist: jaraco.path>=3.7.2; extra == "test"
+Requires-Dist: build[virtualenv]>=1.0.3; extra == "test"
+Requires-Dist: filelock>=3.4.0; extra == "test"
+Requires-Dist: ini2toml[lite]>=0.14; extra == "test"
+Requires-Dist: tomli-w>=1.0.0; extra == "test"
+Requires-Dist: pytest-timeout; extra == "test"
+Requires-Dist: pytest-perf; sys_platform != "cygwin" and extra == "test"
+Requires-Dist: jaraco.develop>=7.21; (python_version >= "3.9" and sys_platform != "cygwin") and extra == "test"
+Requires-Dist: pytest-home>=0.5; extra == "test"
+Requires-Dist: pytest-subprocess; extra == "test"
+Requires-Dist: pyproject-hooks!=1.1; extra == "test"
+Requires-Dist: jaraco.test>=5.5; extra == "test"
+Requires-Dist: sphinx>=3.5; extra == "doc"
+Requires-Dist: jaraco.packaging>=9.3; extra == "doc"
+Requires-Dist: rst.linker>=1.9; extra == "doc"
+Requires-Dist: furo; extra == "doc"
+Requires-Dist: sphinx-lint; extra == "doc"
+Requires-Dist: jaraco.tidelift>=1.4; extra == "doc"
+Requires-Dist: pygments-github-lexers==0.0.5; extra == "doc"
+Requires-Dist: sphinx-favicon; extra == "doc"
+Requires-Dist: sphinx-inline-tabs; extra == "doc"
+Requires-Dist: sphinx-reredirects; extra == "doc"
+Requires-Dist: sphinxcontrib-towncrier; extra == "doc"
+Requires-Dist: sphinx-notfound-page<2,>=1; extra == "doc"
+Requires-Dist: pyproject-hooks!=1.1; extra == "doc"
+Requires-Dist: towncrier<24.7; extra == "doc"
+Requires-Dist: packaging>=24.2; extra == "core"
+Requires-Dist: more_itertools>=8.8; extra == "core"
+Requires-Dist: jaraco.text>=3.7; extra == "core"
+Requires-Dist: importlib_metadata>=6; python_version < "3.10" and extra == "core"
+Requires-Dist: tomli>=2.0.1; python_version < "3.11" and extra == "core"
+Requires-Dist: wheel>=0.43.0; extra == "core"
+Requires-Dist: platformdirs>=4.2.2; extra == "core"
+Requires-Dist: jaraco.collections; extra == "core"
+Requires-Dist: jaraco.functools>=4; extra == "core"
+Requires-Dist: packaging; extra == "core"
+Requires-Dist: more_itertools; extra == "core"
+Requires-Dist: pytest-checkdocs>=2.4; extra == "check"
+Requires-Dist: pytest-ruff>=0.2.1; sys_platform != "cygwin" and extra == "check"
+Requires-Dist: ruff>=0.8.0; sys_platform != "cygwin" and extra == "check"
+Requires-Dist: pytest-cov; extra == "cover"
+Requires-Dist: pytest-enabler>=2.2; extra == "enabler"
+Requires-Dist: pytest-mypy; extra == "type"
+Requires-Dist: mypy==1.14.*; extra == "type"
+Requires-Dist: importlib_metadata>=7.0.2; python_version < "3.10" and extra == "type"
+Requires-Dist: jaraco.develop>=7.21; sys_platform != "cygwin" and extra == "type"
+
+.. |pypi-version| image:: https://img.shields.io/pypi/v/setuptools.svg
+   :target: https://pypi.org/project/setuptools
+
+.. |py-version| image:: https://img.shields.io/pypi/pyversions/setuptools.svg
+
+.. |test-badge| image:: https://github.com/pypa/setuptools/actions/workflows/main.yml/badge.svg
+   :target: https://github.com/pypa/setuptools/actions?query=workflow%3A%22tests%22
+   :alt: tests
+
+.. |ruff-badge| image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v2.json
+   :target: https://github.com/astral-sh/ruff
+   :alt: Ruff
+
+.. |docs-badge| image:: https://img.shields.io/readthedocs/setuptools/latest.svg
+   :target: https://setuptools.pypa.io
+
+.. |skeleton-badge| image:: https://img.shields.io/badge/skeleton-2024-informational
+   :target: https://blog.jaraco.com/skeleton
+
+.. |codecov-badge| image:: https://img.shields.io/codecov/c/github/pypa/setuptools/master.svg?logo=codecov&logoColor=white
+   :target: https://codecov.io/gh/pypa/setuptools
+
+.. |tidelift-badge| image:: https://tidelift.com/badges/github/pypa/setuptools?style=flat
+   :target: https://tidelift.com/subscription/pkg/pypi-setuptools?utm_source=pypi-setuptools&utm_medium=readme
+
+.. |discord-badge| image:: https://img.shields.io/discord/803025117553754132
+   :target: https://discord.com/channels/803025117553754132/815945031150993468
+   :alt: Discord
+
+|pypi-version| |py-version| |test-badge| |ruff-badge| |docs-badge| |skeleton-badge| |codecov-badge| |discord-badge|
+
+See the `Quickstart <https://setuptools.pypa.io/en/latest/userguide/quickstart.html>`_
+and the `User's Guide <https://setuptools.pypa.io/en/latest/userguide/>`_ for
+instructions on how to use Setuptools.
+
+Questions and comments should be directed to `GitHub Discussions
+<https://github.com/pypa/setuptools/discussions>`_.
+Bug reports and especially tested patches may be
+submitted directly to the `bug tracker
+<https://github.com/pypa/setuptools/issues>`_.
+
+
+Code of Conduct
+===============
+
+Everyone interacting in the setuptools project's codebases, issue trackers,
+chat rooms, and fora is expected to follow the
+`PSF Code of Conduct <https://github.com/pypa/.github/blob/main/CODE_OF_CONDUCT.md>`_.
+
+
+For Enterprise
+==============
+
+Available as part of the Tidelift Subscription.
+
+Setuptools and the maintainers of thousands of other packages are working with Tidelift to deliver one enterprise subscription that covers all of the open source you use.
+
+`Learn more <https://tidelift.com/subscription/pkg/pypi-setuptools?utm_source=pypi-setuptools&utm_medium=referral&utm_campaign=github>`_.
+'''
+
+# flake8: noqa
+SETUPTOOLS_PKG_INFO_2_1 = """\
 Metadata-Version: 2.1
 Name: setuptools
 Version: 40.8.0
@@ -351,8 +498,8 @@ Summary: Easily download, build, install, upgrade, and uninstall Python packages
 Home-page: https://github.com/pypa/setuptools
 Author: Python Packaging Authority
 Author-email: distutils-sig@python.org
-License: UNKNOWN
 Project-URL: Documentation, https://setuptools.readthedocs.io/
+Description-Content-Type: text/x-rst; charset=UTF-8
 Description: .. image:: https://img.shields.io/pypi/v/setuptools.svg
            :target: https://pypi.org/project/setuptools
         
@@ -393,7 +540,6 @@ Description: .. image:: https://img.shields.io/pypi/v/setuptools.svg
         `PyPA Code of Conduct <https://www.pypa.io/en/latest/code-of-conduct/>`_.
         
 Keywords: CPAN PyPI distutils eggs package management
-Platform: UNKNOWN
 Classifier: Development Status :: 5 - Production/Stable
 Classifier: Intended Audience :: Developers
 Classifier: License :: OSI Approved :: MIT License
@@ -410,13 +556,12 @@ Classifier: Topic :: System :: Archiving :: Packaging
 Classifier: Topic :: System :: Systems Administration
 Classifier: Topic :: Utilities
 Requires-Python: >=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*
-Description-Content-Type: text/x-rst; charset=UTF-8
 Provides-Extra: ssl
 Provides-Extra: certs
 """
 
 # flake8: noqa
-SETUPTOOLS_PKG_INFO_1_2 = u"""\
+SETUPTOOLS_PKG_INFO_1_2 = """\
 Metadata-Version: 1.2
 Name: setuptools
 Version: 34.3.2
@@ -424,7 +569,6 @@ Summary: Easily download, build, install, upgrade, and uninstall Python packages
 Home-page: https://github.com/pypa/setuptools
 Author: Python Packaging Authority
 Author-email: distutils-sig@python.org
-License: UNKNOWN
 Description: .. image:: https://readthedocs.org/projects/setuptools/badge/?version=latest
             :target: https://setuptools.readthedocs.io
         
@@ -450,7 +594,6 @@ Description: .. image:: https://readthedocs.org/projects/setuptools/badge/?versi
         `PyPA Code of Conduct <https://www.pypa.io/en/latest/code-of-conduct/>`_.
         
 Keywords: CPAN PyPI distutils eggs package management
-Platform: UNKNOWN
 Classifier: Development Status :: 5 - Production/Stable
 Classifier: Intended Audience :: Developers
 Classifier: License :: OSI Approved :: MIT License
@@ -471,19 +614,19 @@ Requires-Python: >=2.6,!=3.0.*,!=3.1.*,!=3.2.*
 """
 
 TRAITS_SETUPTOOLS_EGG = os.path.join(
-    DATA_DIR, "traits-4.6.0.dev235-py2.7-macosx-10.10-intel.egg"
+    DATA_EGGS, "traits-4.6.0.dev235-py2.7-macosx-10.10-intel.egg"
 )
 
-PIP_SETUPTOOLS_EGG = os.path.join(DATA_DIR, "pip-7.0.3-py3.4.egg")
+PIP_SETUPTOOLS_EGG = os.path.join(DATA_EGGS, "pip-7.0.3-py3.4.egg")
 
 TRAITS_SETUPTOOLS_OSX_cp38_EGG = os.path.join(
-    DATA_DIR, "traits-6.3.0.dev1702-py3.8-macosx-10.14-x86_64.egg")
+    DATA_EGGS, "traits-6.3.0.dev1702-py3.8-macosx-10.14-x86_64.egg")
 TRAITS_SETUPTOOLS_LINUX_cp38_EGG = os.path.join(
-    DATA_DIR, "traits-6.3.0.dev1702-py3.8-linux-x86_64.egg")
+    DATA_EGGS, "traits-6.3.0.dev1702-py3.8-linux-x86_64.egg")
 TRAITS_SETUPTOOLS_WIN_cp38_EGG = os.path.join(
-    DATA_DIR, "traits-6.3.0.dev1702-py3.8-win-amd64.egg")
+    DATA_EGGS, "traits-6.3.0.dev1702-py3.8-win-amd64.egg")
 
-FAKE_PYSIDE_1_1_0_EGG_PKG_INFO = u"""\
+FAKE_PYSIDE_1_1_0_EGG_PKG_INFO = """\
 ============
 About PySide
 ============
@@ -692,7 +835,7 @@ References
 - [4] http://developer.qt.nokia.com/wiki/PySideDownloads
 """
 
-FAKE_MEDIALOG_BOARDFILE_1_6_1_PKG_INFO = u"""\
+FAKE_MEDIALOG_BOARDFILE_1_6_1_PKG_INFO = '''\
 .. contents::
 
 .. Medialog Boardfile
@@ -1073,4 +1216,4 @@ Espen Moe-Nilssen - Author
 
 Download
 ********
-"""
+'''

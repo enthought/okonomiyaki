@@ -11,7 +11,7 @@ from .._egg_info import (
     Requirement, EggMetadata, LegacySpecDepend, parse_rawspec,
     split_egg_name)
 from .common import (
-    BROKEN_MCCABE_EGG, DATA_DIR, ENSTALLER_EGG, ETS_EGG,
+    BROKEN_MCCABE_EGG, DATA_EGGS, ENSTALLER_EGG, ETS_EGG,
     FAKE_MEDIALOG_BOARDFILE_1_6_1_EGG, FAKE_MEDIALOG_BOARDFILE_1_6_1_PKG_INFO,
     MKL_EGG, NUMEXPR_2_2_2_EGG, PYMULTINEST_EGG, _OSX64APP_EGG,
     PYSIDE_1_0_3_EGG, XZ_5_2_0_EGG)
@@ -101,11 +101,11 @@ class TestRequirement(unittest.TestCase):
 
 class TestLegacySpecDepend(unittest.TestCase):
     def test_create_from_egg1(self):
-        egg = op.join(DATA_DIR, "Cython-0.19.1-1.egg")
+        egg = op.join(DATA_EGGS, "Cython-0.19.1-1.egg")
         self._test_create_from_egg(egg)
 
     def test_create_from_egg2(self):
-        egg = op.join(DATA_DIR, "ets-4.3.0-3.egg")
+        egg = op.join(DATA_EGGS, "ets-4.3.0-3.egg")
         self._test_create_from_egg(egg)
 
     def _test_create_from_egg(self, egg_path):
