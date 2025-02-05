@@ -56,11 +56,10 @@ class MultiPatcher(object):
 def known_system():
     from okonomiyaki.platforms import Arch
     from okonomiyaki.platforms._platform import (
-        _guess_os_kind, _guess_platform, _guess_platform_details)
+        _guess_os_kind, _guess_platform_details)
     try:
-        arch = Arch.from_running_system()
+        Arch.from_running_system()
         os_kind = _guess_os_kind()
-        _guess_platform(arch)
         _guess_platform_details(os_kind)
     except OkonomiyakiError:
         return False
