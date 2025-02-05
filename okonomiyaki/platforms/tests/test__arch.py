@@ -83,6 +83,7 @@ class TestArch(unittest.TestCase):
     @parameterized.expand([
         (mock_apple_silicon, mock_arm64, ARM64),
         (mock_apple_silicon, mock_x86_64, X86_64),
+        (mock_darwin, mock_x86_64, X86_64),
         (mock_linux, mock_arm64, ARM64),
         (mock_linux, mock_x86_64, X86_64),
         (mock_linux, mock_arm, ARM),

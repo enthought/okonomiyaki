@@ -14,7 +14,7 @@ from .common import (
     mock_centos_6_3, mock_osx_10_7, mock_solaris,
     mock_osx_12_6, mock_ubuntu_raring, mock_windows_7,
     mock_windows_10, mock_windows_11, mock_mydistro_2_8,
-    mock_rocky_8_8)
+    mock_rocky_8_8, mock_apple_silicon)
 
 
 class TestPlatformRunningPython(unittest.TestCase):
@@ -68,6 +68,23 @@ class TestPlatformRunningPython(unittest.TestCase):
         self.assertEqual(platform.release, '11')
         self.assertEqual(
             str(platform), f'Windows 11 on {arch} using {arch} arch')
+
+    @parameterized.expand([
+        (mock_x86_64, X86_64),
+        (mock_arm64, ARM64)])
+    @mock_apple_silicon
+    def test_apple_silicon(self, machine, arch):
+        # When
+        with machine:
+            platform = Platform.from_running_python()
+
+        # Then
+        self.assertEqual(platform.os, 'darwin')
+        self.assertEqual(platform.name, 'mac_os_x')
+        self.assertEqual(platform.family, 'mac_os_x')
+        self.assertEqual(platform.release, '13.7.1')
+        self.assertEqual(
+            str(platform), f'Mac OS X 13.7.1 on {arch} using {arch} arch')
 
     @parameterized.expand([
         (mock_x86, X86), (mock_x86_64, X86_64)])

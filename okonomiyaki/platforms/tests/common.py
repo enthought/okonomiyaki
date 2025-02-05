@@ -70,6 +70,8 @@ mock_machine_invalid = MultiPatcher([
             "MyOS", "localhost", "12.6.5",
             "Super Kernel Version 3 bla bla",
             "PyCPU", "123"))])
+
+
 def _mock_linux_distribution(info):
     return MultiPatcher([
         mock_linux,
