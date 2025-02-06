@@ -114,7 +114,10 @@ class Arch(object):
 
     @classmethod
     def from_running_system(cls):
-        return Arch.from_name(platform.machine())
+        if platform.system() == 'Darwin' and 'RELEASE_ARM64' in platform.uname().version:
+            return Arch.from_name('arm64')
+        else:
+            return Arch.from_name(platform.machine())
 
     @property
     def bits(self):

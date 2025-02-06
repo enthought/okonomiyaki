@@ -5,7 +5,8 @@ from parameterized import parameterized
 from okonomiyaki.errors import OkonomiyakiError
 from .._arch import Arch, X86, X86_64, ARM, ARM64
 from .common import (
-    mock_machine_invalid, mock_x86, mock_x86_64, mock_x86_on_x86_64, mock_arm, mock_arm64)
+    mock_machine_invalid, mock_x86, mock_x86_64, mock_x86_on_x86_64, mock_arm, mock_arm64,
+    mock_apple_silicon, mock_darwin, mock_linux, mock_windows)
 
 
 class TestArch(unittest.TestCase):
@@ -80,12 +81,22 @@ class TestArch(unittest.TestCase):
                 Arch.from_running_python()
 
     @parameterized.expand([
-        (mock_x86, X86), (mock_x86_64, X86_64),
-        (mock_arm, ARM), (mock_arm64, ARM64)])
-    def test_from_running_system(self, machine, expected):
+        (mock_apple_silicon, mock_arm64, ARM64),
+        (mock_apple_silicon, mock_x86_64, X86_64),
+        (mock_darwin, mock_x86_64, X86_64),
+        (mock_linux, mock_arm64, ARM64),
+        (mock_linux, mock_x86_64, X86_64),
+        (mock_linux, mock_arm, ARM),
+        (mock_linux, mock_arm64, ARM64),
+        (mock_windows, mock_arm64, ARM64),
+        (mock_windows, mock_x86_64, X86_64),
+        (mock_windows, mock_arm, ARM),
+        (mock_windows, mock_arm64, ARM64)])
+    def test_from_running_system(self, uname, machine, expected):
         # When
-        with machine:
-            arch = Arch.from_running_system()
+        with uname:
+            with machine:
+                arch = Arch.from_running_system()
 
         # Then
         self.assertEqual(arch, expected)
