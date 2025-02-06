@@ -53,12 +53,13 @@ class MultiPatcher(object):
             patcher.__exit__(*a, **kw)
 
 
-def known_system(self):
-    from okonomiyaki.plarforms._platform import (
-        _guess_os_kind, _guess_platform, _guess_platform_details)
+def known_system():
+    from okonomiyaki.platforms import Arch
+    from okonomiyaki.platforms._platform import (
+        _guess_os_kind, _guess_platform_details)
     try:
+        Arch.from_running_system()
         os_kind = _guess_os_kind()
-        _guess_platform(os_kind)
         _guess_platform_details(os_kind)
     except OkonomiyakiError:
         return False
