@@ -1,13 +1,14 @@
 """
 Most of the code below is adapted from pkg-info 1.2.1
 
-We support 1.0, 1.1, 1.2 and 2.0.
+We support 1.0, 1.1, 1.2, 2.0, 2.1, 2.2, 2.3, 2.4
 """
 import contextlib
 import io
 import os
 import os.path
 import warnings
+import textwrap
 
 import zipfile2
 
@@ -29,8 +30,8 @@ HEADER_ATTRS_1_0 = (  # PEP 241
     ('Metadata-Version', 'metadata_version', False),
     ('Name', 'name', False),
     ('Version', 'version', False),
-    ('Platform', 'platforms', True),
-    ('Supported-Platform', 'supported_platforms', True),
+    ('Platform', 'platform', True),
+    ('Supported-Platform', 'supported_platform', True),
     ('Summary', 'summary', False),
     ('Description', 'description', False),
     ('Keywords', 'keywords', False),
@@ -67,7 +68,19 @@ HEADER_ATTRS_2_0 = HEADER_ATTRS_1_2
 HEADER_ATTRS_2_1 = HEADER_ATTRS_1_2 + (  # PEP 566
     ('Description-Content-Type', 'description_content_type', False),
     ('Provides-Extra', 'provides_extra', True),
+    # Setuptools is broken and produces License-File for metadata >= 2.1
+    # Note that we parse the info in but will not export it unless
+    # metadata is 2.4
+    ('License-File', 'license_file', True),
 )
+
+HEADER_ATTRS_2_2 = HEADER_ATTRS_2_1 + (  # PEP 643
+    ('Dynamic', 'dynamic', True),)
+
+HEADER_ATTRS_2_3 = HEADER_ATTRS_2_2  # PEP 685
+
+HEADER_ATTRS_2_4 = HEADER_ATTRS_2_2 + (  # PEP 639
+    ('License-Expression', 'license_expression', False),)
 
 HEADER_ATTRS = {
     (1, 0): HEADER_ATTRS_1_0,
@@ -75,7 +88,11 @@ HEADER_ATTRS = {
     (1, 2): HEADER_ATTRS_1_2,
     (2, 0): HEADER_ATTRS_2_0,
     (2, 1): HEADER_ATTRS_2_1,
+    (2, 2): HEADER_ATTRS_2_2,
+    (2, 3): HEADER_ATTRS_2_3,
+    (2, 4): HEADER_ATTRS_2_4,
 }
+
 
 MAX_SUPPORTED_VERSION = max(HEADER_ATTRS.keys())
 
@@ -154,13 +171,12 @@ class PackageInfo(object):
             raise ValueError("Expected text value, got {0!r}".format(type(s)))
         fp = io.StringIO(s)
         msg = _parse(fp)
-
         kw = {}
 
         if 'Metadata-Version' in msg:
             metadata_version = _get(msg, 'Metadata-Version')
         else:
-            metadata_version = "1.0"
+            metadata_version = "2.1"  # Default metadata version
 
         _ensure_supported_version(metadata_version)
         metadata_version_info = _string_to_version_info(metadata_version)
@@ -173,8 +189,8 @@ class PackageInfo(object):
             if header_name in msg:
                 if header_name == "Keywords":
                     if msg != "UNKNOWN":
-                        value = _collapse_leading_ws(header_name,
-                                                     msg.get(header_name))
+                        value = _collapse_leading_ws(
+                            header_name, msg.get(header_name))
                         kw[attr_name] = tuple(value.split())
                 elif multiple:
                     values = _get_all(msg, header_name)
@@ -197,19 +213,34 @@ class PackageInfo(object):
                 else:
                     kw['description'] = msg_body
 
+        if metadata_version_info >= (2, 4):
+            if 'License' in kw and 'License-Expression' in kw:
+                warnings.warn(
+                    'As of Metadata 2.4, License and License-Expression are mutually exclusive. '
+                    'License field is ignored',
+                    RuntimeWarning)
+                del kw['License']
+        elif 'License-File' in kw:
+            warnings.warn(
+                'License-File was introduced in Metadata 2.4. '
+                'The value is parsed because setuptools adds it to Metadata 2.1. '
+                'The field will not be exported unless export Metadata >= 2.4')
+
         name = kw.pop("name")
         version = kw.pop("version")
         return cls(metadata_version, name, version, **kw)
 
-    def __init__(self, metadata_version, name, version, platforms=None,
-                 supported_platforms=None, summary="", description="",
-                 keywords=None, home_page="", download_url="", author="",
-                 author_email="", license="", classifiers=None, requires=None,
-                 provides=None, obsoletes=None, maintainer="",
-                 maintainer_email="", requires_python=None,
-                 requires_external=None, requires_dist=None,
-                 provides_dist=None, obsoletes_dist=None, project_urls=None,
-                 description_content_type="", provides_extra=None):
+    def __init__(
+            self, metadata_version, name, version, platform=None,
+            supported_platform=None, summary="", description="",
+            keywords=None, home_page="", download_url="", author="",
+            author_email="", license="", classifiers=None, requires=None,
+            provides=None, obsoletes=None, maintainer="",
+            maintainer_email="", requires_python=None,
+            requires_external=None, requires_dist=None,
+            provides_dist=None, obsoletes_dist=None, project_urls=None,
+            description_content_type="", provides_extra=None,
+            dynamic=None, license_file=None, license_expression=None):
         _ensure_supported_version(metadata_version)
 
         self.metadata_version = metadata_version
@@ -217,8 +248,8 @@ class PackageInfo(object):
         # version 1.0
         self.name = name
         self.version = version
-        self.platforms = platforms or ()
-        self.supported_platforms = supported_platforms or ()
+        self.platform = platform or ()
+        self.supported_platform = supported_platform or ()
         self.summary = summary
         self.description = description
         self.keywords = keywords or ()
@@ -248,9 +279,23 @@ class PackageInfo(object):
         self.description_content_type = description_content_type or ""
         self.provides_extra = provides_extra or ()
 
-    def to_string(self, metadata_version_info=MAX_SUPPORTED_VERSION):
+        # version 2.2
+        self.dynamic = dynamic or ()
+
+        # version 2.4
+        self.license_file = license_file or ()
+        self.license_expression = license_expression or ()
+
+    def to_string(self, metadata_version_info=None, description_field=True):
+        if metadata_version_info is None:
+            metadata_version = self.metadata_version
+            metadata_version_info = _string_to_version_info(self.metadata_version)
+        else:
+            metadata_version = '.'.join(str(_) for _ in metadata_version_info)
+            _ensure_supported_version(metadata_version)
+
         s = io.StringIO()
-        self._write_field(s, 'Metadata-Version', self.metadata_version)
+        self._write_field(s, 'Metadata-Version', metadata_version)
         self._write_field(s, 'Name', self.name)
         self._write_field(s, 'Version', self.version)
         self._write_field(s, 'Summary', self.summary)
@@ -264,29 +309,27 @@ class PackageInfo(object):
             if self.maintainer_email:
                 self._write_field(s, 'Maintainer-email', self.maintainer_email)
 
-        if self.license:
-            self._write_field(s, 'License', self.license)
-        else:
-            self._write_field(s, 'License', "UNKNOWN")
+        self._write_field(s, 'License', self.license)
 
         if metadata_version_info >= (1, 1):
-            if self.download_url:
-                self._write_field(s, 'Download-URL', self.download_url)
+            self._write_field(s, 'Download-URL', self.download_url)
 
         if metadata_version_info >= (1, 2):
             self._write_list(s, 'Project-URL', self.project_urls)
 
+        if metadata_version_info >= (2, 1):
+            self._write_field(s, 'Description-Content-Type', self.description_content_type)
+
         description = _rfc822_escape(self.description)
-        self._write_field(s, 'Description', description)
+        if description_field:
+            # Description as a metadata field
+            self._write_field(s, 'Description', description)
 
         keywords = ' '.join(self.keywords)
         if keywords:
             self._write_field(s, 'Keywords', keywords)
-
-        if len(self.platforms) == 0:
-            self._write_list(s, 'Platform', ("UNKNOWN",))
-        else:
-            self._write_list(s, 'Platform', self.platforms)
+        self._write_list(s, 'Platform', self.platform)
+        self._write_list(s, 'Supported Platforms', self.supported_platform)
 
         if metadata_version_info >= (1, 1):
             self._write_list(s, 'Classifier', self.classifiers)
@@ -297,31 +340,44 @@ class PackageInfo(object):
             self._write_list(s, 'Requires', self.requires)
             self._write_list(s, 'Provides', self.provides)
             self._write_list(s, 'Obsoletes', self.obsoletes)
+
         elif metadata_version_info >= (1, 2):
-            if self.requires_python:
-                self._write_field(s, 'Requires-Python', self.requires_python)
+            self._write_field(s, 'Requires-Python', self.requires_python)
             self._write_list(s, 'Requires-External', self.requires_external)
+
+            if metadata_version_info >= (2, 1):
+                self._write_list(s, 'Provides-Extra', self.provides_extra)
 
             self._write_list(s, 'Requires-Dist', self.requires_dist)
             self._write_list(s, 'Provides-Dist', self.provides_dist)
             self._write_list(s, 'Obsoletes-Dist', self.obsoletes_dist)
 
-        if metadata_version_info >= (2, 1):
-            if self.description_content_type:
-                self._write_field(s, 'Description-Content-Type', self.description_content_type)
-            self._write_list(s, 'Provides-Extra', self.provides_extra)
+        if metadata_version_info >= (2, 4):
+            self._write_list(s, 'License-File', self.license_file)
+            self._write_list(s, 'License-Expression', self.license_expression)
+
+        if not description_field:
+            # Description as metadata body
+            self._write_description(s, description)
 
         return s.getvalue()
 
-    def _dump_as_zip(self, zp, metadata_version_info=MAX_SUPPORTED_VERSION):
+    def _dump_as_zip(self, zp, metadata_version_info=None):
         zp.writestr(
             _PKG_INFO_LOCATION,
-            self.to_string(metadata_version_info).encode(PKG_INFO_ENCODING)
-        )
+            self.to_string(metadata_version_info).encode(PKG_INFO_ENCODING))
 
     def _write_field(self, s, name, value):
-        value = '%s: %s\n' % (name, value)
-        s.write(value)
+        if value and value != 'UNKNOWN':
+            value = '%s: %s\n' % (name, value)
+            s.write(value)
+
+    def _write_description(self, s, value):
+        if value:
+            s.write('\n')
+            # FIXME I am not sure why the first line is like this
+            value = textwrap.dedent(' ' * 8 + value)
+            s.write(value)
 
     def _write_list(self, s, name, values):
         for value in values:
@@ -332,8 +388,7 @@ class PackageInfo(object):
         if isinstance(other, self.__class__):
             return (
                 self.metadata_version == other.metadata_version
-                and self.to_string() == other.to_string()
-            )
+                and self.to_string() == other.to_string())
         elif other is None:
             # We special-case None because EggMetadata.pkg_info may be None,
             # and we want to support foo.pkg_info == foo2.pkg_info when one may
@@ -341,8 +396,7 @@ class PackageInfo(object):
             return False
         else:
             raise TypeError(
-                "Only equality between PackageInfo instances is supported"
-            )
+                "Only equality between PackageInfo instances is supported")
 
     def __ne__(self, other):
         return not self == other

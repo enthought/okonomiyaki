@@ -12,7 +12,8 @@ from .common import (
     PIP_PKG_INFO, PKG_INFO_ENSTALLER_1_0, PYMULTINEST_EGG, SUPERVISOR_EGG,
     UNICODE_DESCRIPTION_EGG, UNICODE_DESCRIPTION_TEXT, FAKE_PYSIDE_1_1_0_EGG,
     FAKE_PYSIDE_1_1_0_EGG_PKG_INFO, SETUPTOOLS_PKG_INFO_1_2,
-    SETUPTOOLS_PKG_INFO_2_1, SETUPTOOLS_40_8_0_EGG)
+    SETUPTOOLS_PKG_INFO_2_1, SETUPTOOLS_PKG_INFO_2_2,
+    SETUPTOOLS_40_8_0_EGG, SETUPTOOLS_75_8_0_WHL)
 from okonomiyaki.utils.test_data import OKONOMIYAKI_0_17_0_PY2
 from okonomiyaki.errors import OkonomiyakiError
 
@@ -37,8 +38,8 @@ class TestPackageInfo(unittest.TestCase):
         # Then
         self.assertEqual(pkg_info.name, "enstaller")
         self.assertEqual(pkg_info.version, "4.5.0")
-        self.assertEqual(pkg_info.platforms, ())
-        self.assertEqual(pkg_info.supported_platforms, ())
+        self.assertEqual(pkg_info.platform, ())
+        self.assertEqual(pkg_info.supported_platform, ())
         self.assertEqual(
             pkg_info.summary,
             "Install and managing tool for egg-based packages"
@@ -182,7 +183,20 @@ class TestPackageInfo(unittest.TestCase):
         pkg_info = PackageInfo.from_egg(egg)
 
         # Then
-        self.assertMultiLineEqual(pkg_info.to_string(), r_pkg_info_s)
+        self.assertMultiLineEqual(pkg_info.to_string((2, 1)), r_pkg_info_s)
+
+    def test_metadata_2_2_to_string(self):
+        # Given
+        whl = SETUPTOOLS_75_8_0_WHL
+        r_pkg_info_s = SETUPTOOLS_PKG_INFO_2_2.replace(
+            'License-File: LICENSE\n', '')  # We do not reproduce the setuptools bug
+
+        # When
+        pkg_info = PackageInfo.from_wheel(whl)
+
+        # Then
+        self.assertMultiLineEqual(
+            pkg_info.to_string((2, 2), description_field=False), r_pkg_info_s)
 
     def test_from_broken_egg(self):
         # Given
@@ -327,18 +341,17 @@ class TestPackageInfo(unittest.TestCase):
         # here...
         r_data = "\n".join(
             line for line in r_data_v11.splitlines()
-            if not line.startswith("Classifier:")
-        ) + "\n"
+            if not line.startswith("Classifier:")) + "\n"
+        # We do not show field with UKNOWN
+        r_data = r_data.replace('Platform: UNKNOWN\n', '')
 
         egg = FAKE_PYSIDE_1_1_0_EGG
         mock_sha256 = (
-            "5eff70cfb464c2d531e6f93f7601e8ef8255b3a1ab4dd533826cfdcd5b962b60"
-        )
+            "5eff70cfb464c2d531e6f93f7601e8ef8255b3a1ab4dd533826cfdcd5b962b60")
 
         with mock.patch(
-            "okonomiyaki.file_formats._package_info.compute_sha256",
-            return_value=mock_sha256
-        ):
+                "okonomiyaki.file_formats._package_info.compute_sha256",
+                return_value=mock_sha256):
             pkg_info = PackageInfo.from_egg(egg)
 
         path = os.path.join(self.tempdir, "foo.zip")
@@ -381,8 +394,8 @@ class TestPackageInfo(unittest.TestCase):
         # Then
         self.assertEqual(pkg_info.name, "setuptools")
         self.assertEqual(pkg_info.version, "34.3.2")
-        self.assertEqual(pkg_info.platforms, ())
-        self.assertEqual(pkg_info.supported_platforms, ())
+        self.assertEqual(pkg_info.platform, ())
+        self.assertEqual(pkg_info.supported_platform, ())
         self.assertEqual(
             pkg_info.summary,
             ("Easily download, build, install, upgrade, and uninstall Python "
@@ -441,8 +454,8 @@ class TestPackageInfo(unittest.TestCase):
         # Then
         self.assertEqual(pkg_info.name, "setuptools")
         self.assertEqual(pkg_info.version, "40.8.0")
-        self.assertEqual(pkg_info.platforms, ())
-        self.assertEqual(pkg_info.supported_platforms, ())
+        self.assertEqual(pkg_info.platform, ())
+        self.assertEqual(pkg_info.supported_platform, ())
         self.assertEqual(
             pkg_info.summary,
             ("Easily download, build, install, upgrade, and uninstall Python "
