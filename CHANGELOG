@@ -1,3 +1,31 @@
+2025-02-13     3.0.0
+--------------------
+
+Enhancements:
+
+* Support reading and exporting pkg-info metadata 2.2, 2.3 and 2.4 (#487, #488)
+
+Breaking Changes:
+
+* PackageInfo attribute platforms is renamed to platform (#487)
+* PackageInfo attribute supported_platforms is renamed to suppotred_platform (#487)
+* PackageInfo default version is now 2.1 (#487)
+
+Bug fixes:
+
+* Fix the `applies` function to correctly work with long platform
+  description strings and the new arm platforms (#482)
+* Fix known-platforms detection check for testing (#485)
+* Fix arm64 arch detection on apple silicon even when running on x86_64 python (#486)
+* PackageInfo.to_string will know respect the metadata_version
+  attribute instead of always overriding (#487)
+* PackageInfo.to_string will produce a better layout of the metadata fields (#487)
+
+Maintenance:
+
+* Run tests on macos 13 (#484)
+* Fix author e-mail (#480)
+
 2024-08-23     2.0.0
 --------------------
 
