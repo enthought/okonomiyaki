@@ -247,7 +247,7 @@ class PackageInfo(object):
 
         # version 1.0
         self.name = name
-        self.version = version
+        self.version = str(version)
         self.platform = platform or ()
         self.supported_platform = supported_platform or ()
         self.summary = summary
