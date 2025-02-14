@@ -8,7 +8,7 @@ Enhancements:
 Breaking Changes:
 
 * PackageInfo attribute platforms is renamed to platform (#487)
-* PackageInfo attribute supported_platforms is renamed to suppotred_platform (#487)
+* PackageInfo attribute supported_platforms is renamed to supported_platform (#487)
 * PackageInfo default version is now 2.1 (#487)
 
 Bug fixes:
