@@ -1,12 +1,9 @@
 import unittest
-from unittest import mock
-
-from parameterized import parameterized
 
 from okonomiyaki.errors import OkonomiyakiError
 from okonomiyaki.platforms import EPDPlatform
+from okonomiyaki.platforms.pep425 import compute_abi_tag
 from okonomiyaki.versions import RuntimeVersion
-from .. import setuptools_egg
 from ..setuptools_egg import (
     SetuptoolsEggMetadata, _guess_abi_from_running_python, parse_filename)
 from .common import (
@@ -185,28 +182,10 @@ class TestSetuptoolsEggMetadata(unittest.TestCase):
 
 
 class TestGuessAbiFromRunningPython(unittest.TestCase):
+    # The abi-tag flag policy itself (free-threaded/debug/pymalloc/unicode
+    # flags) is exercised by okonomiyaki.platforms.tests.test_pep425; this
+    # only checks that this function delegates to that canonical
+    # implementation instead of reimplementing it.
 
-    def _guess_abi(self, config_vars, version_info):
-        with mock.patch.object(
-            setuptools_egg.sysconfig, "get_config_var",
-            side_effect=config_vars.get,
-        ), mock.patch.object(
-            setuptools_egg.sys, "version_info", version_info,
-        ):
-            return _guess_abi_from_running_python()
-
-    @parameterized.expand([
-        ("free_threaded",
-         {"Py_GIL_DISABLED": True}, (3, 14, 0, "final", 0), "cp314t"),
-        ("not_free_threaded",
-         {"Py_GIL_DISABLED": False}, (3, 14, 0, "final", 0), "cp314"),
-        # Py_GIL_DISABLED does not exist before 3.13; a truthy value there
-        # should not be trusted.
-        ("ignored_before_py313",
-         {"Py_GIL_DISABLED": True}, (3, 12, 0, "final", 0), "cp312"),
-        ("pre_38_keeps_m_suffix",
-         {}, (3, 7, 0, "final", 0), "cp37m"),
-    ])
-    def test_guess_abi(self, _, config_vars, version_info, expected):
-        abi = self._guess_abi(config_vars, version_info)
-        self.assertEqual(abi, expected)
+    def test_delegates_to_compute_abi_tag(self):
+        self.assertEqual(_guess_abi_from_running_python(), compute_abi_tag())

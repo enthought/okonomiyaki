@@ -1,11 +1,10 @@
 import os.path
 import re
 import sys
-import sysconfig
-import warnings
 
 from okonomiyaki.errors import OkonomiyakiError
 from okonomiyaki.platforms import PythonImplementation
+from okonomiyaki.platforms.pep425 import compute_abi_tag
 from ._egg_info import _guess_python_tag
 from ._package_info import PackageInfo
 
@@ -88,29 +87,14 @@ def _guess_abi_from_python(python):
 def _guess_abi_from_running_python():
     """ Guess the ABI tag for the currently running CPython interpreter.
 
-    Built directly from sys.version_info (and Py_GIL_DISABLED for
-    free-threaded builds) rather than parsed from SOABI: SOABI's format is
-    platform and version dependent (e.g. CPython only started setting
-    SOABI on Windows in 3.14, using a scheme that differs from the POSIX
-    'cpython-<ver>-...' one this used to rely on), so trusting it would
-    make this unusable on such platforms.
+    Delegates to compute_abi_tag(), the canonical PEP 425 abi-tag
+    computation (also used for foreign interpreters), rather than
+    reimplementing SOABI/version-flag parsing here: a hand-rolled copy of
+    that policy previously went out of sync with it (e.g. missing the
+    free-threaded 't' flag and the Py_DEBUG/WITH_PYMALLOC/Py_UNICODE_SIZE
+    flags entirely).
     """
-    major, minor = sys.version_info[:2]
-    if major >= 3 and minor >= 8:
-        # Python 3.8 has removed the `m` from the abi tag
-        abi = u"cp{0}{1}".format(major, minor)
-    else:
-        abi = u"cp{0}{1}m".format(major, minor)
-
-    if (major, minor) >= (3, 13):
-        try:
-            gil_disabled = sysconfig.get_config_var('Py_GIL_DISABLED')
-        except IOError as e:  # pip issue #1074
-            warnings.warn("{0}".format(e), RuntimeWarning)
-            gil_disabled = None
-        if gil_disabled:
-            abi += u't'
-    return abi
+    return compute_abi_tag()
 
 
 def _guess_abi(platform, python):
