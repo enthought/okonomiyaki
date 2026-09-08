@@ -2,8 +2,10 @@ import unittest
 
 from okonomiyaki.errors import OkonomiyakiError
 from okonomiyaki.platforms import EPDPlatform
+from okonomiyaki.platforms.pep425 import compute_abi_tag
 from okonomiyaki.versions import RuntimeVersion
-from ..setuptools_egg import SetuptoolsEggMetadata, parse_filename
+from ..setuptools_egg import (
+    SetuptoolsEggMetadata, _guess_abi_from_running_python, parse_filename)
 from .common import (
     PIP_SETUPTOOLS_EGG, TRAITS_SETUPTOOLS_EGG, TRAITS_SETUPTOOLS_OSX_cp38_EGG,
     TRAITS_SETUPTOOLS_WIN_cp38_EGG, TRAITS_SETUPTOOLS_LINUX_cp38_EGG)
@@ -177,3 +179,13 @@ class TestSetuptoolsEggMetadata(unittest.TestCase):
         # When/Then
         with self.assertRaises(OkonomiyakiError):
             SetuptoolsEggMetadata.from_egg(path)
+
+
+class TestGuessAbiFromRunningPython(unittest.TestCase):
+    # The abi-tag flag policy itself (free-threaded/debug/pymalloc/unicode
+    # flags) is exercised by okonomiyaki.platforms.tests.test_pep425; this
+    # only checks that this function delegates to that canonical
+    # implementation instead of reimplementing it.
+
+    def test_delegates_to_compute_abi_tag(self):
+        self.assertEqual(_guess_abi_from_running_python(), compute_abi_tag())

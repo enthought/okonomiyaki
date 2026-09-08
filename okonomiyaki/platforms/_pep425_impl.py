@@ -63,13 +63,24 @@ def get_flag(var, fallback, expected=True, warn=True):
 
 def get_abi_tag():
     """Return the ABI tag based on SOABI (if available) or emulate SOABI
-    (CPython 2, PyPy)."""
+    (CPython 2, PyPy).
+
+    CPython's abi tag is always emulated from the interpreter version and
+    build flags rather than parsed from SOABI: SOABI's format is platform
+    and version dependent (e.g. CPython only started setting SOABI on
+    Windows in 3.14, using a scheme that differs from the POSIX one), so
+    trusting it would leak platform information into the abi tag."""
     soabi = get_config_var('SOABI')
     impl = get_abbr_impl()
-    if not soabi and impl in ('cp', 'pp') and hasattr(sys, 'maxunicode'):
+    if impl == 'cp' or (
+            not soabi and impl == 'pp' and hasattr(sys, 'maxunicode')):
+        t = ''
         d = ''
         m = ''
         u = ''
+        if (impl == 'cp' and sys.version_info >= (3, 13)
+                and get_flag('Py_GIL_DISABLED', lambda: False, warn=False)):
+            t = 't'
         if get_flag('Py_DEBUG',
                     lambda: hasattr(sys, 'gettotalrefcount'),
                     warn=(impl == 'cp')):
@@ -86,9 +97,7 @@ def get_abi_tag():
                           sys.version_info < (3, 3))) \
                 and sys.version_info < (3, 3):
             u = 'u'
-        abi = '%s%s%s%s%s' % (impl, get_impl_ver(), d, m, u)
-    elif soabi and soabi.startswith('cpython-'):
-        abi = 'cp' + soabi.split('-')[1]
+        abi = '%s%s%s%s%s%s' % (impl, get_impl_ver(), t, d, m, u)
     elif soabi:
         abi = soabi.replace('.', '_').replace('-', '_')
     else:

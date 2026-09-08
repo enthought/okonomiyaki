@@ -1,11 +1,10 @@
 import os.path
 import re
 import sys
-import sysconfig
-import warnings
 
 from okonomiyaki.errors import OkonomiyakiError
 from okonomiyaki.platforms import PythonImplementation
+from okonomiyaki.platforms.pep425 import compute_abi_tag
 from ._egg_info import _guess_python_tag
 from ._package_info import PackageInfo
 
@@ -86,16 +85,16 @@ def _guess_abi_from_python(python):
 
 
 def _guess_abi_from_running_python():
-    try:
-        soabi = sysconfig.get_config_var('SOABI')
-    except IOError as e:  # pip issue #1074
-        warnings.warn("{0}".format(e), RuntimeWarning)
-        soabi = None
+    """ Guess the ABI tag for the currently running CPython interpreter.
 
-    if soabi and soabi.startswith('cpython-'):
-        return 'cp' + soabi.split('-', 2)[1]
-    else:
-        return None
+    Delegates to compute_abi_tag(), the canonical PEP 425 abi-tag
+    computation (also used for foreign interpreters), rather than
+    reimplementing SOABI/version-flag parsing here: a hand-rolled copy of
+    that policy previously went out of sync with it (e.g. missing the
+    free-threaded 't' flag and the Py_DEBUG/WITH_PYMALLOC/Py_UNICODE_SIZE
+    flags entirely).
+    """
+    return compute_abi_tag()
 
 
 def _guess_abi(platform, python):
@@ -105,17 +104,7 @@ def _guess_abi(platform, python):
         if (python.major, python.minor) != sys.version_info[:2]:
             return _guess_abi_from_python(python)
 
-    abi = _guess_abi_from_running_python()
-    if abi is None:
-        if python is not None:
-            return _guess_abi_from_python(python)
-        else:
-            msg = ("Could not guess ABI, you need to specify the abi_tag "
-                   "argument to from_egg, e.g. 'cp34m' for Enthought "
-                   "CPython 3.4 runtimes")
-            raise OkonomiyakiError(msg)
-    else:
-        return abi
+    return _guess_abi_from_running_python()
 
 
 class SetuptoolsEggMetadata(object):

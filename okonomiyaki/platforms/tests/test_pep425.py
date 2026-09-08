@@ -1,10 +1,16 @@
 import sys
 import unittest
 import re
+from unittest import mock
 
 from packaging import tags
+from parameterized import parameterized
 
+from .. import _pep425_impl
 from ..pep425 import compute_abi_tag, compute_python_tag, compute_platform_tag
+
+_COMPILED_PEP425_IMPL = compile(
+    _pep425_impl._PEP425_IMPL, "<pep425_impl>", "exec")
 
 
 def _system_tags():
@@ -89,3 +95,37 @@ class TestPEP425(unittest.TestCase):
             platform_tag = re.sub('macosx_12_.', 'macosx_12_0', platform_tag)
         else:
             self.assertIn(platform_tag, self.compatible_platforms)
+
+
+class TestGetAbiTagFreeThreaded(unittest.TestCase):
+    """ get_abi_tag() emulates CPython's abi tag directly rather than
+    running on an actual free-threaded interpreter, so exercise it against
+    a simulated free-threaded config var instead of relying on CI having a
+    free-threaded build available.
+    """
+
+    def _get_abi_tag(self, config_vars, version_info):
+        namespace = {}
+        exec(_COMPILED_PEP425_IMPL, namespace)
+        with mock.patch.object(
+            namespace["sysconfig"], "get_config_var",
+            side_effect=config_vars.get,
+        ), mock.patch.object(
+            namespace["sys"], "version_info", version_info,
+        ):
+            return namespace["get_abi_tag"]()
+
+    @parameterized.expand([
+        ("free_threaded",
+         {"Py_GIL_DISABLED": True}, (3, 14, 0, "final", 0), "cp314t"),
+        ("not_free_threaded",
+         {"Py_GIL_DISABLED": False}, (3, 14, 0, "final", 0), "cp314"),
+        # Py_GIL_DISABLED does not exist before 3.13; a truthy value there
+        # should not be trusted.
+        ("ignored_before_py313",
+         {"Py_GIL_DISABLED": True}, (3, 12, 0, "final", 0), "cp312"),
+    ])
+    def test_free_threaded_abi_tag(
+            self, _, config_vars, version_info, expected):
+        abi_tag = self._get_abi_tag(config_vars, version_info)
+        self.assertEqual(abi_tag, expected)
