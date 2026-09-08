@@ -5,7 +5,7 @@ from parameterized import parameterized
 from okonomiyaki.file_formats import EggMetadata
 from okonomiyaki.platforms import PlatformABI
 
-from ..test_data import CP38_EGGS, CP27_EGGS, CP311_EGGS
+from ..test_data import CP38_EGGS, CP27_EGGS, CP311_EGGS, CP314_EGGS
 
 
 class TestDummyEggs(unittest.TestCase):
@@ -46,6 +46,38 @@ class TestDummyEggs(unittest.TestCase):
         else:
             self.assertEqual(metadata.python_tag, 'cp311')
             self.assertEqual(metadata.abi_tag, 'cp311')
+        if 'osx_x86_64' in filepath:
+            self.assertEqual(metadata.platform_tag, 'macosx_12_0_x86_64')
+            self.assertEqual(metadata.platform_abi, PlatformABI(u'darwin'))
+        elif 'win_x86_64' in filepath:
+            self.assertEqual(metadata.platform_tag, 'win_amd64')
+            self.assertEqual(metadata.platform_abi, PlatformABI(u'msvc2022'))
+        elif 'osx_arm64' in filepath:
+            self.assertEqual(metadata.platform_tag, 'macosx_12_0_arm64')
+            self.assertEqual(metadata.platform_abi, PlatformABI(u'darwin'))
+        elif 'win_arm64' in filepath:
+            self.assertEqual(metadata.platform_tag, 'win_arm64')
+            self.assertEqual(metadata.platform_abi, PlatformABI(u'msvc2022'))
+        elif 'rh8_arm64' in filepath:
+            self.assertEqual(metadata.platform_tag, 'linux_aarch64')
+            self.assertEqual(metadata.platform_abi, PlatformABI(u'gnu'))
+        else:
+            self.assertEqual(metadata.platform_tag, 'linux_x86_64')
+            self.assertEqual(metadata.platform_abi, PlatformABI(u'gnu'))
+
+    @parameterized.expand(CP314_EGGS)
+    def test_cp314_egg_metadata_valid(self, filepath):
+        # when
+        metadata = EggMetadata.from_egg(filepath)
+        filepath = filepath.lower()
+
+        # then
+        if 'mkl' in metadata.name:
+            self.assertEqual(metadata.python_tag, None)
+            self.assertEqual(metadata.abi_tag, None)
+        else:
+            self.assertEqual(metadata.python_tag, 'cp314')
+            self.assertEqual(metadata.abi_tag, 'cp314')
         if 'osx_x86_64' in filepath:
             self.assertEqual(metadata.platform_tag, 'macosx_12_0_x86_64')
             self.assertEqual(metadata.platform_abi, PlatformABI(u'darwin'))

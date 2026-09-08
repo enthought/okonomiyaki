@@ -151,6 +151,28 @@ PYTHON_CP311_RUNTIMES = [
     PYTHON_CPYTHON_3_11_2_RH8_ARM64,
     PYTHON_CPYTHON_3_11_2_WIN_ARM64]
 
+# 3.14.0
+PYTHON_CPYTHON_3_14_0_RH8_X86_64 = os.path.join(
+    _HERE, 'cpython-3.14.0+1-rh8_x86_64-gnu.runtime',)
+PYTHON_CPYTHON_3_14_0_OSX_X86_64 = os.path.join(
+    _HERE, 'cpython-3.14.0+1-osx_x86_64-darwin.runtime',)
+PYTHON_CPYTHON_3_14_0_WIN_X86_64 = os.path.join(
+    _HERE, 'cpython-3.14.0+1-win_x86_64-msvc2022.runtime',)
+PYTHON_CPYTHON_3_14_0_OSX_ARM64 = os.path.join(
+    _HERE, 'cpython-3.14.0+1-osx_arm64-darwin.runtime',)
+PYTHON_CPYTHON_3_14_0_RH8_ARM64 = os.path.join(
+    _HERE, 'cpython-3.14.0+1-rh8_arm64-gnu.runtime',)
+PYTHON_CPYTHON_3_14_0_WIN_ARM64 = os.path.join(
+    _HERE, 'cpython-3.14.0+1-win_arm64-msvc2022.runtime',)
+
+PYTHON_CP314_RUNTIMES = [
+    PYTHON_CPYTHON_3_14_0_RH8_X86_64,
+    PYTHON_CPYTHON_3_14_0_OSX_X86_64,
+    PYTHON_CPYTHON_3_14_0_WIN_X86_64,
+    PYTHON_CPYTHON_3_14_0_OSX_ARM64,
+    PYTHON_CPYTHON_3_14_0_RH8_ARM64,
+    PYTHON_CPYTHON_3_14_0_WIN_ARM64]
+
 # Misc
 PYTHON_CPYTHON_2_7_10_RH5_X86_64_INVALID = os.path.join(
     _HERE, 'cpython-2.7.10+1-rh5_x86_64-gnu.runtime.invalid',)
@@ -309,7 +331,66 @@ CP311_EGGS = [
     NUMPY_1_9_2_WIN_ARM64_cp311,
     NOSE_1_3_4_OSX_X86_64_cp311,
     MKL_10_3_OSX_X86_64_cp311,
-    NUMPY_1_9_2_OSX_ARM64_cp311,
+    NUMPY_1_9_2_OSX_X86_64_cp311,
     NOSE_1_3_4_OSX_ARM64_cp311,
     MKL_10_3_OSX_ARM64_cp311,
     NUMPY_1_9_2_OSX_ARM64_cp311]
+
+# cp314 eggs for testing
+
+_RH8_X86_64_cp314 = os.path.join(_HERE, 'eggs', 'rh8_x86_64', 'cp314')
+
+NOSE_1_3_4_RH8_X86_64_cp314 = os.path.join(_RH8_X86_64_cp314, 'nose-1.3.4-1.egg')
+MKL_10_3_RH8_X86_64_cp314 = os.path.join(_RH8_X86_64_cp314, 'MKL-10.3-1.egg')
+NUMPY_1_9_2_RH8_X86_64_cp314 = os.path.join(_RH8_X86_64_cp314, 'numpy-1.9.2-1.egg')
+
+_RH8_ARM64_cp314 = os.path.join(_HERE, 'eggs', 'rh8_arm64', 'cp314')
+
+NOSE_1_3_4_RH8_ARM64_cp314 = os.path.join(_RH8_ARM64_cp314, 'nose-1.3.4-1.egg')
+MKL_10_3_RH8_ARM64_cp314 = os.path.join(_RH8_ARM64_cp314, 'MKL-10.3-1.egg')
+NUMPY_1_9_2_RH8_ARM64_cp314 = os.path.join(_RH8_ARM64_cp314, 'numpy-1.9.2-1.egg')
+
+_WIN_X86_64_cp314 = os.path.join(_HERE, 'eggs', 'win_x86_64', 'cp314')
+
+NOSE_1_3_4_WIN_X86_64_cp314 = os.path.join(_WIN_X86_64_cp314, 'nose-1.3.4-1.egg')
+MKL_10_3_WIN_X86_64_cp314 = os.path.join(_WIN_X86_64_cp314, 'MKL-10.3-1.egg')
+NUMPY_1_9_2_WIN_X86_64_cp314 = os.path.join(_WIN_X86_64_cp314, 'numpy-1.9.2-1.egg')
+
+_WIN_ARM64_cp314 = os.path.join(_HERE, 'eggs', 'win_arm64', 'cp314')
+
+NOSE_1_3_4_WIN_ARM64_cp314 = os.path.join(_WIN_ARM64_cp314, 'nose-1.3.4-1.egg')
+MKL_10_3_WIN_ARM64_cp314 = os.path.join(_WIN_ARM64_cp314, 'MKL-10.3-1.egg')
+NUMPY_1_9_2_WIN_ARM64_cp314 = os.path.join(_WIN_ARM64_cp314, 'numpy-1.9.2-1.egg')
+
+_OSX_X86_64_cp314 = os.path.join(_HERE, 'eggs', 'osx_x86_64', 'cp314')
+
+NOSE_1_3_4_OSX_X86_64_cp314 = os.path.join(_OSX_X86_64_cp314, 'nose-1.3.4-1.egg')
+MKL_10_3_OSX_X86_64_cp314 = os.path.join(_OSX_X86_64_cp314, 'MKL-10.3-1.egg')
+NUMPY_1_9_2_OSX_X86_64_cp314 = os.path.join(_OSX_X86_64_cp314, 'numpy-1.9.2-1.egg')
+
+_OSX_arm64_cp314 = os.path.join(_HERE, 'eggs', 'osx_arm64', 'cp314')
+
+NOSE_1_3_4_OSX_ARM64_cp314 = os.path.join(_OSX_arm64_cp314, 'nose-1.3.4-1.egg')
+MKL_10_3_OSX_ARM64_cp314 = os.path.join(_OSX_arm64_cp314, 'MKL-10.3-1.egg')
+NUMPY_1_9_2_OSX_ARM64_cp314 = os.path.join(_OSX_arm64_cp314, 'numpy-1.9.2-1.egg')
+
+
+CP314_EGGS = [
+    NOSE_1_3_4_RH8_X86_64_cp314,
+    MKL_10_3_RH8_X86_64_cp314,
+    NUMPY_1_9_2_RH8_X86_64_cp314,
+    NOSE_1_3_4_RH8_ARM64_cp314,
+    MKL_10_3_RH8_ARM64_cp314,
+    NUMPY_1_9_2_RH8_ARM64_cp314,
+    NOSE_1_3_4_WIN_X86_64_cp314,
+    MKL_10_3_WIN_X86_64_cp314,
+    NUMPY_1_9_2_WIN_X86_64_cp314,
+    NOSE_1_3_4_WIN_ARM64_cp314,
+    MKL_10_3_WIN_ARM64_cp314,
+    NUMPY_1_9_2_WIN_ARM64_cp314,
+    NOSE_1_3_4_OSX_X86_64_cp314,
+    MKL_10_3_OSX_X86_64_cp314,
+    NUMPY_1_9_2_OSX_X86_64_cp314,
+    NOSE_1_3_4_OSX_ARM64_cp314,
+    MKL_10_3_OSX_ARM64_cp314,
+    NUMPY_1_9_2_OSX_ARM64_cp314]
