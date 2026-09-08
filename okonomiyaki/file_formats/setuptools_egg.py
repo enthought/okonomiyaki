@@ -86,16 +86,31 @@ def _guess_abi_from_python(python):
 
 
 def _guess_abi_from_running_python():
-    try:
-        soabi = sysconfig.get_config_var('SOABI')
-    except IOError as e:  # pip issue #1074
-        warnings.warn("{0}".format(e), RuntimeWarning)
-        soabi = None
+    """ Guess the ABI tag for the currently running CPython interpreter.
 
-    if soabi and soabi.startswith('cpython-'):
-        return 'cp' + soabi.split('-', 2)[1]
+    Built directly from sys.version_info (and Py_GIL_DISABLED for
+    free-threaded builds) rather than parsed from SOABI: SOABI's format is
+    platform and version dependent (e.g. CPython only started setting
+    SOABI on Windows in 3.14, using a scheme that differs from the POSIX
+    'cpython-<ver>-...' one this used to rely on), so trusting it would
+    make this unusable on such platforms.
+    """
+    major, minor = sys.version_info[:2]
+    if major >= 3 and minor >= 8:
+        # Python 3.8 has removed the `m` from the abi tag
+        abi = u"cp{0}{1}".format(major, minor)
     else:
-        return None
+        abi = u"cp{0}{1}m".format(major, minor)
+
+    if (major, minor) >= (3, 13):
+        try:
+            gil_disabled = sysconfig.get_config_var('Py_GIL_DISABLED')
+        except IOError as e:  # pip issue #1074
+            warnings.warn("{0}".format(e), RuntimeWarning)
+            gil_disabled = None
+        if gil_disabled:
+            abi += u't'
+    return abi
 
 
 def _guess_abi(platform, python):
@@ -105,17 +120,7 @@ def _guess_abi(platform, python):
         if (python.major, python.minor) != sys.version_info[:2]:
             return _guess_abi_from_python(python)
 
-    abi = _guess_abi_from_running_python()
-    if abi is None:
-        if python is not None:
-            return _guess_abi_from_python(python)
-        else:
-            msg = ("Could not guess ABI, you need to specify the abi_tag "
-                   "argument to from_egg, e.g. 'cp34m' for Enthought "
-                   "CPython 3.4 runtimes")
-            raise OkonomiyakiError(msg)
-    else:
-        return abi
+    return _guess_abi_from_running_python()
 
 
 class SetuptoolsEggMetadata(object):
