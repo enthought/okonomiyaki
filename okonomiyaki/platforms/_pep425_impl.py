@@ -74,9 +74,13 @@ def get_abi_tag():
     impl = get_abbr_impl()
     if impl == 'cp' or (
             not soabi and impl == 'pp' and hasattr(sys, 'maxunicode')):
+        t = ''
         d = ''
         m = ''
         u = ''
+        if (impl == 'cp' and sys.version_info >= (3, 13)
+                and get_flag('Py_GIL_DISABLED', lambda: False, warn=False)):
+            t = 't'
         if get_flag('Py_DEBUG',
                     lambda: hasattr(sys, 'gettotalrefcount'),
                     warn=(impl == 'cp')):
@@ -93,7 +97,7 @@ def get_abi_tag():
                           sys.version_info < (3, 3))) \
                 and sys.version_info < (3, 3):
             u = 'u'
-        abi = '%s%s%s%s%s' % (impl, get_impl_ver(), d, m, u)
+        abi = '%s%s%s%s%s%s' % (impl, get_impl_ver(), t, d, m, u)
     elif soabi:
         abi = soabi.replace('.', '_').replace('-', '_')
     else:
