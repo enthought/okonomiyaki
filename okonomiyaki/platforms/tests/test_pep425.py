@@ -4,9 +4,13 @@ import re
 from unittest import mock
 
 from packaging import tags
+from parameterized import parameterized
 
 from .. import _pep425_impl
 from ..pep425 import compute_abi_tag, compute_python_tag, compute_platform_tag
+
+_COMPILED_PEP425_IMPL = compile(
+    _pep425_impl._PEP425_IMPL, "<pep425_impl>", "exec")
 
 
 def _system_tags():
@@ -102,10 +106,7 @@ class TestGetAbiTagFreeThreaded(unittest.TestCase):
 
     def _get_abi_tag(self, config_vars, version_info):
         namespace = {}
-        exec(
-            compile(_pep425_impl._PEP425_IMPL, "<pep425_impl>", "exec"),
-            namespace,
-        )
+        exec(_COMPILED_PEP425_IMPL, namespace)
         with mock.patch.object(
             namespace["sysconfig"], "get_config_var",
             side_effect=config_vars.get,
@@ -114,19 +115,17 @@ class TestGetAbiTagFreeThreaded(unittest.TestCase):
         ):
             return namespace["get_abi_tag"]()
 
-    def test_free_threaded_cpython_includes_t_flag(self):
-        abi_tag = self._get_abi_tag(
-            {"Py_GIL_DISABLED": True}, (3, 14, 0, "final", 0))
-        self.assertEqual(abi_tag, "cp314t")
-
-    def test_non_free_threaded_cpython_has_no_t_flag(self):
-        abi_tag = self._get_abi_tag(
-            {"Py_GIL_DISABLED": False}, (3, 14, 0, "final", 0))
-        self.assertEqual(abi_tag, "cp314")
-
-    def test_free_threaded_flag_ignored_before_py313(self):
+    @parameterized.expand([
+        ("free_threaded",
+         {"Py_GIL_DISABLED": True}, (3, 14, 0, "final", 0), "cp314t"),
+        ("not_free_threaded",
+         {"Py_GIL_DISABLED": False}, (3, 14, 0, "final", 0), "cp314"),
         # Py_GIL_DISABLED does not exist before 3.13; a truthy value there
         # should not be trusted.
-        abi_tag = self._get_abi_tag(
-            {"Py_GIL_DISABLED": True}, (3, 12, 0, "final", 0))
-        self.assertEqual(abi_tag, "cp312")
+        ("ignored_before_py313",
+         {"Py_GIL_DISABLED": True}, (3, 12, 0, "final", 0), "cp312"),
+    ])
+    def test_free_threaded_abi_tag(
+            self, _, config_vars, version_info, expected):
+        abi_tag = self._get_abi_tag(config_vars, version_info)
+        self.assertEqual(abi_tag, expected)
