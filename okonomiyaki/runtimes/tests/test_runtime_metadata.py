@@ -18,8 +18,8 @@ from okonomiyaki.utils.test_data import (
     PYTHON_CPYTHON_3_8_8_WIN_X86_64, PYTHON_CPYTHON_3_8_8_WIN_X86,
     PYTHON_CPYTHON_3_11_2_RH8_X86_64, PYTHON_CPYTHON_3_11_2_OSX_X86_64,
     PYTHON_CPYTHON_3_11_2_WIN_X86_64, PYTHON_CPYTHON_3_11_2_WIN_ARM64,
-    PYTHON_CPYTHON_3_14_0_OSX_ARM64, PYTHON_CPYTHON_3_14_0_RH8_ARM64,
-    PYTHON_CPYTHON_3_14_0_RH8_X86_64, PYTHON_CPYTHON_3_14_0_OSX_X86_64,
+    PYTHON_CPYTHON_3_14_0_OSX_ARM64, PYTHON_CPYTHON_3_14_0_RH10_ARM64,
+    PYTHON_CPYTHON_3_14_0_RH10_X86_64, PYTHON_CPYTHON_3_14_0_OSX_X86_64,
     PYTHON_CPYTHON_3_14_0_WIN_X86_64, PYTHON_CPYTHON_3_14_0_WIN_ARM64)
 from okonomiyaki.versions import MetadataVersion
 from okonomiyaki.platforms import (
@@ -113,8 +113,8 @@ class TestPythonMetadataV1(unittest.TestCase):
         (PYTHON_CPYTHON_3_8_8_RH7_X86_64, '3.8.8+1', '7.1', X86_64),
         (PYTHON_CPYTHON_3_11_2_RH8_X86_64, '3.11.2+2', '8.8', X86_64),
         (PYTHON_CPYTHON_3_11_2_RH8_ARM64, '3.11.2+2', '8.8', ARM64),
-        (PYTHON_CPYTHON_3_14_0_RH8_X86_64, '3.14.0+1', '8.8', X86_64),
-        (PYTHON_CPYTHON_3_14_0_RH8_ARM64, '3.14.0+1', '8.8', ARM64)])
+        (PYTHON_CPYTHON_3_14_0_RH10_X86_64, '3.14.0+1', '10.0', X86_64),
+        (PYTHON_CPYTHON_3_14_0_RH10_ARM64, '3.14.0+1', '10.0', ARM64)])
     def test_cpython_gnu(self, path, release, os_release, arch):
         # Given
         version = RuntimeVersion.from_string(release.split('+')[0])

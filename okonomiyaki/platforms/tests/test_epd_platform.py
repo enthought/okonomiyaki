@@ -11,7 +11,8 @@ from .._arch import X86, X86_64, ARM64
 from .._platform import OSKind, FamilyKind, NameKind
 
 from .common import (
-    mock_centos_5_8, mock_centos_6_3, mock_rocky_8_8, mock_darwin,
+    mock_centos_5_8, mock_centos_6_3, mock_rocky_8_8, mock_rocky_9_4,
+    mock_rocky_10_0, mock_darwin,
     mock_machine_x86, mock_machine_x86_64, mock_solaris,
     mock_ubuntu_raring, mock_x86, mock_x86_64, mock_arm64,
     mock_centos_7_6, mock_windows_10, mock_windows_11, mock_windows_7)
@@ -29,7 +30,7 @@ class TestEPDPlatform(unittest.TestCase):
             for platform in ('rh6', 'rh7', 'rh8')]
         items = [
             platform + '-arm64'
-            for platform in ('rh8', 'win', 'osx')]
+            for platform in ('rh8', 'rh9', 'rh10', 'win', 'osx')]
         items += EPD_PLATFORM_SHORT_NAMES
         self.platform_strings = tuple(items)
 
@@ -94,6 +95,21 @@ class TestEPDPlatform(unittest.TestCase):
         # Then
         self.assertEqual(epd_platform.arch, expected)
         self.assertEqual(epd_platform.platform_name, 'rh8')
+
+    @parameterized.expand([
+        ('rh8', 'x86_64', X86_64),
+        ('rh8', 'arm64', ARM64),
+        ('rh9', 'x86_64', X86_64),
+        ('rh9', 'arm64', ARM64),
+        ('rh10', 'x86_64', X86_64),
+        ('rh10', 'arm64', ARM64)])
+    def test_epd_platform_from_string_rh8_rh9_rh10(self, name, arch, expected):
+        # When
+        epd_platform = EPDPlatform.from_string(f'{name}-{arch}')
+
+        # Then
+        self.assertEqual(epd_platform.arch, expected)
+        self.assertEqual(epd_platform.platform_name, name)
 
     @parameterized.expand([
         ('3.6.5+6', 'osx-64', '10.6'),
@@ -237,6 +253,28 @@ class TestEPDPlatform(unittest.TestCase):
             self.assertEqual(str(epd_platform), f'rh8_{expected}')
 
     @parameterized.expand([
+        (mock_x86_64, None, X86_64),
+        (mock_arm64, 'arm64', ARM64),
+        (mock_x86_64, 'amd64', X86_64)])
+    @mock_rocky_9_4
+    def test_from_running_system_rocky_9(self, machine, arch, expected):
+        with machine:
+            # When/Then
+            epd_platform = EPDPlatform.from_running_system(arch)
+            self.assertEqual(str(epd_platform), f'rh9_{expected}')
+
+    @parameterized.expand([
+        (mock_x86_64, None, X86_64),
+        (mock_arm64, 'arm64', ARM64),
+        (mock_x86_64, 'amd64', X86_64)])
+    @mock_rocky_10_0
+    def test_from_running_system_rocky_10(self, machine, arch, expected):
+        with machine:
+            # When/Then
+            epd_platform = EPDPlatform.from_running_system(arch)
+            self.assertEqual(str(epd_platform), f'rh10_{expected}')
+
+    @parameterized.expand([
         (mock_centos_5_8,),
         (mock_centos_6_3,),
         (mock_centos_7_6,)])
@@ -286,6 +324,10 @@ class TestEPDPlatform(unittest.TestCase):
         ('linux2', 'RedHat_7', 'amd64', 'linux_x86_64', 'cp38', 'gnu'),
         ('linux2', 'RedHat_8', 'amd64', 'linux_x86_64', 'cp311', 'gnu'),
         ('linux2', 'RedHat_8', 'aarch64', 'linux_aarch64', 'cp311', 'gnu'),
+        ('linux2', 'RedHat_9', 'amd64', 'linux_x86_64', 'cp311', 'gnu'),
+        ('linux2', 'RedHat_9', 'aarch64', 'linux_aarch64', 'cp311', 'gnu'),
+        ('linux2', 'RedHat_10', 'amd64', 'linux_x86_64', 'cp312', 'gnu'),
+        ('linux2', 'RedHat_10', 'aarch64', 'linux_aarch64', 'cp312', 'gnu'),
         ('darwin', None, 'x86', 'osx_10_6_x86', 'cp27', 'darwin'),
         ('darwin', None, 'amd64', 'osx_10_6_x86_64', 'cp27', 'darwin'),
         ('darwin', None, 'amd64', 'osx_10_9_x86_64', 'cp36', 'darwin'),

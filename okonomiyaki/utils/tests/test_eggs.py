@@ -90,7 +90,7 @@ class TestDummyEggs(unittest.TestCase):
         elif 'win_arm64' in filepath:
             self.assertEqual(metadata.platform_tag, 'win_arm64')
             self.assertEqual(metadata.platform_abi, PlatformABI(u'msvc2022'))
-        elif 'rh8_arm64' in filepath:
+        elif 'rh10_arm64' in filepath:
             self.assertEqual(metadata.platform_tag, 'linux_aarch64')
             self.assertEqual(metadata.platform_abi, PlatformABI(u'gnu'))
         else:
