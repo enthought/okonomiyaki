@@ -29,6 +29,8 @@ PLATFORM_NAMES = (
     "rh6",
     "rh7",
     "rh8",
+    "rh9",
+    "rh10",
     "sol",
     "win",
 )
@@ -51,6 +53,8 @@ EPD_PLATFORM_SHORT_NAMES = (
 
 # Historical/Default mappings from os, python and arch to platform tuples
 _RH2EPD = {
+    'rh10': (OSKind.linux, NameKind.rhel, FamilyKind.rhel, '10.0'),
+    'rh9': (OSKind.linux, NameKind.rhel, FamilyKind.rhel, '9.4'),
     'rh8': (OSKind.linux, NameKind.rhel, FamilyKind.rhel, '8.8'),
     'rh7': (OSKind.linux, NameKind.rhel, FamilyKind.rhel, '7.1'),
     'rh6': (OSKind.linux, NameKind.rhel, FamilyKind.rhel, '6.5'),
@@ -218,6 +222,10 @@ class EPDPlatform(object):
                 epd_name = "rh7"
             elif osdist == "RedHat_8":
                 epd_name = "rh8"
+            elif osdist == "RedHat_9":
+                epd_name = "rh9"
+            elif osdist == "RedHat_10":
+                epd_name = "rh10"
             else:
                 raise ValueError(msg)
         else:
@@ -346,7 +354,7 @@ class EPDPlatform(object):
             release = self.platform.release
             if family_kind == FamilyKind.rhel:
                 major = release.split('.')[0]
-                if major in ('3', '5', '6', '7', '8'):
+                if major in ('3', '5', '6', '7', '8', '9', '10'):
                     base = f'rh{major}'
                 else:
                     msg = ('Unsupported rhel release: {0!r}'.format(release))
@@ -507,7 +515,9 @@ def _is_supported(platform):
             '5': intel,
             '6': intel,
             '7': intel,
-            '8': intel or arm64})
+            '8': intel or arm64,
+            '9': intel or arm64,
+            '10': intel or arm64})
         return PARTS2ARCHS[parts[0]]
 
     return False
